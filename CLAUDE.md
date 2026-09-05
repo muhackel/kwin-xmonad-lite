@@ -5,9 +5,10 @@ einen Teil des alten XMonad-Arbeitsgefühls zurück: Tall- und Full-Layout,
 Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
-und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 0
-abgeschlossen** — Gerüst, Build- und Testkette, Feature-Probe. Layoutlogik ab
-Meilenstein 1.
+und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 1
+abgeschlossen** — Gerüst, Build- und Testkette, Feature-Probe und der
+Layoutkern (`rect`, `tall`, `full`). Fensterstapel und Registry ab
+Meilenstein 2, der KWin-Adapter ab Meilenstein 3.
 
 ## Ursprung & Zweck
 
@@ -40,7 +41,9 @@ Activities und verwaltet nicht die Zahl der Desktops.
 ## Architektur (Kurz)
 
 - `src/core/` → Layoutberechnung und Fensterstapel, reine Funktionen, ohne
-  KWin-Abhängigkeit, per `node --test` prüfbar.
+  KWin-Abhängigkeit, per `node --test` prüfbar. `core/layout/index.ts` ist der
+  gemeinsame Einstieg: Typen, Ratio-Konstanten und die Layoutliste `LAYOUTS`,
+  deren Reihenfolge der Zyklus von `Meta+Space` ist.
 - `src/state/` → Registry je Surface, Abgleich der Ist-Fenstermenge gegen die
   gespeicherte Reihenfolge.
 - `src/kwin/` → Adapter: Fensterfilter, Signalverdrahtung, Entprellung über
@@ -81,6 +84,26 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - Eine Ausgabe hat `name`, `manufacturer`, `model`, `serialNumber`,
   `geometry`, `devicePixelRatio` — kein `uuid`, `enabled` oder `scale`.
 
+### Layoutkern
+
+- **Abstände werden geklemmt, nie erzwungen.** `shrink` nimmt höchstens
+  `floor((Kante - 1) / 2)`, `clampGap` höchstens `floor((Gesamtlänge - n) /
+  (n - 1))`. Damit behält jede Zelle mindestens 1 px, und keine Kombination aus
+  kleiner Fläche und großem Abstand erzeugt negative Rechtecke. Wer eine zweite,
+  abweichende Regel im Adapter einführt, bekommt Ränder, die sich widersprechen.
+- `gapInner` wirkt **einheitlich** — einmal zwischen Master- und Stapelspalte
+  und zwischen allen Stapelzeilen. Die Testinvariante ist deshalb „Zellen +
+  Abstände zerlegen die Fläche exakt", nicht „lückenlos".
+- Ist die Fläche zu schmal für zwei Spalten, liefert `tall` einen reinen
+  senkrechten Stapel statt einer Masterspalte, die aus der Fläche ragt.
+- **Überlappungstests brauchen die Max/Min-Form.** Das kurze
+  `a.x < b.x + b.width && …` meldet für ein Rechteck der Breite 0 fälschlich
+  eine Überlappung; `max(links) < min(rechts)` nicht.
+- `ratio` bleibt Fließkomma, jede Pixelgröße geht durch `Math.round`/
+  `Math.floor`. Für die Schrittweite in Meilenstein 2 gilt: `0.65 + 0.05` ergibt
+  `0.7000000000000001` — beim Schalten runden, sonst sammeln sich die
+  Nachkommastellen im gespeicherten Zustand.
+
 ### Offene Konflikte im Entwurf
 
 - **`moveable`/`resizeable` taugen nicht als Mitgliedschaftskriterium.** Ein
@@ -113,7 +136,14 @@ Activities und verwaltet nicht die Zahl der Desktops.
 ### Werkzeugkette
 
 - `node --test tests/` schlägt fehl — Node deutet das Verzeichnis als
-  Modulpfad. Immer `node --test tests/*.test.ts`.
+  Modulpfad. Immer `node --test tests/*.test.ts`. Generatoren und
+  Prüfhilfen liegen deshalb unter `tests/support/`: das Glob sammelt sie nicht
+  als Testdateien ein.
+- Die Eigenschaftsprüfung kommt ohne Bibliothek aus (Gittersweep plus eigener
+  LCG-Fuzzer mit festem Seed in `tests/support/gen.ts`).
+  `noUncheckedIndexedAccess` macht jeden Indexzugriff `T | undefined`, und das
+  selbstgeschriebene `assert.ok` engt nicht ein — dafür gibt es `must()` in
+  `tests/support/props.ts`.
 - Kein npm, kein `package.json`. `@types/node` gibt es im Pin nicht
   (`nodePackages` wurde aus nixpkgs entfernt); die nötigen Deklarationen
   stehen in `src/kwin/globals.d.ts` und `tests/node-globals.d.ts`.

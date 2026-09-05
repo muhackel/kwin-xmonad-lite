@@ -9,9 +9,12 @@ Er ist **kein** Fenstermanager und **kein** XMonad-Nachbau. Fenster-, Desktop-,
 Activity- und Bildschirmzuordnung bleiben vollständig bei KWin und seinen
 Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 
-> **Status: in Entwicklung, Meilenstein 0.** Es existieren das Projektgerüst,
-> die Build- und Testkette sowie die Feature-Probe. Die Layoutlogik folgt ab
-> Meilenstein 1. Der vollständige Plan steht in [`PLAN.md`](PLAN.md).
+> **Status: in Entwicklung, Meilenstein 1.** Es existieren das Projektgerüst,
+> die Build- und Testkette, die Feature-Probe und der Layoutkern mit den
+> Layouts Tall und Full. Fensterstapel und Zustandsverwaltung folgen ab
+> Meilenstein 2, der Anschluss an KWin ab Meilenstein 3 — das geladene Skript
+> ordnet also noch keine Fenster an. Der vollständige Plan steht in
+> [`PLAN.md`](PLAN.md).
 
 ## Schnellstart
 
@@ -51,6 +54,7 @@ in die Host-Konfiguration.
 
 ```
 src/core/     Layoutberechnung und Fensterstapel, ohne KWin-Abhängigkeit
+src/core/layout/  Tall und Full, gemeinsame Typen und Layoutliste
 src/state/    Zustand je Activity × Desktop × Bildschirm
 src/kwin/     Adapter: Filter, Signale, Geometrie, Shortcuts
 package/      KPackage-Wurzel (metadata.json, gebündeltes main.js)

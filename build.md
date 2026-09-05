@@ -70,7 +70,20 @@ ohne KWin-Abhängigkeit. Der Adapter wird auf der Maschine geprüft, nicht im
 Unit-Test.
 
 `node --test tests/` funktioniert **nicht**: Node deutet das Verzeichnis als
-Modulpfad. Immer die Dateien angeben.
+Modulpfad. Immer die Dateien angeben. Aus demselben Grund liegen die
+Testhilfen unter `tests/support/` — dort sammelt das Glob sie nicht ein.
+
+### Eigenschaftsprüfung des Layoutkerns
+
+`tests/layout-*.test.ts` prüfen nicht nur Beispiele, sondern Invarianten über
+2025 Fälle eines erschöpfenden Gittersweeps und 500 Zufallsfälle. Der Zufall
+kommt aus einem eigenen LCG in `tests/support/gen.ts` mit **festem Seed**
+(`FUZZ_SEED`); jede Fehlermeldung enthält Seed und Fallparameter, ein
+Fehlschlag ist also ohne Suche reproduzierbar. Es gibt keine Testbibliothek.
+
+Wer den Layoutkern ändert, prüft die Wirksamkeit der Tests am schnellsten mit
+einer Mutationsprobe: eine Größe im Layout um 1 px verfälschen und prüfen, dass
+`node --test` das meldet.
 
 ## Projektspezifisches
 
