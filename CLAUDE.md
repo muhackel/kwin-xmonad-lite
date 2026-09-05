@@ -6,8 +6,8 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 5
-ist implementiert; Matrix 11–13 und 15 sind live geprüft, Matrix 14 steht
-aus.** Meilenstein 4 samt 4.1, 4.1.1 und Audit 4.2 ist abgeschlossen. Der
+ist abgeschlossen; Matrix 11–15 sind live geprüft.** Meilenstein 4 samt 4.1,
+4.1.1 und Audit 4.2 ist abgeschlossen. Der
 Controller kachelt auf allen Ausgaben mit `Tall`; Zustandsübergänge, Float,
 Dialogfilter und Größenschranken liegen hinter der Snapshot-Grenze. Die
 Tastenkürzel folgen in Meilenstein 6. Bis dahin ist `Full` nicht erreichbar,

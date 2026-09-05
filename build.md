@@ -33,7 +33,7 @@ find result/ -type f
 
 ```bash
 nix run              # = nix run .#dev-load
-nix run -- --menu     # Dev-Bundle mit Float-Toggle im Fenstermenü
+nix run . -- --menu   # Dev-Bundle mit Float-Toggle im Fenstermenü
 nix run .#reload     # nach einer Änderung
 nix run .#unload     # Entwicklungsinstanz entladen
 nix run .#logs       # Journal verfolgen, -a für ungefiltert
@@ -354,7 +354,7 @@ Teilnehmer. Die Position in der Reihenfolge bleibt gleich; beim
 Wiederherstellen schreibt der Controller nur, wenn KWin die Geometrie geändert
 hat.
 
-**Testmatrix 14** — mit `nix run -- --menu` laden. Am Testfenster Alt+F3 →
+**Testmatrix 14** — mit `nix run . -- --menu` laden. Am Testfenster Alt+F3 →
 Extensions → „Float umschalten (kxl-dev)" wählen, das Fenster verschieben,
 wieder einkacheln und erneut floaten. Erwartete Folge: `gefloatet` ohne
 `apply` an dieser ID, `gekachelt` mit einem `apply` auf die alte Zelle,

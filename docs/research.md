@@ -377,3 +377,34 @@ Der native Wayland-Client foot quittierte dagegen ein Soll von `896x235` als
 folgte genau ein `aufgegeben`. Vor dem MS-5-Nachschlag startete jede spätere
 Epoche denselben Zyklus neu. Mit dem Sperrmerkmal aus Soll, Ist und
 `MAX_CORRECTIONS` blieb ein anschließender Fokuslauf ohne weiteren Write.
+
+### 5.1 Zustandsübergänge und Float
+
+Ein kontrollierter transienter Dialog blieb außerhalb von Mitgliedschaft und
+Placements; sein gekacheltes Elternfenster wurde beim Öffnen nicht erneut
+geschrieben (Matrix 11). Vollbild sowie die Maximierungsmodi 3, 2 und 1 nahmen
+das Testfenster jeweils aus den Layout-Teilnehmern. Nach dem Zurückschalten kam
+es in dieselbe Stapelzelle zurück; während des Sonderzustands gab es für seine
+ID weder `apply` noch `nachbessern` (Matrix 12 und 12a). Dasselbe galt für
+Minimieren und Wiederherstellen (Matrix 13).
+
+Matrix 14 wurde mit dem Dev-Fenstermenü und einem manuellen Ziehvorgang
+abgenommen. Das Testfenster `{72a350c5-08b0-4bdb-956a-d52eabad2d35}` kehrte
+beim Einkacheln nach `896x705+4224+705` zurück. Das nächste Umschalten meldete
+`float … soll=896x705+3649+368` und `→ wiederhergestellt`, ohne `apply` auf
+diese ID. Der Menüeintrag war im Float-Zustand angehakt.
+
+### 5.2 Größenschranken und Werkzeugrückbau
+
+Die Clients `kxl-min` und `kxl-max` wurden mit `1200x900+3920+353` und
+`800x353+4224+0` innerhalb der Arbeitsfläche verankert; Mindestgrößen durften
+die Zelle überdecken, Höchstgrößen ließen die dokumentierte Freifläche. In
+einem Lauf von fünf Minuten gab es bei sieben
+echten Anordnungsepochen keinen weiteren Write, kein `aufgegeben` und keine
+Ausnahme (Matrix 15). Der anschließende Reload ordnete sechs Mitglieder und
+vier Teilnehmer an, ohne eine Geometrie zu schreiben.
+
+Nach `nix run .#unload` meldete `isScriptLoaded` `false`. In den folgenden
+30 Sekunden erschien keine weitere Controller-Zeile. Der SHA-256-Wert von
+`~/.config/kglobalshortcutsrc` blieb vor und nach dem Dev-Menü
+`f4d9cdb30108d892d3272778667841b5bb7d0475a4e4dccc8af6755a052c20f5`.
