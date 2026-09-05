@@ -23,6 +23,7 @@ interface Rig {
 	extern: WindowId[];
 	logs: string[];
 	apply(id: WindowId, target: Rect): void;
+	place(id: WindowId, target: Rect): void;
 	notifyChanged(id: WindowId): void;
 	accept(id: WindowId, actual: Rect): void;
 	forget(id: WindowId): void;
@@ -50,6 +51,7 @@ function rig(): Rig {
 		extern,
 		logs,
 		apply: controller.apply,
+		place: controller.place,
 		notifyChanged: controller.notifyChanged,
 		accept: controller.accept,
 		forget: controller.forget,
@@ -100,6 +102,108 @@ test("das eigene synchrone Signal während des Writes wird verworfen", () => {
 
 	assert.equal(rückstöße, 1, "der Rückstoß ist tatsächlich gelaufen");
 	assert.equal(r.port.writes(), 1, "kein zweiter Write");
+	assert.equal(r.pendingCount(), 0);
+});
+
+// --- Float-Platzierung ------------------------------------------------------
+
+test("place schreibt einmal und lässt Tiling-Zustand sowie Nachprüfung unberührt", () => {
+	const r = rig();
+	braves(r, "a");
+	const state = getWindow(r.registry, "a");
+	state.tiledRect = TARGET;
+
+	r.place("a", ANDERS);
+
+	assert.equal(r.port.writes(), 1);
+	assert.deepEqual(r.port.read("a"), ANDERS);
+	assert.equal(state.expectedRect, null);
+	assert.equal(state.applyAttempts, 0);
+	assert.equal(r.pendingCount(), 0);
+	assert.deepEqual(state.tiledRect, TARGET, "das letzte Tiling-Rechteck bleibt erhalten");
+	assert.deepEqual(state.lastObservedRect, ANDERS);
+	assert.deepEqual(r.logs, ["float a soll=896x1410+1664+0"]);
+});
+
+test("das synchrone Signal während place wird verworfen", () => {
+	const r = rig();
+	braves(r, "a");
+	getWindow(r.registry, "a");
+	let rückstöße = 0;
+	r.port.setOnWrite((id) => {
+		rückstöße += 1;
+		r.notifyChanged(id);
+	});
+
+	r.place("a", ANDERS);
+
+	assert.equal(rückstöße, 1);
+	assert.equal(r.port.writes(), 1);
+	assert.deepEqual(r.extern, []);
+});
+
+test("der Nachhall nach place ist keine fremde Änderung", () => {
+	const r = rig();
+	braves(r, "a");
+	getWindow(r.registry, "a");
+	r.place("a", ANDERS);
+
+	r.notifyChanged("a");
+
+	assert.deepEqual(r.extern, []);
+	assert.equal(r.pendingCount(), 0);
+});
+
+test("place räumt eine offene Erwartung samt Nachprüfung ab", () => {
+	const r = rig();
+	stures(r, "a");
+	r.apply("a", TARGET);
+	assert.equal(r.pendingCount(), 1);
+	r.port.setAccept("a", (rect) => rect);
+
+	r.place("a", ANDERS);
+
+	const state = getWindow(r.registry, "a");
+	assert.equal(state.expectedRect, null);
+	assert.equal(state.applyAttempts, 0);
+	assert.equal(r.pendingCount(), 0);
+	assert.equal(r.timer.active, false);
+	assert.deepEqual(state.lastObservedRect, ANDERS);
+});
+
+test("eine blockierte Nachprüfung vergisst jeden Ausschlussgrund ohne Zugriff", () => {
+	for (const grund of ["minimiert", "maximiert", "Vollbild", "floatend"]) {
+		const r = rig();
+		stures(r, "a");
+		r.apply("a", TARGET);
+		assert.equal(r.pendingCount(), 1, grund);
+		r.port.setBlocked("a", true);
+		const reads = r.port.reads();
+		const writes = r.port.writes();
+
+		r.timer.fire();
+
+		const state = getWindow(r.registry, "a");
+		assert.equal(state.expectedRect, null, grund);
+		assert.equal(r.pendingCount(), 0, grund);
+		assert.equal(r.port.reads(), reads, grund);
+		assert.equal(r.port.writes(), writes, grund);
+	}
+});
+
+test("place an einem verschwundenen Fenster ist wirkungslos", () => {
+	const r = rig();
+	braves(r, "a");
+	const state = getWindow(r.registry, "a");
+	state.tiledRect = TARGET;
+	r.port.drop("a");
+
+	r.place("a", ANDERS);
+
+	assert.equal(r.port.writes(), 0);
+	assert.equal(r.port.reads(), 0);
+	assert.equal(state.expectedRect, null);
+	assert.deepEqual(state.tiledRect, TARGET);
 	assert.equal(r.pendingCount(), 0);
 });
 

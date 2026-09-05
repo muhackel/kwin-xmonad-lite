@@ -1,17 +1,23 @@
 import type { Rect } from "../core/rect.ts";
 import type { WindowId } from "../core/stack.ts";
 import type { Registry } from "../state/registry.ts";
-import { createRegistry } from "../state/registry.ts";
+import { createRegistry, getWindow } from "../state/registry.ts";
 import type { GeometryHooks, GeometryPort } from "./apply.ts";
 import { createGeometryController } from "./apply.ts";
-import { DEFAULT_EXCLUDES, makeExcludes } from "./filter.ts";
+import { DEFAULT_EXCLUDES, makeExcludes, participates } from "./filter.ts";
 import { judgeWrite } from "./geometry.ts";
 import { log } from "./log.ts";
 import type { ArrangePlan, Placement } from "./plan.ts";
 import { NO_GAPS, planArrangement } from "./plan.ts";
 import { purgeFromSnapshot } from "./purge.ts";
 import type { Reading } from "./read.ts";
-import { readFrameGeometry, readSnapshot, windowId, writeFrameGeometry } from "./read.ts";
+import {
+	readFrameGeometry,
+	readSnapshot,
+	readWindow,
+	windowId,
+	writeFrameGeometry,
+} from "./read.ts";
 import { createDebouncer, createFollowUps, DEBOUNCE_MS, FOLLOW_UP_MS } from "./timer.ts";
 import type { WindowInfo } from "./types.ts";
 
@@ -84,6 +90,13 @@ export function createAdapter(): Adapter {
 		dragging(id: WindowId): boolean {
 			const window = handles.get(id);
 			return window !== undefined && (window.move || window.resize);
+		},
+		blocked(id: WindowId): boolean {
+			const window = handles.get(id);
+			if (window === undefined) {
+				return true;
+			}
+			return !participates(readWindow(window), getWindow(registry, id).floating);
 		},
 	};
 

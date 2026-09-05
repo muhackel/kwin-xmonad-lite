@@ -24,6 +24,8 @@ export interface GeometryPort {
 	write(id: WindowId, rect: Rect): boolean;
 	/** `window.move || window.resize`. */
 	dragging(id: WindowId): boolean;
+	/** Handle fort oder das Fenster nimmt nicht mehr am Layout teil. */
+	blocked(id: WindowId): boolean;
 }
 
 export interface GeometryHooks {
@@ -39,6 +41,8 @@ export interface GeometryHooks {
 export interface GeometryController {
 	/** Neuer Zielwert: ersetzt die Erwartung und öffnet eine Schreibgeneration. */
 	apply(id: WindowId, target: Rect): void;
+	/** Float-Rechteck: einmal schreiben, ohne Erwartung oder Nachbesserung. */
+	place(id: WindowId, target: Rect): void;
 	/** Aus `frameGeometryChanged`. Schreibt niemals. */
 	notifyChanged(id: WindowId): void;
 	/**
@@ -170,6 +174,35 @@ export function createGeometryController(
 		writeAndProbe(id, state, target);
 	}
 
+	function place(id: WindowId, target: Rect): void {
+		const state = registry.windows.get(id);
+		if (state === undefined) {
+			return;
+		}
+		cancelRecheck(id);
+		state.expectedRect = null;
+		state.applyAttempts = 0;
+		hooks.log(`float ${id} soll=${fmt(target)}`);
+
+		writing.add(id);
+		let written: boolean;
+		try {
+			written = port.write(id, target);
+		} finally {
+			writing.delete(id);
+		}
+		if (!written) {
+			forget(id);
+			return;
+		}
+		const actual = port.read(id);
+		if (actual === null) {
+			forget(id);
+			return;
+		}
+		state.lastObservedRect = actual;
+	}
+
 	function accept(id: WindowId, actual: Rect): void {
 		const state = registry.windows.get(id);
 		if (state === undefined) {
@@ -270,6 +303,10 @@ export function createGeometryController(
 			forget(id);
 			return;
 		}
+		if (port.blocked(id)) {
+			forget(id);
+			return;
+		}
 		const actual = port.read(id);
 		if (actual === null) {
 			forget(id);
@@ -308,6 +345,7 @@ export function createGeometryController(
 
 	return {
 		apply,
+		place,
 		notifyChanged,
 		accept,
 		forget,
