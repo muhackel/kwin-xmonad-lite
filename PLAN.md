@@ -102,7 +102,7 @@ Der Adapter erzeugt aus KWin-Signalen nur Intents (`windowAppeared`, `windowVani
 ### Zustand
 
 - Je **Surface** (Activity × Desktop × Output): `order: WindowId[]`, `focus: WindowId | null`, `layoutIndex`, `masterRatio`.
-- Je **Fenster** (global): `floating: boolean`, `floatRect`, `tiledRect`, `expectedRect`, `applyAttempts`, `applyGeneration`. IDs sind `internalId` als String.
+- Je **Fenster** (global): `floating: boolean`, `floatRect`, `tiledRect`, `lastObservedRect`, `expectedRect`, `applyAttempts`, `writeGeneration`. IDs sind `internalId` als String.
 - Ein Fenster auf allen Desktops oder mehreren Activities steht in jeder betroffenen Surface-Reihenfolge und wird dort mitgekachelt (Entscheidung 2).
 - **Sichtbare Surfaces:** je `output` aus `workspace.screens`: `desktop = currentDesktopForScreen(output)` (Fallback `currentDesktop`), `activity = workspace.currentActivity`. Ohne Per-Output-Option liefert das für alle Outputs denselben Desktop, das Modell bleibt gleich.
 - **Surface-Mitglieder:** alle grundsätzlich verwaltbaren Fenster, die Activity, Desktop und Output der Surface zugeordnet sind. Floating-, minimierte, maximierte und Fullscreen-Fenster bleiben Mitglieder und damit in Reihenfolge und Fokuszyklus.
