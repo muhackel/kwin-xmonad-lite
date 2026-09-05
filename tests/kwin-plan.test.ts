@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import type { Rect } from "../src/core/rect.ts";
+import { contains, overlaps } from "../src/core/rect.ts";
 import type { WindowId } from "../src/core/stack.ts";
 import { DEFAULT_EXCLUDES, makeExcludes } from "../src/kwin/filter.ts";
 import type { ArrangePlan, SurfacePlan } from "../src/kwin/plan.ts";
@@ -147,6 +148,32 @@ test("ein Fenster mit Mindestbreite bekommt die geklemmte Zelle", () => {
 	}
 	assert.equal(stapel.rect.width, 1000);
 	assert.equal(stapel.rect.x + stapel.rect.width, AREA.width, "bleibt in der Fläche");
+});
+
+test("eine Mindestbreite darf dokumentiert die Masterzelle überlappen", () => {
+	const eng = windowInfo("a");
+	eng.minWidth = 1000;
+	const surface = only(createRegistry(), [eng, windowInfo("b")], null);
+	const master = surface.placements[0];
+	const stapel = surface.placements[1];
+	if (master === undefined || stapel === undefined) {
+		throw new Error("Platzierung fehlt");
+	}
+	assert.equal(overlaps(master.rect, stapel.rect), true);
+	assert.equal(contains(AREA, stapel.rect), true);
+});
+
+test("eine Höchsthöhe darf dokumentiert Fläche in der Stapelzelle frei lassen", () => {
+	const flach = windowInfo("a");
+	flach.maxHeight = 400;
+	const surface = only(createRegistry(), [flach, windowInfo("b")], null);
+	const stapel = surface.placements[1];
+	if (stapel === undefined) {
+		throw new Error("Platzierung fehlt");
+	}
+	assert.equal(stapel.rect.height, 400);
+	assert.equal(contains(AREA, stapel.rect), true);
+	assert.equal(stapel.rect.height < AREA.height, true, "der Rest der Zelle bleibt frei");
 });
 
 test("ausgeschlossene Fenster erscheinen weder als Mitglied noch als Platzierung", () => {

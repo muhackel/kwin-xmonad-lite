@@ -17,6 +17,29 @@ export type SignalVerdict = "ignore" | "settled" | "diverged";
 export type RecheckVerdict = "ignore" | "stale" | "settled" | "retry" | "giveup";
 
 /**
+ * Schiebt ein Rechteck in die Arbeitsfläche, ohne seine Größe zu ändern. Ist
+ * das Rechteck größer als die Fläche, gewinnt deren linke obere Ecke.
+ */
+export function anchorInto(rect: Rect, area: Rect): Rect {
+	let x = rect.x;
+	let y = rect.y;
+	if (x + rect.width > area.x + area.width) {
+		x = area.x + area.width - rect.width;
+	}
+	if (y + rect.height > area.y + area.height) {
+		y = area.y + area.height - rect.height;
+	}
+	if (x < area.x) {
+		x = area.x;
+	}
+	if (y < area.y) {
+		y = area.y;
+	}
+
+	return { x, y, width: rect.width, height: rect.height };
+}
+
+/**
  * Klemmt die Layoutzelle an die Größenschranken des Fensters. Der
  * Layoutkern kennt keine Fensterbeschränkungen; passt ein Fenster nicht in
  * seine Zelle, darf das Ergebnis die Nachbarzelle überlappen oder einen Teil
@@ -46,24 +69,7 @@ export function fitToCell(cell: Rect, info: WindowInfo, area: Rect): Rect {
 		height = info.maxHeight;
 	}
 
-	let x = cell.x;
-	let y = cell.y;
-	if (x + width > area.x + area.width) {
-		x = area.x + area.width - width;
-	}
-	if (y + height > area.y + area.height) {
-		y = area.y + area.height - height;
-	}
-	// Die linke obere Ecke gewinnt: lieber rechts überstehen als das Fenster
-	// unter seine Mindestgröße drücken.
-	if (x < area.x) {
-		x = area.x;
-	}
-	if (y < area.y) {
-		y = area.y;
-	}
-
-	return { x, y, width, height };
+	return anchorInto({ x: cell.x, y: cell.y, width, height }, area);
 }
 
 /**
