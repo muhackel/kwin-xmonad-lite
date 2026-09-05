@@ -7,6 +7,7 @@ import {
 	divideVertical,
 	equals,
 	overlaps,
+	rounded,
 	shrink,
 	splitWeighted,
 } from "../src/core/rect.ts";
@@ -20,14 +21,28 @@ test("equals vergleicht alle vier Werte", () => {
 	assert.ok(!equals(AREA, { x: 0, y: 0, width: 2560, height: 1439 }));
 });
 
-test("contains akzeptiert Beruehrung, lehnt Ueberstand ab", () => {
+test("rounded bringt gebrochene Werte auf ganze Pixel", () => {
+	// Ein Fenster bei Skalierung 1,5 kann `frameGeometry` mit Nachkommastellen
+	// melden; der Layoutkern rechnet ganzzahlig. Erst gerundet ist `equals`
+	// ein brauchbares Urteil.
+	assert.deepEqual(rounded({ x: 0.4, y: 1.5, width: 1663.6, height: 1409.5 }), {
+		x: 0,
+		y: 2,
+		width: 1664,
+		height: 1410,
+	});
+	assert.deepEqual(rounded(AREA), AREA);
+	assert.ok(equals(rounded({ x: 0.2, y: 0, width: 2560.3, height: 1439.7 }), AREA));
+});
+
+test("contains akzeptiert Berührung, lehnt Überstand ab", () => {
 	assert.ok(contains(AREA, { x: 0, y: 0, width: 2560, height: 1440 }));
 	assert.ok(contains(AREA, { x: 2559, y: 1439, width: 1, height: 1 }));
 	assert.ok(!contains(AREA, { x: 2560, y: 0, width: 1, height: 1 }));
 	assert.ok(!contains(AREA, { x: -1, y: 0, width: 1, height: 1 }));
 });
 
-test("overlaps ignoriert Beruehrung und leere Rechtecke", () => {
+test("overlaps ignoriert Berührung und leere Rechtecke", () => {
 	const a: Rect = { x: 0, y: 0, width: 10, height: 10 };
 	assert.ok(overlaps(a, { x: 9, y: 9, width: 5, height: 5 }));
 	assert.ok(!overlaps(a, { x: 10, y: 0, width: 5, height: 5 }));
@@ -39,8 +54,8 @@ test("shrink zieht den Abstand allseitig ab", () => {
 	assert.deepEqual(shrink(AREA, 0), AREA);
 });
 
-test("shrink klemmt zu grosse und negative Abstaende", () => {
-	// 3x3 traegt hoechstens 1 px Rand, sonst bliebe keine Flaeche uebrig.
+test("shrink klemmt zu große und negative Abstände", () => {
+	// 3x3 trägt höchstens 1 px Rand, sonst bliebe keine Fläche übrig.
 	assert.deepEqual(shrink({ x: 0, y: 0, width: 3, height: 3 }, 8), {
 		x: 1,
 		y: 1,
@@ -68,7 +83,7 @@ test("shrink klemmt zu grosse und negative Abstaende", () => {
 	});
 });
 
-test("clampGap laesst jeder Zelle mindestens ein Pixel", () => {
+test("clampGap lässt jeder Zelle mindestens ein Pixel", () => {
 	assert.equal(clampGap(8, 1000, 2), 8);
 	assert.equal(clampGap(8, 40, 12), 2);
 	assert.equal(clampGap(8, 5, 5), 0);
@@ -94,20 +109,20 @@ test("splitWeighted rechnet den Abstand vorher heraus", () => {
 	assert.equal(sum + 2 * 10, 100);
 });
 
-test("splitWeighted haelt unbrauchbare Gewichte aus", () => {
+test("splitWeighted hält unbrauchbare Gewichte aus", () => {
 	// Alle Gewichte unbrauchbar: Gleichverteilung.
 	assert.deepEqual(splitWeighted(90, [0, 0, 0], 0), [30, 30, 30]);
-	// Einzelnes unbrauchbares Gewicht zaehlt als 0, die Zelle behaelt ihr Pixel.
+	// Einzelnes unbrauchbares Gewicht zählt als 0, die Zelle behält ihr Pixel.
 	assert.deepEqual(splitWeighted(90, [Number.NaN, 1], 0), [1, 89]);
 });
 
-test("splitWeighted kommt mit zu wenig Platz und Randfaellen zurecht", () => {
+test("splitWeighted kommt mit zu wenig Platz und Randfällen zurecht", () => {
 	assert.deepEqual(splitWeighted(5, [1, 1, 1, 1, 1, 1], 0), [1, 1, 1, 1, 1, 0]);
 	assert.deepEqual(splitWeighted(100, [], 0), []);
 	assert.deepEqual(splitWeighted(100, [1], 8), [100]);
 });
 
-test("divideVertical stapelt lueckenlos und trifft den unteren Rand", () => {
+test("divideVertical stapelt lückenlos und trifft den unteren Rand", () => {
 	const rects = divideVertical({ x: 5, y: 7, width: 100, height: 100 }, [1, 1, 1], 10);
 	assert.deepEqual(rects, [
 		{ x: 5, y: 7, width: 100, height: 27 },

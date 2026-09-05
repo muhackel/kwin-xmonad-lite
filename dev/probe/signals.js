@@ -477,7 +477,7 @@
 				String(workspace.currentDesktop ? workspace.currentDesktop.id : "null") +
 				" proScreen=" +
 				screenDesktops();
-		}),
+		})
 	);
 	watch(
 		workspace,
@@ -485,7 +485,7 @@
 		"workspace.currentActivityChanged",
 		record("workspace.currentActivityChanged", function (rec) {
 			rec.d = "current=" + String(workspace.currentActivity);
-		}),
+		})
 	);
 	watch(
 		workspace,
@@ -493,7 +493,7 @@
 		"workspace.desktopsChanged",
 		record("workspace.desktopsChanged", function (rec) {
 			rec.d = desktopList();
-		}),
+		})
 	);
 	watch(
 		workspace,
@@ -501,7 +501,7 @@
 		"workspace.activitiesChanged",
 		record("workspace.activitiesChanged", function (rec) {
 			rec.d = activityList();
-		}),
+		})
 	);
 
 	function screenDesktops() {
@@ -526,7 +526,7 @@
 		"workspace.screensChanged",
 		record("workspace.screensChanged", function (rec) {
 			rec.d = screenList() + " | " + areas();
-		}),
+		})
 	);
 	watch(
 		workspace,
@@ -534,7 +534,7 @@
 		"workspace.screenOrderChanged",
 		record("workspace.screenOrderChanged", function (rec) {
 			rec.d = screenList();
-		}),
+		})
 	);
 	watch(
 		workspace,
@@ -542,7 +542,7 @@
 		"workspace.virtualScreenGeometryChanged",
 		record("workspace.virtualScreenGeometryChanged", function (rec) {
 			rec.d = areas();
-		}),
+		})
 	);
 
 	// --- Frage 3: Docks -----------------------------------------------------

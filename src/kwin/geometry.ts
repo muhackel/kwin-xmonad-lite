@@ -13,20 +13,20 @@ export type WriteVerdict = "write" | "unchanged" | "drag" | "maximized";
 /** Was eine Meldung von `frameGeometryChanged` bedeutet. */
 export type SignalVerdict = "ignore" | "settled" | "diverged";
 
-/** Was eine eingeplante Nachpruefung ergibt. */
+/** Was eine eingeplante Nachprüfung ergibt. */
 export type RecheckVerdict = "ignore" | "stale" | "settled" | "retry" | "giveup";
 
 /**
- * Klemmt die Layoutzelle an die Groessenschranken des Fensters. Der
- * Layoutkern kennt keine Fensterbeschraenkungen; passt ein Fenster nicht in
- * seine Zelle, darf das Ergebnis die Nachbarzelle ueberlappen oder einen Teil
- * frei lassen, muss aber in der Arbeitsflaeche verankert bleiben (PLAN.md
+ * Klemmt die Layoutzelle an die Größenschranken des Fensters. Der
+ * Layoutkern kennt keine Fensterbeschränkungen; passt ein Fenster nicht in
+ * seine Zelle, darf das Ergebnis die Nachbarzelle überlappen oder einen Teil
+ * frei lassen, muss aber in der Arbeitsfläche verankert bleiben (PLAN.md
  * Abschnitt 6).
  *
- * Das ist ein Vorgriff auf Meilenstein 5, und zwar ein noetiger: ohne
- * Klemmung meldet ein Fenster mit Groessenraster in jeder Epoche eine
- * abweichende Geometrie zurueck und erzeugt zwei Nachbesserungen. Der Zaehler
- * finge das ab, aber die Abnahme heisst "kein Flattern", nicht "gedeckeltes
+ * Das ist ein Vorgriff auf Meilenstein 5, und zwar ein nötiger: ohne
+ * Klemmung meldet ein Fenster mit Größenraster in jeder Epoche eine
+ * abweichende Geometrie zurück und erzeugt zwei Nachbesserungen. Der Zähler
+ * finge das ab, aber die Abnahme heißt "kein Flattern", nicht "gedeckeltes
  * Flattern".
  */
 export function fitToCell(cell: Rect, info: WindowInfo, area: Rect): Rect {
@@ -54,8 +54,8 @@ export function fitToCell(cell: Rect, info: WindowInfo, area: Rect): Rect {
 	if (y + height > area.y + area.height) {
 		y = area.y + area.height - height;
 	}
-	// Die linke obere Ecke gewinnt: lieber rechts ueberstehen als das Fenster
-	// unter seine Mindestgroesse druecken.
+	// Die linke obere Ecke gewinnt: lieber rechts überstehen als das Fenster
+	// unter seine Mindestgröße drücken.
 	if (x < area.x) {
 		x = area.x;
 	}
@@ -68,8 +68,8 @@ export function fitToCell(cell: Rect, info: WindowInfo, area: Rect): Rect {
 
 /**
  * Vor dem Schreiben. `"unchanged"` ist die eigentliche Flatterbremse: eine
- * Epoche ohne Aenderung schreibt gar nichts, also feuert auch kein
- * `frameGeometryChanged`, also entsteht keine Rueckkopplung.
+ * Epoche ohne Änderung schreibt gar nichts, also feuert auch kein
+ * `frameGeometryChanged`, also entsteht keine Rückkopplung.
  */
 export function judgeWrite(info: WindowInfo, target: Rect): WriteVerdict {
 	if (info.move || info.resize) {
@@ -85,10 +85,10 @@ export function judgeWrite(info: WindowInfo, target: Rect): WriteVerdict {
 }
 
 /**
- * Nach einer Meldung von `frameGeometryChanged`. Ein KWin-Signal traegt
- * **keine** Schreibgeneration; eine zu erfinden waere eine Luege im
- * Datenfluss. Das Urteil prueft deshalb nur gegen die aktuelle Erwartung des
- * Fensters, und `"diverged"` heisst ausschliesslich "eine Nachpruefung
+ * Nach einer Meldung von `frameGeometryChanged`. Ein KWin-Signal trägt
+ * **keine** Schreibgeneration; eine zu erfinden wäre eine Lüge im
+ * Datenfluss. Das Urteil prüft deshalb nur gegen die aktuelle Erwartung des
+ * Fensters, und `"diverged"` heißt ausschließlich "eine Nachprüfung
  * einplanen" — nachgebessert wird nie im Signalpfad.
  */
 export function judgeSignal(state: WindowState, actual: Rect): SignalVerdict {
@@ -102,9 +102,9 @@ export function judgeSignal(state: WindowState, actual: Rect): SignalVerdict {
 }
 
 /**
- * Fuer die eingeplante Nachpruefung, die ihre Generation aus dem Zeitpunkt des
- * Einplanens mitbringt. `"stale"` heisst: ein neuerer Write besitzt diese
- * Erwartung inzwischen, dieser Eintrag hat nichts mehr zu melden. Der Zaehler
+ * Für die eingeplante Nachprüfung, die ihre Generation aus dem Zeitpunkt des
+ * Einplanens mitbringt. `"stale"` heißt: ein neuerer Write besitzt diese
+ * Erwartung inzwischen, dieser Eintrag hat nichts mehr zu melden. Der Zähler
  * begrenzt die Nachbesserungen je Schreibgeneration.
  */
 export function judgeRecheck(state: WindowState, generation: number, actual: Rect): RecheckVerdict {

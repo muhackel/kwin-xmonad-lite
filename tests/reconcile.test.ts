@@ -10,7 +10,7 @@ function surface(order: WindowId[], focus: WindowId | null): SurfaceState {
 	return { order: order.slice(), focus, layoutIndex: 0, masterRatio: RATIO_DEFAULT };
 }
 
-test("Reconcile fuegt neue Fenster oberhalb des fokussierten ein", () => {
+test("Reconcile fügt neue Fenster oberhalb des fokussierten ein", () => {
 	const result = reconcile(surface(["a", "b"], "b"), ["a", "b", "neu"], null);
 	assert.deepEqual(result.state.order, ["a", "neu", "b"]);
 	assert.deepEqual(result.added, ["neu"]);
@@ -24,7 +24,7 @@ test("Reconcile entfernt verschwundene Fenster (Purge)", () => {
 	assert.deepEqual(result.added, []);
 });
 
-test("Reconcile faengt den Fokus auf, wenn das fokussierte Fenster verschwindet", () => {
+test("Reconcile fängt den Fokus auf, wenn das fokussierte Fenster verschwindet", () => {
 	const result = reconcile(surface(["a", "b", "c"], "b"), ["a", "c"], null);
 	assert.equal(result.state.focus, "c");
 });
@@ -40,10 +40,10 @@ test("das aktive Fenster gewinnt beim Fokus", () => {
 	assert.equal(result.state.focus, "c");
 });
 
-test("ein aktives Fenster einer anderen Surface aendert den Fokus nicht", () => {
+test("ein aktives Fenster einer anderen Surface ändert den Fokus nicht", () => {
 	const before = surface(["a", "b"], "a");
 	const result = reconcile(before, ["a", "b"], "fremd");
-	assert.equal(result.state, before, "unveraendert, also dasselbe Objekt");
+	assert.equal(result.state, before, "unverändert, also dasselbe Objekt");
 });
 
 test("neue Fenster stehlen einer inaktiven Surface nicht den Fokus", () => {
@@ -58,7 +58,7 @@ test("die erste Belegung einer leeren Surface bekommt den Fokus", () => {
 	assert.equal(result.state.focus, "a");
 });
 
-test("Reconcile ohne Aenderung liefert denselben Zustand", () => {
+test("Reconcile ohne Änderung liefert denselben Zustand", () => {
 	const before = surface(["a", "b"], "a");
 	const result = reconcile(before, ["a", "b"], "a");
 	assert.equal(result.state, before);
@@ -66,7 +66,7 @@ test("Reconcile ohne Aenderung liefert denselben Zustand", () => {
 	assert.equal(again.state, result.state, "idempotent");
 });
 
-test("Reconcile haelt seine Invarianten ueber zufaellige Mitgliedermengen", () => {
+test("Reconcile hält seine Invarianten über zufällige Mitgliedermengen", () => {
 	const rng = makeRng(20260905);
 	const pool = ["a", "b", "c", "d", "e", "f", "g", "h"];
 	let state = surface([], null);
@@ -78,7 +78,7 @@ test("Reconcile haelt seine Invarianten ueber zufaellige Mitgliedermengen", () =
 				members.push(id);
 			}
 		}
-		// Gelegentlich ein Doppelter und ein aktives Fenster von aussen.
+		// Gelegentlich ein Doppelter und ein aktives Fenster von außen.
 		if (members.length > 0 && rng() < 0.2) {
 			members.push(members[Math.floor(rng() * members.length)] ?? "a");
 		}
@@ -95,7 +95,7 @@ test("Reconcile haelt seine Invarianten ueber zufaellige Mitgliedermengen", () =
 			assert.ok(unique.has(id), `Fremdling ${id}: ${note}`);
 		}
 		if (next.focus !== null) {
-			assert.ok(next.order.indexOf(next.focus) >= 0, `Fokus ausserhalb: ${note}`);
+			assert.ok(next.order.indexOf(next.focus) >= 0, `Fokus außerhalb: ${note}`);
 		} else {
 			assert.equal(next.order.length, 0, `Fokus fehlt trotz Mitgliedern: ${note}`);
 		}

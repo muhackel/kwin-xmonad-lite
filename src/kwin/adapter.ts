@@ -35,10 +35,12 @@ export function createAdapter(): Adapter {
 	const excludes = makeExcludes(DEFAULT_EXCLUDES);
 	const connections = new Map<WindowId, () => void>();
 	/**
-	 * Die einzige Stelle, an der ein KWin-Fensterobjekt über den Lesedurchgang
-	 * hinaus aufbewahrt wird. Ein Eintrag verschwindet mit `closed` und mit dem
-	 * nächsten Abgleich; danach meldet der Port das Fenster als fort, statt an
-	 * einem toten Objekt zu lesen.
+	 * Die einzige Stelle, über die ein KWin-Fensterobjekt nach dem Lesedurchgang
+	 * noch **gelesen oder beschrieben** wird. Ein Eintrag verschwindet mit
+	 * `closed` und mit dem nächsten Abgleich; danach meldet der Port das Fenster
+	 * als fort, statt an einem toten Objekt zu lesen. Die Trennfunktionen in
+	 * `connections` halten das Objekt zwar auch in ihrer Closure, rufen daran
+	 * aber nur `disconnect` — und fangen den Wurf am toten Objekt ab.
 	 */
 	const handles = new Map<WindowId, KwinWindow>();
 	/** Wer beim letzten Lauf ein Layoutrechteck bekommen hat. */
@@ -263,7 +265,7 @@ export function createAdapter(): Adapter {
 			log(
 				`surface ${surface.key} layout=${surface.layoutId} ` +
 					`n=${surface.participants.length} ratio=${surface.ratio} ` +
-					`flaeche=${fmt(surface.area)}`,
+					`fläche=${fmt(surface.area)}`,
 			);
 
 			for (const placement of surface.placements) {
@@ -284,7 +286,15 @@ export function createAdapter(): Adapter {
 		if (info === undefined || !handles.has(placement.id)) {
 			return;
 		}
-		if (judgeWrite(info, placement.rect) !== "write") {
+		const verdict = judgeWrite(info, placement.rect);
+		if (verdict === "unchanged") {
+			// Steht das Fenster schon am Soll, ist auch eine noch offene
+			// Erwartung eines älteren Zielwerts erledigt (PLAN.md Abschnitt 4,
+			// Punkt 3). Ohne das schöbe der Nachprüfungslauf es zurück.
+			geometry.accept(placement.id, info.frameGeometry);
+			return;
+		}
+		if (verdict !== "write") {
 			return;
 		}
 		geometry.apply(placement.id, placement.rect);

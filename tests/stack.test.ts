@@ -36,7 +36,7 @@ test("createSurface liefert eine leere Surface mit Vorgabewerten", () => {
 
 // --- Fokus ------------------------------------------------------------------
 
-test("Fokus laeuft zyklisch vor und zurueck", () => {
+test("Fokus läuft zyklisch vor und zurück", () => {
 	const state = surface(["a", "b", "c"], "a");
 	assert.equal(focusNext(state).focus, "b");
 	assert.equal(focusNext(focusNext(state)).focus, "c");
@@ -44,13 +44,13 @@ test("Fokus laeuft zyklisch vor und zurueck", () => {
 	assert.equal(focusPrev(state).focus, "c");
 });
 
-test("Fokus laeuft ueber alle Mitglieder, nicht nur ueber Layout-Teilnehmer", () => {
+test("Fokus läuft über alle Mitglieder, nicht nur über Layout-Teilnehmer", () => {
 	// Floatende und minimierte Fenster stehen mit in `order` (PLAN.md 4 und 7).
 	const state = surface(["a", "float", "c"], "a");
 	assert.equal(focusNext(state).focus, "float");
 });
 
-test("Fokus ohne Vorgabe faengt vorne an, leere Surface bleibt unveraendert", () => {
+test("Fokus ohne Vorgabe fängt vorne an, leere Surface bleibt unverändert", () => {
 	assert.equal(focusNext(surface(["a", "b"], null)).focus, "a");
 	assert.equal(focusPrev(surface(["a", "b"], null)).focus, "a");
 	const empty = surface([], null);
@@ -65,7 +65,7 @@ test("focusMaster springt auf Position 0", () => {
 	assert.equal(focusMaster(once), once, "zweiter Aufruf ist wirkungslos");
 });
 
-test("setFocus nimmt nur Mitglieder und loescht mit null", () => {
+test("setFocus nimmt nur Mitglieder und löscht mit null", () => {
 	const state = surface(["a", "b"], "a");
 	assert.equal(setFocus(state, "b").focus, "b");
 	assert.equal(setFocus(state, "fremd"), state);
@@ -84,7 +84,7 @@ test("Swap tauscht mit dem Nachbarn, der Fokus bleibt am Fenster", () => {
 	assert.equal(prev.focus, "b");
 });
 
-test("Swap laeuft am Rand zyklisch um", () => {
+test("Swap läuft am Rand zyklisch um", () => {
 	assert.deepEqual(swapNext(surface(["a", "b", "c"], "c")).order, ["c", "b", "a"]);
 	assert.deepEqual(swapPrev(surface(["a", "b", "c"], "a")).order, ["c", "b", "a"]);
 });
@@ -96,7 +96,7 @@ test("Swap ohne Fokus oder mit einem Fenster bleibt wirkungslos", () => {
 	assert.equal(swapNext(unfocused), unfocused);
 });
 
-test("Promote holt das fokussierte Fenster nach vorne, der Rest behaelt die Reihenfolge", () => {
+test("Promote holt das fokussierte Fenster nach vorne, der Rest behält die Reihenfolge", () => {
 	// XMonads swapMaster: kein Tausch mit dem alten Master.
 	const next = promote(surface(["a", "b", "c", "d"], "c"));
 	assert.deepEqual(next.order, ["c", "a", "b", "d"]);
@@ -133,14 +133,14 @@ test("Remove setzt den Fokus auf den Nachfolger", () => {
 	assert.equal(next.focus, "c");
 });
 
-test("Remove des letzten Fensters faellt auf den Vorgaenger zurueck", () => {
+test("Remove des letzten Fensters fällt auf den Vorgänger zurück", () => {
 	const next = remove(surface(["a", "b", "c"], "c"), "c");
 	assert.deepEqual(next.order, ["a", "b"]);
 	assert.equal(next.focus, "b");
 	assert.equal(remove(surface(["a"], "a"), "a").focus, null);
 });
 
-test("Remove eines unbeteiligten Fensters laesst den Fokus stehen", () => {
+test("Remove eines unbeteiligten Fensters lässt den Fokus stehen", () => {
 	const state = surface(["a", "b", "c"], "a");
 	assert.equal(remove(state, "b").focus, "a");
 	assert.equal(remove(state, "fremd"), state);
@@ -148,7 +148,7 @@ test("Remove eines unbeteiligten Fensters laesst den Fokus stehen", () => {
 
 // --- Layout und Masteranteil ------------------------------------------------
 
-test("nextLayout zykliert ueber die Layoutliste", () => {
+test("nextLayout zykliert über die Layoutliste", () => {
 	let state = createSurface();
 	for (let i = 1; i <= LAYOUTS.length; i++) {
 		state = nextLayout(state);
@@ -157,7 +157,7 @@ test("nextLayout zykliert ueber die Layoutliste", () => {
 	assert.equal(state.layoutIndex, 0);
 });
 
-test("resetLayout setzt Index und Verhaeltnis zurueck", () => {
+test("resetLayout setzt Index und Verhältnis zurück", () => {
 	const changed = growMaster(nextLayout(createSurface()));
 	const reset = resetLayout(changed);
 	assert.equal(reset.layoutIndex, 0);
@@ -166,7 +166,7 @@ test("resetLayout setzt Index und Verhaeltnis zurueck", () => {
 });
 
 test("Masteranteil bleibt auf zwei Nachkommastellen", () => {
-	// 0.65 + 0.05 waere ohne Rundung 0.7000000000000001.
+	// 0.65 + 0.05 wäre ohne Rundung 0.7000000000000001.
 	assert.equal(growMaster(createSurface()).masterRatio, 0.7);
 	assert.equal(shrinkMaster(createSurface()).masterRatio, 0.6);
 	let state = createSurface();
@@ -176,7 +176,7 @@ test("Masteranteil bleibt auf zwei Nachkommastellen", () => {
 	assert.equal(state.masterRatio, 0.8);
 });
 
-test("Masteranteil bleibt in den Grenzen und haelt dort an", () => {
+test("Masteranteil bleibt in den Grenzen und hält dort an", () => {
 	let state = createSurface();
 	for (let i = 0; i < 20; i++) {
 		state = growMaster(state);
@@ -192,7 +192,7 @@ test("Masteranteil bleibt in den Grenzen und haelt dort an", () => {
 
 // --- Konvention -------------------------------------------------------------
 
-test("kein Reducer aendert den Eingabezustand", () => {
+test("kein Reducer ändert den Eingabezustand", () => {
 	const reducers: [string, (s: SurfaceState) => SurfaceState][] = [
 		["focusNext", focusNext],
 		["focusPrev", focusPrev],
@@ -215,10 +215,10 @@ test("kein Reducer aendert den Eingabezustand", () => {
 		const state = surface(["a", "b", "c"], "b");
 		const order = state.order;
 		const result = reducer(state);
-		assert.deepEqual(order, ["a", "b", "c"], `${name} hat die Reihenfolge veraendert`);
-		assert.equal(state.focus, "b", `${name} hat den Fokus veraendert`);
-		assert.equal(state.masterRatio, RATIO_DEFAULT, `${name} hat das Verhaeltnis veraendert`);
-		assert.equal(state.layoutIndex, 0, `${name} hat den Layoutindex veraendert`);
+		assert.deepEqual(order, ["a", "b", "c"], `${name} hat die Reihenfolge verändert`);
+		assert.equal(state.focus, "b", `${name} hat den Fokus verändert`);
+		assert.equal(state.masterRatio, RATIO_DEFAULT, `${name} hat das Verhältnis verändert`);
+		assert.equal(state.layoutIndex, 0, `${name} hat den Layoutindex verändert`);
 		if (result !== state) {
 			assert.notEqual(result.order, order, `${name} teilt das Reihenfolge-Array`);
 		}

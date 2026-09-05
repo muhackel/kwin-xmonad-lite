@@ -9,9 +9,9 @@ export interface ReconcileResult {
 
 /**
  * Gleicht die gespeicherte Reihenfolge gegen die Ist-Mitgliedermenge ab:
- * verschwundene entfernen, neue oberhalb des fokussierten Fensters einfuegen
- * (XMonads `insertUp`). Aendert sich nichts, kommt der Eingabezustand
- * unveraendert zurueck — daran erkennt der Adapter, dass nichts anzuordnen ist.
+ * verschwundene entfernen, neue oberhalb des fokussierten Fensters einfügen
+ * (XMonads `insertUp`). Ändert sich nichts, kommt der Eingabezustand
+ * unverändert zurück — daran erkennt der Adapter, dass nichts anzuordnen ist.
  *
  * `members` darf Doppelte enthalten und in beliebiger Reihenfolge kommen.
  * `activeId` ist das aktive Fenster von KWin; ist es Mitglied dieser Surface,
@@ -53,7 +53,7 @@ export function reconcile(
 	}
 
 	// `insert` fokussiert das neue Fenster wie XMonad. In einer Surface, die
-	// gerade nicht die aktive ist, waere das Fokusdiebstahl — deshalb hat das
+	// gerade nicht die aktive ist, wäre das Fokusdiebstahl — deshalb hat das
 	// aktive Fenster Vorrang, danach der bisherige Fokus.
 	let wanted: WindowId | null;
 	if (activeId !== null && live.has(activeId)) {

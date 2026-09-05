@@ -18,8 +18,8 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     esbuild
   ];
 
-  # Typpruefung und Unit-Tests laufen im Build, damit `nix flake check` sie
-  # zwangslaeufig mitnimmt. Das ES-Target ist in Meilenstein 0 an der laufenden
+  # Typprüfung und Unit-Tests laufen im Build, damit `nix flake check` sie
+  # zwangsläufig mitnimmt. Das ES-Target ist in Meilenstein 0 an der laufenden
   # QJSEngine gemessen, siehe docs/research.md.
   buildPhase = ''
     runHook preBuild

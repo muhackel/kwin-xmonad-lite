@@ -8,8 +8,8 @@ export const RATIO_MAX = 0.9;
 export const RATIO_STEP = 0.05;
 
 /**
- * Gleiche Gewichte fuer den Stapel. Der gewichtete Split traegt eine spaetere
- * Groessenaenderung einzelner Stapelfenster ohne neuen Algorithmus.
+ * Gleiche Gewichte für den Stapel. Der gewichtete Split trägt eine spätere
+ * Größenänderung einzelner Stapelfenster ohne neuen Algorithmus.
  */
 function equalWeights(count: number): number[] {
 	const weights: number[] = [];
@@ -33,7 +33,7 @@ export function clampRatio(ratio: number): number {
 }
 
 /**
- * Verhaeltnis um `delta` verschieben. Das Runden auf zwei Nachkommastellen ist
+ * Verhältnis um `delta` verschieben. Das Runden auf zwei Nachkommastellen ist
  * Pflicht: `0.65 + 0.05` ergibt `0.7000000000000001`, und ohne Rundung sammeln
  * sich die Nachkommastellen im gespeicherten Zustand an.
  */
@@ -44,8 +44,8 @@ export function stepRatio(ratio: number, delta: number): number {
 
 /**
  * XMonads `Tall 1 delta ratio`: eine Masterzelle links, der Rest als Stapel
- * rechts. Masteranzahl ist fest 1. Zellen und Abstaende zerlegen die um den
- * Aussenabstand verkleinerte Flaeche exakt; alle Werte sind ganzzahlig.
+ * rechts. Masteranzahl ist fest 1. Zellen und Abstände zerlegen die um den
+ * Außenabstand verkleinerte Fläche exakt; alle Werte sind ganzzahlig.
  */
 export function tall(area: Rect, count: number, params: LayoutParams): Rect[] {
 	if (count <= 0) {
@@ -59,8 +59,8 @@ export function tall(area: Rect, count: number, params: LayoutParams): Rect[] {
 	const columnGap = clampGap(params.gapInner, inner.width, 2);
 	const available = inner.width - columnGap;
 	if (available < 2) {
-		// Randfall: zu schmal fuer zwei Spalten. Dann bleibt nur ein senkrechter
-		// Stapel — lieber das als eine Masterspalte, die aus der Flaeche ragt.
+		// Randfall: zu schmal für zwei Spalten. Dann bleibt nur ein senkrechter
+		// Stapel — lieber das als eine Masterspalte, die aus der Fläche ragt.
 		return divideVertical(inner, equalWeights(count), params.gapInner);
 	}
 	const upper = available - 1;

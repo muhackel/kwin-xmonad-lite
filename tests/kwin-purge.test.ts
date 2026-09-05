@@ -50,8 +50,8 @@ test("ein verschwundener Desktop nimmt seine Surface mit", () => {
 	assert.deepEqual(result.surfaces, [fremd]);
 });
 
-test("eine abgesteckte Ausgabe behaelt ihren Zustand", () => {
-	// Testmatrix 9: der Zustand ueberlebt am Ausgabenamen bis zum
+test("eine abgesteckte Ausgabe behält ihren Zustand", () => {
+	// Testmatrix 9: der Zustand überlebt am Ausgabenamen bis zum
 	// Sitzungsende, damit ein erneutes Anstecken ihn wiederherstellt.
 	const registry = createRegistry();
 	const fort = surfaceKey({ activity: ACTIVITY, desktop: DESKTOP, output: ANDERE_AUSGABE });
@@ -78,8 +78,8 @@ test("ein verschwundenes Fenster nimmt seinen Zustand mit", () => {
 });
 
 test("die Snapshot-Listen wirken als Mengen, nicht als Zeichenketten", () => {
-	// Wuerde ein Array unbesehen an `purgeSurfaces` durchgereicht, waere dort
-	// nichts gueltig und jede Surface flooege raus. Der Test faellt genau
+	// Würde ein Array unbesehen an `purgeSurfaces` durchgereicht, wäre dort
+	// nichts gültig und jede Surface flöge raus. Der Test fällt genau
 	// darauf herein, wenn die Umwandlung in Set<string> fehlt.
 	const registry = createRegistry();
 	getSurface(registry, singleView().key);
@@ -94,7 +94,7 @@ test("die Snapshot-Listen wirken als Mengen, nicht als Zeichenketten", () => {
 
 test("ein Snapshot ohne Activities oder Desktops löscht keine Surfaces", () => {
 	// KWin hat immer mindestens eine Activity und einen Desktop; eine leere
-	// Menge ist ein misslungener Lesedurchgang und kein Loeschauftrag.
+	// Menge ist ein misslungener Lesedurchgang und kein Löschauftrag.
 	const registry = createRegistry();
 	getSurface(registry, singleView().key);
 	getWindow(registry, "a");
@@ -104,11 +104,11 @@ test("ein Snapshot ohne Activities oder Desktops löscht keine Surfaces", () => 
 	assert.equal(result.skippedSurfaces, true);
 	assert.deepEqual(result.surfaces, []);
 	assert.equal(registry.surfaces.size, 1);
-	// Der Fensterteil laeuft trotzdem: er haengt nicht an diesen Listen.
+	// Der Fensterteil läuft trotzdem: er hängt nicht an diesen Listen.
 	assert.deepEqual(result.windows, ["a"]);
 });
 
-test("eine leere Desktopliste allein genuegt schon zum Ueberspringen", () => {
+test("eine leere Desktopliste allein genügt schon zum Überspringen", () => {
 	const registry = createRegistry();
 	getSurface(registry, view(OUTPUT, ANDERER_DESKTOP, ACTIVITY, AREA).key);
 

@@ -26,8 +26,17 @@ function activitiesReady(): boolean {
 // Datenpunkt ohne erzwungenen GC-Lauf.
 const retry = new QTimer();
 let tries = 0;
+let started = false;
 
 function tryStart(): void {
+	// Gemessen ist nur, dass `singleShot` existiert — nicht, dass die Zuweisung
+	// wirkt (dieselbe Vorsicht wie in `kwin/timer.ts` und `kwin/apply.ts`).
+	// Deshalb hält der Timer sich selbst an, und ein zweiter Start des Adapters
+	// ist gesperrt: er verdrahtete sonst jedes Signal doppelt.
+	retry.stop();
+	if (started) {
+		return;
+	}
 	tries += 1;
 	const ready = activitiesReady();
 
@@ -35,15 +44,17 @@ function tryStart(): void {
 		retry.start();
 		return;
 	}
+	started = true;
 	if (ready) {
 		log(
 			`bereit nach ${tries} Versuch(en), activities=${workspace.activities.length} ` +
 				`outputs=${workspace.screens.length}`,
 		);
 	} else {
-		// Lieber mit unvollstaendigen Activities anordnen als stumm bleiben:
-		// ein Fehler in der Erkennung wuerde sonst das ganze Skript abschalten
-		// (Idee Tessera `controller/index.ts:213-233`, MIT).
+		// Lieber mit unvollständigen Activities anordnen als stumm bleiben:
+		// ein Fehler in der Erkennung würde sonst das ganze Skript abschalten
+		// (Idee Tessera `controller/index.ts:213-233`, MIT). Die Obergrenze
+		// von 20 Versuchen à 100 ms steht in PLAN.md Abschnitt 4, Punkt 7.
 		log(`Activities nach ${tries} Versuchen nicht bereit, starte trotzdem`);
 	}
 	createAdapter().start();

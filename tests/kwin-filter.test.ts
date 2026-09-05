@@ -14,7 +14,7 @@ import { windowInfo } from "./support/kwinfake.ts";
 
 const EXCLUDES = makeExcludes(DEFAULT_EXCLUDES);
 
-test("ein gewoehnliches Fenster ist Surface-Mitglied und Layout-Teilnehmer", () => {
+test("ein gewöhnliches Fenster ist Surface-Mitglied und Layout-Teilnehmer", () => {
 	const info = windowInfo("a");
 	assert.equal(isMember(info, EXCLUDES), true);
 	assert.equal(participates(info, false), true);
@@ -37,24 +37,24 @@ test("Dialog, Transient, Modal, Splash, Utility, Popup und Dock sind keine Mitgl
 	for (const feld of felder) {
 		const info = windowInfo("a");
 		(info as unknown as Record<string, boolean>)[feld] = true;
-		assert.equal(isMember(info, EXCLUDES), false, `${feld} sollte ausschliessen`);
+		assert.equal(isMember(info, EXCLUDES), false, `${feld} sollte ausschließen`);
 	}
 });
 
-test("ein Fenster ohne normalWindow faellt heraus", () => {
+test("ein Fenster ohne normalWindow fällt heraus", () => {
 	const info = windowInfo("a");
 	info.normalWindow = false;
 	assert.equal(isMember(info, EXCLUDES), false);
 });
 
-test("ein specialWindow faellt heraus", () => {
+test("ein specialWindow fällt heraus", () => {
 	// So meldet sich das gemessene Plasma-Panel.
 	const info = windowInfo("a");
 	info.specialWindow = true;
 	assert.equal(isMember(info, EXCLUDES), false);
 });
 
-test("nicht verwaltete und geloeschte Fenster fallen heraus", () => {
+test("nicht verwaltete und gelöschte Fenster fallen heraus", () => {
 	const unmanaged = windowInfo("a");
 	unmanaged.managed = false;
 	assert.equal(isMember(unmanaged, EXCLUDES), false);
@@ -74,14 +74,14 @@ test("die Ausschlussliste trifft nur bei Vollmatch der Klasse", () => {
 	assert.equal(isMember(drin, EXCLUDES), true, "Teilzeichenkette darf nicht greifen");
 });
 
-test("Grossschreibung und Leerraum stoeren den Ausschluss nicht", () => {
+test("Großschreibung und Leerraum stören den Ausschluss nicht", () => {
 	assert.equal(normalizeClass("  KRunner "), "krunner");
 	const info = windowInfo("a");
 	info.resourceClass = "  KRunner ";
 	assert.equal(isMember(info, EXCLUDES), false);
 });
 
-test("gleiche Mindest- und Hoechstgroesse macht ein Fenster fest", () => {
+test("gleiche Mindest- und Höchstgröße macht ein Fenster fest", () => {
 	const info = windowInfo("a");
 	info.minWidth = 400;
 	info.minHeight = 300;
@@ -91,17 +91,17 @@ test("gleiche Mindest- und Hoechstgroesse macht ein Fenster fest", () => {
 	assert.equal(isMember(info, EXCLUDES), false);
 });
 
-test("die Hoechstgroesse 2147483647 macht ein Fenster nicht fest", () => {
+test("die Höchstgröße 2147483647 macht ein Fenster nicht fest", () => {
 	const info = windowInfo("a");
 	info.minWidth = UNLIMITED_SIZE;
 	info.minHeight = UNLIMITED_SIZE;
-	assert.equal(isFixedSize(info), false, "unbegrenzt ist keine Festgroesse");
+	assert.equal(isFixedSize(info), false, "unbegrenzt ist keine Festgröße");
 	assert.equal(isMember(info, EXCLUDES), true);
 });
 
-test("ein Fenster mit Nullgroessen gilt nicht als fest", () => {
-	// Das gemessene Dock meldet minSize 0x0; ohne die Null-Sperre waere das
-	// eine Festgroesse, sobald maxSize je einmal ebenfalls 0 meldet.
+test("ein Fenster mit Nullgrößen gilt nicht als fest", () => {
+	// Das gemessene Dock meldet minSize 0x0; ohne die Null-Sperre wäre das
+	// eine Festgröße, sobald maxSize je einmal ebenfalls 0 meldet.
 	const info = windowInfo("a");
 	info.minWidth = 0;
 	info.minHeight = 0;
@@ -110,7 +110,7 @@ test("ein Fenster mit Nullgroessen gilt nicht als fest", () => {
 	assert.equal(isFixedSize(info), false);
 });
 
-test("Layout-Teilnahme faellt bei floating, minimiert, Vollbild und Maximierung weg", () => {
+test("Layout-Teilnahme fällt bei floating, minimiert, Vollbild und Maximierung weg", () => {
 	assert.equal(participates(windowInfo("a"), true), false, "floating");
 
 	const minimiert = windowInfo("b");

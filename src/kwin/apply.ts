@@ -7,20 +7,20 @@ import { judgeRecheck, judgeSignal } from "./geometry.ts";
 import type { TimerFactory } from "./timer.ts";
 
 /**
- * Zugriff auf ein einzelnes Fenster, so schmal wie moeglich. Der Adapter legt
+ * Zugriff auf ein einzelnes Fenster, so schmal wie möglich. Der Adapter legt
  * die KWin-Handles dahinter, der Test eine Tabelle -- damit ist die ganze
- * Signalfolge aus Write, Ruecklesen und Nachbesserung unter `node --test`
- * pruefbar, obwohl sie im Betrieb nur an echten KWin-Objekten laeuft.
+ * Signalfolge aus Write, Rücklesen und Nachbesserung unter `node --test`
+ * prüfbar, obwohl sie im Betrieb nur an echten KWin-Objekten läuft.
  *
  * `read` und `write` melden ein fehlendes Handle selbst. Das ist die einzige
- * Tuer zum Fenster, und sie ist verschlossen, sobald `closed` das Handle aus
- * der Tabelle geworfen hat: zwischen dem Schliessen und einem verzoegerten
+ * Tür zum Fenster, und sie ist verschlossen, sobald `closed` das Handle aus
+ * der Tabelle geworfen hat: zwischen dem Schließen und einem verzögerten
  * Timerlauf kann also kein Zugriff auf ein totes Objekt mehr stattfinden.
  */
 export interface GeometryPort {
 	/** `null`, wenn das Handle fort ist. */
 	read(id: WindowId): Rect | null;
-	/** `false` heisst: Handle fort, nichts geschrieben. */
+	/** `false` heißt: Handle fort, nichts geschrieben. */
 	write(id: WindowId, rect: Rect): boolean;
 	/** `window.move || window.resize`. */
 	dragging(id: WindowId): boolean;
@@ -28,8 +28,8 @@ export interface GeometryPort {
 
 export interface GeometryHooks {
 	/**
-	 * Die Geometrie hat sich ohne eigenes Zutun geaendert. Ob daraus ein
-	 * Anordnungslauf wird, entscheidet der Adapter -- nur er weiss, wer zuletzt
+	 * Die Geometrie hat sich ohne eigenes Zutun geändert. Ob daraus ein
+	 * Anordnungslauf wird, entscheidet der Adapter -- nur er weiß, wer zuletzt
 	 * Layout-Teilnehmer war.
 	 */
 	external(id: WindowId): void;
@@ -37,21 +37,28 @@ export interface GeometryHooks {
 }
 
 export interface GeometryController {
-	/** Neuer Zielwert: ersetzt die Erwartung und oeffnet eine Schreibgeneration. */
+	/** Neuer Zielwert: ersetzt die Erwartung und öffnet eine Schreibgeneration. */
 	apply(id: WindowId, target: Rect): void;
 	/** Aus `frameGeometryChanged`. Schreibt niemals. */
 	notifyChanged(id: WindowId): void;
-	/** Fenster fort oder Layout-Teilnahme verlassen: Erwartung und Nachpruefung. */
+	/**
+	 * Das Fenster steht bereits auf dem neuen Zielwert (`judgeWrite` meldete
+	 * `"unchanged"`). Eine noch offene Erwartung eines **älteren** Zielwerts
+	 * gilt damit als erledigt, samt eingeplanter Nachprüfung — sonst schöbe der
+	 * Nachprüfungslauf das Fenster auf das veraltete Soll zurück.
+	 */
+	accept(id: WindowId, actual: Rect): void;
+	/** Fenster fort oder Layout-Teilnahme verlassen: Erwartung und Nachprüfung. */
 	forget(id: WindowId): void;
-	/** Nur fuer Tests und Journalzeilen: wie viele Nachpruefungen anstehen. */
+	/** Nur für Tests und Journalzeilen: wie viele Nachprüfungen anstehen. */
 	pendingCount(): number;
 }
 
 /**
- * Abstand bis zur Nachpruefung. Gewaehlt, nicht gemessen: ein
+ * Abstand bis zur Nachprüfung. Gewählt, nicht gemessen: ein
  * xdg-configure-Umlauf braucht mindestens einen Bildwechsel. Der Wert ist
- * unkritisch -- eine frueher eintreffende Bestaetigung schliesst den Fall
- * ueber den Signalpfad, und die Zahl der Nachbesserungen ist ohnehin gedeckelt.
+ * unkritisch -- eine früher eintreffende Bestätigung schließt den Fall
+ * über den Signalpfad, und die Zahl der Nachbesserungen ist ohnehin gedeckelt.
  */
 export const RECHECK_MS = 50;
 
@@ -60,15 +67,15 @@ function fmt(rect: Rect): string {
 }
 
 /**
- * Haelt die Geometrieerwartung je Fenster und bringt sie zur Ruhe. Zwei Regeln
+ * Hält die Geometrieerwartung je Fenster und bringt sie zur Ruhe. Zwei Regeln
  * tragen die ganze Konstruktion:
  *
  * - **Der Signalpfad schreibt nie.** `notifyChanged` darf lesen, beruhigen,
- *   eine Nachpruefung einplanen und eine fremde Aenderung melden. Ein Write
- *   innerhalb von `frameGeometryChanged` waere ein verschachtelter Write.
- * - **Nachgebessert wird ausschliesslich im Timerlauf**, und dort hoechstens
+ *   eine Nachprüfung einplanen und eine fremde Änderung melden. Ein Write
+ *   innerhalb von `frameGeometryChanged` wäre ein verschachtelter Write.
+ * - **Nachgebessert wird ausschließlich im Timerlauf**, und dort höchstens
  *   einmal je Fenster und Durchlauf. Bis zum Aufgeben braucht es deshalb drei
- *   Laeufe; kein Eintrag rennt rekursiv durch.
+ *   Läufe; kein Eintrag rennt rekursiv durch.
  */
 export function createGeometryController(
 	registry: Registry,
@@ -78,11 +85,11 @@ export function createGeometryController(
 ): GeometryController {
 	/**
 	 * Fenster, an denen gerade geschrieben wird. Eine Menge, kein einzelnes
-	 * Feld: das synchrone Signal eines **anderen** Fensters soll waehrenddessen
-	 * ausdruecklich durchkommen.
+	 * Feld: das synchrone Signal eines **anderen** Fensters soll währenddessen
+	 * ausdrücklich durchkommen.
 	 */
 	const writing = new Set<WindowId>();
-	/** Fenster -> Schreibgeneration, fuer die eine Nachpruefung ansteht. */
+	/** Fenster -> Schreibgeneration, für die eine Nachprüfung ansteht. */
 	const pending = new Map<WindowId, number>();
 
 	const timer = makeTimer();
@@ -91,9 +98,9 @@ export function createGeometryController(
 	timer.timeout.connect(onRecheck);
 
 	/**
-	 * Nimmt ein Fenster aus der Nachpruefung. Bleibt danach nichts mehr zu tun,
-	 * haelt der Timer sofort an, statt noch einmal ins Leere zu feuern; sind
-	 * andere Fenster eingeplant, laeuft er weiter.
+	 * Nimmt ein Fenster aus der Nachprüfung. Bleibt danach nichts mehr zu tun,
+	 * hält der Timer sofort an, statt noch einmal ins Leere zu feuern; sind
+	 * andere Fenster eingeplant, läuft er weiter.
 	 */
 	function cancelRecheck(id: WindowId): void {
 		pending.delete(id);
@@ -123,11 +130,11 @@ export function createGeometryController(
 	}
 
 	/**
-	 * Die einzige Stelle, die schreibt. Die Bestaetigung holt sie sich gleich
-	 * selbst: eine reine Verschiebung ist auf Wayland synchron und waere sonst
-	 * nur ueber das eigene, gerade gesperrte Signal zu erfahren. Weicht das
-	 * Ruecklesen ab, wird eine Nachpruefung eingeplant -- sich auf ein spaeteres
-	 * Signal zu verlassen, koennte ins Leere laufen, weil es waehrend des
+	 * Die einzige Stelle, die schreibt. Die Bestätigung holt sie sich gleich
+	 * selbst: eine reine Verschiebung ist auf Wayland synchron und wäre sonst
+	 * nur über das eigene, gerade gesperrte Signal zu erfahren. Weicht das
+	 * Rücklesen ab, wird eine Nachprüfung eingeplant -- sich auf ein späteres
+	 * Signal zu verlassen, könnte ins Leere laufen, weil es während des
 	 * Schreibens schon gefeuert und dabei verworfen worden sein kann.
 	 */
 	function writeAndProbe(id: WindowId, state: WindowState, target: Rect): void {
@@ -163,6 +170,14 @@ export function createGeometryController(
 		writeAndProbe(id, state, target);
 	}
 
+	function accept(id: WindowId, actual: Rect): void {
+		const state = registry.windows.get(id);
+		if (state === undefined) {
+			return;
+		}
+		settle(id, state, actual);
+	}
+
 	function notifyChanged(id: WindowId): void {
 		if (writing.has(id)) {
 			return;
@@ -188,12 +203,12 @@ export function createGeometryController(
 			return;
 		}
 
-		// Keine Erwartung offen: entweder der eigene Nachhall -- eine verspaetete
-		// Bestaetigung des Werts, den der Controller bereits akzeptiert hat --
-		// oder eine wirklich fremde Aenderung. Massgeblich ist allein der
+		// Keine Erwartung offen: entweder der eigene Nachhall -- eine verspätete
+		// Bestätigung des Werts, den der Controller bereits akzeptiert hat --
+		// oder eine wirklich fremde Änderung. Maßgeblich ist allein der
 		// zuletzt beobachtete Istwert: nach einem Giveup ist `tiledRect`
 		// absichtlich das nie erreichte Soll, und eine fremde Verschiebung genau
-		// dorthin waere sonst verschluckt.
+		// dorthin wäre sonst verschluckt.
 		if (state.lastObservedRect !== null && equals(actual, state.lastObservedRect)) {
 			return;
 		}
@@ -202,13 +217,13 @@ export function createGeometryController(
 
 	/**
 	 * Ein Durchlauf, ein Versuch je Fenster. `pending` wird **vor** der
-	 * Verarbeitung geleert, ein Retry hinterlaesst hoechstens einen neuen
-	 * Eintrag fuer den naechsten Lauf.
+	 * Verarbeitung geleert, ein Retry hinterlässt höchstens einen neuen
+	 * Eintrag für den nächsten Lauf.
 	 */
 	function onRecheck(): void {
 		// Gemessen ist nur, dass `singleShot` existiert und `false` meldet --
-		// nicht, dass die Zuweisung durchschlaegt. Das explizite `stop()` macht
-		// die Annahme ueberfluessig (wie in `timer.ts`).
+		// nicht, dass die Zuweisung durchschlägt. Das explizite `stop()` macht
+		// die Annahme überflüssig (wie in `timer.ts`).
 		timer.stop();
 		const batch = Array.from(pending.keys());
 		const generations = new Map<WindowId, number>();
@@ -227,8 +242,8 @@ export function createGeometryController(
 			}
 		}
 
-		// Eine Nachbesserung hat den Timer ueber `planRecheck` schon gestartet;
-		// ohne den Waechter kaeme hier ein zweiter, das Intervall neu setzender
+		// Eine Nachbesserung hat den Timer über `planRecheck` schon gestartet;
+		// ohne den Wächter käme hier ein zweiter, das Intervall neu setzender
 		// Start hinterher.
 		if (pending.size > 0 && !timer.active) {
 			timer.start();
@@ -241,17 +256,17 @@ export function createGeometryController(
 			return;
 		}
 		if (state.writeGeneration !== generation) {
-			// Netz: seit `settle` und `forget` den Eintrag selbst abraeumen, ist
-			// dieser Zweig praktisch unerreichbar -- ein neuer Write ueberschreibt
-			// den Eintrag, statt ihn veralten zu lassen. `judgeRecheck` prueft
+			// Netz: seit `settle` und `forget` den Eintrag selbst abräumen, ist
+			// dieser Zweig praktisch unerreichbar -- ein neuer Write überschreibt
+			// den Eintrag, statt ihn veralten zu lassen. `judgeRecheck` prüft
 			// "stale" weiterhin.
 			return;
 		}
 		if (port.dragging(id)) {
 			// Der Nutzer zieht gerade; `interactiveMoveResizeFinished` ordnet
-			// danach ohnehin neu an. Die Erwartung faellt dabei: bliebe sie
-			// offen, schoebe das erste Signal nach dem Loslassen das Fenster
-			// ueber den Signalpfad zurueck, statt die Verschiebung zu melden.
+			// danach ohnehin neu an. Die Erwartung fällt dabei: bliebe sie
+			// offen, schöbe das erste Signal nach dem Loslassen das Fenster
+			// über den Signalpfad zurück, statt die Verschiebung zu melden.
 			forget(id);
 			return;
 		}
@@ -272,8 +287,8 @@ export function createGeometryController(
 			state.expectedRect = null;
 			state.applyAttempts = 0;
 			// Der zuletzt beobachtete Istwert gilt ab jetzt als akzeptiert. Ohne
-			// ihn liefe eine verspaetete Meldung derselben Geometrie als fremde
-			// Aenderung in einen neuen Anordnungs- und Nachbesserungszyklus.
+			// ihn liefe eine verspätete Meldung derselben Geometrie als fremde
+			// Änderung in einen neuen Anordnungs- und Nachbesserungszyklus.
 			state.lastObservedRect = actual;
 			return;
 		}
@@ -294,6 +309,7 @@ export function createGeometryController(
 	return {
 		apply,
 		notifyChanged,
+		accept,
 		forget,
 		pendingCount: () => pending.size,
 	};

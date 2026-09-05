@@ -61,7 +61,7 @@ function focusIndex(state: SurfaceState): number {
 
 // --- Fokus ------------------------------------------------------------------
 
-/** Nichtmitglieder werden ignoriert; `null` loescht den Fokus. */
+/** Nichtmitglieder werden ignoriert; `null` löscht den Fokus. */
 export function setFocus(state: SurfaceState, id: WindowId | null): SurfaceState {
 	if (id !== null && state.order.indexOf(id) < 0) {
 		return state;
@@ -81,7 +81,7 @@ function cycleFocus(state: SurfaceState, delta: number): SurfaceState {
 	return withFocus(state, state.order[(index + delta + size) % size] ?? null);
 }
 
-/** Zyklisch ueber alle Mitglieder, auch floatende und minimierte. */
+/** Zyklisch über alle Mitglieder, auch floatende und minimierte. */
 export function focusNext(state: SurfaceState): SurfaceState {
 	return cycleFocus(state, 1);
 }
@@ -125,7 +125,7 @@ export function swapPrev(state: SurfaceState): SurfaceState {
 
 /**
  * XMonads `swapMaster`: das fokussierte Fenster wandert an Position 0, alle
- * uebrigen behalten ihre relative Reihenfolge.
+ * übrigen behalten ihre relative Reihenfolge.
  */
 export function promote(state: SurfaceState): SurfaceState {
 	const index = focusIndex(state);
@@ -144,7 +144,7 @@ export function promote(state: SurfaceState): SurfaceState {
 /**
  * XMonads `insertUp`: das neue Fenster nimmt den Platz des fokussierten ein,
  * das bisher fokussierte rutscht nach unten, der Fokus wandert mit. Beim
- * Reconcile entscheidet anschliessend das aktive Fenster ueber den Fokus.
+ * Reconcile entscheidet anschließend das aktive Fenster über den Fokus.
  */
 export function insert(state: SurfaceState, id: WindowId): SurfaceState {
 	if (state.order.indexOf(id) >= 0) {

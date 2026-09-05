@@ -9,7 +9,7 @@ import { membersBySurface, participates } from "./filter.ts";
 import { fitToCell } from "./geometry.ts";
 import type { Snapshot, WindowInfo } from "./types.ts";
 
-/** Aussen- und Innenabstand. Ab Meilenstein 6 aus `readConfig`, bis dahin 0. */
+/** Außen- und Innenabstand. Ab Meilenstein 6 aus `readConfig`, bis dahin 0. */
 export interface Gaps {
 	outer: number;
 	inner: number;
@@ -42,8 +42,8 @@ export interface ArrangePlan {
 /**
  * Wen `full` obenauf legt. Der fokussierte Eintrag kann minimiert, floatend
  * oder im Vollbild sein — dann ist er kein Layout-Teilnehmer und darf nicht
- * ueber die gekachelten gehoben werden. Ersatz ist der Master: im Monocle
- * liegen die uebrigen ohnehin deckungsgleich darunter.
+ * über die gekachelten gehoben werden. Ersatz ist der Master: im Monocle
+ * liegen die übrigen ohnehin deckungsgleich darunter.
  */
 function raiseFor(focus: WindowId | null, participants: WindowId[]): WindowId | null {
 	if (focus !== null && participants.indexOf(focus) >= 0) {
@@ -61,14 +61,14 @@ function byId(windows: WindowInfo[]): Map<WindowId, WindowInfo> {
 }
 
 /**
- * Rechnet aus einer Momentaufnahme die vollstaendige Anordnung. Die einzige
- * Stelle des Planungspfads, die den Registry-Behaelter anfasst: sie haengt das
- * Ergebnis von `reconcile` ein und loescht die Geometrieerwartung jedes
+ * Rechnet aus einer Momentaufnahme die vollständige Anordnung. Die einzige
+ * Stelle des Planungspfads, die den Registry-Behälter anfasst: sie hängt das
+ * Ergebnis von `reconcile` ein und löscht die Geometrieerwartung jedes
  * Mitglieds, das gerade nicht teilnimmt (PLAN.md Abschnitt 4). Die
- * `SurfaceState`-Objekte werden dabei **ersetzt**, nie veraendert.
+ * `SurfaceState`-Objekte werden dabei **ersetzt**, nie verändert.
  *
- * Weil `Registry` ohne KWin laeuft, ist die ganze Funktion unter `node --test`
- * pruefbar — samt der Zahlen, die spaeter im Journal auftauchen.
+ * Weil `Registry` ohne KWin läuft, ist die ganze Funktion unter `node --test`
+ * prüfbar — samt der Zahlen, die später im Journal auftauchen.
  */
 export function planArrangement(
 	snapshot: Snapshot,
@@ -84,10 +84,10 @@ export function planArrangement(
 		const members = membersPerSurface.get(view.key) ?? [];
 		const before = getSurface(registry, view.key);
 		const result = reconcile(before, members, snapshot.activeId);
-		// Auch bei Gleichstand einhaengen: `putSurface` ist billig, und eine
-		// Sonderbehandlung waere die erste Stelle, an der jemand versucht ist,
-		// bei `result.state === before` die Layoutrechnung zu ueberspringen.
-		// Das waere falsch — eine geaenderte `clientArea` bei unveraenderter
+		// Auch bei Gleichstand einhängen: `putSurface` ist billig, und eine
+		// Sonderbehandlung wäre die erste Stelle, an der jemand versucht ist,
+		// bei `result.state === before` die Layoutrechnung zu überspringen.
+		// Das wäre falsch — eine geänderte `clientArea` bei unveränderter
 		// Fenstermenge muss trotzdem neue Rechtecke ergeben.
 		putSurface(registry, view.key, result.state);
 		const state = result.state;
@@ -101,8 +101,8 @@ export function planArrangement(
 			if (participates(info, getWindow(registry, id).floating)) {
 				participants.push(id);
 			} else {
-				// Sonst kachelt eine verspaetete Wayland-Bestaetigung das
-				// Fenster zurueck, nachdem es das Layout verlassen hat.
+				// Sonst kachelt eine verspätete Wayland-Bestätigung das
+				// Fenster zurück, nachdem es das Layout verlassen hat.
 				clearExpectation(registry, id);
 			}
 		}

@@ -1,22 +1,22 @@
-// Feature-Probe fuer kwin-xmonad-lite, Meilenstein 0.
+// Feature-Probe für kwin-xmonad-lite, Meilenstein 0.
 //
 // Zweck: die in PLAN.md Abschnitt 10 als unbelegt markierten Punkte auf der
 // laufenden Maschine messen statt sie anzunehmen -- ES-Sprachniveau der
-// QJSEngine, verfuegbare Globals, KWin-Enums, Laufzeit-Oberflaeche von
+// QJSEngine, verfügbare Globals, KWin-Enums, Laufzeit-Oberfläche von
 // workspace/Window/Output, QTimer-Semantik.
 //
 // Drei Entwurfsregeln, jede mit Grund:
 //
 // 1. Der Rahmen ist bewusst ES5. Die Datei wird von QJSEngine::evaluate in
 //    einem Rutsch geparst; ein Syntaxfehler irgendwo verhindert JEDE Ausgabe.
-//    Die zu pruefenden Sprachkonstrukte stehen deshalb als Strings hier und
-//    werden einzeln ueber new Function() kompiliert -- so wird ein
+//    Die zu prüfenden Sprachkonstrukte stehen deshalb als Strings hier und
+//    werden einzeln über new Function() kompiliert -- so wird ein
 //    SyntaxError zu einer fangbaren Ausnahme.
 // 2. Strikt lesend. Keine Geometrie-Writes, kein raiseWindow, kein Setzen von
 //    activeWindow oder options.*, kein Zugriff auf rootTile (Tile-API mit
 //    dokumentiertem SIGSEGV, PLAN.md Abschnitt 2 Punkt 7).
 // 3. Kein KWin-Signal wird verbunden. Es gibt keinen Unload-Hook; eine
-//    ueberlebende Verbindung wuerde spaeter in eine zerstoerte Engine feuern.
+//    überlebende Verbindung würde später in eine zerstörte Engine feuern.
 //    Signale werden nur klassifiziert. Einzige Ausnahme sind eigene QTimer,
 //    deren Lebensdauer die Probe kontrolliert.
 
@@ -38,7 +38,7 @@
 		console.warn(line);
 	}
 
-	// Ein Satz je Zeile. Nummerierung lueckenlos, damit ein Abbruch mittendrin
+	// Ein Satz je Zeile. Nummerierung lückenlos, damit ein Abbruch mittendrin
 	// vom Fall "gar nichts gelaufen" unterscheidbar bleibt.
 	function emit(rec, loud) {
 		rec.r = RUN;
@@ -74,7 +74,7 @@
 		}
 	}
 
-	// Kurzform eines Wertes, ohne ihn aufzurufen. QObject-Wrapper liefern ueber
+	// Kurzform eines Wertes, ohne ihn aufzurufen. QObject-Wrapper liefern über
 	// String() ihren Typnamen, das ist genau die gesuchte Information.
 	function brief(v) {
 		var t = typeof v;
@@ -113,7 +113,7 @@
 		var t = typeof v;
 		if (t === "function") {
 			// Signale sind in der QJSEngine Funktionen mit .connect, keine
-			// eigenen Objekte -- erst pruefen, dann als Methode einstufen.
+			// eigenen Objekte -- erst prüfen, dann als Methode einstufen.
 			try {
 				if (typeof v.connect === "function" && typeof v.disconnect === "function") {
 					return "signal";
@@ -181,9 +181,9 @@
 	}
 
 	// Dreistufiges Ergebnis: syntax (Parser kennt es nicht) / runtime (parst,
-	// wirft beim Ausfuehren) / value (laeuft, liefert Falsches) / ok.
-	// Jeder Pruefling wird auch aufgerufen, weil manche Engines Funktionskoerper
-	// verzoegert kompilieren.
+	// wirft beim Ausführen) / value (läuft, liefert Falsches) / ok.
+	// Jeder Prüfling wird auch aufgerufen, weil manche Engines Funktionskörper
+	// verzögert kompilieren.
 	function esTest(level, id, src) {
 		var fn;
 		try {
@@ -263,7 +263,7 @@
 
 	function phaseEs() {
 		if (!COMPILE) {
-			emit({ k: "es-summary", st: "absent", d: "kein Harness, Sprachtests uebersprungen" });
+			emit({ k: "es-summary", st: "absent", d: "kein Harness, Sprachtests übersprungen" });
 			return;
 		}
 		var passed = {};
@@ -278,7 +278,7 @@
 				passed[t[0]] = passed[t[0]] || 0;
 			}
 		}
-		// Hoechstes Niveau, auf dem KEIN Test scheitert -- daran wird das
+		// Höchstes Niveau, auf dem KEIN Test scheitert -- daran wird das
 		// esbuild-Target festgemacht.
 		var levels = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023];
 		var total = {};
@@ -326,7 +326,7 @@
 		var i;
 		for (i = 0; i < GLOBAL_NAMES.length; i++) {
 			var n = GLOBAL_NAMES[i];
-			var t = COMPILE ? typeOfGlobal(n) : "ungeprueft";
+			var t = COMPILE ? typeOfGlobal(n) : "ungeprüft";
 			emit({ k: "globals", id: n, st: t === "undefined" ? "absent" : "ok", d: t });
 		}
 		for (i = 0; i < CONSOLE_METHODS.length; i++) {
@@ -360,7 +360,7 @@
 		];
 		var i;
 		for (i = 0; i < LIB_NAMES.length; i++) {
-			emit({ k: "lib", id: "typeof " + LIB_NAMES[i], d: COMPILE ? typeOfGlobal(LIB_NAMES[i]) : "ungeprueft" });
+			emit({ k: "lib", id: "typeof " + LIB_NAMES[i], d: COMPILE ? typeOfGlobal(LIB_NAMES[i]) : "ungeprüft" });
 		}
 		if (!COMPILE) {
 			return;
@@ -423,7 +423,7 @@
 		}
 	}
 
-	// ------------------------------------------------- Oberflaechen-Enumeration
+	// ------------------------------------------------- Oberflächen-Enumeration
 
 	function tryList(fn) {
 		try {
@@ -452,9 +452,9 @@
 		return out;
 	}
 
-	// Liest nur, ruft nie auf. Kennzeichnet, ob der Name aufgezaehlt war oder
+	// Liest nur, ruft nie auf. Kennzeichnet, ob der Name aufgezählt war oder
 	// aus der Quelltext-Namensliste stammt -- das beantwortet nebenbei, ob sich
-	// der spaetere Adapter auf Reflexion stuetzen darf.
+	// der spätere Adapter auf Reflexion stützen darf.
 	function describe(label, name, obj, fromEnum) {
 		var v;
 		try {
@@ -580,7 +580,7 @@
 		}
 		surface("workspace", workspace, WORKSPACE_NAMES);
 
-		// Vier gutartige Aufrufe, an denen konkrete Entwurfsentscheidungen haengen.
+		// Vier gutartige Aufrufe, an denen konkrete Entwurfsentscheidungen hängen.
 		guard("ws.windowList", function () {
 			var l = workspace.windowList();
 			emit({
@@ -601,9 +601,9 @@
 				st: "ok",
 				d: "screens=" + (s ? s.length : "-") + " order=" + (o ? o.length : "-"),
 			});
-			// Objektidentitaet ueber zwei getrennte Property-Zugriffe hinweg:
-			// entscheidet, ob Map<Output, ...> ueberhaupt moeglich waere oder ob
-			// output.name zwingend Schluessel bleibt (PLAN.md Abschnitt 2 Punkt 5).
+			// Objektidentität über zwei getrennte Property-Zugriffe hinweg:
+			// entscheidet, ob Map<Output, ...> überhaupt möglich wäre oder ob
+			// output.name zwingend Schlüssel bleibt (PLAN.md Abschnitt 2 Punkt 5).
 			var again = workspace.screens;
 			emit({
 				k: "ws",
@@ -642,7 +642,7 @@
 			}
 		});
 
-		// clientArea numerisch ueber alle ClientAreaOption-Werte. Die Rects und
+		// clientArea numerisch über alle ClientAreaOption-Werte. Die Rects und
 		// ihre Ganzzahligkeit entscheiden, ob core/rect mit Ganzzahlen arbeiten
 		// darf oder runden muss (QRectF!).
 		guard("ws.clientArea", function () {
@@ -783,13 +783,13 @@
 
 	// ------------------------------------------------------------ Shortcuts
 
-	// Standardmaessig aus. Grund: registerShortcut ruft KGlobalAccel::setShortcut
+	// Standardmäßig aus. Grund: registerShortcut ruft KGlobalAccel::setShortcut
 	// OHNE NoAutoloading -- ein Eintrag in kglobalshortcutsrc bleibt nach dem
 	// Entladen bestehen und reserviert die Taste weiter (genau das Muster der
 	// toten Krohnkite-Zeilen). Aktivieren mit
 	//   kwriteconfig6 --file kwinrc --group Script-kwin-xmonad-lite-probe \
 	//     --key probeShortcuts true
-	// und danach zwingend den Rueckbau aus scripts/probe.sh fahren.
+	// und danach zwingend den Rückbau aus scripts/probe.sh fahren.
 	function phaseShortcuts() {
 		var wanted = false;
 		try {

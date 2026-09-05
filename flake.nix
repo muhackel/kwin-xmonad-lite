@@ -1,5 +1,5 @@
 {
-  description = "Schlanker KWin-Layout-Controller im Stil von XMonads Tall- und Full-Layout fuer Plasma 6 auf Wayland";
+  description = "Schlanker KWin-Layout-Controller im Stil von XMonads Tall- und Full-Layout für Plasma 6 auf Wayland";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
 
@@ -17,7 +17,7 @@
 
       # Die Entwicklungswerkzeuge bestehen aus scripts/lib.sh plus dem
       # jeweiligen Skript. writeShellApplication setzt errexit/nounset/pipefail
-      # und laesst shellcheck ueber das Ergebnis laufen.
+      # und lässt shellcheck über das Ergebnis laufen.
       mkTool =
         system:
         {
@@ -35,6 +35,7 @@
             pkgs.diffutils
             pkgs.gawk
             pkgs.gnugrep
+            pkgs.gnused
             pkgs.systemd # busctl, journalctl
             pkgs.kdePackages.kconfig # kwriteconfig6
             pkgs.kdePackages.libkscreen # kscreen-doctor
@@ -118,7 +119,7 @@
           tools = toolsFor system;
         in
         {
-          # Typpruefung, Unit-Tests und Bundle stecken in der buildPhase.
+          # Typprüfung, Unit-Tests und Bundle stecken in der buildPhase.
           package = packageFor system;
 
           lint = pkgs.runCommand "kwin-xmonad-lite-lint" { nativeBuildInputs = [ pkgs.biome ]; } ''
@@ -128,7 +129,7 @@
             touch "$out"
           '';
 
-          # Baut die Entwicklungswerkzeuge und laesst damit shellcheck laufen.
+          # Baut die Entwicklungswerkzeuge und lässt damit shellcheck laufen.
           scripts = pkgs.symlinkJoin {
             name = "kwin-xmonad-lite-scripts";
             paths = builtins.attrValues tools;

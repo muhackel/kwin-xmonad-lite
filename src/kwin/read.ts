@@ -1,4 +1,5 @@
 import type { Rect } from "../core/rect.ts";
+import { rounded } from "../core/rect.ts";
 import type { WindowId } from "../core/stack.ts";
 import type { SurfaceRef } from "../core/surface.ts";
 import { surfaceKey } from "../core/surface.ts";
@@ -7,17 +8,23 @@ import type { Snapshot, SurfaceView, WindowInfo } from "./types.ts";
 
 /**
  * Die eine Seite der Snapshot-Grenze, die KWin-Objekte anfasst. Alle Listen
- * werden mit klassischen Zaehlschleifen durchlaufen: `windowList()`,
+ * werden mit klassischen Zählschleifen durchlaufen: `windowList()`,
  * `desktops` und `activities` sind array-artig, aber keine Arrays.
  */
 
-/** `internalId` ist ein QUuid-Objekt; als Zeichenkette traegt es Klammern. */
+/** `internalId` ist ein QUuid-Objekt; als Zeichenkette trägt es Klammern. */
 export function windowId(window: KwinWindow): WindowId {
 	return String(window.internalId);
 }
 
+/**
+ * Jedes Rechteck wird beim Auslesen gerundet (PLAN.md Abschnitt 4, Punkt 3:
+ * „gerundet vergleichen“). Damit vergleichen `judgeWrite`, das Rücklesen nach
+ * dem Schreiben und der Signalpfad alle gegen ganze Pixel — gemessen
+ * ganzzahlig ist nur `clientArea`, nicht `frameGeometry`.
+ */
 function toRect(rect: QRect): Rect {
-	return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+	return rounded({ x: rect.x, y: rect.y, width: rect.width, height: rect.height });
 }
 
 export function readFrameGeometry(window: KwinWindow): Rect {
@@ -87,10 +94,10 @@ export function readWindow(window: KwinWindow): WindowInfo {
 }
 
 /**
- * Alle sichtbaren Surfaces. Der Leser baut sie fuer **jede** Ausgabe, nicht
- * nur fuer eine: die Einschraenkung "ein Output, ein Desktop" aus Meilenstein 3
- * betrifft die Abnahme, nicht die Funktion. Eine kuenstliche Beschraenkung
- * muesste Meilenstein 4 sofort wieder herausreissen.
+ * Alle sichtbaren Surfaces. Der Leser baut sie für **jede** Ausgabe, nicht
+ * nur für eine: die Einschränkung "ein Output, ein Desktop" aus Meilenstein 3
+ * betrifft die Abnahme, nicht die Funktion. Eine künstliche Beschränkung
+ * müsste Meilenstein 4 sofort wieder herausreißen.
  */
 export function readViews(): SurfaceView[] {
 	const views: SurfaceView[] = [];
@@ -104,7 +111,7 @@ export function readViews(): SurfaceView[] {
 		}
 		const desktop = workspace.currentDesktopForScreen(output) ?? workspace.currentDesktop;
 		if (desktop === null) {
-			log(`Ausgabe ${output.name} hat keinen Desktop, wird uebersprungen`);
+			log(`Ausgabe ${output.name} hat keinen Desktop, wird übersprungen`);
 			continue;
 		}
 		const ref: SurfaceRef = { activity, desktop: desktop.id, output: output.name };
@@ -121,8 +128,8 @@ export interface Reading {
 	snapshot: Snapshot;
 	/**
 	 * Die Fensterobjekte zum selben Lesedurchgang. Der Plan rechnet mit Ids,
-	 * das Schreiben braucht die Objekte; ein spaeteres Nachschlagen ueber
-	 * `windowList()` koennte ein inzwischen totes Objekt erwischen.
+	 * das Schreiben braucht die Objekte; ein späteres Nachschlagen über
+	 * `windowList()` könnte ein inzwischen totes Objekt erwischen.
 	 */
 	handles: Map<WindowId, KwinWindow>;
 }
@@ -146,8 +153,8 @@ export function readSnapshot(): Reading {
 	const active = workspace.activeWindow;
 	const activeId = active === null ? null : windowId(active);
 
-	// Die Ist-Mengen fuer den Registry-GC. Beide Listen sind array-artig, aber
-	// keine Arrays -- dieselben Leser wie fuer die Fenstereigenschaften.
+	// Die Ist-Mengen für den Registry-GC. Beide Listen sind array-artig, aber
+	// keine Arrays -- dieselben Leser wie für die Fenstereigenschaften.
 	const activities = readActivityIds(workspace.activities);
 	const desktops = readDesktopIds(workspace.desktops);
 

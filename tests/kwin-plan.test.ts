@@ -36,9 +36,9 @@ function only(registry: Registry, windows: WindowInfo[], activeId: WindowId | nu
 	return surface;
 }
 
-test("ein Fenster erhaelt die ganze Arbeitsflaeche", () => {
-	// Testmatrix Fall 1. Die Flaeche ist die gemessene clientArea mit
-	// abgezogenem Panel, nicht die volle Bildschirmhoehe von 1440.
+test("ein Fenster erhält die ganze Arbeitsfläche", () => {
+	// Testmatrix Fall 1. Die Fläche ist die gemessene clientArea mit
+	// abgezogenem Panel, nicht die volle Bildschirmhöhe von 1440.
 	const surface = only(createRegistry(), [windowInfo("a")], null);
 	assert.deepEqual(surface.placements, [
 		{ id: "a", rect: { x: 0, y: 0, width: 2560, height: 1410 } },
@@ -49,14 +49,14 @@ test("ein Fenster erhaelt die ganze Arbeitsflaeche", () => {
 test("mehrere neue Fenster auf einmal kehren die Reihenfolge um", () => {
 	// Folge von XMonads `insertUp`: jedes neue Fenster nimmt den Platz des
 	// gerade fokussierten ein und wird selbst fokussiert. Kommen drei auf
-	// einmal, steht das zuletzt eingefuegte vorn. Im laufenden Betrieb kommt
-	// immer nur eines hinzu; hier faellt es nur beim ersten Abgleich auf.
+	// einmal, steht das zuletzt eingefügte vorn. Im laufenden Betrieb kommt
+	// immer nur eines hinzu; hier fällt es nur beim ersten Abgleich auf.
 	const surface = only(createRegistry(), [windowInfo("a"), windowInfo("b"), windowInfo("c")], null);
 	assert.deepEqual(surface.members, ["c", "b", "a"]);
 });
 
 test("drei Fenster ergeben Tall mit Master 1664 und Stapelzeilen 705", () => {
-	// Testmatrix Fall 2. Genau diese sechs Zahlen muessen im Journal stehen.
+	// Testmatrix Fall 2. Genau diese sechs Zahlen müssen im Journal stehen.
 	const surface = only(createRegistry(), [windowInfo("a"), windowInfo("b"), windowInfo("c")], null);
 	assert.deepEqual(surface.placements, [
 		{ id: "c", rect: { x: 0, y: 0, width: 1664, height: 1410 } },
@@ -66,7 +66,7 @@ test("drei Fenster ergeben Tall mit Master 1664 und Stapelzeilen 705", () => {
 	assert.equal(surface.ratio, 0.65);
 });
 
-test("Master und Stapel zerlegen die Flaeche exakt", () => {
+test("Master und Stapel zerlegen die Fläche exakt", () => {
 	const surface = only(createRegistry(), [windowInfo("a"), windowInfo("b"), windowInfo("c")], null);
 	const master = surface.placements[0];
 	const oben = surface.placements[1];
@@ -87,20 +87,20 @@ test("ein zweiter Lauf mit gleicher Eingabe liefert dieselbe Anordnung", () => {
 	assert.deepEqual(zweit.members, erst.members);
 });
 
-test("ein nicht teilnehmendes Fenster bleibt in der Reihenfolge und erhaelt kein Rechteck", () => {
+test("ein nicht teilnehmendes Fenster bleibt in der Reihenfolge und erhält kein Rechteck", () => {
 	const voll = windowInfo("b");
 	voll.fullScreen = true;
 	voll.moveable = false;
 	voll.resizeable = false;
 
 	const surface = only(createRegistry(), [windowInfo("a"), voll, windowInfo("c")], null);
-	assert.deepEqual(surface.members, ["c", "b", "a"], "Reihenfolge bleibt vollstaendig");
+	assert.deepEqual(surface.members, ["c", "b", "a"], "Reihenfolge bleibt vollständig");
 	assert.deepEqual(surface.participants, ["c", "a"]);
 	assert.equal(surface.placements.length, 2);
 });
 
-test("das Verlassen der Layout-Teilnahme loescht die Geometrieerwartung", () => {
-	// Sonst kachelt eine verspaetete Wayland-Bestaetigung das Fenster zurueck.
+test("das Verlassen der Layout-Teilnahme löscht die Geometrieerwartung", () => {
+	// Sonst kachelt eine verspätete Wayland-Bestätigung das Fenster zurück.
 	const registry = createRegistry();
 	const info = windowInfo("a");
 	only(registry, [info], null);
@@ -146,7 +146,7 @@ test("ein Fenster mit Mindestbreite bekommt die geklemmte Zelle", () => {
 		throw new Error("Platzierung fehlt");
 	}
 	assert.equal(stapel.rect.width, 1000);
-	assert.equal(stapel.rect.x + stapel.rect.width, AREA.width, "bleibt in der Flaeche");
+	assert.equal(stapel.rect.x + stapel.rect.width, AREA.width, "bleibt in der Fläche");
 });
 
 test("ausgeschlossene Fenster erscheinen weder als Mitglied noch als Platzierung", () => {
@@ -158,9 +158,9 @@ test("ausgeschlossene Fenster erscheinen weder als Mitglied noch als Platzierung
 	assert.deepEqual(surface.members, ["a"]);
 });
 
-test("planArrangement veraendert keinen bestehenden SurfaceState", () => {
+test("planArrangement verändert keinen bestehenden SurfaceState", () => {
 	// Der Adapter darf `order` niemals an Ort und Stelle fortschreiben; das
-	// wuerde die Registry lautlos vergiften.
+	// würde die Registry lautlos vergiften.
 	const registry = createRegistry();
 	only(registry, [windowInfo("a"), windowInfo("b")], null);
 
@@ -170,12 +170,12 @@ test("planArrangement veraendert keinen bestehenden SurfaceState", () => {
 
 	only(registry, [windowInfo("a"), windowInfo("b"), windowInfo("c")], null);
 
-	assert.deepEqual(vorher.order, kopie, "das alte Objekt bleibt unberuehrt");
+	assert.deepEqual(vorher.order, kopie, "das alte Objekt bleibt unberührt");
 	assert.equal(vorher.focus, fokus);
-	assert.notEqual(getSurface(registry, KEY), vorher, "es wurde ersetzt, nicht veraendert");
+	assert.notEqual(getSurface(registry, KEY), vorher, "es wurde ersetzt, nicht verändert");
 });
 
-test("die zurueckgegebene Mitgliederliste ist eine Kopie", () => {
+test("die zurückgegebene Mitgliederliste ist eine Kopie", () => {
 	const registry = createRegistry();
 	const surface = only(registry, [windowInfo("a")], null);
 	surface.members.push("fremd");
@@ -203,8 +203,8 @@ test("full hebt den fokussierten Teilnehmer", () => {
 });
 
 test("full hebt keinen Nichtteilnehmer, sondern den Master", () => {
-	// Ein minimiertes Fenster behaelt den Fokus der Surface, darf aber nicht
-	// ueber die gekachelten gehoben werden.
+	// Ein minimiertes Fenster behält den Fokus der Surface, darf aber nicht
+	// über die gekachelten gehoben werden.
 	const registry = createRegistry();
 	const a = windowInfo("a");
 	const b = windowInfo("b");
@@ -234,7 +234,7 @@ test("full hebt nichts, wenn niemand teilnimmt", () => {
 
 const AUSGABE_B = "DP-9";
 const DESKTOP_B = "b7798180-564c-4f75-ad4a-284026ac7a68";
-/** Zweite Ausgabe, gleich gross, rechts daneben. */
+/** Zweite Ausgabe, gleich groß, rechts daneben. */
 const AREA_B: Rect = { x: 2560, y: 0, width: 2560, height: 1410 };
 
 function auf(output: string, info: WindowInfo): WindowInfo {
@@ -256,8 +256,8 @@ function surfaceOf(plan: ArrangePlan, key: string): SurfacePlan {
 	throw new Error(`Surface ${key} nicht geplant`);
 }
 
-test("zwei Ausgaben fuehren unabhaengige Stapel", () => {
-	// Testmatrix 3: eigene Reihenfolge, eigenes Verhaeltnis, eigenes Layout je
+test("zwei Ausgaben führen unabhängige Stapel", () => {
+	// Testmatrix 3: eigene Reihenfolge, eigenes Verhältnis, eigenes Layout je
 	// Surface -- eine Ausgabe darf die andere nicht anfassen.
 	const registry = createRegistry();
 	const viewA = singleView();
@@ -288,7 +288,7 @@ test("zwei Ausgaben fuehren unabhaengige Stapel", () => {
 	assert.equal(b.layoutId, "full");
 	assert.equal(a.ratio, 0.65);
 	assert.equal(b.ratio, 0.5);
-	// Jede Surface rechnet auf ihrer eigenen Flaeche.
+	// Jede Surface rechnet auf ihrer eigenen Fläche.
 	assert.deepEqual(a.area, AREA);
 	assert.deepEqual(b.area, AREA_B);
 	for (const placement of b.placements) {
@@ -296,9 +296,9 @@ test("zwei Ausgaben fuehren unabhaengige Stapel", () => {
 	}
 });
 
-test("faellt eine Ausgabe weg, wandern ihre Fenster und der alte Zustand bleibt", () => {
+test("fällt eine Ausgabe weg, wandern ihre Fenster und der alte Zustand bleibt", () => {
 	// Testmatrix 9: die Surface der abgesteckten Ausgabe bleibt am Namen
-	// erhalten -- `purgeFromSnapshot` prueft Ausgaben bewusst nicht.
+	// erhalten -- `purgeFromSnapshot` prüft Ausgaben bewusst nicht.
 	const registry = createRegistry();
 	const viewA = singleView();
 	const viewB = view(AUSGABE_B, DESKTOP, ACTIVITY, AREA_B);
@@ -325,14 +325,14 @@ test("faellt eine Ausgabe weg, wandern ihre Fenster und der alte Zustand bleibt"
 	assert.deepEqual(
 		getSurface(registry, viewB.key).order,
 		["b1"],
-		"der Zustand der abgesteckten Ausgabe ueberlebt",
+		"der Zustand der abgesteckten Ausgabe überlebt",
 	);
 });
 
 test("zwei Ausgaben auf verschiedenen Desktops kacheln je ihre eigene Menge", () => {
 	// Der Per-Output-Desktop-Fall. Auf SPIELKISTE ist
 	// `options.perOutputVirtualDesktops` gemessen `false`, alle Ausgaben melden
-	// denselben Desktop -- abnehmen laesst sich das dort also nicht. Hier ist
+	// denselben Desktop -- abnehmen lässt sich das dort also nicht. Hier ist
 	// es der reine Test.
 	const registry = createRegistry();
 	const viewA = singleView();
@@ -354,7 +354,7 @@ test("zwei Ausgaben auf verschiedenen Desktops kacheln je ihre eigene Menge", ()
 	assert.deepEqual(surfaceOf(plan, viewB.key).members, ["b2", "b1"]);
 });
 
-test("nach einem Desktopwechsel kachelt die neue Surface und die alte behaelt ihre Reihenfolge", () => {
+test("nach einem Desktopwechsel kachelt die neue Surface und die alte behält ihre Reihenfolge", () => {
 	// Testmatrix 5.
 	const registry = createRegistry();
 	const viewAlt = singleView();
@@ -371,6 +371,6 @@ test("nach einem Desktopwechsel kachelt die neue Surface und die alte behaelt ih
 	assert.deepEqual(
 		getSurface(registry, viewAlt.key).order,
 		["a2", "a1"],
-		"die verlassene Surface behaelt ihre Reihenfolge",
+		"die verlassene Surface behält ihre Reihenfolge",
 	);
 });

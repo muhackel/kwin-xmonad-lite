@@ -4,7 +4,7 @@ import type { Rect } from "../../src/core/rect.ts";
 export const FUZZ_SEED = 20260905;
 export const FUZZ_COUNT = 500;
 
-/** Linearer Kongruenzgenerator (Numerical Recipes), 32 Bit, ohne Abhaengigkeit. */
+/** Linearer Kongruenzgenerator (Numerical Recipes), 32 Bit, ohne Abhängigkeit. */
 export function makeRng(seed: number): () => number {
 	let state = seed >>> 0;
 	return () => {
@@ -40,7 +40,7 @@ const GRID_AREAS: Rect[] = [
 const GRID_RATIOS = [0.1, 0.35, 0.5, 0.65, 0.9];
 const GRID_GAPS = [0, 1, 8];
 
-/** Erschoepfender Sweep ueber die kleinen Parameterraeume. */
+/** Erschöpfender Sweep über die kleinen Parameterräume. */
 export function gridCases(): LayoutCase[] {
 	const cases: LayoutCase[] = [];
 	for (let a = 0; a < GRID_AREAS.length; a++) {
@@ -67,7 +67,7 @@ export function gridCases(): LayoutCase[] {
 	return cases;
 }
 
-/** Breite, krumme Werte — dort schlaegt Rundung zu, nicht bei 1920x1080. */
+/** Breite, krumme Werte — dort schlägt Rundung zu, nicht bei 1920x1080. */
 export function fuzzCases(amount: number, seed: number): LayoutCase[] {
 	const rng = makeRng(seed);
 	const int = (min: number, max: number) => min + Math.floor(rng() * (max - min + 1));

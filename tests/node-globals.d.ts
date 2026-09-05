@@ -1,6 +1,6 @@
-// Minimaldeklarationen fuer die von den Tests benutzten Node-Module.
-// Das Projekt hat bewusst keine npm-Abhaengigkeiten, @types/node ist im
-// nixpkgs-Pin nicht verfuegbar (nodePackages wurde aus nixpkgs entfernt).
+// Minimaldeklarationen für die von den Tests benutzten Node-Module.
+// Das Projekt hat bewusst keine npm-Abhängigkeiten, @types/node ist im
+// nixpkgs-Pin nicht verfügbar (nodePackages wurde aus nixpkgs entfernt).
 
 declare module "node:test" {
 	export function test(name: string, fn: () => void | Promise<void>): void;

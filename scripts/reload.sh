@@ -1,4 +1,4 @@
-# nix run .#reload -- laedt ausschliesslich die Entwicklungsinstanz neu.
+# nix run .#reload -- lädt ausschließlich die Entwicklungsinstanz neu.
 # Die von loadScript gelieferte ID wird ausgewertet, nicht geraten: sie ist
 # scripts.size() und verschiebt sich, sobald ein anderes Skript geladen ist.
 

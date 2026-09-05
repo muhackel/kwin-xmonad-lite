@@ -162,7 +162,7 @@ je tatsächlich geschriebener Geometrie:
 ```
 kwin-xmonad-lite: bereit perOutputDesktops=false
 kwin-xmonad-lite: arrange #2 grund=windowActivated,windowAdded surfaces=3 mitglieder=8 teilnehmer=5
-kwin-xmonad-lite: surface <activity>|<desktop>|DP-10 layout=tall n=3 ratio=0.65 flaeche=2560x1410+0+0
+kwin-xmonad-lite: surface <activity>|<desktop>|DP-10 layout=tall n=3 ratio=0.65 fläche=2560x1410+0+0
 kwin-xmonad-lite: apply {0fb083bd-…} soll=1664x1410+0+0
 ```
 
@@ -287,11 +287,11 @@ Erwartet: je Panel eine Zeile `dockHinzugefügt {…}`, danach
 `arrange … grund=nachlauf500:dockHinzugefügt` und `nachlauf1500:…` — und
 **kein** `dockEntfernt`, weil beim Laden kein Dock verbunden war. Damit kann
 der Nachlauf nur aus dem `windowAdded`-Zweig stammen. Gemessen auf SPIELKISTE:
-der Startlauf rechnete noch mit `flaeche=…x1440`, der Lauf nach dem letzten
+der Startlauf rechnete noch mit `fläche=…x1440`, der Lauf nach dem letzten
 `dockHinzugefügt` mit `1410`.
 
 **Testmatrix 10** — Panelhöhe ändern. Erwartet: `dockGeometrie`, danach ein
-Lauf mit bereits **neuer** Fläche (`flaeche=2560x1404` statt `1410`) und die
+Lauf mit bereits **neuer** Fläche (`fläche=2560x1404` statt `1410`) und die
 zugehörigen `apply`-Zeilen. Anders als beim Hotplug ist `clientArea` hier
 schon im entprellten Lauf aktuell; die Nachläufe finden nichts mehr zu tun. Während des Ziehens am
 Höhenregler kommt je Zwischenschritt ein Lauf — das ist die laufende

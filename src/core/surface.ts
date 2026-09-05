@@ -1,5 +1,5 @@
 /**
- * Schluessel einer Surface: Activity x Desktop x Ausgabe. Aktivitaets-UUID und
+ * Schlüssel einer Surface: Activity x Desktop x Ausgabe. Aktivitäts-UUID und
  * Desktop-Id kommen von KWin, der Ausgabename ist der DRM-Connector (`DP-1`).
  */
 export type SurfaceKey = string;
@@ -19,7 +19,7 @@ export function surfaceKey(ref: SurfaceRef): SurfaceKey {
 	return ref.activity + SEPARATOR + ref.desktop + SEPARATOR + ref.output;
 }
 
-/** `null`, wenn der Schluessel nicht aus genau drei Teilen besteht. */
+/** `null`, wenn der Schlüssel nicht aus genau drei Teilen besteht. */
 export function parseSurfaceKey(key: SurfaceKey): SurfaceRef | null {
 	const parts = key.split(SEPARATOR);
 	if (parts.length !== 3) {
@@ -35,11 +35,11 @@ export function parseSurfaceKey(key: SurfaceKey): SurfaceRef | null {
 }
 
 /**
- * Ein Trenner in einer Komponente liesse zwei verschiedene Surfaces auf
- * denselben Schluessel fallen. Lieber laut scheitern als still vermischen.
+ * Ein Trenner in einer Komponente ließe zwei verschiedene Surfaces auf
+ * denselben Schlüssel fallen. Lieber laut scheitern als still vermischen.
  */
 function assertClean(value: string, field: string): void {
 	if (value.indexOf(SEPARATOR) >= 0) {
-		throw new Error(`Surface-Schluessel: '${field}' enthaelt den Trenner '${SEPARATOR}'`);
+		throw new Error(`Surface-Schlüssel: '${field}' enthält den Trenner '${SEPARATOR}'`);
 	}
 }
