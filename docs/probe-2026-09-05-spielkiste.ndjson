@@ -1,682 +1,682 @@
-{"k":"meta","id":"start","st":"ok","d":"kwin-xmonad-lite Feature-Probe","r":1788610073440,"n":0}
-{"k":"meta","id":"harness","st":"ok","d":"function","r":1788610073440,"n":1}
-{"k":"globals","id":"console","st":"ok","d":"object","r":1788610073440,"n":2}
-{"k":"globals","id":"print","st":"ok","d":"function","r":1788610073440,"n":3}
-{"k":"globals","id":"readConfig","st":"ok","d":"function","r":1788610073440,"n":4}
-{"k":"globals","id":"registerShortcut","st":"ok","d":"function","r":1788610073440,"n":5}
-{"k":"globals","id":"callDBus","st":"ok","d":"function","r":1788610073440,"n":6}
-{"k":"globals","id":"registerScreenEdge","st":"ok","d":"function","r":1788610073440,"n":7}
-{"k":"globals","id":"unregisterScreenEdge","st":"ok","d":"function","r":1788610073440,"n":8}
-{"k":"globals","id":"registerTouchScreenEdge","st":"ok","d":"function","r":1788610073440,"n":9}
-{"k":"globals","id":"unregisterTouchScreenEdge","st":"ok","d":"function","r":1788610073440,"n":10}
-{"k":"globals","id":"registerUserActionsMenu","st":"ok","d":"function","r":1788610073440,"n":11}
-{"k":"globals","id":"options","st":"ok","d":"object","r":1788610073440,"n":12}
-{"k":"globals","id":"KWin","st":"ok","d":"function","r":1788610073440,"n":13}
-{"k":"globals","id":"workspace","st":"ok","d":"object","r":1788610073440,"n":14}
-{"k":"globals","id":"QTimer","st":"ok","d":"function","r":1788610073440,"n":15}
-{"k":"globals","id":"assert","st":"ok","d":"function","r":1788610073440,"n":16}
-{"k":"globals","id":"assertTrue","st":"ok","d":"function","r":1788610073440,"n":17}
-{"k":"globals","id":"assertFalse","st":"ok","d":"function","r":1788610073440,"n":18}
-{"k":"globals","id":"assertEquals","st":"ok","d":"function","r":1788610073440,"n":19}
-{"k":"globals","id":"assertNull","st":"ok","d":"function","r":1788610073440,"n":20}
-{"k":"globals","id":"setTimeout","st":"absent","d":"undefined","r":1788610073440,"n":21}
-{"k":"globals","id":"setInterval","st":"absent","d":"undefined","r":1788610073440,"n":22}
-{"k":"globals","id":"requestAnimationFrame","st":"absent","d":"undefined","r":1788610073440,"n":23}
-{"k":"globals","id":"Qt","st":"absent","d":"undefined","r":1788610073440,"n":24}
-{"k":"globals","id":"gc","st":"absent","d":"undefined","r":1788610073440,"n":25}
-{"k":"globals","id":"XMLHttpRequest","st":"absent","d":"undefined","r":1788610073440,"n":26}
-{"k":"globals","id":"globalThis","st":"absent","d":"undefined","r":1788610073440,"n":27}
-{"k":"globals","id":"Function","st":"ok","d":"function","r":1788610073440,"n":28}
-{"k":"globals","id":"eval","st":"ok","d":"function","r":1788610073440,"n":29}
-{"k":"globals","id":"console.log","st":"ok","d":"function","r":1788610073440,"n":30}
-{"k":"globals","id":"console.debug","st":"ok","d":"function","r":1788610073440,"n":31}
-{"k":"globals","id":"console.info","st":"ok","d":"function","r":1788610073440,"n":32}
-{"k":"globals","id":"console.warn","st":"ok","d":"function","r":1788610073440,"n":33}
-{"k":"globals","id":"console.error","st":"ok","d":"function","r":1788610073440,"n":34}
-{"k":"globals","id":"console.assert","st":"ok","d":"function","r":1788610073440,"n":35}
-{"k":"globals","id":"console.count","st":"ok","d":"function","r":1788610073440,"n":36}
-{"k":"globals","id":"console.time","st":"ok","d":"function","r":1788610073440,"n":37}
-{"k":"globals","id":"console.timeEnd","st":"ok","d":"function","r":1788610073440,"n":38}
-{"k":"globals","id":"console.trace","st":"ok","d":"function","r":1788610073440,"n":39}
-{"k":"globals","id":"console.dir","st":"absent","d":"undefined","r":1788610073440,"n":40}
-{"k":"es","lvl":2015,"id":"let-const","st":"ok","d":"true","r":1788610073440,"n":41}
-{"k":"es","lvl":2015,"id":"arrow","st":"ok","d":"true","r":1788610073440,"n":42}
-{"k":"es","lvl":2015,"id":"template","st":"ok","d":"true","r":1788610073440,"n":43}
-{"k":"es","lvl":2015,"id":"destr-array","st":"ok","d":"true","r":1788610073440,"n":44}
-{"k":"es","lvl":2015,"id":"destr-obj","st":"ok","d":"true","r":1788610073440,"n":45}
-{"k":"es","lvl":2015,"id":"destr-default","st":"ok","d":"true","r":1788610073440,"n":46}
-{"k":"es","lvl":2015,"id":"param-default","st":"ok","d":"true","r":1788610073440,"n":47}
-{"k":"es","lvl":2015,"id":"rest-param","st":"ok","d":"true","r":1788610073440,"n":48}
-{"k":"es","lvl":2015,"id":"spread-call","st":"ok","d":"true","r":1788610073440,"n":49}
-{"k":"es","lvl":2015,"id":"spread-array","st":"ok","d":"true","r":1788610073440,"n":50}
-{"k":"es","lvl":2015,"id":"shorthand","st":"ok","d":"true","r":1788610073440,"n":51}
-{"k":"es","lvl":2015,"id":"computed-key","st":"ok","d":"true","r":1788610073440,"n":52}
-{"k":"es","lvl":2015,"id":"for-of","st":"ok","d":"true","r":1788610073440,"n":53}
-{"k":"es","lvl":2015,"id":"class","st":"ok","d":"true","r":1788610073440,"n":54}
-{"k":"es","lvl":2015,"id":"class-method","st":"ok","d":"true","r":1788610073440,"n":55}
-{"k":"es","lvl":2015,"id":"class-getter","st":"ok","d":"true","r":1788610073440,"n":56}
-{"k":"es","lvl":2015,"id":"class-static","st":"ok","d":"true","r":1788610073440,"n":57}
-{"k":"es","lvl":2015,"id":"class-extends","st":"ok","d":"true","r":1788610073440,"n":58}
-{"k":"es","lvl":2015,"id":"generator","st":"ok","d":"true","r":1788610073440,"n":59}
-{"k":"es","lvl":2015,"id":"symbol-iterator","st":"ok","d":"true","r":1788610073440,"n":60}
-{"k":"es","lvl":2016,"id":"exponent","st":"ok","d":"true","r":1788610073440,"n":61}
-{"k":"es","lvl":2017,"id":"async-await","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":62}
-{"k":"es","lvl":2017,"id":"trailing-comma-params","st":"ok","d":"true","r":1788610073440,"n":63}
-{"k":"es","lvl":2017,"id":"object-entries","st":"ok","d":"true","r":1788610073440,"n":64}
-{"k":"es","lvl":2017,"id":"object-values","st":"ok","d":"true","r":1788610073440,"n":65}
-{"k":"es","lvl":2018,"id":"spread-object","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":66}
-{"k":"es","lvl":2018,"id":"rest-object","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":67}
-{"k":"es","lvl":2018,"id":"regex-named-groups","st":"runtime","d":"TypeError: Cannot read property 'y' of undefined","r":1788610073440,"n":68}
-{"k":"es","lvl":2019,"id":"object-fromentries","st":"runtime","d":"TypeError: Property 'fromEntries' of object function Object() { [native code] } is not a function","r":1788610073440,"n":69}
-{"k":"es","lvl":2019,"id":"optional-catch-binding","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":70}
-{"k":"es","lvl":2019,"id":"array-flat","st":"runtime","d":"TypeError: Property 'flat' of object 1,2 is not a function","r":1788610073440,"n":71}
-{"k":"es","lvl":2019,"id":"array-flatmap","st":"runtime","d":"TypeError: Property 'flatMap' of object 1 is not a function","r":1788610073440,"n":72}
-{"k":"es","lvl":2019,"id":"string-trimstart","st":"runtime","d":"TypeError: Property 'trimStart' of object  a is not a function","r":1788610073440,"n":73}
-{"k":"es","lvl":2020,"id":"optional-chaining","st":"ok","d":"true","r":1788610073440,"n":74}
-{"k":"es","lvl":2020,"id":"optional-call","st":"ok","d":"true","r":1788610073440,"n":75}
-{"k":"es","lvl":2020,"id":"nullish","st":"ok","d":"true","r":1788610073440,"n":76}
-{"k":"es","lvl":2020,"id":"globalthis","st":"value","d":"false","r":1788610073440,"n":77}
-{"k":"es","lvl":2020,"id":"string-matchall","st":"value","d":"false","r":1788610073440,"n":78}
-{"k":"es","lvl":2020,"id":"promise-allsettled","st":"value","d":"false","r":1788610073440,"n":79}
-{"k":"es","lvl":2021,"id":"logical-assign-nullish","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":80}
-{"k":"es","lvl":2021,"id":"logical-assign-or","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":81}
-{"k":"es","lvl":2021,"id":"logical-assign-and","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":82}
-{"k":"es","lvl":2021,"id":"string-replaceall","st":"runtime","d":"TypeError: Property 'replaceAll' of object aa is not a function","r":1788610073440,"n":83}
-{"k":"es","lvl":2021,"id":"numeric-separator","st":"ok","d":"true","r":1788610073440,"n":84}
-{"k":"es","lvl":2021,"id":"promise-any","st":"value","d":"false","r":1788610073440,"n":85}
-{"k":"es","lvl":2022,"id":"class-field-public","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":86}
-{"k":"es","lvl":2022,"id":"class-field-static","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":87}
-{"k":"es","lvl":2022,"id":"class-field-private","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":88}
-{"k":"es","lvl":2022,"id":"class-static-block","st":"syntax","d":"SyntaxError: Parse error","r":1788610073440,"n":89}
-{"k":"es","lvl":2022,"id":"array-at","st":"runtime","d":"TypeError: Property 'at' of object 1,2 is not a function","r":1788610073440,"n":90}
-{"k":"es","lvl":2022,"id":"string-at","st":"runtime","d":"TypeError: Property 'at' of object ab is not a function","r":1788610073440,"n":91}
-{"k":"es","lvl":2022,"id":"object-hasown","st":"runtime","d":"TypeError: Property 'hasOwn' of object function Object() { [native code] } is not a function","r":1788610073440,"n":92}
-{"k":"es","lvl":2023,"id":"array-findlast","st":"runtime","d":"TypeError: Property 'findLast' of object 1,2 is not a function","r":1788610073440,"n":93}
-{"k":"es","lvl":2023,"id":"array-tosorted","st":"runtime","d":"TypeError: Property 'toSorted' of object 2,1 is not a function","r":1788610073440,"n":94}
-{"k":"es-summary","st":"ok","id":"target","d":"es2016","failed":"async-await,spread-object,rest-object,regex-named-groups,object-fromentries,optional-catch-binding,array-flat,array-flatmap,string-trimstart,globalthis,string-matchall,promise-allsettled,logical-assign-nullish,logical-assign-or,logical-assign-and,string-replaceall,promise-any,class-field-public,class-field-static,class-field-private,class-static-block,array-at,string-at,object-hasown,array-findlast,array-tosorted","r":1788610073440,"n":95}
-{"k":"lib","id":"typeof Map","d":"function","r":1788610073440,"n":96}
-{"k":"lib","id":"typeof Set","d":"function","r":1788610073440,"n":97}
-{"k":"lib","id":"typeof WeakMap","d":"function","r":1788610073440,"n":98}
-{"k":"lib","id":"typeof WeakSet","d":"function","r":1788610073440,"n":99}
-{"k":"lib","id":"typeof Symbol","d":"function","r":1788610073440,"n":100}
-{"k":"lib","id":"typeof Proxy","d":"function","r":1788610073440,"n":101}
-{"k":"lib","id":"typeof Reflect","d":"object","r":1788610073440,"n":102}
-{"k":"lib","id":"typeof Promise","d":"function","r":1788610073440,"n":103}
-{"k":"lib","id":"typeof JSON","d":"object","r":1788610073440,"n":104}
-{"k":"lib","id":"typeof Date","d":"function","r":1788610073440,"n":105}
-{"k":"lib","id":"typeof Math","d":"object","r":1788610073440,"n":106}
-{"k":"lib","id":"typeof RegExp","d":"function","r":1788610073440,"n":107}
-{"k":"es","lvl":0,"id":"Map","st":"ok","d":"true","r":1788610073440,"n":108}
-{"k":"es","lvl":0,"id":"Set","st":"ok","d":"true","r":1788610073440,"n":109}
-{"k":"es","lvl":0,"id":"WeakMap","st":"ok","d":"true","r":1788610073440,"n":110}
-{"k":"es","lvl":0,"id":"Symbol","st":"ok","d":"true","r":1788610073440,"n":111}
-{"k":"es","lvl":0,"id":"Proxy","st":"ok","d":"true","r":1788610073440,"n":112}
-{"k":"es","lvl":0,"id":"Reflect","st":"ok","d":"true","r":1788610073440,"n":113}
-{"k":"es","lvl":0,"id":"Promise","st":"ok","d":"true","r":1788610073440,"n":114}
-{"k":"es","lvl":0,"id":"JSON","st":"ok","d":"true","r":1788610073440,"n":115}
-{"k":"es","lvl":0,"id":"Array.from","st":"ok","d":"true","r":1788610073440,"n":116}
-{"k":"es","lvl":0,"id":"Array.isArray","st":"ok","d":"true","r":1788610073440,"n":117}
-{"k":"es","lvl":0,"id":"Number.isInteger","st":"ok","d":"true","r":1788610073440,"n":118}
-{"k":"es","lvl":0,"id":"Math.trunc","st":"ok","d":"true","r":1788610073440,"n":119}
-{"k":"es","lvl":0,"id":"Date.now","st":"ok","d":"true","r":1788610073440,"n":120}
-{"k":"es","lvl":0,"id":"String.raw","st":"ok","d":"true","r":1788610073440,"n":121}
-{"k":"enum","id":"for-in","d":"","r":1788610073440,"n":122}
-{"k":"enum","id":"Object.keys","d":"","r":1788610073440,"n":123}
-{"k":"enum","id":"KWin.ClientAreaOption","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":124}
-{"k":"enum","id":"KWin.ElectricBorder","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":125}
-{"k":"enum","id":"KWin.MaximizeMode","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":126}
-{"k":"enum","id":"KWin.WindowType","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":127}
-{"k":"enum","id":"KWin.Layer","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":128}
-{"k":"enum","id":"KWin.TabBoxMode","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":129}
-{"k":"enum","id":"KWin.PlacementArea","st":"ok","t":"number","d":"0","r":1788610073440,"n":130}
-{"k":"enum","id":"KWin.MovementArea","st":"ok","t":"number","d":"1","r":1788610073440,"n":131}
-{"k":"enum","id":"KWin.MaximizeArea","st":"ok","t":"number","d":"2","r":1788610073440,"n":132}
-{"k":"enum","id":"KWin.MaximizeFullArea","st":"ok","t":"number","d":"3","r":1788610073440,"n":133}
-{"k":"enum","id":"KWin.FullScreenArea","st":"ok","t":"number","d":"4","r":1788610073440,"n":134}
-{"k":"enum","id":"KWin.WorkArea","st":"ok","t":"number","d":"5","r":1788610073440,"n":135}
-{"k":"enum","id":"KWin.FullArea","st":"ok","t":"number","d":"6","r":1788610073440,"n":136}
-{"k":"enum","id":"KWin.ScreenArea","st":"ok","t":"number","d":"7","r":1788610073440,"n":137}
-{"k":"enum","id":"KWin.MaximizeRestore","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":138}
-{"k":"enum","id":"KWin.MaximizeVertical","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":139}
-{"k":"enum","id":"KWin.MaximizeHorizontal","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":140}
-{"k":"enum","id":"KWin.MaximizeFull","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":141}
-{"k":"enum","id":"KWin.NormalWindow","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":142}
-{"k":"enum","id":"KWin.DesktopWindow","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":143}
-{"k":"enum","id":"KWin.DockWindow","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":144}
-{"k":"enum","id":"KWin.DialogWindow","st":"absent","t":"undefined","d":"undefined","r":1788610073440,"n":145}
-{"k":"obj","o":"workspace","id":"enum-mechanism","d":"forIn=122 keys=122 own=122 proto=10","r":1788610073440,"n":146}
-{"k":"obj","o":"workspace","id":"activeScreen","st":"ok","cls":"object","t":"object","d":"KWin::LogicalOutput(0x5f56b2802e60)","src":"enum","r":1788610073440,"n":147}
-{"k":"obj","o":"workspace","id":"activeWindow","st":"ok","cls":"rect","t":"object","d":"rect x=2560 y=0 w=2560 h=1410","src":"enum","int":true,"r":1788610073440,"n":148}
-{"k":"obj","o":"workspace","id":"activities","st":"ok","cls":"object","t":"object","d":"a89f5ec2-ab8e-4108-8088-7118500a3aab","src":"enum","r":1788610073440,"n":149}
-{"k":"obj","o":"workspace","id":"activitiesChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":150}
-{"k":"obj","o":"workspace","id":"activityAdded","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":151}
-{"k":"obj","o":"workspace","id":"activityRemoved","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":152}
-{"k":"obj","o":"workspace","id":"clientArea","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":153}
-{"k":"obj","o":"workspace","id":"constrain","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":154}
-{"k":"obj","o":"workspace","id":"createDesktop","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":155}
-{"k":"obj","o":"workspace","id":"currentActivity","st":"ok","cls":"string","t":"string","d":"a89f5ec2-ab8e-4108-8088-7118500a3aab","src":"enum","r":1788610073440,"n":156}
-{"k":"obj","o":"workspace","id":"currentActivityChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":157}
-{"k":"obj","o":"workspace","id":"currentDesktop","st":"ok","cls":"object","t":"object","d":"KWin::VirtualDesktop(0x5f56b29e16e0)","src":"enum","r":1788610073440,"n":158}
-{"k":"obj","o":"workspace","id":"currentDesktopChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":159}
-{"k":"obj","o":"workspace","id":"currentDesktopForScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":160}
-{"k":"obj","o":"workspace","id":"cursorPos","st":"ok","cls":"object","t":"object","d":"QPoint(2704, 151)","src":"enum","r":1788610073440,"n":161}
-{"k":"obj","o":"workspace","id":"cursorPosChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":162}
-{"k":"obj","o":"workspace","id":"desktopGridHeight","st":"ok","cls":"number","t":"number","d":"1","src":"enum","r":1788610073440,"n":163}
-{"k":"obj","o":"workspace","id":"desktopGridSize","st":"ok","cls":"size","t":"object","d":"size w=4 h=1","src":"enum","r":1788610073440,"n":164}
-{"k":"obj","o":"workspace","id":"desktopGridWidth","st":"ok","cls":"number","t":"number","d":"4","src":"enum","r":1788610073440,"n":165}
-{"k":"obj","o":"workspace","id":"desktopLayoutChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":166}
-{"k":"obj","o":"workspace","id":"desktops","st":"ok","cls":"object","t":"object","d":"KWin::VirtualDesktop(0x5f56b29e16e0),KWin::VirtualDesktop(0x5f56b2800800),KWin::VirtualDesktop(0x5f56b28006b0),KWin::VirtualDesktop(0x5f56b2a40190)","src":"enum","r":1788610073440,"n":167}
-{"k":"obj","o":"workspace","id":"desktopsChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":168}
-{"k":"obj","o":"workspace","id":"getClient","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":169}
-{"k":"obj","o":"workspace","id":"hideOutline","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":170}
-{"k":"obj","o":"workspace","id":"isEffectActive","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":171}
-{"k":"obj","o":"workspace","id":"moveDesktop","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":172}
-{"k":"obj","o":"workspace","id":"objectName","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":173}
-{"k":"obj","o":"workspace","id":"objectNameChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":174}
-{"k":"obj","o":"workspace","id":"raiseWindow","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":175}
-{"k":"obj","o":"workspace","id":"removeDesktop","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":176}
-{"k":"obj","o":"workspace","id":"rootTile","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":177}
-{"k":"obj","o":"workspace","id":"screenAt","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":178}
-{"k":"obj","o":"workspace","id":"screenOrder","st":"ok","cls":"object","t":"object","d":"KWin::LogicalOutput(0x5f56b2802e60),KWin::LogicalOutput(0x5f56b1ddbc40),KWin::LogicalOutput(0x5f56b1ddbdc0)","src":"enum","r":1788610073440,"n":179}
-{"k":"obj","o":"workspace","id":"screenOrderChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":180}
-{"k":"obj","o":"workspace","id":"screens","st":"ok","cls":"object","t":"object","d":"KWin::LogicalOutput(0x5f56b2802e60),KWin::LogicalOutput(0x5f56b1ddbc40),KWin::LogicalOutput(0x5f56b1ddbdc0)","src":"enum","r":1788610073440,"n":181}
-{"k":"obj","o":"workspace","id":"screensChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":182}
-{"k":"obj","o":"workspace","id":"sendClientToScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":183}
-{"k":"obj","o":"workspace","id":"setCurrentDesktopForScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":184}
-{"k":"obj","o":"workspace","id":"showOutline","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":185}
-{"k":"obj","o":"workspace","id":"slotActivateAttentionWindow","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":186}
-{"k":"obj","o":"workspace","id":"slotIncreaseWindowOpacity","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":187}
-{"k":"obj","o":"workspace","id":"slotLowerWindowOpacity","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":188}
-{"k":"obj","o":"workspace","id":"slotSwitchDesktopDown","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":189}
-{"k":"obj","o":"workspace","id":"slotSwitchDesktopLeft","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":190}
-{"k":"obj","o":"workspace","id":"slotSwitchDesktopNext","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":191}
-{"k":"obj","o":"workspace","id":"slotSwitchDesktopPrevious","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":192}
-{"k":"obj","o":"workspace","id":"slotSwitchDesktopRight","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":193}
-{"k":"obj","o":"workspace","id":"slotSwitchDesktopUp","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":194}
-{"k":"obj","o":"workspace","id":"slotSwitchToAboveScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":195}
-{"k":"obj","o":"workspace","id":"slotSwitchToBelowScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":196}
-{"k":"obj","o":"workspace","id":"slotSwitchToLeftScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":197}
-{"k":"obj","o":"workspace","id":"slotSwitchToNextScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":198}
-{"k":"obj","o":"workspace","id":"slotSwitchToPrevScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":199}
-{"k":"obj","o":"workspace","id":"slotSwitchToRightScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":200}
-{"k":"obj","o":"workspace","id":"slotSwitchWindowDown","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":201}
-{"k":"obj","o":"workspace","id":"slotSwitchWindowLeft","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":202}
-{"k":"obj","o":"workspace","id":"slotSwitchWindowRight","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":203}
-{"k":"obj","o":"workspace","id":"slotSwitchWindowUp","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":204}
-{"k":"obj","o":"workspace","id":"slotToggleShowDesktop","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":205}
-{"k":"obj","o":"workspace","id":"slotWindowAbove","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":206}
-{"k":"obj","o":"workspace","id":"slotWindowBelow","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":207}
-{"k":"obj","o":"workspace","id":"slotWindowClose","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":208}
-{"k":"obj","o":"workspace","id":"slotWindowExcludeFromCapture","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":209}
-{"k":"obj","o":"workspace","id":"slotWindowExpandHorizontal","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":210}
-{"k":"obj","o":"workspace","id":"slotWindowExpandVertical","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":211}
-{"k":"obj","o":"workspace","id":"slotWindowFullScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":212}
-{"k":"obj","o":"workspace","id":"slotWindowLower","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":213}
-{"k":"obj","o":"workspace","id":"slotWindowMaximize","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":214}
-{"k":"obj","o":"workspace","id":"slotWindowMaximizeHorizontal","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":215}
-{"k":"obj","o":"workspace","id":"slotWindowMaximizeVertical","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":216}
-{"k":"obj","o":"workspace","id":"slotWindowMinimize","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":217}
-{"k":"obj","o":"workspace","id":"slotWindowMove","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":218}
-{"k":"obj","o":"workspace","id":"slotWindowMoveDown","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":219}
-{"k":"obj","o":"workspace","id":"slotWindowMoveLeft","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":220}
-{"k":"obj","o":"workspace","id":"slotWindowMoveRight","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":221}
-{"k":"obj","o":"workspace","id":"slotWindowMoveUp","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":222}
-{"k":"obj","o":"workspace","id":"slotWindowNoBorder","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":223}
-{"k":"obj","o":"workspace","id":"slotWindowOnAllDesktops","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":224}
-{"k":"obj","o":"workspace","id":"slotWindowOperations","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":225}
-{"k":"obj","o":"workspace","id":"slotWindowQuickTileBottom","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":226}
-{"k":"obj","o":"workspace","id":"slotWindowQuickTileBottomLeft","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":227}
-{"k":"obj","o":"workspace","id":"slotWindowQuickTileBottomRight","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":228}
-{"k":"obj","o":"workspace","id":"slotWindowQuickTileLeft","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":229}
-{"k":"obj","o":"workspace","id":"slotWindowQuickTileRight","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":230}
-{"k":"obj","o":"workspace","id":"slotWindowQuickTileTop","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":231}
-{"k":"obj","o":"workspace","id":"slotWindowQuickTileTopLeft","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":232}
-{"k":"obj","o":"workspace","id":"slotWindowQuickTileTopRight","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":233}
-{"k":"obj","o":"workspace","id":"slotWindowRaise","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":234}
-{"k":"obj","o":"workspace","id":"slotWindowRaiseOrLower","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":235}
-{"k":"obj","o":"workspace","id":"slotWindowResize","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":236}
-{"k":"obj","o":"workspace","id":"slotWindowShrinkHorizontal","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":237}
-{"k":"obj","o":"workspace","id":"slotWindowShrinkVertical","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":238}
-{"k":"obj","o":"workspace","id":"slotWindowToAboveScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":239}
-{"k":"obj","o":"workspace","id":"slotWindowToBelowScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":240}
-{"k":"obj","o":"workspace","id":"slotWindowToDesktopDown","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":241}
-{"k":"obj","o":"workspace","id":"slotWindowToDesktopLeft","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":242}
-{"k":"obj","o":"workspace","id":"slotWindowToDesktopRight","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":243}
-{"k":"obj","o":"workspace","id":"slotWindowToDesktopUp","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":244}
-{"k":"obj","o":"workspace","id":"slotWindowToLeftScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":245}
-{"k":"obj","o":"workspace","id":"slotWindowToNextDesktop","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":246}
-{"k":"obj","o":"workspace","id":"slotWindowToNextScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":247}
-{"k":"obj","o":"workspace","id":"slotWindowToPrevScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":248}
-{"k":"obj","o":"workspace","id":"slotWindowToPreviousDesktop","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":249}
-{"k":"obj","o":"workspace","id":"slotWindowToRightScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":250}
-{"k":"obj","o":"workspace","id":"stackingOrder","st":"ok","cls":"object","t":"object","d":"KWin::LayerShellV1Window(0x5f56b35f45d0),KWin::LayerShellV1Window(0x5f56b304e4f0),KWin::LayerShellV1Window(0x5f56b356c380),KWin::X11Window(0x5f56b5c64a50),KWin::XdgToplevelWindow(0x5f56b5a488a0),KWin::XdgToplevelWindow(0x5f56b5ada380),KWin::XdgToplevelWindow(0x5f56b3bf5940),KWin::XdgToplevelWindow(0x5f56b54eb600),KWin::XdgToplevelWindow(0x5f56b64a9380),KWin::LayerShellV1Window(0x5f56b3760670),KWin::LayerShellV1Window(0x5f56b303fce0),KWin::LayerShellV1Window(0x5f56b3692b40),KWin::XdgToplevelWindow(0x5f56b3b3f680),KWin::X11Window(0x5f56b5c62330),KWin::X11Window(0x5f56b5c03930)","src":"enum","r":1788610073440,"n":251}
-{"k":"obj","o":"workspace","id":"supportInformation","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":252}
-{"k":"obj","o":"workspace","id":"tilingForScreen","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":253}
-{"k":"obj","o":"workspace","id":"unconstrain","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":254}
-{"k":"obj","o":"workspace","id":"virtualDesktopNavigationWrapsAround","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":255}
-{"k":"obj","o":"workspace","id":"virtualDesktopNavigationWrapsAroundChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":256}
-{"k":"obj","o":"workspace","id":"virtualScreenGeometry","st":"ok","cls":"rect","t":"object","d":"rect x=0 y=0 w=7680 h=1440","src":"enum","int":true,"r":1788610073440,"n":257}
-{"k":"obj","o":"workspace","id":"virtualScreenGeometryChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":258}
-{"k":"obj","o":"workspace","id":"virtualScreenSize","st":"ok","cls":"size","t":"object","d":"size w=7680 h=1440","src":"enum","r":1788610073440,"n":259}
-{"k":"obj","o":"workspace","id":"virtualScreenSizeChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":260}
-{"k":"obj","o":"workspace","id":"windowActivated","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":261}
-{"k":"obj","o":"workspace","id":"windowAdded","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":262}
-{"k":"obj","o":"workspace","id":"windowAt","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":263}
-{"k":"obj","o":"workspace","id":"windowList","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":264}
-{"k":"obj","o":"workspace","id":"windowRemoved","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":265}
-{"k":"obj","o":"workspace","id":"workspaceHeight","st":"ok","cls":"number","t":"number","d":"1440","src":"enum","r":1788610073440,"n":266}
-{"k":"obj","o":"workspace","id":"workspaceSize","st":"ok","cls":"size","t":"object","d":"size w=30720 h=1440","src":"enum","r":1788610073440,"n":267}
-{"k":"obj","o":"workspace","id":"workspaceWidth","st":"ok","cls":"number","t":"number","d":"30720","src":"enum","r":1788610073440,"n":268}
-{"k":"obj","o":"workspace","id":"currentDesktopChanging","st":"absent","src":"list","r":1788610073440,"n":269}
-{"k":"ws","id":"windowList()","st":"ok","d":"isArray=false len=15 first=KWin::LayerShellV1Window(0x5f56b304e4f0)","r":1788610073440,"n":270}
-{"k":"ws","id":"screens","st":"ok","d":"screens=3 order=3","r":1788610073440,"n":271}
-{"k":"ws","id":"screen-identity","st":"ok","d":"same=true","r":1788610073440,"n":272}
-{"k":"ws","id":"screen[0]","st":"ok","d":"KWin::LogicalOutput(0x5f56b2802e60) name=DP-1","r":1788610073440,"n":273}
-{"k":"ws","id":"screen[1]","st":"ok","d":"KWin::LogicalOutput(0x5f56b1ddbc40) name=DP-9","r":1788610073440,"n":274}
-{"k":"ws","id":"screen[2]","st":"ok","d":"KWin::LogicalOutput(0x5f56b1ddbdc0) name=DP-10","r":1788610073440,"n":275}
-{"k":"ws","id":"perOutputVirtualDesktops","st":"ok","d":"false","r":1788610073440,"n":276}
-{"k":"ws","id":"currentDesktopForScreen","st":"ok","r":1788610073440,"n":277}
-{"k":"ws","id":"desktopForScreen[0]","st":"ok","d":"out=DP-1 id=89539ae6-e06b-4c76-a057-95df959578a9 nr=1","r":1788610073440,"n":278}
-{"k":"ws","id":"desktopForScreen[1]","st":"ok","d":"out=DP-9 id=89539ae6-e06b-4c76-a057-95df959578a9 nr=1","r":1788610073440,"n":279}
-{"k":"ws","id":"desktopForScreen[2]","st":"ok","d":"out=DP-10 id=89539ae6-e06b-4c76-a057-95df959578a9 nr=1","r":1788610073440,"n":280}
-{"k":"ws","id":"clientArea(0)","st":"ok","d":"rect x=2560 y=0 w=2560 h=1410","int":true,"r":1788610073440,"n":281}
-{"k":"ws","id":"clientArea(1)","st":"ok","d":"rect x=2560 y=0 w=2560 h=1440","int":true,"r":1788610073440,"n":282}
-{"k":"ws","id":"clientArea(2)","st":"ok","d":"rect x=2560 y=0 w=2560 h=1410","int":true,"r":1788610073440,"n":283}
-{"k":"ws","id":"clientArea(3)","st":"ok","d":"rect x=2560 y=0 w=2560 h=1440","int":true,"r":1788610073440,"n":284}
-{"k":"ws","id":"clientArea(4)","st":"ok","d":"rect x=2560 y=0 w=2560 h=1440","int":true,"r":1788610073440,"n":285}
-{"k":"ws","id":"clientArea(5)","st":"ok","d":"rect x=0 y=0 w=7680 h=1410","int":true,"r":1788610073440,"n":286}
-{"k":"ws","id":"clientArea(6)","st":"ok","d":"rect x=0 y=0 w=7680 h=1440","int":true,"r":1788610073440,"n":287}
-{"k":"ws","id":"clientArea(7)","st":"ok","d":"rect x=2560 y=0 w=2560 h=1440","int":true,"r":1788610073440,"n":288}
-{"k":"obj","o":"window","id":"enum-mechanism","d":"forIn=160 keys=160 own=160 proto=10","r":1788610073440,"n":289}
-{"k":"obj","o":"window","id":"active","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":290}
-{"k":"obj","o":"window","id":"activeChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":291}
-{"k":"obj","o":"window","id":"activities","st":"ok","cls":"object","t":"object","d":"a89f5ec2-ab8e-4108-8088-7118500a3aab","src":"enum","r":1788610073440,"n":292}
-{"k":"obj","o":"window","id":"activitiesChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":293}
-{"k":"obj","o":"window","id":"appletPopup","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":294}
-{"k":"obj","o":"window","id":"applicationMenuActive","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":295}
-{"k":"obj","o":"window","id":"applicationMenuActiveChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":296}
-{"k":"obj","o":"window","id":"applicationMenuChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":297}
-{"k":"obj","o":"window","id":"borderRadiusChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":298}
-{"k":"obj","o":"window","id":"bufferGeometry","st":"ok","cls":"rect","t":"object","d":"rect x=5120 y=0 w=2560 h=1440","src":"enum","int":true,"r":1788610073440,"n":299}
-{"k":"obj","o":"window","id":"bufferGeometryChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":300}
-{"k":"obj","o":"window","id":"caption","st":"ok","cls":"string","t":"string","d":"The Entire Story of The Blacklist in 91 Minutes - YouTube - Google Chrome","src":"enum","r":1788610073440,"n":301}
-{"k":"obj","o":"window","id":"captionChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":302}
-{"k":"obj","o":"window","id":"captionNormal","st":"ok","cls":"string","t":"string","d":"The Entire Story of The Blacklist in 91 Minutes - YouTube - Google Chrome","src":"enum","r":1788610073440,"n":303}
-{"k":"obj","o":"window","id":"captionNormalChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":304}
-{"k":"obj","o":"window","id":"clientGeometry","st":"ok","cls":"rect","t":"object","d":"rect x=5120 y=0 w=2560 h=1440","src":"enum","int":true,"r":1788610073440,"n":305}
-{"k":"obj","o":"window","id":"clientGeometryChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":306}
-{"k":"obj","o":"window","id":"closeWindow","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":307}
-{"k":"obj","o":"window","id":"closeable","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":308}
-{"k":"obj","o":"window","id":"closeableChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":309}
-{"k":"obj","o":"window","id":"closed","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":310}
-{"k":"obj","o":"window","id":"colorScheme","st":"ok","cls":"string","t":"string","d":"kdeglobals","src":"enum","r":1788610073440,"n":311}
-{"k":"obj","o":"window","id":"colorSchemeChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":312}
-{"k":"obj","o":"window","id":"comboBox","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":313}
-{"k":"obj","o":"window","id":"criticalNotification","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":314}
-{"k":"obj","o":"window","id":"damaged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":315}
-{"k":"obj","o":"window","id":"decorationChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":316}
-{"k":"obj","o":"window","id":"decorationHasAlpha","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":317}
-{"k":"obj","o":"window","id":"decorationPolicyChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":318}
-{"k":"obj","o":"window","id":"deleted","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":319}
-{"k":"obj","o":"window","id":"demandsAttention","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":320}
-{"k":"obj","o":"window","id":"demandsAttentionChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":321}
-{"k":"obj","o":"window","id":"description","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":322}
-{"k":"obj","o":"window","id":"descriptionChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":323}
-{"k":"obj","o":"window","id":"desktopFileName","st":"ok","cls":"string","t":"string","d":"google-chrome","src":"enum","r":1788610073440,"n":324}
-{"k":"obj","o":"window","id":"desktopFileNameChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":325}
-{"k":"obj","o":"window","id":"desktopWindow","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":326}
-{"k":"obj","o":"window","id":"desktops","st":"ok","cls":"object","t":"object","d":"KWin::VirtualDesktop(0x5f56b29e16e0)","src":"enum","r":1788610073440,"n":327}
-{"k":"obj","o":"window","id":"desktopsChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":328}
-{"k":"obj","o":"window","id":"dialog","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":329}
-{"k":"obj","o":"window","id":"dndIcon","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":330}
-{"k":"obj","o":"window","id":"dock","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":331}
-{"k":"obj","o":"window","id":"dropdownMenu","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":332}
-{"k":"obj","o":"window","id":"excludeFromCapture","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":333}
-{"k":"obj","o":"window","id":"excludeFromCaptureChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":334}
-{"k":"obj","o":"window","id":"frameGeometry","st":"ok","cls":"rect","t":"object","d":"rect x=5120 y=0 w=2560 h=1440","src":"enum","int":true,"r":1788610073440,"n":335}
-{"k":"obj","o":"window","id":"frameGeometryAboutToChange","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":336}
-{"k":"obj","o":"window","id":"frameGeometryChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":337}
-{"k":"obj","o":"window","id":"fullScreen","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":338}
-{"k":"obj","o":"window","id":"fullScreenChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":339}
-{"k":"obj","o":"window","id":"fullScreenable","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":340}
-{"k":"obj","o":"window","id":"fullscreenGeometryRestoreChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":341}
-{"k":"obj","o":"window","id":"hasApplicationMenu","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":342}
-{"k":"obj","o":"window","id":"hasApplicationMenuChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":343}
-{"k":"obj","o":"window","id":"height","st":"ok","cls":"number","t":"number","d":"1440","src":"enum","r":1788610073440,"n":344}
-{"k":"obj","o":"window","id":"hidden","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":345}
-{"k":"obj","o":"window","id":"hiddenByShowDesktopChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":346}
-{"k":"obj","o":"window","id":"hiddenChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":347}
-{"k":"obj","o":"window","id":"icon","st":"ok","cls":"object","t":"object","d":"QIcon()","src":"enum","r":1788610073440,"n":348}
-{"k":"obj","o":"window","id":"iconChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":349}
-{"k":"obj","o":"window","id":"iconGeometry","st":"ok","cls":"rect","t":"object","d":"rect x=5623 y=1410 w=54 h=30","src":"enum","int":true,"r":1788610073440,"n":350}
-{"k":"obj","o":"window","id":"inputMethod","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":351}
-{"k":"obj","o":"window","id":"inputTransformationChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":352}
-{"k":"obj","o":"window","id":"interactiveMoveResizeFinished","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":353}
-{"k":"obj","o":"window","id":"interactiveMoveResizeStarted","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":354}
-{"k":"obj","o":"window","id":"interactiveMoveResizeStepped","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":355}
-{"k":"obj","o":"window","id":"internalId","st":"ok","cls":"object","t":"object","d":"{551b13a0-8e8f-4ea7-8a1b-aabef935b185}","src":"enum","r":1788610073440,"n":356}
-{"k":"obj","o":"window","id":"keepAbove","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":357}
-{"k":"obj","o":"window","id":"keepAboveChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":358}
-{"k":"obj","o":"window","id":"keepBelow","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":359}
-{"k":"obj","o":"window","id":"keepBelowChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":360}
-{"k":"obj","o":"window","id":"layer","st":"ok","cls":"number","t":"number","d":"5","src":"enum","r":1788610073440,"n":361}
-{"k":"obj","o":"window","id":"lockScreenOverlayChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":362}
-{"k":"obj","o":"window","id":"managed","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":363}
-{"k":"obj","o":"window","id":"maxSize","st":"ok","cls":"size","t":"object","d":"size w=2147483647 h=2147483647","src":"enum","r":1788610073440,"n":364}
-{"k":"obj","o":"window","id":"maximizable","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":365}
-{"k":"obj","o":"window","id":"maximizeGeometryRestoreChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":366}
-{"k":"obj","o":"window","id":"maximizeMode","st":"ok","cls":"number","t":"number","d":"3","src":"enum","r":1788610073440,"n":367}
-{"k":"obj","o":"window","id":"maximizeableChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":368}
-{"k":"obj","o":"window","id":"maximizedAboutToChange","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":369}
-{"k":"obj","o":"window","id":"maximizedChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":370}
-{"k":"obj","o":"window","id":"menu","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":371}
-{"k":"obj","o":"window","id":"minSize","st":"ok","cls":"size","t":"object","d":"size w=500 h=46","src":"enum","r":1788610073440,"n":372}
-{"k":"obj","o":"window","id":"minimizable","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":373}
-{"k":"obj","o":"window","id":"minimizeableChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":374}
-{"k":"obj","o":"window","id":"minimized","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":375}
-{"k":"obj","o":"window","id":"minimizedChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":376}
-{"k":"obj","o":"window","id":"modal","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":377}
-{"k":"obj","o":"window","id":"modalChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":378}
-{"k":"obj","o":"window","id":"move","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":379}
-{"k":"obj","o":"window","id":"moveResizeCursorChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":380}
-{"k":"obj","o":"window","id":"moveResizedChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":381}
-{"k":"obj","o":"window","id":"moveable","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":382}
-{"k":"obj","o":"window","id":"moveableAcrossScreens","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":383}
-{"k":"obj","o":"window","id":"nextTargetScaleChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":384}
-{"k":"obj","o":"window","id":"noBorder","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":385}
-{"k":"obj","o":"window","id":"normalWindow","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":386}
-{"k":"obj","o":"window","id":"notification","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":387}
-{"k":"obj","o":"window","id":"objectName","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":388}
-{"k":"obj","o":"window","id":"objectNameChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":389}
-{"k":"obj","o":"window","id":"offscreenRenderingChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":390}
-{"k":"obj","o":"window","id":"onAllDesktops","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":391}
-{"k":"obj","o":"window","id":"onScreenDisplay","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":392}
-{"k":"obj","o":"window","id":"opacity","st":"ok","cls":"number","t":"number","d":"1","src":"enum","r":1788610073440,"n":393}
-{"k":"obj","o":"window","id":"opacityChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":394}
-{"k":"obj","o":"window","id":"outline","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":395}
-{"k":"obj","o":"window","id":"output","st":"ok","cls":"object","t":"object","d":"KWin::LogicalOutput(0x5f56b1ddbc40)","src":"enum","r":1788610073440,"n":396}
-{"k":"obj","o":"window","id":"outputChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":397}
-{"k":"obj","o":"window","id":"paletteChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":398}
-{"k":"obj","o":"window","id":"pid","st":"ok","cls":"number","t":"number","d":"9245","src":"enum","r":1788610073440,"n":399}
-{"k":"obj","o":"window","id":"popupMenu","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":400}
-{"k":"obj","o":"window","id":"popupWindow","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":401}
-{"k":"obj","o":"window","id":"pos","st":"ok","cls":"object","t":"object","d":"QPointF(5120, 0)","src":"enum","r":1788610073440,"n":402}
-{"k":"obj","o":"window","id":"providesContextHelp","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":403}
-{"k":"obj","o":"window","id":"quickTileModeChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":404}
-{"k":"obj","o":"window","id":"readyForPaintingChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":405}
-{"k":"obj","o":"window","id":"rect","st":"ok","cls":"rect","t":"object","d":"rect x=0 y=0 w=2560 h=1440","src":"enum","int":true,"r":1788610073440,"n":406}
-{"k":"obj","o":"window","id":"requestedTileChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":407}
-{"k":"obj","o":"window","id":"resize","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":408}
-{"k":"obj","o":"window","id":"resizeable","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":409}
-{"k":"obj","o":"window","id":"resourceClass","st":"ok","cls":"string","t":"string","d":"google-chrome","src":"enum","r":1788610073440,"n":410}
-{"k":"obj","o":"window","id":"resourceName","st":"ok","cls":"string","t":"string","d":"chrome","src":"enum","r":1788610073440,"n":411}
-{"k":"obj","o":"window","id":"setMaximize","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":412}
-{"k":"obj","o":"window","id":"setReadyForPainting","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":413}
-{"k":"obj","o":"window","id":"shadowChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":414}
-{"k":"obj","o":"window","id":"size","st":"ok","cls":"size","t":"object","d":"size w=2560 h=1440","src":"enum","r":1788610073440,"n":415}
-{"k":"obj","o":"window","id":"skipCloseAnimationChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":416}
-{"k":"obj","o":"window","id":"skipPager","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":417}
-{"k":"obj","o":"window","id":"skipPagerChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":418}
-{"k":"obj","o":"window","id":"skipSwitcher","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":419}
-{"k":"obj","o":"window","id":"skipSwitcherChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":420}
-{"k":"obj","o":"window","id":"skipTaskbar","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":421}
-{"k":"obj","o":"window","id":"skipTaskbarChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":422}
-{"k":"obj","o":"window","id":"skipsCloseAnimation","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":423}
-{"k":"obj","o":"window","id":"specialWindow","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":424}
-{"k":"obj","o":"window","id":"splash","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":425}
-{"k":"obj","o":"window","id":"stackingOrder","st":"ok","cls":"number","t":"number","d":"12","src":"enum","r":1788610073440,"n":426}
-{"k":"obj","o":"window","id":"stackingOrderChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":427}
-{"k":"obj","o":"window","id":"surfaceChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":428}
-{"k":"obj","o":"window","id":"tag","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":429}
-{"k":"obj","o":"window","id":"tagChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":430}
-{"k":"obj","o":"window","id":"targetScaleChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":431}
-{"k":"obj","o":"window","id":"tile","st":"ok","cls":"object","t":"object","d":"null","src":"enum","r":1788610073440,"n":432}
-{"k":"obj","o":"window","id":"tileChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":433}
-{"k":"obj","o":"window","id":"toolbar","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":434}
-{"k":"obj","o":"window","id":"tooltip","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":435}
-{"k":"obj","o":"window","id":"transient","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":436}
-{"k":"obj","o":"window","id":"transientChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":437}
-{"k":"obj","o":"window","id":"transientFor","st":"ok","cls":"object","t":"object","d":"null","src":"enum","r":1788610073440,"n":438}
-{"k":"obj","o":"window","id":"unresponsive","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":439}
-{"k":"obj","o":"window","id":"unresponsiveChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":440}
-{"k":"obj","o":"window","id":"utility","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":441}
-{"k":"obj","o":"window","id":"wantsInput","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":442}
-{"k":"obj","o":"window","id":"width","st":"ok","cls":"number","t":"number","d":"2560","src":"enum","r":1788610073440,"n":443}
-{"k":"obj","o":"window","id":"windowClassChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":444}
-{"k":"obj","o":"window","id":"windowRole","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":445}
-{"k":"obj","o":"window","id":"windowRoleChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":446}
-{"k":"obj","o":"window","id":"windowType","st":"ok","cls":"number","t":"number","d":"0","src":"enum","r":1788610073440,"n":447}
-{"k":"obj","o":"window","id":"x","st":"ok","cls":"number","t":"number","d":"5120","src":"enum","r":1788610073440,"n":448}
-{"k":"obj","o":"window","id":"y","st":"ok","cls":"number","t":"number","d":"0","src":"enum","r":1788610073440,"n":449}
-{"k":"obj","o":"window","id":"shaded","st":"absent","src":"list","r":1788610073440,"n":450}
-{"k":"obj","o":"window","id":"x11Window","st":"absent","src":"list","r":1788610073440,"n":451}
-{"k":"obj","o":"dock","id":"enum-mechanism","d":"forIn=160 keys=160 own=160 proto=10","r":1788610073440,"n":452}
-{"k":"obj","o":"dock","id":"active","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":453}
-{"k":"obj","o":"dock","id":"activeChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":454}
-{"k":"obj","o":"dock","id":"activities","st":"ok","cls":"object","t":"object","d":"","src":"enum","r":1788610073440,"n":455}
-{"k":"obj","o":"dock","id":"activitiesChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":456}
-{"k":"obj","o":"dock","id":"appletPopup","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":457}
-{"k":"obj","o":"dock","id":"applicationMenuActive","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":458}
-{"k":"obj","o":"dock","id":"applicationMenuActiveChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":459}
-{"k":"obj","o":"dock","id":"applicationMenuChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":460}
-{"k":"obj","o":"dock","id":"borderRadiusChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":461}
-{"k":"obj","o":"dock","id":"bufferGeometry","st":"ok","cls":"rect","t":"object","d":"rect x=2560 y=1410 w=2560 h=30","src":"enum","int":true,"r":1788610073440,"n":462}
-{"k":"obj","o":"dock","id":"bufferGeometryChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":463}
-{"k":"obj","o":"dock","id":"caption","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":464}
-{"k":"obj","o":"dock","id":"captionChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":465}
-{"k":"obj","o":"dock","id":"captionNormal","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":466}
-{"k":"obj","o":"dock","id":"captionNormalChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":467}
-{"k":"obj","o":"dock","id":"clientGeometry","st":"ok","cls":"rect","t":"object","d":"rect x=2560 y=1410 w=2560 h=30","src":"enum","int":true,"r":1788610073440,"n":468}
-{"k":"obj","o":"dock","id":"clientGeometryChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":469}
-{"k":"obj","o":"dock","id":"closeWindow","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":470}
-{"k":"obj","o":"dock","id":"closeable","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":471}
-{"k":"obj","o":"dock","id":"closeableChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":472}
-{"k":"obj","o":"dock","id":"closed","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":473}
-{"k":"obj","o":"dock","id":"colorScheme","st":"ok","cls":"string","t":"string","d":"kdeglobals","src":"enum","r":1788610073440,"n":474}
-{"k":"obj","o":"dock","id":"colorSchemeChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":475}
-{"k":"obj","o":"dock","id":"comboBox","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":476}
-{"k":"obj","o":"dock","id":"criticalNotification","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":477}
-{"k":"obj","o":"dock","id":"damaged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":478}
-{"k":"obj","o":"dock","id":"decorationChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":479}
-{"k":"obj","o":"dock","id":"decorationHasAlpha","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":480}
-{"k":"obj","o":"dock","id":"decorationPolicyChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":481}
-{"k":"obj","o":"dock","id":"deleted","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":482}
-{"k":"obj","o":"dock","id":"demandsAttention","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":483}
-{"k":"obj","o":"dock","id":"demandsAttentionChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":484}
-{"k":"obj","o":"dock","id":"description","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":485}
-{"k":"obj","o":"dock","id":"descriptionChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":486}
-{"k":"obj","o":"dock","id":"desktopFileName","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":487}
-{"k":"obj","o":"dock","id":"desktopFileNameChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":488}
-{"k":"obj","o":"dock","id":"desktopWindow","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":489}
-{"k":"obj","o":"dock","id":"desktops","st":"ok","cls":"object","t":"object","d":"","src":"enum","r":1788610073440,"n":490}
-{"k":"obj","o":"dock","id":"desktopsChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":491}
-{"k":"obj","o":"dock","id":"dialog","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":492}
-{"k":"obj","o":"dock","id":"dndIcon","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":493}
-{"k":"obj","o":"dock","id":"dock","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":494}
-{"k":"obj","o":"dock","id":"dropdownMenu","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":495}
-{"k":"obj","o":"dock","id":"excludeFromCapture","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":496}
-{"k":"obj","o":"dock","id":"excludeFromCaptureChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":497}
-{"k":"obj","o":"dock","id":"frameGeometry","st":"ok","cls":"rect","t":"object","d":"rect x=2560 y=1410 w=2560 h=30","src":"enum","int":true,"r":1788610073440,"n":498}
-{"k":"obj","o":"dock","id":"frameGeometryAboutToChange","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":499}
-{"k":"obj","o":"dock","id":"frameGeometryChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":500}
-{"k":"obj","o":"dock","id":"fullScreen","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":501}
-{"k":"obj","o":"dock","id":"fullScreenChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":502}
-{"k":"obj","o":"dock","id":"fullScreenable","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":503}
-{"k":"obj","o":"dock","id":"fullscreenGeometryRestoreChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":504}
-{"k":"obj","o":"dock","id":"hasApplicationMenu","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":505}
-{"k":"obj","o":"dock","id":"hasApplicationMenuChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":506}
-{"k":"obj","o":"dock","id":"height","st":"ok","cls":"number","t":"number","d":"30","src":"enum","r":1788610073440,"n":507}
-{"k":"obj","o":"dock","id":"hidden","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":508}
-{"k":"obj","o":"dock","id":"hiddenByShowDesktopChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":509}
-{"k":"obj","o":"dock","id":"hiddenChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":510}
-{"k":"obj","o":"dock","id":"icon","st":"ok","cls":"object","t":"object","d":"QIcon()","src":"enum","r":1788610073440,"n":511}
-{"k":"obj","o":"dock","id":"iconChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":512}
-{"k":"obj","o":"dock","id":"iconGeometry","st":"ok","cls":"rect","t":"object","d":"rect x=0 y=0 w=0 h=0","src":"enum","int":true,"r":1788610073440,"n":513}
-{"k":"obj","o":"dock","id":"inputMethod","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":514}
-{"k":"obj","o":"dock","id":"inputTransformationChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":515}
-{"k":"obj","o":"dock","id":"interactiveMoveResizeFinished","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":516}
-{"k":"obj","o":"dock","id":"interactiveMoveResizeStarted","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":517}
-{"k":"obj","o":"dock","id":"interactiveMoveResizeStepped","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":518}
-{"k":"obj","o":"dock","id":"internalId","st":"ok","cls":"object","t":"object","d":"{285a8fb6-142f-4f25-afcf-dc867fe65637}","src":"enum","r":1788610073440,"n":519}
-{"k":"obj","o":"dock","id":"keepAbove","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":520}
-{"k":"obj","o":"dock","id":"keepAboveChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":521}
-{"k":"obj","o":"dock","id":"keepBelow","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":522}
-{"k":"obj","o":"dock","id":"keepBelowChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":523}
-{"k":"obj","o":"dock","id":"layer","st":"ok","cls":"number","t":"number","d":"3","src":"enum","r":1788610073440,"n":524}
-{"k":"obj","o":"dock","id":"lockScreenOverlayChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":525}
-{"k":"obj","o":"dock","id":"managed","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":526}
-{"k":"obj","o":"dock","id":"maxSize","st":"ok","cls":"size","t":"object","d":"size w=2147483647 h=2147483647","src":"enum","r":1788610073440,"n":527}
-{"k":"obj","o":"dock","id":"maximizable","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":528}
-{"k":"obj","o":"dock","id":"maximizeGeometryRestoreChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":529}
-{"k":"obj","o":"dock","id":"maximizeMode","st":"ok","cls":"number","t":"number","d":"0","src":"enum","r":1788610073440,"n":530}
-{"k":"obj","o":"dock","id":"maximizeableChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":531}
-{"k":"obj","o":"dock","id":"maximizedAboutToChange","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":532}
-{"k":"obj","o":"dock","id":"maximizedChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":533}
-{"k":"obj","o":"dock","id":"menu","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":534}
-{"k":"obj","o":"dock","id":"minSize","st":"ok","cls":"size","t":"object","d":"size w=0 h=0","src":"enum","r":1788610073440,"n":535}
-{"k":"obj","o":"dock","id":"minimizable","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":536}
-{"k":"obj","o":"dock","id":"minimizeableChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":537}
-{"k":"obj","o":"dock","id":"minimized","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":538}
-{"k":"obj","o":"dock","id":"minimizedChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":539}
-{"k":"obj","o":"dock","id":"modal","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":540}
-{"k":"obj","o":"dock","id":"modalChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":541}
-{"k":"obj","o":"dock","id":"move","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":542}
-{"k":"obj","o":"dock","id":"moveResizeCursorChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":543}
-{"k":"obj","o":"dock","id":"moveResizedChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":544}
-{"k":"obj","o":"dock","id":"moveable","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":545}
-{"k":"obj","o":"dock","id":"moveableAcrossScreens","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":546}
-{"k":"obj","o":"dock","id":"nextTargetScaleChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":547}
-{"k":"obj","o":"dock","id":"noBorder","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":548}
-{"k":"obj","o":"dock","id":"normalWindow","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":549}
-{"k":"obj","o":"dock","id":"notification","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":550}
-{"k":"obj","o":"dock","id":"objectName","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":551}
-{"k":"obj","o":"dock","id":"objectNameChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":552}
-{"k":"obj","o":"dock","id":"offscreenRenderingChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":553}
-{"k":"obj","o":"dock","id":"onAllDesktops","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":554}
-{"k":"obj","o":"dock","id":"onScreenDisplay","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":555}
-{"k":"obj","o":"dock","id":"opacity","st":"ok","cls":"number","t":"number","d":"1","src":"enum","r":1788610073440,"n":556}
-{"k":"obj","o":"dock","id":"opacityChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":557}
-{"k":"obj","o":"dock","id":"outline","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":558}
-{"k":"obj","o":"dock","id":"output","st":"ok","cls":"object","t":"object","d":"KWin::LogicalOutput(0x5f56b2802e60)","src":"enum","r":1788610073440,"n":559}
-{"k":"obj","o":"dock","id":"outputChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":560}
-{"k":"obj","o":"dock","id":"paletteChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":561}
-{"k":"obj","o":"dock","id":"pid","st":"ok","cls":"number","t":"number","d":"3371","src":"enum","r":1788610073440,"n":562}
-{"k":"obj","o":"dock","id":"popupMenu","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":563}
-{"k":"obj","o":"dock","id":"popupWindow","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":564}
-{"k":"obj","o":"dock","id":"pos","st":"ok","cls":"object","t":"object","d":"QPointF(2560, 1410)","src":"enum","r":1788610073440,"n":565}
-{"k":"obj","o":"dock","id":"providesContextHelp","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":566}
-{"k":"obj","o":"dock","id":"quickTileModeChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":567}
-{"k":"obj","o":"dock","id":"readyForPaintingChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":568}
-{"k":"obj","o":"dock","id":"rect","st":"ok","cls":"rect","t":"object","d":"rect x=0 y=0 w=2560 h=30","src":"enum","int":true,"r":1788610073440,"n":569}
-{"k":"obj","o":"dock","id":"requestedTileChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":570}
-{"k":"obj","o":"dock","id":"resize","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":571}
-{"k":"obj","o":"dock","id":"resizeable","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":572}
-{"k":"obj","o":"dock","id":"resourceClass","st":"ok","cls":"string","t":"string","d":"plasmashell","src":"enum","r":1788610073440,"n":573}
-{"k":"obj","o":"dock","id":"resourceName","st":"ok","cls":"string","t":"string","d":"plasmashell","src":"enum","r":1788610073440,"n":574}
-{"k":"obj","o":"dock","id":"setMaximize","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":575}
-{"k":"obj","o":"dock","id":"setReadyForPainting","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":576}
-{"k":"obj","o":"dock","id":"shadowChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":577}
-{"k":"obj","o":"dock","id":"size","st":"ok","cls":"size","t":"object","d":"size w=2560 h=30","src":"enum","r":1788610073440,"n":578}
-{"k":"obj","o":"dock","id":"skipCloseAnimationChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":579}
-{"k":"obj","o":"dock","id":"skipPager","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":580}
-{"k":"obj","o":"dock","id":"skipPagerChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":581}
-{"k":"obj","o":"dock","id":"skipSwitcher","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":582}
-{"k":"obj","o":"dock","id":"skipSwitcherChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":583}
-{"k":"obj","o":"dock","id":"skipTaskbar","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":584}
-{"k":"obj","o":"dock","id":"skipTaskbarChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":585}
-{"k":"obj","o":"dock","id":"skipsCloseAnimation","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":586}
-{"k":"obj","o":"dock","id":"specialWindow","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"enum","r":1788610073440,"n":587}
-{"k":"obj","o":"dock","id":"splash","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":588}
-{"k":"obj","o":"dock","id":"stackingOrder","st":"ok","cls":"number","t":"number","d":"9","src":"enum","r":1788610073440,"n":589}
-{"k":"obj","o":"dock","id":"stackingOrderChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":590}
-{"k":"obj","o":"dock","id":"surfaceChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":591}
-{"k":"obj","o":"dock","id":"tag","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":592}
-{"k":"obj","o":"dock","id":"tagChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":593}
-{"k":"obj","o":"dock","id":"targetScaleChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":594}
-{"k":"obj","o":"dock","id":"tile","st":"ok","cls":"object","t":"object","d":"null","src":"enum","r":1788610073440,"n":595}
-{"k":"obj","o":"dock","id":"tileChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":596}
-{"k":"obj","o":"dock","id":"toolbar","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":597}
-{"k":"obj","o":"dock","id":"tooltip","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":598}
-{"k":"obj","o":"dock","id":"transient","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":599}
-{"k":"obj","o":"dock","id":"transientChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":600}
-{"k":"obj","o":"dock","id":"transientFor","st":"ok","cls":"object","t":"object","d":"null","src":"enum","r":1788610073440,"n":601}
-{"k":"obj","o":"dock","id":"unresponsive","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":602}
-{"k":"obj","o":"dock","id":"unresponsiveChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":603}
-{"k":"obj","o":"dock","id":"utility","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":604}
-{"k":"obj","o":"dock","id":"wantsInput","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"enum","r":1788610073440,"n":605}
-{"k":"obj","o":"dock","id":"width","st":"ok","cls":"number","t":"number","d":"2560","src":"enum","r":1788610073440,"n":606}
-{"k":"obj","o":"dock","id":"windowClassChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":607}
-{"k":"obj","o":"dock","id":"windowRole","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":608}
-{"k":"obj","o":"dock","id":"windowRoleChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":609}
-{"k":"obj","o":"dock","id":"windowType","st":"ok","cls":"number","t":"number","d":"2","src":"enum","r":1788610073440,"n":610}
-{"k":"obj","o":"dock","id":"x","st":"ok","cls":"number","t":"number","d":"2560","src":"enum","r":1788610073440,"n":611}
-{"k":"obj","o":"dock","id":"y","st":"ok","cls":"number","t":"number","d":"1410","src":"enum","r":1788610073440,"n":612}
-{"k":"obj","o":"dock","id":"shaded","st":"absent","src":"list","r":1788610073440,"n":613}
-{"k":"obj","o":"dock","id":"x11Window","st":"absent","src":"list","r":1788610073440,"n":614}
-{"k":"obj","o":"activeWindow","id":"<objekt>","st":"ok","d":"rect x=2560 y=0 w=2560 h=1410","r":1788610073440,"n":615}
-{"k":"obj","o":"output","id":"enum-mechanism","d":"forIn=18 keys=18 own=18 proto=10","r":1788610073440,"n":616}
-{"k":"obj","o":"output","id":"aboutToChange","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":617}
-{"k":"obj","o":"output","id":"blendingColorChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":618}
-{"k":"obj","o":"output","id":"changed","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":619}
-{"k":"obj","o":"output","id":"currentModeChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":620}
-{"k":"obj","o":"output","id":"descriptionChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":621}
-{"k":"obj","o":"output","id":"devicePixelRatio","st":"ok","cls":"number","t":"number","d":"1","src":"enum","r":1788610073440,"n":622}
-{"k":"obj","o":"output","id":"geometry","st":"ok","cls":"rect","t":"object","d":"rect x=2560 y=0 w=2560 h=1440","src":"enum","int":true,"r":1788610073440,"n":623}
-{"k":"obj","o":"output","id":"geometryChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":624}
-{"k":"obj","o":"output","id":"manufacturer","st":"ok","cls":"string","t":"string","d":"LEN","src":"enum","r":1788610073440,"n":625}
-{"k":"obj","o":"output","id":"mapFromGlobal","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":626}
-{"k":"obj","o":"output","id":"mapToGlobal","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":627}
-{"k":"obj","o":"output","id":"model","st":"ok","cls":"string","t":"string","d":"P27h-30","src":"enum","r":1788610073440,"n":628}
-{"k":"obj","o":"output","id":"name","st":"ok","cls":"string","t":"string","d":"DP-1","src":"enum","r":1788610073440,"n":629}
-{"k":"obj","o":"output","id":"objectName","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":630}
-{"k":"obj","o":"output","id":"objectNameChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":631}
-{"k":"obj","o":"output","id":"scaleChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":632}
-{"k":"obj","o":"output","id":"serialNumber","st":"ok","cls":"string","t":"string","d":"V30A4DVG","src":"enum","r":1788610073440,"n":633}
-{"k":"obj","o":"output","id":"transformChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":634}
-{"k":"obj","o":"output","id":"uuid","st":"absent","src":"list","r":1788610073440,"n":635}
-{"k":"obj","o":"output","id":"enabled","st":"absent","src":"list","r":1788610073440,"n":636}
-{"k":"obj","o":"output","id":"scale","st":"absent","src":"list","r":1788610073440,"n":637}
-{"k":"obj","o":"output","id":"refreshRate","st":"absent","src":"list","r":1788610073440,"n":638}
-{"k":"obj","o":"output","id":"transform","st":"absent","src":"list","r":1788610073440,"n":639}
-{"k":"obj","o":"output","id":"dpmsMode","st":"absent","src":"list","r":1788610073440,"n":640}
-{"k":"obj","o":"desktop","id":"enum-mechanism","d":"forIn=8 keys=8 own=8 proto=10","r":1788610073440,"n":641}
-{"k":"obj","o":"desktop","id":"aboutToBeDestroyed","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":642}
-{"k":"obj","o":"desktop","id":"id","st":"ok","cls":"string","t":"string","d":"89539ae6-e06b-4c76-a057-95df959578a9","src":"enum","r":1788610073440,"n":643}
-{"k":"obj","o":"desktop","id":"name","st":"ok","cls":"string","t":"string","d":"Desktop 1","src":"enum","r":1788610073440,"n":644}
-{"k":"obj","o":"desktop","id":"nameChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":645}
-{"k":"obj","o":"desktop","id":"objectName","st":"ok","cls":"string","t":"string","d":"","src":"enum","r":1788610073440,"n":646}
-{"k":"obj","o":"desktop","id":"objectNameChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":647}
-{"k":"obj","o":"desktop","id":"x11DesktopNumber","st":"ok","cls":"number","t":"number","d":"1","src":"enum","r":1788610073440,"n":648}
-{"k":"obj","o":"desktop","id":"x11DesktopNumberChanged","st":"ok","cls":"signal","t":"function","d":"function","src":"enum","r":1788610073440,"n":649}
-{"k":"obj","o":"options","id":"perOutputVirtualDesktops","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"list","r":1788610073440,"n":650}
-{"k":"obj","o":"options","id":"focusPolicy","st":"ok","cls":"number","t":"number","d":"0","src":"list","r":1788610073440,"n":651}
-{"k":"obj","o":"options","id":"placement","st":"ok","cls":"number","t":"number","d":"5","src":"list","r":1788610073440,"n":652}
-{"k":"obj","o":"options","id":"borderSnapZone","st":"ok","cls":"number","t":"number","d":"10","src":"list","r":1788610073440,"n":653}
-{"k":"obj","o":"options","id":"windowSnapZone","st":"ok","cls":"number","t":"number","d":"10","src":"list","r":1788610073440,"n":654}
-{"k":"obj","o":"options","id":"centerSnapZone","st":"ok","cls":"number","t":"number","d":"0","src":"list","r":1788610073440,"n":655}
-{"k":"obj","o":"options","id":"electricBorderMaximize","st":"ok","cls":"boolean","t":"boolean","d":"true","src":"list","r":1788610073440,"n":656}
-{"k":"obj","o":"options","id":"activeMouseScreen","st":"absent","src":"list","r":1788610073440,"n":657}
-{"k":"obj","o":"options","id":"rollOverDesktops","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"list","r":1788610073440,"n":658}
-{"k":"obj","o":"options","id":"condensedTitle","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"list","r":1788610073440,"n":659}
-{"k":"cfg","id":"probeStr","st":"ok","t":"string","d":"aus-kwinrc","r":1788610073440,"n":660}
-{"k":"cfg","id":"probeInt","st":"ok","t":"number","d":"7","r":1788610073440,"n":661}
-{"k":"cfg","id":"probeBool","st":"ok","t":"boolean","d":"true","r":1788610073440,"n":662}
-{"k":"cfg","id":"probeList","st":"ok","t":"string","d":"a,b,c","r":1788610073440,"n":663}
-{"k":"cfg","id":"probeFehlt","st":"ok","t":"string","d":"unberuehrt","r":1788610073440,"n":664}
-{"k":"cfg","id":"ohne-default","st":"ok","t":"undefined","d":"undefined","r":1788610073440,"n":665}
-{"k":"dbus","id":"GetId-aufruf","st":"ok","d":"abgesetzt, Antwort asynchron","r":1788610073440,"n":666}
-{"k":"shortcut","id":"phase","st":"absent","d":"probeShortcuts nicht gesetzt","r":1788610073440,"n":667}
-{"k":"obj","o":"qtimer","id":"start","st":"ok","cls":"signal","t":"function","d":"function","src":"list","r":1788610073440,"n":668}
-{"k":"obj","o":"qtimer","id":"stop","st":"ok","cls":"signal","t":"function","d":"function","src":"list","r":1788610073440,"n":669}
-{"k":"obj","o":"qtimer","id":"interval","st":"ok","cls":"number","t":"number","d":"0","src":"list","r":1788610073440,"n":670}
-{"k":"obj","o":"qtimer","id":"singleShot","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"list","r":1788610073440,"n":671}
-{"k":"obj","o":"qtimer","id":"active","st":"ok","cls":"boolean","t":"boolean","d":"false","src":"list","r":1788610073440,"n":672}
-{"k":"obj","o":"qtimer","id":"timeout","st":"ok","cls":"signal","t":"function","d":"function","src":"list","r":1788610073440,"n":673}
-{"k":"obj","o":"qtimer","id":"restart","st":"absent","src":"list","r":1788610073440,"n":674}
-{"k":"obj","o":"qtimer","id":"remainingTime","st":"ok","cls":"number","t":"number","d":"-1","src":"list","r":1788610073440,"n":675}
-{"k":"timer","id":"QTimer.singleShot-statisch","d":"undefined","r":1788610073440,"n":676}
-{"k":"dbus","id":"GetId-callback","st":"ok","d":"argc=1 a0=10462bff547f9ecda7be2155df8e9844","r":1788610073440,"n":677}
-{"k":"timer","id":"singleshot-20ms","st":"ok","d":"latenz=21ms","r":1788610073440,"n":678}
-{"k":"timer","id":"repeat-30ms","st":"ok","d":"ticks=3 active=false","r":1788610073440,"n":679}
-{"k":"timer","id":"nach-stop","st":"ok","d":"ticks=3 unreferenzierter-timer-feuerte=true","r":1788610073440,"n":680}
-{"k":"end","st":"ok","total":681,"errors":0,"r":1788610073440,"n":681}
+{"k": "meta", "id": "start", "st": "ok", "d": "kwin-xmonad-lite Feature-Probe", "r": 1788610073440, "n": 0}
+{"k": "meta", "id": "harness", "st": "ok", "d": "function", "r": 1788610073440, "n": 1}
+{"k": "globals", "id": "console", "st": "ok", "d": "object", "r": 1788610073440, "n": 2}
+{"k": "globals", "id": "print", "st": "ok", "d": "function", "r": 1788610073440, "n": 3}
+{"k": "globals", "id": "readConfig", "st": "ok", "d": "function", "r": 1788610073440, "n": 4}
+{"k": "globals", "id": "registerShortcut", "st": "ok", "d": "function", "r": 1788610073440, "n": 5}
+{"k": "globals", "id": "callDBus", "st": "ok", "d": "function", "r": 1788610073440, "n": 6}
+{"k": "globals", "id": "registerScreenEdge", "st": "ok", "d": "function", "r": 1788610073440, "n": 7}
+{"k": "globals", "id": "unregisterScreenEdge", "st": "ok", "d": "function", "r": 1788610073440, "n": 8}
+{"k": "globals", "id": "registerTouchScreenEdge", "st": "ok", "d": "function", "r": 1788610073440, "n": 9}
+{"k": "globals", "id": "unregisterTouchScreenEdge", "st": "ok", "d": "function", "r": 1788610073440, "n": 10}
+{"k": "globals", "id": "registerUserActionsMenu", "st": "ok", "d": "function", "r": 1788610073440, "n": 11}
+{"k": "globals", "id": "options", "st": "ok", "d": "object", "r": 1788610073440, "n": 12}
+{"k": "globals", "id": "KWin", "st": "ok", "d": "function", "r": 1788610073440, "n": 13}
+{"k": "globals", "id": "workspace", "st": "ok", "d": "object", "r": 1788610073440, "n": 14}
+{"k": "globals", "id": "QTimer", "st": "ok", "d": "function", "r": 1788610073440, "n": 15}
+{"k": "globals", "id": "assert", "st": "ok", "d": "function", "r": 1788610073440, "n": 16}
+{"k": "globals", "id": "assertTrue", "st": "ok", "d": "function", "r": 1788610073440, "n": 17}
+{"k": "globals", "id": "assertFalse", "st": "ok", "d": "function", "r": 1788610073440, "n": 18}
+{"k": "globals", "id": "assertEquals", "st": "ok", "d": "function", "r": 1788610073440, "n": 19}
+{"k": "globals", "id": "assertNull", "st": "ok", "d": "function", "r": 1788610073440, "n": 20}
+{"k": "globals", "id": "setTimeout", "st": "absent", "d": "undefined", "r": 1788610073440, "n": 21}
+{"k": "globals", "id": "setInterval", "st": "absent", "d": "undefined", "r": 1788610073440, "n": 22}
+{"k": "globals", "id": "requestAnimationFrame", "st": "absent", "d": "undefined", "r": 1788610073440, "n": 23}
+{"k": "globals", "id": "Qt", "st": "absent", "d": "undefined", "r": 1788610073440, "n": 24}
+{"k": "globals", "id": "gc", "st": "absent", "d": "undefined", "r": 1788610073440, "n": 25}
+{"k": "globals", "id": "XMLHttpRequest", "st": "absent", "d": "undefined", "r": 1788610073440, "n": 26}
+{"k": "globals", "id": "globalThis", "st": "absent", "d": "undefined", "r": 1788610073440, "n": 27}
+{"k": "globals", "id": "Function", "st": "ok", "d": "function", "r": 1788610073440, "n": 28}
+{"k": "globals", "id": "eval", "st": "ok", "d": "function", "r": 1788610073440, "n": 29}
+{"k": "globals", "id": "console.log", "st": "ok", "d": "function", "r": 1788610073440, "n": 30}
+{"k": "globals", "id": "console.debug", "st": "ok", "d": "function", "r": 1788610073440, "n": 31}
+{"k": "globals", "id": "console.info", "st": "ok", "d": "function", "r": 1788610073440, "n": 32}
+{"k": "globals", "id": "console.warn", "st": "ok", "d": "function", "r": 1788610073440, "n": 33}
+{"k": "globals", "id": "console.error", "st": "ok", "d": "function", "r": 1788610073440, "n": 34}
+{"k": "globals", "id": "console.assert", "st": "ok", "d": "function", "r": 1788610073440, "n": 35}
+{"k": "globals", "id": "console.count", "st": "ok", "d": "function", "r": 1788610073440, "n": 36}
+{"k": "globals", "id": "console.time", "st": "ok", "d": "function", "r": 1788610073440, "n": 37}
+{"k": "globals", "id": "console.timeEnd", "st": "ok", "d": "function", "r": 1788610073440, "n": 38}
+{"k": "globals", "id": "console.trace", "st": "ok", "d": "function", "r": 1788610073440, "n": 39}
+{"k": "globals", "id": "console.dir", "st": "absent", "d": "undefined", "r": 1788610073440, "n": 40}
+{"k": "es", "lvl": 2015, "id": "let-const", "st": "ok", "d": "true", "r": 1788610073440, "n": 41}
+{"k": "es", "lvl": 2015, "id": "arrow", "st": "ok", "d": "true", "r": 1788610073440, "n": 42}
+{"k": "es", "lvl": 2015, "id": "template", "st": "ok", "d": "true", "r": 1788610073440, "n": 43}
+{"k": "es", "lvl": 2015, "id": "destr-array", "st": "ok", "d": "true", "r": 1788610073440, "n": 44}
+{"k": "es", "lvl": 2015, "id": "destr-obj", "st": "ok", "d": "true", "r": 1788610073440, "n": 45}
+{"k": "es", "lvl": 2015, "id": "destr-default", "st": "ok", "d": "true", "r": 1788610073440, "n": 46}
+{"k": "es", "lvl": 2015, "id": "param-default", "st": "ok", "d": "true", "r": 1788610073440, "n": 47}
+{"k": "es", "lvl": 2015, "id": "rest-param", "st": "ok", "d": "true", "r": 1788610073440, "n": 48}
+{"k": "es", "lvl": 2015, "id": "spread-call", "st": "ok", "d": "true", "r": 1788610073440, "n": 49}
+{"k": "es", "lvl": 2015, "id": "spread-array", "st": "ok", "d": "true", "r": 1788610073440, "n": 50}
+{"k": "es", "lvl": 2015, "id": "shorthand", "st": "ok", "d": "true", "r": 1788610073440, "n": 51}
+{"k": "es", "lvl": 2015, "id": "computed-key", "st": "ok", "d": "true", "r": 1788610073440, "n": 52}
+{"k": "es", "lvl": 2015, "id": "for-of", "st": "ok", "d": "true", "r": 1788610073440, "n": 53}
+{"k": "es", "lvl": 2015, "id": "class", "st": "ok", "d": "true", "r": 1788610073440, "n": 54}
+{"k": "es", "lvl": 2015, "id": "class-method", "st": "ok", "d": "true", "r": 1788610073440, "n": 55}
+{"k": "es", "lvl": 2015, "id": "class-getter", "st": "ok", "d": "true", "r": 1788610073440, "n": 56}
+{"k": "es", "lvl": 2015, "id": "class-static", "st": "ok", "d": "true", "r": 1788610073440, "n": 57}
+{"k": "es", "lvl": 2015, "id": "class-extends", "st": "ok", "d": "true", "r": 1788610073440, "n": 58}
+{"k": "es", "lvl": 2015, "id": "generator", "st": "ok", "d": "true", "r": 1788610073440, "n": 59}
+{"k": "es", "lvl": 2015, "id": "symbol-iterator", "st": "ok", "d": "true", "r": 1788610073440, "n": 60}
+{"k": "es", "lvl": 2016, "id": "exponent", "st": "ok", "d": "true", "r": 1788610073440, "n": 61}
+{"k": "es", "lvl": 2017, "id": "async-await", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 62}
+{"k": "es", "lvl": 2017, "id": "trailing-comma-params", "st": "ok", "d": "true", "r": 1788610073440, "n": 63}
+{"k": "es", "lvl": 2017, "id": "object-entries", "st": "ok", "d": "true", "r": 1788610073440, "n": 64}
+{"k": "es", "lvl": 2017, "id": "object-values", "st": "ok", "d": "true", "r": 1788610073440, "n": 65}
+{"k": "es", "lvl": 2018, "id": "spread-object", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 66}
+{"k": "es", "lvl": 2018, "id": "rest-object", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 67}
+{"k": "es", "lvl": 2018, "id": "regex-named-groups", "st": "runtime", "d": "TypeError: Cannot read property 'y' of undefined", "r": 1788610073440, "n": 68}
+{"k": "es", "lvl": 2019, "id": "object-fromentries", "st": "runtime", "d": "TypeError: Property 'fromEntries' of object function Object() { [native code] } is not a function", "r": 1788610073440, "n": 69}
+{"k": "es", "lvl": 2019, "id": "optional-catch-binding", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 70}
+{"k": "es", "lvl": 2019, "id": "array-flat", "st": "runtime", "d": "TypeError: Property 'flat' of object 1,2 is not a function", "r": 1788610073440, "n": 71}
+{"k": "es", "lvl": 2019, "id": "array-flatmap", "st": "runtime", "d": "TypeError: Property 'flatMap' of object 1 is not a function", "r": 1788610073440, "n": 72}
+{"k": "es", "lvl": 2019, "id": "string-trimstart", "st": "runtime", "d": "TypeError: Property 'trimStart' of object  a is not a function", "r": 1788610073440, "n": 73}
+{"k": "es", "lvl": 2020, "id": "optional-chaining", "st": "ok", "d": "true", "r": 1788610073440, "n": 74}
+{"k": "es", "lvl": 2020, "id": "optional-call", "st": "ok", "d": "true", "r": 1788610073440, "n": 75}
+{"k": "es", "lvl": 2020, "id": "nullish", "st": "ok", "d": "true", "r": 1788610073440, "n": 76}
+{"k": "es", "lvl": 2020, "id": "globalthis", "st": "value", "d": "false", "r": 1788610073440, "n": 77}
+{"k": "es", "lvl": 2020, "id": "string-matchall", "st": "value", "d": "false", "r": 1788610073440, "n": 78}
+{"k": "es", "lvl": 2020, "id": "promise-allsettled", "st": "value", "d": "false", "r": 1788610073440, "n": 79}
+{"k": "es", "lvl": 2021, "id": "logical-assign-nullish", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 80}
+{"k": "es", "lvl": 2021, "id": "logical-assign-or", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 81}
+{"k": "es", "lvl": 2021, "id": "logical-assign-and", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 82}
+{"k": "es", "lvl": 2021, "id": "string-replaceall", "st": "runtime", "d": "TypeError: Property 'replaceAll' of object aa is not a function", "r": 1788610073440, "n": 83}
+{"k": "es", "lvl": 2021, "id": "numeric-separator", "st": "ok", "d": "true", "r": 1788610073440, "n": 84}
+{"k": "es", "lvl": 2021, "id": "promise-any", "st": "value", "d": "false", "r": 1788610073440, "n": 85}
+{"k": "es", "lvl": 2022, "id": "class-field-public", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 86}
+{"k": "es", "lvl": 2022, "id": "class-field-static", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 87}
+{"k": "es", "lvl": 2022, "id": "class-field-private", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 88}
+{"k": "es", "lvl": 2022, "id": "class-static-block", "st": "syntax", "d": "SyntaxError: Parse error", "r": 1788610073440, "n": 89}
+{"k": "es", "lvl": 2022, "id": "array-at", "st": "runtime", "d": "TypeError: Property 'at' of object 1,2 is not a function", "r": 1788610073440, "n": 90}
+{"k": "es", "lvl": 2022, "id": "string-at", "st": "runtime", "d": "TypeError: Property 'at' of object ab is not a function", "r": 1788610073440, "n": 91}
+{"k": "es", "lvl": 2022, "id": "object-hasown", "st": "runtime", "d": "TypeError: Property 'hasOwn' of object function Object() { [native code] } is not a function", "r": 1788610073440, "n": 92}
+{"k": "es", "lvl": 2023, "id": "array-findlast", "st": "runtime", "d": "TypeError: Property 'findLast' of object 1,2 is not a function", "r": 1788610073440, "n": 93}
+{"k": "es", "lvl": 2023, "id": "array-tosorted", "st": "runtime", "d": "TypeError: Property 'toSorted' of object 2,1 is not a function", "r": 1788610073440, "n": 94}
+{"k": "es-summary", "st": "ok", "id": "target", "d": "es2016", "failed": "async-await,spread-object,rest-object,regex-named-groups,object-fromentries,optional-catch-binding,array-flat,array-flatmap,string-trimstart,globalthis,string-matchall,promise-allsettled,logical-assign-nullish,logical-assign-or,logical-assign-and,string-replaceall,promise-any,class-field-public,class-field-static,class-field-private,class-static-block,array-at,string-at,object-hasown,array-findlast,array-tosorted", "r": 1788610073440, "n": 95}
+{"k": "lib", "id": "typeof Map", "d": "function", "r": 1788610073440, "n": 96}
+{"k": "lib", "id": "typeof Set", "d": "function", "r": 1788610073440, "n": 97}
+{"k": "lib", "id": "typeof WeakMap", "d": "function", "r": 1788610073440, "n": 98}
+{"k": "lib", "id": "typeof WeakSet", "d": "function", "r": 1788610073440, "n": 99}
+{"k": "lib", "id": "typeof Symbol", "d": "function", "r": 1788610073440, "n": 100}
+{"k": "lib", "id": "typeof Proxy", "d": "function", "r": 1788610073440, "n": 101}
+{"k": "lib", "id": "typeof Reflect", "d": "object", "r": 1788610073440, "n": 102}
+{"k": "lib", "id": "typeof Promise", "d": "function", "r": 1788610073440, "n": 103}
+{"k": "lib", "id": "typeof JSON", "d": "object", "r": 1788610073440, "n": 104}
+{"k": "lib", "id": "typeof Date", "d": "function", "r": 1788610073440, "n": 105}
+{"k": "lib", "id": "typeof Math", "d": "object", "r": 1788610073440, "n": 106}
+{"k": "lib", "id": "typeof RegExp", "d": "function", "r": 1788610073440, "n": 107}
+{"k": "es", "lvl": 0, "id": "Map", "st": "ok", "d": "true", "r": 1788610073440, "n": 108}
+{"k": "es", "lvl": 0, "id": "Set", "st": "ok", "d": "true", "r": 1788610073440, "n": 109}
+{"k": "es", "lvl": 0, "id": "WeakMap", "st": "ok", "d": "true", "r": 1788610073440, "n": 110}
+{"k": "es", "lvl": 0, "id": "Symbol", "st": "ok", "d": "true", "r": 1788610073440, "n": 111}
+{"k": "es", "lvl": 0, "id": "Proxy", "st": "ok", "d": "true", "r": 1788610073440, "n": 112}
+{"k": "es", "lvl": 0, "id": "Reflect", "st": "ok", "d": "true", "r": 1788610073440, "n": 113}
+{"k": "es", "lvl": 0, "id": "Promise", "st": "ok", "d": "true", "r": 1788610073440, "n": 114}
+{"k": "es", "lvl": 0, "id": "JSON", "st": "ok", "d": "true", "r": 1788610073440, "n": 115}
+{"k": "es", "lvl": 0, "id": "Array.from", "st": "ok", "d": "true", "r": 1788610073440, "n": 116}
+{"k": "es", "lvl": 0, "id": "Array.isArray", "st": "ok", "d": "true", "r": 1788610073440, "n": 117}
+{"k": "es", "lvl": 0, "id": "Number.isInteger", "st": "ok", "d": "true", "r": 1788610073440, "n": 118}
+{"k": "es", "lvl": 0, "id": "Math.trunc", "st": "ok", "d": "true", "r": 1788610073440, "n": 119}
+{"k": "es", "lvl": 0, "id": "Date.now", "st": "ok", "d": "true", "r": 1788610073440, "n": 120}
+{"k": "es", "lvl": 0, "id": "String.raw", "st": "ok", "d": "true", "r": 1788610073440, "n": 121}
+{"k": "enum", "id": "for-in", "d": "", "r": 1788610073440, "n": 122}
+{"k": "enum", "id": "Object.keys", "d": "", "r": 1788610073440, "n": 123}
+{"k": "enum", "id": "KWin.ClientAreaOption", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 124}
+{"k": "enum", "id": "KWin.ElectricBorder", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 125}
+{"k": "enum", "id": "KWin.MaximizeMode", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 126}
+{"k": "enum", "id": "KWin.WindowType", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 127}
+{"k": "enum", "id": "KWin.Layer", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 128}
+{"k": "enum", "id": "KWin.TabBoxMode", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 129}
+{"k": "enum", "id": "KWin.PlacementArea", "st": "ok", "t": "number", "d": "0", "r": 1788610073440, "n": 130}
+{"k": "enum", "id": "KWin.MovementArea", "st": "ok", "t": "number", "d": "1", "r": 1788610073440, "n": 131}
+{"k": "enum", "id": "KWin.MaximizeArea", "st": "ok", "t": "number", "d": "2", "r": 1788610073440, "n": 132}
+{"k": "enum", "id": "KWin.MaximizeFullArea", "st": "ok", "t": "number", "d": "3", "r": 1788610073440, "n": 133}
+{"k": "enum", "id": "KWin.FullScreenArea", "st": "ok", "t": "number", "d": "4", "r": 1788610073440, "n": 134}
+{"k": "enum", "id": "KWin.WorkArea", "st": "ok", "t": "number", "d": "5", "r": 1788610073440, "n": 135}
+{"k": "enum", "id": "KWin.FullArea", "st": "ok", "t": "number", "d": "6", "r": 1788610073440, "n": 136}
+{"k": "enum", "id": "KWin.ScreenArea", "st": "ok", "t": "number", "d": "7", "r": 1788610073440, "n": 137}
+{"k": "enum", "id": "KWin.MaximizeRestore", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 138}
+{"k": "enum", "id": "KWin.MaximizeVertical", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 139}
+{"k": "enum", "id": "KWin.MaximizeHorizontal", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 140}
+{"k": "enum", "id": "KWin.MaximizeFull", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 141}
+{"k": "enum", "id": "KWin.NormalWindow", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 142}
+{"k": "enum", "id": "KWin.DesktopWindow", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 143}
+{"k": "enum", "id": "KWin.DockWindow", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 144}
+{"k": "enum", "id": "KWin.DialogWindow", "st": "absent", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 145}
+{"k": "obj", "o": "workspace", "id": "enum-mechanism", "d": "forIn=122 keys=122 own=122 proto=10", "r": 1788610073440, "n": 146}
+{"k": "obj", "o": "workspace", "id": "activeScreen", "st": "ok", "cls": "object", "t": "object", "d": "KWin::LogicalOutput(0x5f56b2802e60)", "src": "enum", "r": 1788610073440, "n": 147}
+{"k": "obj", "o": "workspace", "id": "activeWindow", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=2560 y=0 w=2560 h=1410", "src": "enum", "int": true, "r": 1788610073440, "n": 148}
+{"k": "obj", "o": "workspace", "id": "activities", "st": "ok", "cls": "object", "t": "object", "d": "a89f5ec2-ab8e-4108-8088-7118500a3aab", "src": "enum", "r": 1788610073440, "n": 149}
+{"k": "obj", "o": "workspace", "id": "activitiesChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 150}
+{"k": "obj", "o": "workspace", "id": "activityAdded", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 151}
+{"k": "obj", "o": "workspace", "id": "activityRemoved", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 152}
+{"k": "obj", "o": "workspace", "id": "clientArea", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 153}
+{"k": "obj", "o": "workspace", "id": "constrain", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 154}
+{"k": "obj", "o": "workspace", "id": "createDesktop", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 155}
+{"k": "obj", "o": "workspace", "id": "currentActivity", "st": "ok", "cls": "string", "t": "string", "d": "a89f5ec2-ab8e-4108-8088-7118500a3aab", "src": "enum", "r": 1788610073440, "n": 156}
+{"k": "obj", "o": "workspace", "id": "currentActivityChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 157}
+{"k": "obj", "o": "workspace", "id": "currentDesktop", "st": "ok", "cls": "object", "t": "object", "d": "KWin::VirtualDesktop(0x5f56b29e16e0)", "src": "enum", "r": 1788610073440, "n": 158}
+{"k": "obj", "o": "workspace", "id": "currentDesktopChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 159}
+{"k": "obj", "o": "workspace", "id": "currentDesktopForScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 160}
+{"k": "obj", "o": "workspace", "id": "cursorPos", "st": "ok", "cls": "object", "t": "object", "d": "QPoint(2704, 151)", "src": "enum", "r": 1788610073440, "n": 161}
+{"k": "obj", "o": "workspace", "id": "cursorPosChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 162}
+{"k": "obj", "o": "workspace", "id": "desktopGridHeight", "st": "ok", "cls": "number", "t": "number", "d": "1", "src": "enum", "r": 1788610073440, "n": 163}
+{"k": "obj", "o": "workspace", "id": "desktopGridSize", "st": "ok", "cls": "size", "t": "object", "d": "size w=4 h=1", "src": "enum", "r": 1788610073440, "n": 164}
+{"k": "obj", "o": "workspace", "id": "desktopGridWidth", "st": "ok", "cls": "number", "t": "number", "d": "4", "src": "enum", "r": 1788610073440, "n": 165}
+{"k": "obj", "o": "workspace", "id": "desktopLayoutChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 166}
+{"k": "obj", "o": "workspace", "id": "desktops", "st": "ok", "cls": "object", "t": "object", "d": "KWin::VirtualDesktop(0x5f56b29e16e0),KWin::VirtualDesktop(0x5f56b2800800),KWin::VirtualDesktop(0x5f56b28006b0),KWin::VirtualDesktop(0x5f56b2a40190)", "src": "enum", "r": 1788610073440, "n": 167}
+{"k": "obj", "o": "workspace", "id": "desktopsChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 168}
+{"k": "obj", "o": "workspace", "id": "getClient", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 169}
+{"k": "obj", "o": "workspace", "id": "hideOutline", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 170}
+{"k": "obj", "o": "workspace", "id": "isEffectActive", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 171}
+{"k": "obj", "o": "workspace", "id": "moveDesktop", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 172}
+{"k": "obj", "o": "workspace", "id": "objectName", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 173}
+{"k": "obj", "o": "workspace", "id": "objectNameChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 174}
+{"k": "obj", "o": "workspace", "id": "raiseWindow", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 175}
+{"k": "obj", "o": "workspace", "id": "removeDesktop", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 176}
+{"k": "obj", "o": "workspace", "id": "rootTile", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 177}
+{"k": "obj", "o": "workspace", "id": "screenAt", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 178}
+{"k": "obj", "o": "workspace", "id": "screenOrder", "st": "ok", "cls": "object", "t": "object", "d": "KWin::LogicalOutput(0x5f56b2802e60),KWin::LogicalOutput(0x5f56b1ddbc40),KWin::LogicalOutput(0x5f56b1ddbdc0)", "src": "enum", "r": 1788610073440, "n": 179}
+{"k": "obj", "o": "workspace", "id": "screenOrderChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 180}
+{"k": "obj", "o": "workspace", "id": "screens", "st": "ok", "cls": "object", "t": "object", "d": "KWin::LogicalOutput(0x5f56b2802e60),KWin::LogicalOutput(0x5f56b1ddbc40),KWin::LogicalOutput(0x5f56b1ddbdc0)", "src": "enum", "r": 1788610073440, "n": 181}
+{"k": "obj", "o": "workspace", "id": "screensChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 182}
+{"k": "obj", "o": "workspace", "id": "sendClientToScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 183}
+{"k": "obj", "o": "workspace", "id": "setCurrentDesktopForScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 184}
+{"k": "obj", "o": "workspace", "id": "showOutline", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 185}
+{"k": "obj", "o": "workspace", "id": "slotActivateAttentionWindow", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 186}
+{"k": "obj", "o": "workspace", "id": "slotIncreaseWindowOpacity", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 187}
+{"k": "obj", "o": "workspace", "id": "slotLowerWindowOpacity", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 188}
+{"k": "obj", "o": "workspace", "id": "slotSwitchDesktopDown", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 189}
+{"k": "obj", "o": "workspace", "id": "slotSwitchDesktopLeft", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 190}
+{"k": "obj", "o": "workspace", "id": "slotSwitchDesktopNext", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 191}
+{"k": "obj", "o": "workspace", "id": "slotSwitchDesktopPrevious", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 192}
+{"k": "obj", "o": "workspace", "id": "slotSwitchDesktopRight", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 193}
+{"k": "obj", "o": "workspace", "id": "slotSwitchDesktopUp", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 194}
+{"k": "obj", "o": "workspace", "id": "slotSwitchToAboveScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 195}
+{"k": "obj", "o": "workspace", "id": "slotSwitchToBelowScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 196}
+{"k": "obj", "o": "workspace", "id": "slotSwitchToLeftScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 197}
+{"k": "obj", "o": "workspace", "id": "slotSwitchToNextScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 198}
+{"k": "obj", "o": "workspace", "id": "slotSwitchToPrevScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 199}
+{"k": "obj", "o": "workspace", "id": "slotSwitchToRightScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 200}
+{"k": "obj", "o": "workspace", "id": "slotSwitchWindowDown", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 201}
+{"k": "obj", "o": "workspace", "id": "slotSwitchWindowLeft", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 202}
+{"k": "obj", "o": "workspace", "id": "slotSwitchWindowRight", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 203}
+{"k": "obj", "o": "workspace", "id": "slotSwitchWindowUp", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 204}
+{"k": "obj", "o": "workspace", "id": "slotToggleShowDesktop", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 205}
+{"k": "obj", "o": "workspace", "id": "slotWindowAbove", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 206}
+{"k": "obj", "o": "workspace", "id": "slotWindowBelow", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 207}
+{"k": "obj", "o": "workspace", "id": "slotWindowClose", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 208}
+{"k": "obj", "o": "workspace", "id": "slotWindowExcludeFromCapture", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 209}
+{"k": "obj", "o": "workspace", "id": "slotWindowExpandHorizontal", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 210}
+{"k": "obj", "o": "workspace", "id": "slotWindowExpandVertical", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 211}
+{"k": "obj", "o": "workspace", "id": "slotWindowFullScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 212}
+{"k": "obj", "o": "workspace", "id": "slotWindowLower", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 213}
+{"k": "obj", "o": "workspace", "id": "slotWindowMaximize", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 214}
+{"k": "obj", "o": "workspace", "id": "slotWindowMaximizeHorizontal", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 215}
+{"k": "obj", "o": "workspace", "id": "slotWindowMaximizeVertical", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 216}
+{"k": "obj", "o": "workspace", "id": "slotWindowMinimize", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 217}
+{"k": "obj", "o": "workspace", "id": "slotWindowMove", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 218}
+{"k": "obj", "o": "workspace", "id": "slotWindowMoveDown", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 219}
+{"k": "obj", "o": "workspace", "id": "slotWindowMoveLeft", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 220}
+{"k": "obj", "o": "workspace", "id": "slotWindowMoveRight", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 221}
+{"k": "obj", "o": "workspace", "id": "slotWindowMoveUp", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 222}
+{"k": "obj", "o": "workspace", "id": "slotWindowNoBorder", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 223}
+{"k": "obj", "o": "workspace", "id": "slotWindowOnAllDesktops", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 224}
+{"k": "obj", "o": "workspace", "id": "slotWindowOperations", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 225}
+{"k": "obj", "o": "workspace", "id": "slotWindowQuickTileBottom", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 226}
+{"k": "obj", "o": "workspace", "id": "slotWindowQuickTileBottomLeft", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 227}
+{"k": "obj", "o": "workspace", "id": "slotWindowQuickTileBottomRight", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 228}
+{"k": "obj", "o": "workspace", "id": "slotWindowQuickTileLeft", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 229}
+{"k": "obj", "o": "workspace", "id": "slotWindowQuickTileRight", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 230}
+{"k": "obj", "o": "workspace", "id": "slotWindowQuickTileTop", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 231}
+{"k": "obj", "o": "workspace", "id": "slotWindowQuickTileTopLeft", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 232}
+{"k": "obj", "o": "workspace", "id": "slotWindowQuickTileTopRight", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 233}
+{"k": "obj", "o": "workspace", "id": "slotWindowRaise", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 234}
+{"k": "obj", "o": "workspace", "id": "slotWindowRaiseOrLower", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 235}
+{"k": "obj", "o": "workspace", "id": "slotWindowResize", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 236}
+{"k": "obj", "o": "workspace", "id": "slotWindowShrinkHorizontal", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 237}
+{"k": "obj", "o": "workspace", "id": "slotWindowShrinkVertical", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 238}
+{"k": "obj", "o": "workspace", "id": "slotWindowToAboveScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 239}
+{"k": "obj", "o": "workspace", "id": "slotWindowToBelowScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 240}
+{"k": "obj", "o": "workspace", "id": "slotWindowToDesktopDown", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 241}
+{"k": "obj", "o": "workspace", "id": "slotWindowToDesktopLeft", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 242}
+{"k": "obj", "o": "workspace", "id": "slotWindowToDesktopRight", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 243}
+{"k": "obj", "o": "workspace", "id": "slotWindowToDesktopUp", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 244}
+{"k": "obj", "o": "workspace", "id": "slotWindowToLeftScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 245}
+{"k": "obj", "o": "workspace", "id": "slotWindowToNextDesktop", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 246}
+{"k": "obj", "o": "workspace", "id": "slotWindowToNextScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 247}
+{"k": "obj", "o": "workspace", "id": "slotWindowToPrevScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 248}
+{"k": "obj", "o": "workspace", "id": "slotWindowToPreviousDesktop", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 249}
+{"k": "obj", "o": "workspace", "id": "slotWindowToRightScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 250}
+{"k": "obj", "o": "workspace", "id": "stackingOrder", "st": "ok", "cls": "object", "t": "object", "d": "KWin::LayerShellV1Window(0x5f56b35f45d0),KWin::LayerShellV1Window(0x5f56b304e4f0),KWin::LayerShellV1Window(0x5f56b356c380),KWin::X11Window(0x5f56b5c64a50),KWin::XdgToplevelWindow(0x5f56b5a488a0),KWin::XdgToplevelWindow(0x5f56b5ada380),KWin::XdgToplevelWindow(0x5f56b3bf5940),KWin::XdgToplevelWindow(0x5f56b54eb600),KWin::XdgToplevelWindow(0x5f56b64a9380),KWin::LayerShellV1Window(0x5f56b3760670),KWin::LayerShellV1Window(0x5f56b303fce0),KWin::LayerShellV1Window(0x5f56b3692b40),KWin::XdgToplevelWindow(0x5f56b3b3f680),KWin::X11Window(0x5f56b5c62330),KWin::X11Window(0x5f56b5c03930)", "src": "enum", "r": 1788610073440, "n": 251}
+{"k": "obj", "o": "workspace", "id": "supportInformation", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 252}
+{"k": "obj", "o": "workspace", "id": "tilingForScreen", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 253}
+{"k": "obj", "o": "workspace", "id": "unconstrain", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 254}
+{"k": "obj", "o": "workspace", "id": "virtualDesktopNavigationWrapsAround", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 255}
+{"k": "obj", "o": "workspace", "id": "virtualDesktopNavigationWrapsAroundChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 256}
+{"k": "obj", "o": "workspace", "id": "virtualScreenGeometry", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=0 y=0 w=7680 h=1440", "src": "enum", "int": true, "r": 1788610073440, "n": 257}
+{"k": "obj", "o": "workspace", "id": "virtualScreenGeometryChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 258}
+{"k": "obj", "o": "workspace", "id": "virtualScreenSize", "st": "ok", "cls": "size", "t": "object", "d": "size w=7680 h=1440", "src": "enum", "r": 1788610073440, "n": 259}
+{"k": "obj", "o": "workspace", "id": "virtualScreenSizeChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 260}
+{"k": "obj", "o": "workspace", "id": "windowActivated", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 261}
+{"k": "obj", "o": "workspace", "id": "windowAdded", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 262}
+{"k": "obj", "o": "workspace", "id": "windowAt", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 263}
+{"k": "obj", "o": "workspace", "id": "windowList", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 264}
+{"k": "obj", "o": "workspace", "id": "windowRemoved", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 265}
+{"k": "obj", "o": "workspace", "id": "workspaceHeight", "st": "ok", "cls": "number", "t": "number", "d": "1440", "src": "enum", "r": 1788610073440, "n": 266}
+{"k": "obj", "o": "workspace", "id": "workspaceSize", "st": "ok", "cls": "size", "t": "object", "d": "size w=30720 h=1440", "src": "enum", "r": 1788610073440, "n": 267}
+{"k": "obj", "o": "workspace", "id": "workspaceWidth", "st": "ok", "cls": "number", "t": "number", "d": "30720", "src": "enum", "r": 1788610073440, "n": 268}
+{"k": "obj", "o": "workspace", "id": "currentDesktopChanging", "st": "absent", "src": "list", "r": 1788610073440, "n": 269}
+{"k": "ws", "id": "windowList()", "st": "ok", "d": "isArray=false len=15 first=KWin::LayerShellV1Window(0x5f56b304e4f0)", "r": 1788610073440, "n": 270}
+{"k": "ws", "id": "screens", "st": "ok", "d": "screens=3 order=3", "r": 1788610073440, "n": 271}
+{"k": "ws", "id": "screen-identity", "st": "ok", "d": "same=true", "r": 1788610073440, "n": 272}
+{"k": "ws", "id": "screen[0]", "st": "ok", "d": "KWin::LogicalOutput(0x5f56b2802e60) name=DP-1", "r": 1788610073440, "n": 273}
+{"k": "ws", "id": "screen[1]", "st": "ok", "d": "KWin::LogicalOutput(0x5f56b1ddbc40) name=DP-9", "r": 1788610073440, "n": 274}
+{"k": "ws", "id": "screen[2]", "st": "ok", "d": "KWin::LogicalOutput(0x5f56b1ddbdc0) name=DP-10", "r": 1788610073440, "n": 275}
+{"k": "ws", "id": "perOutputVirtualDesktops", "st": "ok", "d": "false", "r": 1788610073440, "n": 276}
+{"k": "ws", "id": "currentDesktopForScreen", "st": "ok", "r": 1788610073440, "n": 277}
+{"k": "ws", "id": "desktopForScreen[0]", "st": "ok", "d": "out=DP-1 id=89539ae6-e06b-4c76-a057-95df959578a9 nr=1", "r": 1788610073440, "n": 278}
+{"k": "ws", "id": "desktopForScreen[1]", "st": "ok", "d": "out=DP-9 id=89539ae6-e06b-4c76-a057-95df959578a9 nr=1", "r": 1788610073440, "n": 279}
+{"k": "ws", "id": "desktopForScreen[2]", "st": "ok", "d": "out=DP-10 id=89539ae6-e06b-4c76-a057-95df959578a9 nr=1", "r": 1788610073440, "n": 280}
+{"k": "ws", "id": "clientArea(0)", "st": "ok", "d": "rect x=2560 y=0 w=2560 h=1410", "int": true, "r": 1788610073440, "n": 281}
+{"k": "ws", "id": "clientArea(1)", "st": "ok", "d": "rect x=2560 y=0 w=2560 h=1440", "int": true, "r": 1788610073440, "n": 282}
+{"k": "ws", "id": "clientArea(2)", "st": "ok", "d": "rect x=2560 y=0 w=2560 h=1410", "int": true, "r": 1788610073440, "n": 283}
+{"k": "ws", "id": "clientArea(3)", "st": "ok", "d": "rect x=2560 y=0 w=2560 h=1440", "int": true, "r": 1788610073440, "n": 284}
+{"k": "ws", "id": "clientArea(4)", "st": "ok", "d": "rect x=2560 y=0 w=2560 h=1440", "int": true, "r": 1788610073440, "n": 285}
+{"k": "ws", "id": "clientArea(5)", "st": "ok", "d": "rect x=0 y=0 w=7680 h=1410", "int": true, "r": 1788610073440, "n": 286}
+{"k": "ws", "id": "clientArea(6)", "st": "ok", "d": "rect x=0 y=0 w=7680 h=1440", "int": true, "r": 1788610073440, "n": 287}
+{"k": "ws", "id": "clientArea(7)", "st": "ok", "d": "rect x=2560 y=0 w=2560 h=1440", "int": true, "r": 1788610073440, "n": 288}
+{"k": "obj", "o": "window", "id": "enum-mechanism", "d": "forIn=160 keys=160 own=160 proto=10", "r": 1788610073440, "n": 289}
+{"k": "obj", "o": "window", "id": "active", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 290}
+{"k": "obj", "o": "window", "id": "activeChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 291}
+{"k": "obj", "o": "window", "id": "activities", "st": "ok", "cls": "object", "t": "object", "d": "a89f5ec2-ab8e-4108-8088-7118500a3aab", "src": "enum", "r": 1788610073440, "n": 292}
+{"k": "obj", "o": "window", "id": "activitiesChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 293}
+{"k": "obj", "o": "window", "id": "appletPopup", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 294}
+{"k": "obj", "o": "window", "id": "applicationMenuActive", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 295}
+{"k": "obj", "o": "window", "id": "applicationMenuActiveChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 296}
+{"k": "obj", "o": "window", "id": "applicationMenuChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 297}
+{"k": "obj", "o": "window", "id": "borderRadiusChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 298}
+{"k": "obj", "o": "window", "id": "bufferGeometry", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=5120 y=0 w=2560 h=1440", "src": "enum", "int": true, "r": 1788610073440, "n": 299}
+{"k": "obj", "o": "window", "id": "bufferGeometryChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 300}
+{"k": "obj", "o": "window", "id": "caption", "st": "ok", "cls": "string", "t": "string", "d": "<Fenstertitel entfernt>", "src": "enum", "r": 1788610073440, "n": 301}
+{"k": "obj", "o": "window", "id": "captionChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 302}
+{"k": "obj", "o": "window", "id": "captionNormal", "st": "ok", "cls": "string", "t": "string", "d": "<Fenstertitel entfernt>", "src": "enum", "r": 1788610073440, "n": 303}
+{"k": "obj", "o": "window", "id": "captionNormalChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 304}
+{"k": "obj", "o": "window", "id": "clientGeometry", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=5120 y=0 w=2560 h=1440", "src": "enum", "int": true, "r": 1788610073440, "n": 305}
+{"k": "obj", "o": "window", "id": "clientGeometryChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 306}
+{"k": "obj", "o": "window", "id": "closeWindow", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 307}
+{"k": "obj", "o": "window", "id": "closeable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 308}
+{"k": "obj", "o": "window", "id": "closeableChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 309}
+{"k": "obj", "o": "window", "id": "closed", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 310}
+{"k": "obj", "o": "window", "id": "colorScheme", "st": "ok", "cls": "string", "t": "string", "d": "kdeglobals", "src": "enum", "r": 1788610073440, "n": 311}
+{"k": "obj", "o": "window", "id": "colorSchemeChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 312}
+{"k": "obj", "o": "window", "id": "comboBox", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 313}
+{"k": "obj", "o": "window", "id": "criticalNotification", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 314}
+{"k": "obj", "o": "window", "id": "damaged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 315}
+{"k": "obj", "o": "window", "id": "decorationChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 316}
+{"k": "obj", "o": "window", "id": "decorationHasAlpha", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 317}
+{"k": "obj", "o": "window", "id": "decorationPolicyChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 318}
+{"k": "obj", "o": "window", "id": "deleted", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 319}
+{"k": "obj", "o": "window", "id": "demandsAttention", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 320}
+{"k": "obj", "o": "window", "id": "demandsAttentionChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 321}
+{"k": "obj", "o": "window", "id": "description", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 322}
+{"k": "obj", "o": "window", "id": "descriptionChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 323}
+{"k": "obj", "o": "window", "id": "desktopFileName", "st": "ok", "cls": "string", "t": "string", "d": "google-chrome", "src": "enum", "r": 1788610073440, "n": 324}
+{"k": "obj", "o": "window", "id": "desktopFileNameChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 325}
+{"k": "obj", "o": "window", "id": "desktopWindow", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 326}
+{"k": "obj", "o": "window", "id": "desktops", "st": "ok", "cls": "object", "t": "object", "d": "KWin::VirtualDesktop(0x5f56b29e16e0)", "src": "enum", "r": 1788610073440, "n": 327}
+{"k": "obj", "o": "window", "id": "desktopsChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 328}
+{"k": "obj", "o": "window", "id": "dialog", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 329}
+{"k": "obj", "o": "window", "id": "dndIcon", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 330}
+{"k": "obj", "o": "window", "id": "dock", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 331}
+{"k": "obj", "o": "window", "id": "dropdownMenu", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 332}
+{"k": "obj", "o": "window", "id": "excludeFromCapture", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 333}
+{"k": "obj", "o": "window", "id": "excludeFromCaptureChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 334}
+{"k": "obj", "o": "window", "id": "frameGeometry", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=5120 y=0 w=2560 h=1440", "src": "enum", "int": true, "r": 1788610073440, "n": 335}
+{"k": "obj", "o": "window", "id": "frameGeometryAboutToChange", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 336}
+{"k": "obj", "o": "window", "id": "frameGeometryChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 337}
+{"k": "obj", "o": "window", "id": "fullScreen", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 338}
+{"k": "obj", "o": "window", "id": "fullScreenChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 339}
+{"k": "obj", "o": "window", "id": "fullScreenable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 340}
+{"k": "obj", "o": "window", "id": "fullscreenGeometryRestoreChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 341}
+{"k": "obj", "o": "window", "id": "hasApplicationMenu", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 342}
+{"k": "obj", "o": "window", "id": "hasApplicationMenuChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 343}
+{"k": "obj", "o": "window", "id": "height", "st": "ok", "cls": "number", "t": "number", "d": "1440", "src": "enum", "r": 1788610073440, "n": 344}
+{"k": "obj", "o": "window", "id": "hidden", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 345}
+{"k": "obj", "o": "window", "id": "hiddenByShowDesktopChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 346}
+{"k": "obj", "o": "window", "id": "hiddenChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 347}
+{"k": "obj", "o": "window", "id": "icon", "st": "ok", "cls": "object", "t": "object", "d": "QIcon()", "src": "enum", "r": 1788610073440, "n": 348}
+{"k": "obj", "o": "window", "id": "iconChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 349}
+{"k": "obj", "o": "window", "id": "iconGeometry", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=5623 y=1410 w=54 h=30", "src": "enum", "int": true, "r": 1788610073440, "n": 350}
+{"k": "obj", "o": "window", "id": "inputMethod", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 351}
+{"k": "obj", "o": "window", "id": "inputTransformationChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 352}
+{"k": "obj", "o": "window", "id": "interactiveMoveResizeFinished", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 353}
+{"k": "obj", "o": "window", "id": "interactiveMoveResizeStarted", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 354}
+{"k": "obj", "o": "window", "id": "interactiveMoveResizeStepped", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 355}
+{"k": "obj", "o": "window", "id": "internalId", "st": "ok", "cls": "object", "t": "object", "d": "{551b13a0-8e8f-4ea7-8a1b-aabef935b185}", "src": "enum", "r": 1788610073440, "n": 356}
+{"k": "obj", "o": "window", "id": "keepAbove", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 357}
+{"k": "obj", "o": "window", "id": "keepAboveChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 358}
+{"k": "obj", "o": "window", "id": "keepBelow", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 359}
+{"k": "obj", "o": "window", "id": "keepBelowChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 360}
+{"k": "obj", "o": "window", "id": "layer", "st": "ok", "cls": "number", "t": "number", "d": "5", "src": "enum", "r": 1788610073440, "n": 361}
+{"k": "obj", "o": "window", "id": "lockScreenOverlayChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 362}
+{"k": "obj", "o": "window", "id": "managed", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 363}
+{"k": "obj", "o": "window", "id": "maxSize", "st": "ok", "cls": "size", "t": "object", "d": "size w=2147483647 h=2147483647", "src": "enum", "r": 1788610073440, "n": 364}
+{"k": "obj", "o": "window", "id": "maximizable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 365}
+{"k": "obj", "o": "window", "id": "maximizeGeometryRestoreChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 366}
+{"k": "obj", "o": "window", "id": "maximizeMode", "st": "ok", "cls": "number", "t": "number", "d": "3", "src": "enum", "r": 1788610073440, "n": 367}
+{"k": "obj", "o": "window", "id": "maximizeableChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 368}
+{"k": "obj", "o": "window", "id": "maximizedAboutToChange", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 369}
+{"k": "obj", "o": "window", "id": "maximizedChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 370}
+{"k": "obj", "o": "window", "id": "menu", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 371}
+{"k": "obj", "o": "window", "id": "minSize", "st": "ok", "cls": "size", "t": "object", "d": "size w=500 h=46", "src": "enum", "r": 1788610073440, "n": 372}
+{"k": "obj", "o": "window", "id": "minimizable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 373}
+{"k": "obj", "o": "window", "id": "minimizeableChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 374}
+{"k": "obj", "o": "window", "id": "minimized", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 375}
+{"k": "obj", "o": "window", "id": "minimizedChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 376}
+{"k": "obj", "o": "window", "id": "modal", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 377}
+{"k": "obj", "o": "window", "id": "modalChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 378}
+{"k": "obj", "o": "window", "id": "move", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 379}
+{"k": "obj", "o": "window", "id": "moveResizeCursorChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 380}
+{"k": "obj", "o": "window", "id": "moveResizedChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 381}
+{"k": "obj", "o": "window", "id": "moveable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 382}
+{"k": "obj", "o": "window", "id": "moveableAcrossScreens", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 383}
+{"k": "obj", "o": "window", "id": "nextTargetScaleChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 384}
+{"k": "obj", "o": "window", "id": "noBorder", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 385}
+{"k": "obj", "o": "window", "id": "normalWindow", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 386}
+{"k": "obj", "o": "window", "id": "notification", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 387}
+{"k": "obj", "o": "window", "id": "objectName", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 388}
+{"k": "obj", "o": "window", "id": "objectNameChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 389}
+{"k": "obj", "o": "window", "id": "offscreenRenderingChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 390}
+{"k": "obj", "o": "window", "id": "onAllDesktops", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 391}
+{"k": "obj", "o": "window", "id": "onScreenDisplay", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 392}
+{"k": "obj", "o": "window", "id": "opacity", "st": "ok", "cls": "number", "t": "number", "d": "1", "src": "enum", "r": 1788610073440, "n": 393}
+{"k": "obj", "o": "window", "id": "opacityChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 394}
+{"k": "obj", "o": "window", "id": "outline", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 395}
+{"k": "obj", "o": "window", "id": "output", "st": "ok", "cls": "object", "t": "object", "d": "KWin::LogicalOutput(0x5f56b1ddbc40)", "src": "enum", "r": 1788610073440, "n": 396}
+{"k": "obj", "o": "window", "id": "outputChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 397}
+{"k": "obj", "o": "window", "id": "paletteChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 398}
+{"k": "obj", "o": "window", "id": "pid", "st": "ok", "cls": "number", "t": "number", "d": "9245", "src": "enum", "r": 1788610073440, "n": 399}
+{"k": "obj", "o": "window", "id": "popupMenu", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 400}
+{"k": "obj", "o": "window", "id": "popupWindow", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 401}
+{"k": "obj", "o": "window", "id": "pos", "st": "ok", "cls": "object", "t": "object", "d": "QPointF(5120, 0)", "src": "enum", "r": 1788610073440, "n": 402}
+{"k": "obj", "o": "window", "id": "providesContextHelp", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 403}
+{"k": "obj", "o": "window", "id": "quickTileModeChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 404}
+{"k": "obj", "o": "window", "id": "readyForPaintingChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 405}
+{"k": "obj", "o": "window", "id": "rect", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=0 y=0 w=2560 h=1440", "src": "enum", "int": true, "r": 1788610073440, "n": 406}
+{"k": "obj", "o": "window", "id": "requestedTileChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 407}
+{"k": "obj", "o": "window", "id": "resize", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 408}
+{"k": "obj", "o": "window", "id": "resizeable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 409}
+{"k": "obj", "o": "window", "id": "resourceClass", "st": "ok", "cls": "string", "t": "string", "d": "google-chrome", "src": "enum", "r": 1788610073440, "n": 410}
+{"k": "obj", "o": "window", "id": "resourceName", "st": "ok", "cls": "string", "t": "string", "d": "chrome", "src": "enum", "r": 1788610073440, "n": 411}
+{"k": "obj", "o": "window", "id": "setMaximize", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 412}
+{"k": "obj", "o": "window", "id": "setReadyForPainting", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 413}
+{"k": "obj", "o": "window", "id": "shadowChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 414}
+{"k": "obj", "o": "window", "id": "size", "st": "ok", "cls": "size", "t": "object", "d": "size w=2560 h=1440", "src": "enum", "r": 1788610073440, "n": 415}
+{"k": "obj", "o": "window", "id": "skipCloseAnimationChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 416}
+{"k": "obj", "o": "window", "id": "skipPager", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 417}
+{"k": "obj", "o": "window", "id": "skipPagerChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 418}
+{"k": "obj", "o": "window", "id": "skipSwitcher", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 419}
+{"k": "obj", "o": "window", "id": "skipSwitcherChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 420}
+{"k": "obj", "o": "window", "id": "skipTaskbar", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 421}
+{"k": "obj", "o": "window", "id": "skipTaskbarChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 422}
+{"k": "obj", "o": "window", "id": "skipsCloseAnimation", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 423}
+{"k": "obj", "o": "window", "id": "specialWindow", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 424}
+{"k": "obj", "o": "window", "id": "splash", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 425}
+{"k": "obj", "o": "window", "id": "stackingOrder", "st": "ok", "cls": "number", "t": "number", "d": "12", "src": "enum", "r": 1788610073440, "n": 426}
+{"k": "obj", "o": "window", "id": "stackingOrderChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 427}
+{"k": "obj", "o": "window", "id": "surfaceChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 428}
+{"k": "obj", "o": "window", "id": "tag", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 429}
+{"k": "obj", "o": "window", "id": "tagChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 430}
+{"k": "obj", "o": "window", "id": "targetScaleChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 431}
+{"k": "obj", "o": "window", "id": "tile", "st": "ok", "cls": "object", "t": "object", "d": "null", "src": "enum", "r": 1788610073440, "n": 432}
+{"k": "obj", "o": "window", "id": "tileChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 433}
+{"k": "obj", "o": "window", "id": "toolbar", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 434}
+{"k": "obj", "o": "window", "id": "tooltip", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 435}
+{"k": "obj", "o": "window", "id": "transient", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 436}
+{"k": "obj", "o": "window", "id": "transientChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 437}
+{"k": "obj", "o": "window", "id": "transientFor", "st": "ok", "cls": "object", "t": "object", "d": "null", "src": "enum", "r": 1788610073440, "n": 438}
+{"k": "obj", "o": "window", "id": "unresponsive", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 439}
+{"k": "obj", "o": "window", "id": "unresponsiveChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 440}
+{"k": "obj", "o": "window", "id": "utility", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 441}
+{"k": "obj", "o": "window", "id": "wantsInput", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 442}
+{"k": "obj", "o": "window", "id": "width", "st": "ok", "cls": "number", "t": "number", "d": "2560", "src": "enum", "r": 1788610073440, "n": 443}
+{"k": "obj", "o": "window", "id": "windowClassChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 444}
+{"k": "obj", "o": "window", "id": "windowRole", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 445}
+{"k": "obj", "o": "window", "id": "windowRoleChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 446}
+{"k": "obj", "o": "window", "id": "windowType", "st": "ok", "cls": "number", "t": "number", "d": "0", "src": "enum", "r": 1788610073440, "n": 447}
+{"k": "obj", "o": "window", "id": "x", "st": "ok", "cls": "number", "t": "number", "d": "5120", "src": "enum", "r": 1788610073440, "n": 448}
+{"k": "obj", "o": "window", "id": "y", "st": "ok", "cls": "number", "t": "number", "d": "0", "src": "enum", "r": 1788610073440, "n": 449}
+{"k": "obj", "o": "window", "id": "shaded", "st": "absent", "src": "list", "r": 1788610073440, "n": 450}
+{"k": "obj", "o": "window", "id": "x11Window", "st": "absent", "src": "list", "r": 1788610073440, "n": 451}
+{"k": "obj", "o": "dock", "id": "enum-mechanism", "d": "forIn=160 keys=160 own=160 proto=10", "r": 1788610073440, "n": 452}
+{"k": "obj", "o": "dock", "id": "active", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 453}
+{"k": "obj", "o": "dock", "id": "activeChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 454}
+{"k": "obj", "o": "dock", "id": "activities", "st": "ok", "cls": "object", "t": "object", "d": "", "src": "enum", "r": 1788610073440, "n": 455}
+{"k": "obj", "o": "dock", "id": "activitiesChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 456}
+{"k": "obj", "o": "dock", "id": "appletPopup", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 457}
+{"k": "obj", "o": "dock", "id": "applicationMenuActive", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 458}
+{"k": "obj", "o": "dock", "id": "applicationMenuActiveChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 459}
+{"k": "obj", "o": "dock", "id": "applicationMenuChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 460}
+{"k": "obj", "o": "dock", "id": "borderRadiusChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 461}
+{"k": "obj", "o": "dock", "id": "bufferGeometry", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=2560 y=1410 w=2560 h=30", "src": "enum", "int": true, "r": 1788610073440, "n": 462}
+{"k": "obj", "o": "dock", "id": "bufferGeometryChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 463}
+{"k": "obj", "o": "dock", "id": "caption", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 464}
+{"k": "obj", "o": "dock", "id": "captionChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 465}
+{"k": "obj", "o": "dock", "id": "captionNormal", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 466}
+{"k": "obj", "o": "dock", "id": "captionNormalChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 467}
+{"k": "obj", "o": "dock", "id": "clientGeometry", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=2560 y=1410 w=2560 h=30", "src": "enum", "int": true, "r": 1788610073440, "n": 468}
+{"k": "obj", "o": "dock", "id": "clientGeometryChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 469}
+{"k": "obj", "o": "dock", "id": "closeWindow", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 470}
+{"k": "obj", "o": "dock", "id": "closeable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 471}
+{"k": "obj", "o": "dock", "id": "closeableChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 472}
+{"k": "obj", "o": "dock", "id": "closed", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 473}
+{"k": "obj", "o": "dock", "id": "colorScheme", "st": "ok", "cls": "string", "t": "string", "d": "kdeglobals", "src": "enum", "r": 1788610073440, "n": 474}
+{"k": "obj", "o": "dock", "id": "colorSchemeChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 475}
+{"k": "obj", "o": "dock", "id": "comboBox", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 476}
+{"k": "obj", "o": "dock", "id": "criticalNotification", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 477}
+{"k": "obj", "o": "dock", "id": "damaged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 478}
+{"k": "obj", "o": "dock", "id": "decorationChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 479}
+{"k": "obj", "o": "dock", "id": "decorationHasAlpha", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 480}
+{"k": "obj", "o": "dock", "id": "decorationPolicyChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 481}
+{"k": "obj", "o": "dock", "id": "deleted", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 482}
+{"k": "obj", "o": "dock", "id": "demandsAttention", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 483}
+{"k": "obj", "o": "dock", "id": "demandsAttentionChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 484}
+{"k": "obj", "o": "dock", "id": "description", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 485}
+{"k": "obj", "o": "dock", "id": "descriptionChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 486}
+{"k": "obj", "o": "dock", "id": "desktopFileName", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 487}
+{"k": "obj", "o": "dock", "id": "desktopFileNameChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 488}
+{"k": "obj", "o": "dock", "id": "desktopWindow", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 489}
+{"k": "obj", "o": "dock", "id": "desktops", "st": "ok", "cls": "object", "t": "object", "d": "", "src": "enum", "r": 1788610073440, "n": 490}
+{"k": "obj", "o": "dock", "id": "desktopsChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 491}
+{"k": "obj", "o": "dock", "id": "dialog", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 492}
+{"k": "obj", "o": "dock", "id": "dndIcon", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 493}
+{"k": "obj", "o": "dock", "id": "dock", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 494}
+{"k": "obj", "o": "dock", "id": "dropdownMenu", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 495}
+{"k": "obj", "o": "dock", "id": "excludeFromCapture", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 496}
+{"k": "obj", "o": "dock", "id": "excludeFromCaptureChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 497}
+{"k": "obj", "o": "dock", "id": "frameGeometry", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=2560 y=1410 w=2560 h=30", "src": "enum", "int": true, "r": 1788610073440, "n": 498}
+{"k": "obj", "o": "dock", "id": "frameGeometryAboutToChange", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 499}
+{"k": "obj", "o": "dock", "id": "frameGeometryChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 500}
+{"k": "obj", "o": "dock", "id": "fullScreen", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 501}
+{"k": "obj", "o": "dock", "id": "fullScreenChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 502}
+{"k": "obj", "o": "dock", "id": "fullScreenable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 503}
+{"k": "obj", "o": "dock", "id": "fullscreenGeometryRestoreChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 504}
+{"k": "obj", "o": "dock", "id": "hasApplicationMenu", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 505}
+{"k": "obj", "o": "dock", "id": "hasApplicationMenuChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 506}
+{"k": "obj", "o": "dock", "id": "height", "st": "ok", "cls": "number", "t": "number", "d": "30", "src": "enum", "r": 1788610073440, "n": 507}
+{"k": "obj", "o": "dock", "id": "hidden", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 508}
+{"k": "obj", "o": "dock", "id": "hiddenByShowDesktopChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 509}
+{"k": "obj", "o": "dock", "id": "hiddenChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 510}
+{"k": "obj", "o": "dock", "id": "icon", "st": "ok", "cls": "object", "t": "object", "d": "QIcon()", "src": "enum", "r": 1788610073440, "n": 511}
+{"k": "obj", "o": "dock", "id": "iconChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 512}
+{"k": "obj", "o": "dock", "id": "iconGeometry", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=0 y=0 w=0 h=0", "src": "enum", "int": true, "r": 1788610073440, "n": 513}
+{"k": "obj", "o": "dock", "id": "inputMethod", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 514}
+{"k": "obj", "o": "dock", "id": "inputTransformationChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 515}
+{"k": "obj", "o": "dock", "id": "interactiveMoveResizeFinished", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 516}
+{"k": "obj", "o": "dock", "id": "interactiveMoveResizeStarted", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 517}
+{"k": "obj", "o": "dock", "id": "interactiveMoveResizeStepped", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 518}
+{"k": "obj", "o": "dock", "id": "internalId", "st": "ok", "cls": "object", "t": "object", "d": "{285a8fb6-142f-4f25-afcf-dc867fe65637}", "src": "enum", "r": 1788610073440, "n": 519}
+{"k": "obj", "o": "dock", "id": "keepAbove", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 520}
+{"k": "obj", "o": "dock", "id": "keepAboveChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 521}
+{"k": "obj", "o": "dock", "id": "keepBelow", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 522}
+{"k": "obj", "o": "dock", "id": "keepBelowChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 523}
+{"k": "obj", "o": "dock", "id": "layer", "st": "ok", "cls": "number", "t": "number", "d": "3", "src": "enum", "r": 1788610073440, "n": 524}
+{"k": "obj", "o": "dock", "id": "lockScreenOverlayChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 525}
+{"k": "obj", "o": "dock", "id": "managed", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 526}
+{"k": "obj", "o": "dock", "id": "maxSize", "st": "ok", "cls": "size", "t": "object", "d": "size w=2147483647 h=2147483647", "src": "enum", "r": 1788610073440, "n": 527}
+{"k": "obj", "o": "dock", "id": "maximizable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 528}
+{"k": "obj", "o": "dock", "id": "maximizeGeometryRestoreChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 529}
+{"k": "obj", "o": "dock", "id": "maximizeMode", "st": "ok", "cls": "number", "t": "number", "d": "0", "src": "enum", "r": 1788610073440, "n": 530}
+{"k": "obj", "o": "dock", "id": "maximizeableChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 531}
+{"k": "obj", "o": "dock", "id": "maximizedAboutToChange", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 532}
+{"k": "obj", "o": "dock", "id": "maximizedChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 533}
+{"k": "obj", "o": "dock", "id": "menu", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 534}
+{"k": "obj", "o": "dock", "id": "minSize", "st": "ok", "cls": "size", "t": "object", "d": "size w=0 h=0", "src": "enum", "r": 1788610073440, "n": 535}
+{"k": "obj", "o": "dock", "id": "minimizable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 536}
+{"k": "obj", "o": "dock", "id": "minimizeableChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 537}
+{"k": "obj", "o": "dock", "id": "minimized", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 538}
+{"k": "obj", "o": "dock", "id": "minimizedChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 539}
+{"k": "obj", "o": "dock", "id": "modal", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 540}
+{"k": "obj", "o": "dock", "id": "modalChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 541}
+{"k": "obj", "o": "dock", "id": "move", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 542}
+{"k": "obj", "o": "dock", "id": "moveResizeCursorChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 543}
+{"k": "obj", "o": "dock", "id": "moveResizedChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 544}
+{"k": "obj", "o": "dock", "id": "moveable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 545}
+{"k": "obj", "o": "dock", "id": "moveableAcrossScreens", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 546}
+{"k": "obj", "o": "dock", "id": "nextTargetScaleChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 547}
+{"k": "obj", "o": "dock", "id": "noBorder", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 548}
+{"k": "obj", "o": "dock", "id": "normalWindow", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 549}
+{"k": "obj", "o": "dock", "id": "notification", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 550}
+{"k": "obj", "o": "dock", "id": "objectName", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 551}
+{"k": "obj", "o": "dock", "id": "objectNameChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 552}
+{"k": "obj", "o": "dock", "id": "offscreenRenderingChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 553}
+{"k": "obj", "o": "dock", "id": "onAllDesktops", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 554}
+{"k": "obj", "o": "dock", "id": "onScreenDisplay", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 555}
+{"k": "obj", "o": "dock", "id": "opacity", "st": "ok", "cls": "number", "t": "number", "d": "1", "src": "enum", "r": 1788610073440, "n": 556}
+{"k": "obj", "o": "dock", "id": "opacityChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 557}
+{"k": "obj", "o": "dock", "id": "outline", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 558}
+{"k": "obj", "o": "dock", "id": "output", "st": "ok", "cls": "object", "t": "object", "d": "KWin::LogicalOutput(0x5f56b2802e60)", "src": "enum", "r": 1788610073440, "n": 559}
+{"k": "obj", "o": "dock", "id": "outputChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 560}
+{"k": "obj", "o": "dock", "id": "paletteChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 561}
+{"k": "obj", "o": "dock", "id": "pid", "st": "ok", "cls": "number", "t": "number", "d": "3371", "src": "enum", "r": 1788610073440, "n": 562}
+{"k": "obj", "o": "dock", "id": "popupMenu", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 563}
+{"k": "obj", "o": "dock", "id": "popupWindow", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 564}
+{"k": "obj", "o": "dock", "id": "pos", "st": "ok", "cls": "object", "t": "object", "d": "QPointF(2560, 1410)", "src": "enum", "r": 1788610073440, "n": 565}
+{"k": "obj", "o": "dock", "id": "providesContextHelp", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 566}
+{"k": "obj", "o": "dock", "id": "quickTileModeChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 567}
+{"k": "obj", "o": "dock", "id": "readyForPaintingChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 568}
+{"k": "obj", "o": "dock", "id": "rect", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=0 y=0 w=2560 h=30", "src": "enum", "int": true, "r": 1788610073440, "n": 569}
+{"k": "obj", "o": "dock", "id": "requestedTileChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 570}
+{"k": "obj", "o": "dock", "id": "resize", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 571}
+{"k": "obj", "o": "dock", "id": "resizeable", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 572}
+{"k": "obj", "o": "dock", "id": "resourceClass", "st": "ok", "cls": "string", "t": "string", "d": "plasmashell", "src": "enum", "r": 1788610073440, "n": 573}
+{"k": "obj", "o": "dock", "id": "resourceName", "st": "ok", "cls": "string", "t": "string", "d": "plasmashell", "src": "enum", "r": 1788610073440, "n": 574}
+{"k": "obj", "o": "dock", "id": "setMaximize", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 575}
+{"k": "obj", "o": "dock", "id": "setReadyForPainting", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 576}
+{"k": "obj", "o": "dock", "id": "shadowChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 577}
+{"k": "obj", "o": "dock", "id": "size", "st": "ok", "cls": "size", "t": "object", "d": "size w=2560 h=30", "src": "enum", "r": 1788610073440, "n": 578}
+{"k": "obj", "o": "dock", "id": "skipCloseAnimationChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 579}
+{"k": "obj", "o": "dock", "id": "skipPager", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 580}
+{"k": "obj", "o": "dock", "id": "skipPagerChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 581}
+{"k": "obj", "o": "dock", "id": "skipSwitcher", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 582}
+{"k": "obj", "o": "dock", "id": "skipSwitcherChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 583}
+{"k": "obj", "o": "dock", "id": "skipTaskbar", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 584}
+{"k": "obj", "o": "dock", "id": "skipTaskbarChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 585}
+{"k": "obj", "o": "dock", "id": "skipsCloseAnimation", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 586}
+{"k": "obj", "o": "dock", "id": "specialWindow", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "enum", "r": 1788610073440, "n": 587}
+{"k": "obj", "o": "dock", "id": "splash", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 588}
+{"k": "obj", "o": "dock", "id": "stackingOrder", "st": "ok", "cls": "number", "t": "number", "d": "9", "src": "enum", "r": 1788610073440, "n": 589}
+{"k": "obj", "o": "dock", "id": "stackingOrderChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 590}
+{"k": "obj", "o": "dock", "id": "surfaceChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 591}
+{"k": "obj", "o": "dock", "id": "tag", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 592}
+{"k": "obj", "o": "dock", "id": "tagChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 593}
+{"k": "obj", "o": "dock", "id": "targetScaleChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 594}
+{"k": "obj", "o": "dock", "id": "tile", "st": "ok", "cls": "object", "t": "object", "d": "null", "src": "enum", "r": 1788610073440, "n": 595}
+{"k": "obj", "o": "dock", "id": "tileChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 596}
+{"k": "obj", "o": "dock", "id": "toolbar", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 597}
+{"k": "obj", "o": "dock", "id": "tooltip", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 598}
+{"k": "obj", "o": "dock", "id": "transient", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 599}
+{"k": "obj", "o": "dock", "id": "transientChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 600}
+{"k": "obj", "o": "dock", "id": "transientFor", "st": "ok", "cls": "object", "t": "object", "d": "null", "src": "enum", "r": 1788610073440, "n": 601}
+{"k": "obj", "o": "dock", "id": "unresponsive", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 602}
+{"k": "obj", "o": "dock", "id": "unresponsiveChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 603}
+{"k": "obj", "o": "dock", "id": "utility", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 604}
+{"k": "obj", "o": "dock", "id": "wantsInput", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "enum", "r": 1788610073440, "n": 605}
+{"k": "obj", "o": "dock", "id": "width", "st": "ok", "cls": "number", "t": "number", "d": "2560", "src": "enum", "r": 1788610073440, "n": 606}
+{"k": "obj", "o": "dock", "id": "windowClassChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 607}
+{"k": "obj", "o": "dock", "id": "windowRole", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 608}
+{"k": "obj", "o": "dock", "id": "windowRoleChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 609}
+{"k": "obj", "o": "dock", "id": "windowType", "st": "ok", "cls": "number", "t": "number", "d": "2", "src": "enum", "r": 1788610073440, "n": 610}
+{"k": "obj", "o": "dock", "id": "x", "st": "ok", "cls": "number", "t": "number", "d": "2560", "src": "enum", "r": 1788610073440, "n": 611}
+{"k": "obj", "o": "dock", "id": "y", "st": "ok", "cls": "number", "t": "number", "d": "1410", "src": "enum", "r": 1788610073440, "n": 612}
+{"k": "obj", "o": "dock", "id": "shaded", "st": "absent", "src": "list", "r": 1788610073440, "n": 613}
+{"k": "obj", "o": "dock", "id": "x11Window", "st": "absent", "src": "list", "r": 1788610073440, "n": 614}
+{"k": "obj", "o": "activeWindow", "id": "<objekt>", "st": "ok", "d": "rect x=2560 y=0 w=2560 h=1410", "r": 1788610073440, "n": 615}
+{"k": "obj", "o": "output", "id": "enum-mechanism", "d": "forIn=18 keys=18 own=18 proto=10", "r": 1788610073440, "n": 616}
+{"k": "obj", "o": "output", "id": "aboutToChange", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 617}
+{"k": "obj", "o": "output", "id": "blendingColorChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 618}
+{"k": "obj", "o": "output", "id": "changed", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 619}
+{"k": "obj", "o": "output", "id": "currentModeChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 620}
+{"k": "obj", "o": "output", "id": "descriptionChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 621}
+{"k": "obj", "o": "output", "id": "devicePixelRatio", "st": "ok", "cls": "number", "t": "number", "d": "1", "src": "enum", "r": 1788610073440, "n": 622}
+{"k": "obj", "o": "output", "id": "geometry", "st": "ok", "cls": "rect", "t": "object", "d": "rect x=2560 y=0 w=2560 h=1440", "src": "enum", "int": true, "r": 1788610073440, "n": 623}
+{"k": "obj", "o": "output", "id": "geometryChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 624}
+{"k": "obj", "o": "output", "id": "manufacturer", "st": "ok", "cls": "string", "t": "string", "d": "LEN", "src": "enum", "r": 1788610073440, "n": 625}
+{"k": "obj", "o": "output", "id": "mapFromGlobal", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 626}
+{"k": "obj", "o": "output", "id": "mapToGlobal", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 627}
+{"k": "obj", "o": "output", "id": "model", "st": "ok", "cls": "string", "t": "string", "d": "P27h-30", "src": "enum", "r": 1788610073440, "n": 628}
+{"k": "obj", "o": "output", "id": "name", "st": "ok", "cls": "string", "t": "string", "d": "DP-1", "src": "enum", "r": 1788610073440, "n": 629}
+{"k": "obj", "o": "output", "id": "objectName", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 630}
+{"k": "obj", "o": "output", "id": "objectNameChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 631}
+{"k": "obj", "o": "output", "id": "scaleChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 632}
+{"k": "obj", "o": "output", "id": "serialNumber", "st": "ok", "cls": "string", "t": "string", "d": "<Seriennummer entfernt>", "src": "enum", "r": 1788610073440, "n": 633}
+{"k": "obj", "o": "output", "id": "transformChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 634}
+{"k": "obj", "o": "output", "id": "uuid", "st": "absent", "src": "list", "r": 1788610073440, "n": 635}
+{"k": "obj", "o": "output", "id": "enabled", "st": "absent", "src": "list", "r": 1788610073440, "n": 636}
+{"k": "obj", "o": "output", "id": "scale", "st": "absent", "src": "list", "r": 1788610073440, "n": 637}
+{"k": "obj", "o": "output", "id": "refreshRate", "st": "absent", "src": "list", "r": 1788610073440, "n": 638}
+{"k": "obj", "o": "output", "id": "transform", "st": "absent", "src": "list", "r": 1788610073440, "n": 639}
+{"k": "obj", "o": "output", "id": "dpmsMode", "st": "absent", "src": "list", "r": 1788610073440, "n": 640}
+{"k": "obj", "o": "desktop", "id": "enum-mechanism", "d": "forIn=8 keys=8 own=8 proto=10", "r": 1788610073440, "n": 641}
+{"k": "obj", "o": "desktop", "id": "aboutToBeDestroyed", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 642}
+{"k": "obj", "o": "desktop", "id": "id", "st": "ok", "cls": "string", "t": "string", "d": "89539ae6-e06b-4c76-a057-95df959578a9", "src": "enum", "r": 1788610073440, "n": 643}
+{"k": "obj", "o": "desktop", "id": "name", "st": "ok", "cls": "string", "t": "string", "d": "Desktop 1", "src": "enum", "r": 1788610073440, "n": 644}
+{"k": "obj", "o": "desktop", "id": "nameChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 645}
+{"k": "obj", "o": "desktop", "id": "objectName", "st": "ok", "cls": "string", "t": "string", "d": "", "src": "enum", "r": 1788610073440, "n": 646}
+{"k": "obj", "o": "desktop", "id": "objectNameChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 647}
+{"k": "obj", "o": "desktop", "id": "x11DesktopNumber", "st": "ok", "cls": "number", "t": "number", "d": "1", "src": "enum", "r": 1788610073440, "n": 648}
+{"k": "obj", "o": "desktop", "id": "x11DesktopNumberChanged", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "enum", "r": 1788610073440, "n": 649}
+{"k": "obj", "o": "options", "id": "perOutputVirtualDesktops", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "list", "r": 1788610073440, "n": 650}
+{"k": "obj", "o": "options", "id": "focusPolicy", "st": "ok", "cls": "number", "t": "number", "d": "0", "src": "list", "r": 1788610073440, "n": 651}
+{"k": "obj", "o": "options", "id": "placement", "st": "ok", "cls": "number", "t": "number", "d": "5", "src": "list", "r": 1788610073440, "n": 652}
+{"k": "obj", "o": "options", "id": "borderSnapZone", "st": "ok", "cls": "number", "t": "number", "d": "10", "src": "list", "r": 1788610073440, "n": 653}
+{"k": "obj", "o": "options", "id": "windowSnapZone", "st": "ok", "cls": "number", "t": "number", "d": "10", "src": "list", "r": 1788610073440, "n": 654}
+{"k": "obj", "o": "options", "id": "centerSnapZone", "st": "ok", "cls": "number", "t": "number", "d": "0", "src": "list", "r": 1788610073440, "n": 655}
+{"k": "obj", "o": "options", "id": "electricBorderMaximize", "st": "ok", "cls": "boolean", "t": "boolean", "d": "true", "src": "list", "r": 1788610073440, "n": 656}
+{"k": "obj", "o": "options", "id": "activeMouseScreen", "st": "absent", "src": "list", "r": 1788610073440, "n": 657}
+{"k": "obj", "o": "options", "id": "rollOverDesktops", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "list", "r": 1788610073440, "n": 658}
+{"k": "obj", "o": "options", "id": "condensedTitle", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "list", "r": 1788610073440, "n": 659}
+{"k": "cfg", "id": "probeStr", "st": "ok", "t": "string", "d": "aus-kwinrc", "r": 1788610073440, "n": 660}
+{"k": "cfg", "id": "probeInt", "st": "ok", "t": "number", "d": "7", "r": 1788610073440, "n": 661}
+{"k": "cfg", "id": "probeBool", "st": "ok", "t": "boolean", "d": "true", "r": 1788610073440, "n": 662}
+{"k": "cfg", "id": "probeList", "st": "ok", "t": "string", "d": "a,b,c", "r": 1788610073440, "n": 663}
+{"k": "cfg", "id": "probeFehlt", "st": "ok", "t": "string", "d": "unberuehrt", "r": 1788610073440, "n": 664}
+{"k": "cfg", "id": "ohne-default", "st": "ok", "t": "undefined", "d": "undefined", "r": 1788610073440, "n": 665}
+{"k": "dbus", "id": "GetId-aufruf", "st": "ok", "d": "abgesetzt, Antwort asynchron", "r": 1788610073440, "n": 666}
+{"k": "shortcut", "id": "phase", "st": "absent", "d": "probeShortcuts nicht gesetzt", "r": 1788610073440, "n": 667}
+{"k": "obj", "o": "qtimer", "id": "start", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "list", "r": 1788610073440, "n": 668}
+{"k": "obj", "o": "qtimer", "id": "stop", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "list", "r": 1788610073440, "n": 669}
+{"k": "obj", "o": "qtimer", "id": "interval", "st": "ok", "cls": "number", "t": "number", "d": "0", "src": "list", "r": 1788610073440, "n": 670}
+{"k": "obj", "o": "qtimer", "id": "singleShot", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "list", "r": 1788610073440, "n": 671}
+{"k": "obj", "o": "qtimer", "id": "active", "st": "ok", "cls": "boolean", "t": "boolean", "d": "false", "src": "list", "r": 1788610073440, "n": 672}
+{"k": "obj", "o": "qtimer", "id": "timeout", "st": "ok", "cls": "signal", "t": "function", "d": "function", "src": "list", "r": 1788610073440, "n": 673}
+{"k": "obj", "o": "qtimer", "id": "restart", "st": "absent", "src": "list", "r": 1788610073440, "n": 674}
+{"k": "obj", "o": "qtimer", "id": "remainingTime", "st": "ok", "cls": "number", "t": "number", "d": "-1", "src": "list", "r": 1788610073440, "n": 675}
+{"k": "timer", "id": "QTimer.singleShot-statisch", "d": "undefined", "r": 1788610073440, "n": 676}
+{"k": "dbus", "id": "GetId-callback", "st": "ok", "d": "argc=1 a0=10462bff547f9ecda7be2155df8e9844", "r": 1788610073440, "n": 677}
+{"k": "timer", "id": "singleshot-20ms", "st": "ok", "d": "latenz=21ms", "r": 1788610073440, "n": 678}
+{"k": "timer", "id": "repeat-30ms", "st": "ok", "d": "ticks=3 active=false", "r": 1788610073440, "n": 679}
+{"k": "timer", "id": "nach-stop", "st": "ok", "d": "ticks=3 unreferenzierter-timer-feuerte=true", "r": 1788610073440, "n": 680}
+{"k": "end", "st": "ok", "total": 681, "errors": 0, "r": 1788610073440, "n": 681}

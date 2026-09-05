@@ -28,7 +28,9 @@ Anhang von [`../PLAN.md`](../PLAN.md).
 
 Gemessen am 2026-09-05 auf SPIELKISTE, KWin 6.7.4 auf Wayland, drei Ausgaben.
 Rohdaten: [`probe-2026-09-05-spielkiste.ndjson`](probe-2026-09-05-spielkiste.ndjson)
-(682 Sätze), erzeugt mit `nix run .#probe`.
+(682 Sätze), erzeugt mit `nix run .#probe`. Vor der Veröffentlichung wurden
+darin drei Zeichenkettenwerte maskiert: `window.caption`,
+`window.captionNormal` und `output.serialNumber`. Alles Übrige ist unverändert.
 
 ### 2.1 Sprachniveau der QJSEngine
 
