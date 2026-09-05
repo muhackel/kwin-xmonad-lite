@@ -6,13 +6,13 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 3
-samt Stabilisierung 3.1 abgeschlossen** — Gerüst, Build- und Testkette,
-Feature-Probe, Layoutkern (`rect`, `tall`, `full`), Fensterstapel, Registry und
-Reconcile, der KWin-Adapter und der Geometriecontroller mit geprüfter
-Signalfolge. Das geladene Skript kachelt mit `Tall`. Multi-Output und Hotplug
-folgen in Meilenstein 4, die Zustandsübergänge in 5, die Tastenkürzel in 6 —
-bis dahin ist `Full` nicht erreichbar, weil der Layoutwechsel an `Meta+Space`
-hängt.
+samt den Stabilisierungen 3.1 und 3.1.1 abgeschlossen** — Gerüst, Build- und
+Testkette, Feature-Probe, Layoutkern (`rect`, `tall`, `full`), Fensterstapel,
+Registry und Reconcile, der KWin-Adapter und der Geometriecontroller mit
+geprüfter Signalfolge. Das geladene Skript kachelt mit `Tall`. Multi-Output und
+Hotplug folgen in Meilenstein 4, die Zustandsübergänge in 5, die Tastenkürzel
+in 6 — bis dahin ist `Full` nicht erreichbar, weil der Layoutwechsel an
+`Meta+Space` hängt.
 
 ## Ursprung & Zweck
 
