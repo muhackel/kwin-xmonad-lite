@@ -18,8 +18,12 @@ ist keine Quelle: was hier nicht steht, ist nicht belegt.
 | Aerogel `codeberg.org/bovfbovf/aerogel` `29d16d1c` | 2026-05-26 | GPL-3.0-or-later | nur Ideen, kein Code |
 | Krohnkite `codeberg.org/anametologin/Krohnkite` 0.9.9.2 `1d7fd742` | 2025-07-25 | MIT | Tall-Split, Surface-Schlüssel |
 | Karousel `github.com/peterfajdiga/karousel` v0.17 `d14c8fbd` | 2026-06-07 | GPL-3.0 | nur Ideen, kein Code |
-| nixpkgs-Derivationen polonium/krohnkite/karousel, `nixos/tests/plasma6.nix` | Pin `8a37cfb9` | MIT | Packaging-Muster |
+| nixpkgs-Derivationen polonium/krohnkite/karousel/kzones/dynamic-workspaces, `nixos/tests/plasma6.nix`, `nixos/tests/cardwire.nix`, Test-Driver | Pin `8a37cfb9` | MIT | Packaging-Muster, Test-VM (X11-Bindung von `wait_for_window`, zwei Outputs über `virtio-gpu`) |
+| `nixosconfig/{CLAUDE.md,flake.nix,flake.lock,modules/user/muhackel/home.nix}` | vorliegend | – | Konventionen, Pin-Abgleich, Einbindung über Home Manager |
+| plasma-manager `github.com/nix-community/plasma-manager` `a19a2a02` (`modules/kwin.nix`, `shortcuts.nix`, `files.nix`) | trunk | – | Aktivierung und Shortcuts im Home-Manager-Modul (Meilenstein 6) |
 | `develop.kde.org/docs/plasma/kwin/` und `…/api/` | dokumentiert KWin **6.0** | – | nur Installationskommandos; `…/packaging/` ist 404 |
+| `kde.org/announcements/plasma/6/6.7.0/`, `community.kde.org/Plasma/Plasma_6` | 2026-06-16 | – | Per-Screen-Desktops bestätigt, ohne technische Details |
+| `docs.kde.org` Plasma-Handbuch, Activities-Seite | Plasma 5.20 | – | inhaltlich unergiebig; Activity-Semantik deshalb aus dem KWin-Code |
 
 Die vollständige Zuordnung „welche Idee stammt aus welcher Quelle" steht im
 Anhang von [`../PLAN.md`](../PLAN.md).
@@ -206,11 +210,14 @@ Gemessen am 2026-09-05 auf SPIELKISTE (KWin 6.7.4, drei Ausgaben DP-1, DP-9,
 DP-10, vier virtuelle Desktops, eine Activity) mit `nix run .#probe-signals`.
 Rohdaten: `docs/signals-2026-09-05-spielkiste-1.ndjson` (Handgriffe an der
 Panelhöhe, Hotplug) und `-2.ndjson` (Desktop und Activity anlegen und
-entfernen, Hotplug). Die Probe verbindet echte KWin-Signale und weist im
-`end`-Satz nach, dass sie vor dem Ende **jede** Verbindung getrennt und jeden
-eigenen Timer gestoppt hat (`offen: 0`, `timer_aktiv: 0`); das Skript prüft
-diesen Satz aus und lässt jede Abweichung in seinen Exit-Code laufen, und es
-weist zusätzlich nach, dass nach dem Entladen keine Zeile mehr kommt.
+entfernen, Hotplug), beide mit der Probe aus Meilenstein 4; dazu `-3.ndjson`,
+der Vollauf mit `--hotplug` aus der Abnahme von Meilenstein 4.1.1 (Exit 0,
+zehn Prüfungen), dessen `end`-Satz bereits `cut_tot` und `cut_fehler` trägt.
+Die Probe verbindet echte KWin-Signale und weist im `end`-Satz nach, dass sie
+vor dem Ende **jede** Verbindung getrennt und jeden eigenen Timer gestoppt hat
+(`offen: 0`, `timer_aktiv: 0`); das Skript wertet diesen Satz aus und lässt
+jede Abweichung in seinen Exit-Code laufen, und es weist zusätzlich nach, dass
+nach dem Entladen keine Zeile mehr kommt.
 
 ### 3.1 Signaturen der Workspace-Signale
 
@@ -268,7 +275,7 @@ sondern auch an den Dock-Signalen.
 
 **Der reine Panelhöhenwechsel verhält sich anders** — nachgetragen aus der
 Abnahme von Testmatrix 10 (SPIELKISTE, drei Ausgaben): auf `dockGeometrie`
-folgte ein Lauf mit `flaeche=2560x1404` statt der vorherigen `1410`, die Fläche
+folgte ein Lauf mit `fläche=2560x1404` statt der vorherigen `1410`, die Fläche
 war dort also bereits neu. Gemessen ist damit der **entprellte Lauf** rund
 20 ms nach dem Signal, nicht der Moment des Signals selbst — dieser Zeitpunkt
 bleibt für den Panelfall unbelegt. Für die Nachläufe genügt das: sie sind hier
@@ -302,8 +309,9 @@ langlebiges Objekt; seine Beobachtung muss über `windowAdded` mitwachsen und
 
 In jedem vollständigen Lauf endeten einige Trennungen im Abschluss der Probe
 mit `Error: Function.prototype.disconnect: cannot disconnect from deleted
-QObject` (vier in `signals-20260905-212609.ndjson` und `-213237.ndjson`, fünf
-und dreizehn in den beiden `spielkiste`-Läufen). Betroffen sind die
+QObject` (vier im Lauf `docs/signals-2026-09-05-spielkiste-3.ndjson`, dort als
+`cut`-Sätze mitgeschrieben und im `end`-Satz als `cut_tot: 4` gezählt; fünf und
+dreizehn in den Läufen `-1` und `-2`). Betroffen sind die
 Fensterverbindungen von Panels, die während der Laufzeit verschwanden — beim
 Ändern der Panelhöhe und beim Hotplug.
 

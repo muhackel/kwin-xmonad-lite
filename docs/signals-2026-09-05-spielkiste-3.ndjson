@@ -1,0 +1,101 @@
+{"k":"meta","id":"start","st":"ok","d":"kwin-xmonad-lite Signalprobe","r":1788639268344,"n":0,"ms":0}
+{"k":"state","id":"desktops","d":"89539ae6-e06b-4c76-a057-95df959578a9#1,b7798180-564c-4f75-ad4a-284026ac7a68#2,30c27d93-fa7d-452a-ad6a-53201edcdca1#3,eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","r":1788639268344,"n":1,"ms":0}
+{"k":"state","id":"activities","d":"a89f5ec2-ab8e-4108-8088-7118500a3aab","r":1788639268344,"n":2,"ms":0}
+{"k":"state","id":"screens","d":"DP-1,DP-9,DP-10","r":1788639268344,"n":3,"ms":0}
+{"k":"state","id":"areas","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788639268344,"n":4,"ms":0}
+{"k":"state","id":"perOutputVirtualDesktops","d":"false","r":1788639268344,"n":5,"ms":0}
+{"k":"wire","id":"workspace.currentDesktopChanged","st":"ok","r":1788639268344,"n":6,"ms":0}
+{"k":"wire","id":"workspace.currentActivityChanged","st":"ok","r":1788639268344,"n":7,"ms":0}
+{"k":"wire","id":"workspace.desktopsChanged","st":"ok","r":1788639268344,"n":8,"ms":0}
+{"k":"wire","id":"workspace.activitiesChanged","st":"ok","r":1788639268344,"n":9,"ms":0}
+{"k":"wire","id":"workspace.screensChanged","st":"ok","r":1788639268344,"n":10,"ms":0}
+{"k":"wire","id":"workspace.screenOrderChanged","st":"ok","r":1788639268344,"n":11,"ms":0}
+{"k":"wire","id":"workspace.virtualScreenGeometryChanged","st":"ok","r":1788639268344,"n":12,"ms":0}
+{"k":"wire","id":"workspace.windowAdded","st":"ok","r":1788639268344,"n":13,"ms":0}
+{"k":"wire","id":"workspace.windowRemoved","st":"ok","r":1788639268344,"n":14,"ms":0}
+{"k":"wire","id":"win:35b185.outputChanged","st":"ok","r":1788639268344,"n":15,"ms":0}
+{"k":"wire","id":"win:51a1ba.outputChanged","st":"ok","r":1788639268344,"n":16,"ms":0}
+{"k":"wire","id":"win:152c13.outputChanged","st":"ok","r":1788639268344,"n":17,"ms":0}
+{"k":"wire","id":"win:f134ed.outputChanged","st":"ok","r":1788639268344,"n":18,"ms":1}
+{"k":"wire","id":"win:03a3ef.outputChanged","st":"ok","r":1788639268344,"n":19,"ms":1}
+{"k":"wire","id":"win:2e8edc.outputChanged","st":"ok","r":1788639268344,"n":20,"ms":1}
+{"k":"dock","id":"0ae0f9","st":"verbunden","d":"class=plasmashell","r":1788639268344,"n":21,"ms":1}
+{"k":"wire","id":"dock:0ae0f9.frameGeometryChanged","st":"ok","r":1788639268344,"n":22,"ms":1}
+{"k":"wire","id":"dock:0ae0f9.outputChanged","st":"ok","r":1788639268344,"n":23,"ms":1}
+{"k":"wire","id":"dock:0ae0f9.closed","st":"ok","r":1788639268344,"n":24,"ms":1}
+{"k":"dock","id":"0bae2b","st":"verbunden","d":"class=plasmashell","r":1788639268344,"n":25,"ms":1}
+{"k":"wire","id":"dock:0bae2b.frameGeometryChanged","st":"ok","r":1788639268344,"n":26,"ms":1}
+{"k":"wire","id":"dock:0bae2b.outputChanged","st":"ok","r":1788639268344,"n":27,"ms":1}
+{"k":"wire","id":"dock:0bae2b.closed","st":"ok","r":1788639268344,"n":28,"ms":1}
+{"k":"dock","id":"6e6c4f","st":"verbunden","d":"class=plasmashell","r":1788639268344,"n":29,"ms":1}
+{"k":"wire","id":"dock:6e6c4f.frameGeometryChanged","st":"ok","r":1788639268344,"n":30,"ms":1}
+{"k":"wire","id":"dock:6e6c4f.outputChanged","st":"ok","r":1788639268344,"n":31,"ms":1}
+{"k":"wire","id":"dock:6e6c4f.closed","st":"ok","r":1788639268344,"n":32,"ms":1}
+{"k":"wire","id":"win:c2fc72.outputChanged","st":"ok","r":1788639268344,"n":33,"ms":1}
+{"k":"state","id":"verbunden","d":"docks=3 fenster=7","r":1788639268344,"n":34,"ms":1}
+{"k":"meta","id":"laufzeit","st":"ok","d":"ms=175000","r":1788639268344,"n":35,"ms":1}
+{"k":"sig","id":"workspace.desktopsChanged","argc":0,"a":[],"d":"89539ae6-e06b-4c76-a057-95df959578a9#1,b7798180-564c-4f75-ad4a-284026ac7a68#2,30c27d93-fa7d-452a-ad6a-53201edcdca1#3,eb859906-5dd5-4314-92bc-4f3cc1582e4f#4,bd08bc9c-f83d-4c7a-a65c-d1ba6236f411#5","r":1788639268344,"n":36,"ms":60032}
+{"k":"sig","id":"workspace.desktopsChanged","argc":0,"a":[],"d":"89539ae6-e06b-4c76-a057-95df959578a9#1,b7798180-564c-4f75-ad4a-284026ac7a68#2,30c27d93-fa7d-452a-ad6a-53201edcdca1#3,eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","r":1788639268344,"n":37,"ms":68064}
+{"k":"sig","id":"workspace.activitiesChanged","argc":1,"a":["string:fcc0906c-c020-485d-910b-00c20946d4ca"],"d":"a89f5ec2-ab8e-4108-8088-7118500a3aab,fcc0906c-c020-485d-910b-00c20946d4ca","r":1788639268344,"n":38,"ms":76074}
+{"k":"sig","id":"workspace.currentActivityChanged","argc":1,"a":["string:fcc0906c-c020-485d-910b-00c20946d4ca"],"d":"current=fcc0906c-c020-485d-910b-00c20946d4ca","r":1788639268344,"n":39,"ms":82080}
+{"k":"sig","id":"workspace.currentActivityChanged","argc":1,"a":["string:a89f5ec2-ab8e-4108-8088-7118500a3aab"],"d":"current=a89f5ec2-ab8e-4108-8088-7118500a3aab","r":1788639268344,"n":40,"ms":88087}
+{"k":"sig","id":"workspace.activitiesChanged","argc":1,"a":["string:fcc0906c-c020-485d-910b-00c20946d4ca"],"d":"a89f5ec2-ab8e-4108-8088-7118500a3aab","r":1788639268344,"n":41,"ms":94102}
+{"k":"sig","id":"workspace.screenOrderChanged","argc":0,"a":[],"d":"DP-1,DP-9","r":1788639268344,"n":42,"ms":101159}
+{"k":"sig","id":"workspace.windowRemoved","argc":1,"a":["(nicht gelesen)"],"r":1788639268344,"n":43,"ms":101159}
+{"k":"dock","id":"6e6c4f","st":"closed","r":1788639268344,"n":44,"ms":101160}
+{"k":"area","id":"dock.closed 6e6c4f","phase":"sofort","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0","r":1788639268344,"n":45,"ms":101160}
+{"k":"sig","id":"workspace.windowRemoved","argc":1,"a":["(nicht gelesen)"],"r":1788639268344,"n":46,"ms":101160}
+{"k":"sig","id":"dock.frameGeometryChanged","dock":"0ae0f9","d":"2560x30+0+1410","r":1788639268344,"n":47,"ms":101160}
+{"k":"area","id":"dock.frameGeometryChanged 0ae0f9","phase":"sofort","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0","r":1788639268344,"n":48,"ms":101160}
+{"k":"sig","id":"dock.frameGeometryChanged","dock":"0bae2b","d":"2560x30+2560+1410","r":1788639268344,"n":49,"ms":101160}
+{"k":"area","id":"dock.frameGeometryChanged 0bae2b","phase":"sofort","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0","r":1788639268344,"n":50,"ms":101160}
+{"k":"sig","id":"window.outputChanged","win":"c2fc72","d":"DP-1","r":1788639268344,"n":51,"ms":101160}
+{"k":"sig","id":"window.outputChanged","win":"51a1ba","d":"DP-1","r":1788639268344,"n":52,"ms":101160}
+{"k":"sig","id":"window.outputChanged","win":"152c13","d":"DP-1","r":1788639268344,"n":53,"ms":101160}
+{"k":"sig","id":"workspace.virtualScreenGeometryChanged","argc":0,"a":[],"d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788639268344,"n":54,"ms":101161}
+{"k":"sig","id":"workspace.screensChanged","argc":0,"a":[],"d":"DP-1,DP-9 | DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788639268344,"n":55,"ms":101161}
+{"k":"area","id":"dock.closed 6e6c4f","phase":"500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788639268344,"n":56,"ms":101635}
+{"k":"area","id":"dock.frameGeometryChanged 0ae0f9","phase":"500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788639268344,"n":57,"ms":101635}
+{"k":"area","id":"dock.frameGeometryChanged 0bae2b","phase":"500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788639268344,"n":58,"ms":101635}
+{"k":"area","id":"dock.closed 6e6c4f","phase":"1500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788639268344,"n":59,"ms":102586}
+{"k":"area","id":"dock.frameGeometryChanged 0ae0f9","phase":"1500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788639268344,"n":60,"ms":102586}
+{"k":"area","id":"dock.frameGeometryChanged 0bae2b","phase":"1500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788639268344,"n":61,"ms":102586}
+{"k":"sig","id":"workspace.screenOrderChanged","argc":0,"a":[],"d":"DP-1,DP-9,DP-10","r":1788639268344,"n":62,"ms":116300}
+{"k":"sig","id":"dock.frameGeometryChanged","dock":"0ae0f9","d":"2560x30+2560+1410","r":1788639268344,"n":63,"ms":116300}
+{"k":"area","id":"dock.frameGeometryChanged 0ae0f9","phase":"sofort","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0 DP-10=2560x1440+0+0","r":1788639268344,"n":64,"ms":116301}
+{"k":"sig","id":"dock.frameGeometryChanged","dock":"0bae2b","d":"2560x30+5120+1410","r":1788639268344,"n":65,"ms":116301}
+{"k":"area","id":"dock.frameGeometryChanged 0bae2b","phase":"sofort","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0 DP-10=2560x1440+0+0","r":1788639268344,"n":66,"ms":116301}
+{"k":"sig","id":"window.outputChanged","win":"c2fc72","d":"DP-10","r":1788639268344,"n":67,"ms":116301}
+{"k":"sig","id":"window.outputChanged","win":"51a1ba","d":"DP-10","r":1788639268344,"n":68,"ms":116301}
+{"k":"sig","id":"window.outputChanged","win":"152c13","d":"DP-10","r":1788639268344,"n":69,"ms":116301}
+{"k":"sig","id":"workspace.virtualScreenGeometryChanged","argc":0,"a":[],"d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1440+0+0","r":1788639268344,"n":70,"ms":116301}
+{"k":"sig","id":"workspace.screensChanged","argc":0,"a":[],"d":"DP-1,DP-9,DP-10 | DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1440+0+0","r":1788639268344,"n":71,"ms":116301}
+{"k":"dock","id":"0bae2b","st":"closed","r":1788639268344,"n":72,"ms":116663}
+{"k":"area","id":"dock.closed 0bae2b","phase":"sofort","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1440+0+0","r":1788639268344,"n":73,"ms":116663}
+{"k":"sig","id":"workspace.windowRemoved","argc":1,"a":["(nicht gelesen)"],"r":1788639268344,"n":74,"ms":116663}
+{"k":"sig","id":"workspace.windowRemoved","argc":1,"a":["(nicht gelesen)"],"r":1788639268344,"n":75,"ms":116663}
+{"k":"sig","id":"workspace.windowAdded","argc":1,"a":["window:d9d59c"],"r":1788639268344,"n":76,"ms":116688}
+{"k":"wire","id":"win:d9d59c.outputChanged","st":"ok","r":1788639268344,"n":77,"ms":116688}
+{"k":"sig","id":"workspace.windowAdded","argc":1,"a":["window:88b97c"],"r":1788639268344,"n":78,"ms":116697}
+{"k":"wire","id":"win:88b97c.outputChanged","st":"ok","r":1788639268344,"n":79,"ms":116697}
+{"k":"area","id":"dock.frameGeometryChanged 0ae0f9","phase":"500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1440+5120+0 DP-10=2560x1440+0+0","r":1788639268344,"n":80,"ms":116827}
+{"k":"area","id":"dock.frameGeometryChanged 0bae2b","phase":"500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1440+5120+0 DP-10=2560x1440+0+0","r":1788639268344,"n":81,"ms":116827}
+{"k":"sig","id":"workspace.windowAdded","argc":1,"a":["window:ae4c86"],"r":1788639268344,"n":82,"ms":117081}
+{"k":"dock","id":"ae4c86","st":"verbunden","d":"class=plasmashell","r":1788639268344,"n":83,"ms":117081}
+{"k":"wire","id":"dock:ae4c86.frameGeometryChanged","st":"ok","r":1788639268344,"n":84,"ms":117081}
+{"k":"wire","id":"dock:ae4c86.outputChanged","st":"ok","r":1788639268344,"n":85,"ms":117081}
+{"k":"wire","id":"dock:ae4c86.closed","st":"ok","r":1788639268344,"n":86,"ms":117081}
+{"k":"sig","id":"workspace.windowAdded","argc":1,"a":["window:67a9bf"],"r":1788639268344,"n":87,"ms":117096}
+{"k":"dock","id":"67a9bf","st":"verbunden","d":"class=plasmashell","r":1788639268344,"n":88,"ms":117096}
+{"k":"wire","id":"dock:67a9bf.frameGeometryChanged","st":"ok","r":1788639268344,"n":89,"ms":117096}
+{"k":"wire","id":"dock:67a9bf.outputChanged","st":"ok","r":1788639268344,"n":90,"ms":117096}
+{"k":"wire","id":"dock:67a9bf.closed","st":"ok","r":1788639268344,"n":91,"ms":117096}
+{"k":"area","id":"dock.closed 0bae2b","phase":"500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788639268344,"n":92,"ms":117138}
+{"k":"area","id":"dock.frameGeometryChanged 0ae0f9","phase":"1500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788639268344,"n":93,"ms":117877}
+{"k":"area","id":"dock.frameGeometryChanged 0bae2b","phase":"1500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788639268344,"n":94,"ms":117877}
+{"k":"area","id":"dock.closed 0bae2b","phase":"1500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788639268344,"n":95,"ms":118088}
+{"k":"cut","st":"error","d":"Error: Function.prototype.disconnect: cannot disconnect from deleted QObject","r":1788639268344,"n":96,"ms":175435}
+{"k":"cut","st":"error","d":"Error: Function.prototype.disconnect: cannot disconnect from deleted QObject","r":1788639268344,"n":97,"ms":175435}
+{"k":"cut","st":"error","d":"Error: Function.prototype.disconnect: cannot disconnect from deleted QObject","r":1788639268344,"n":98,"ms":175435}
+{"k":"cut","st":"error","d":"Error: Function.prototype.disconnect: cannot disconnect from deleted QObject","r":1788639268344,"n":99,"ms":175435}
+{"k":"end","st":"ok","total":100,"verbindungen":33,"offen":0,"timer_aktiv":0,"cut_tot":4,"cut_fehler":0,"r":1788639268344,"n":100,"ms":175435}
