@@ -3,7 +3,13 @@ import { test } from "node:test";
 
 import type { Rect } from "../src/core/rect.ts";
 import { UNLIMITED_SIZE } from "../src/kwin/filter.ts";
-import { fitToCell, judgeCorrection, judgeWrite, MAX_CORRECTIONS } from "../src/kwin/geometry.ts";
+import {
+	fitToCell,
+	judgeRecheck,
+	judgeSignal,
+	judgeWrite,
+	MAX_CORRECTIONS,
+} from "../src/kwin/geometry.ts";
 import type { WindowState } from "../src/state/registry.ts";
 import { createWindowState } from "../src/state/registry.ts";
 import { AREA, windowInfo } from "./support/kwinfake.ts";
@@ -13,7 +19,7 @@ const CELL: Rect = { x: 0, y: 0, width: 1664, height: 1410 };
 function expecting(rect: Rect, generation: number, attempts: number): WindowState {
 	const state = createWindowState();
 	state.expectedRect = rect;
-	state.applyGeneration = generation;
+	state.writeGeneration = generation;
 	state.applyAttempts = attempts;
 	return state;
 }
@@ -102,37 +108,56 @@ test("der Ziehzustand gewinnt gegen die Maximierung", () => {
 	assert.equal(judgeWrite(info, CELL), "drag");
 });
 
-// --- judgeCorrection --------------------------------------------------------
+// --- judgeSignal ------------------------------------------------------------
 
-test("judgeCorrection meldet ignore ohne Erwartung", () => {
-	assert.equal(judgeCorrection(createWindowState(), 1, CELL), "ignore");
+test("judgeSignal meldet ignore ohne Erwartung", () => {
+	assert.equal(judgeSignal(createWindowState(), CELL), "ignore");
 });
 
-test("judgeCorrection meldet stale fuer eine andere Generation", () => {
-	// Auf Wayland kann eine Bestaetigung beliebig spaet zurueckkommen.
+test("judgeSignal meldet settled bei Uebereinstimmung", () => {
 	const state = expecting(CELL, 3, 0);
-	assert.equal(judgeCorrection(state, 4, { x: 9, y: 9, width: 9, height: 9 }), "stale");
+	assert.equal(judgeSignal(state, { x: 0, y: 0, width: 1664, height: 1410 }), "settled");
 });
 
-test("judgeCorrection meldet settled bei Uebereinstimmung", () => {
+test("judgeSignal meldet diverged bei Abweichung, nie retry", () => {
+	// Ein KWin-Signal traegt keine Schreibgeneration, und der Signalpfad
+	// schreibt nie: er kann nur eine Nachpruefung einplanen.
+	const state = expecting(CELL, 3, MAX_CORRECTIONS);
+	assert.equal(judgeSignal(state, { x: 0, y: 0, width: 1660, height: 1410 }), "diverged");
+});
+
+// --- judgeRecheck -----------------------------------------------------------
+
+test("judgeRecheck meldet ignore ohne Erwartung", () => {
+	assert.equal(judgeRecheck(createWindowState(), 1, CELL), "ignore");
+});
+
+test("judgeRecheck meldet stale fuer eine aeltere Schreibgeneration", () => {
+	// Der Eintrag wurde fuer Generation 3 eingeplant, inzwischen laeuft 4:
+	// ein neuerer Write besitzt die Erwartung.
+	const state = expecting(CELL, 4, 0);
+	assert.equal(judgeRecheck(state, 3, { x: 9, y: 9, width: 9, height: 9 }), "stale");
+});
+
+test("judgeRecheck meldet settled bei Uebereinstimmung", () => {
 	const state = expecting(CELL, 3, 0);
-	assert.equal(judgeCorrection(state, 3, { x: 0, y: 0, width: 1664, height: 1410 }), "settled");
+	assert.equal(judgeRecheck(state, 3, { x: 0, y: 0, width: 1664, height: 1410 }), "settled");
 });
 
-test("judgeCorrection meldet retry bei Abweichung", () => {
+test("judgeRecheck meldet retry bei Abweichung", () => {
 	const state = expecting(CELL, 3, 0);
-	assert.equal(judgeCorrection(state, 3, { x: 0, y: 0, width: 1660, height: 1410 }), "retry");
+	assert.equal(judgeRecheck(state, 3, { x: 0, y: 0, width: 1660, height: 1410 }), "retry");
 });
 
-test("judgeCorrection gibt nach zwei Nachbesserungen auf", () => {
+test("judgeRecheck gibt nach zwei Nachbesserungen auf", () => {
 	const abweichung: Rect = { x: 0, y: 0, width: 1660, height: 1410 };
 	for (let attempts = 0; attempts < MAX_CORRECTIONS; attempts++) {
-		assert.equal(judgeCorrection(expecting(CELL, 3, attempts), 3, abweichung), "retry");
+		assert.equal(judgeRecheck(expecting(CELL, 3, attempts), 3, abweichung), "retry");
 	}
-	assert.equal(judgeCorrection(expecting(CELL, 3, MAX_CORRECTIONS), 3, abweichung), "giveup");
+	assert.equal(judgeRecheck(expecting(CELL, 3, MAX_CORRECTIONS), 3, abweichung), "giveup");
 });
 
 test("eine angekommene Geometrie beruhigt auch nach ausgeschoepften Versuchen", () => {
 	const state = expecting(CELL, 3, MAX_CORRECTIONS);
-	assert.equal(judgeCorrection(state, 3, { x: 0, y: 0, width: 1664, height: 1410 }), "settled");
+	assert.equal(judgeRecheck(state, 3, { x: 0, y: 0, width: 1664, height: 1410 }), "settled");
 });

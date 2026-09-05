@@ -52,8 +52,11 @@ test("getWindow legt einen Fensterzustand mit Vorgaben an", () => {
 	const state = getWindow(registry, "w1");
 	assert.equal(state.floating, false);
 	assert.equal(state.floatRect, null);
+	assert.equal(state.tiledRect, null);
+	assert.equal(state.lastObservedRect, null);
 	assert.equal(state.expectedRect, null);
 	assert.equal(state.applyAttempts, 0);
+	assert.equal(state.writeGeneration, 0);
 	assert.equal(getWindow(registry, "w1"), state);
 });
 
@@ -92,9 +95,13 @@ test("clearExpectation raeumt Erwartung und Versuchszaehler", () => {
 	const window = getWindow(registry, "w1");
 	window.expectedRect = RECT_A;
 	window.applyAttempts = 2;
+	window.lastObservedRect = RECT_B;
 	clearExpectation(registry, "w1");
 	assert.equal(window.expectedRect, null);
 	assert.equal(window.applyAttempts, 0);
+	// Der zuletzt beobachtete Istwert bleibt: an ihm erkennt der Signalpfad
+	// spaeter den eigenen Nachhall.
+	assert.deepEqual(window.lastObservedRect, RECT_B);
 	clearExpectation(registry, "unbekannt");
 });
 

@@ -11,10 +11,24 @@ import { parseSurfaceKey } from "../core/surface.ts";
 export interface WindowState {
 	floating: boolean;
 	floatRect: Rect | null;
+	/** Das Rechteck, das das Layout zuletzt **wollte**. */
 	tiledRect: Rect | null;
+	/**
+	 * Das Rechteck, das das Fenster zuletzt nachweislich **hatte** und das der
+	 * Controller akzeptiert hat -- gesetzt bei `settled` und bei `giveup`. Nach
+	 * einem Giveup faellt es von `tiledRect` auseinander, und genau daran
+	 * erkennt der Signalpfad den eigenen Nachhall: ein verspaetetes
+	 * `frameGeometryChanged` mit diesem Wert ist keine fremde Aenderung.
+	 */
+	lastObservedRect: Rect | null;
 	expectedRect: Rect | null;
 	applyAttempts: number;
-	applyGeneration: number;
+	/**
+	 * Zaehlt **Schreibvorgaenge dieses Fensters**, nicht Anordnungsepochen: nur
+	 * ein neuer Zielwert erhoeht sie. Eine Epoche ohne Write darf eine offene
+	 * Erwartung nicht altern lassen.
+	 */
+	writeGeneration: number;
 }
 
 /**
@@ -35,9 +49,10 @@ export function createWindowState(): WindowState {
 		floating: false,
 		floatRect: null,
 		tiledRect: null,
+		lastObservedRect: null,
 		expectedRect: null,
 		applyAttempts: 0,
-		applyGeneration: 0,
+		writeGeneration: 0,
 	};
 }
 
