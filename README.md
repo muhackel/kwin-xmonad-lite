@@ -9,13 +9,15 @@ Er ist **kein** Fenstermanager und **kein** XMonad-Nachbau. Fenster-, Desktop-,
 Activity- und Bildschirmzuordnung bleiben vollständig bei KWin und seinen
 Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 
-> **Status: in Entwicklung, Meilenstein 3.** Das Skript kachelt: es liest die
-> Fenster aus KWin, ordnet sie den Bildschirmen zu und legt sie im
-> Tall-Layout aus. Noch nicht dabei sind Tastenkürzel (Meilenstein 6) — damit
-> ist bis dahin auch das Vollbild-Layout nicht erreichbar —, das Umschalten
-> zwischen Bildschirmen und Desktops im laufenden Betrieb (Meilenstein 4) und
-> die Sonderbehandlung von Float, Vollbild und Maximierung (Meilenstein 5).
-> Der vollständige Plan steht in [`PLAN.md`](PLAN.md).
+> **Status: in Entwicklung, Meilenstein 4.** Das Skript kachelt auf allen
+> Bildschirmen: es liest die Fenster aus KWin, ordnet sie den Bildschirmen zu
+> und legt sie im Tall-Layout aus. Jeder Bildschirm und jeder virtuelle Desktop
+> führt seinen eigenen Stapel; das An- und Abstecken eines Bildschirms und eine
+> geänderte Panelhöhe werden verarbeitet, der Zustand eines abgesteckten
+> Bildschirms kommt beim Anstecken zurück. Noch nicht dabei sind Tastenkürzel
+> (Meilenstein 6) — damit ist bis dahin auch das Vollbild-Layout nicht
+> erreichbar — und die Sonderbehandlung von Float, Vollbild und Maximierung
+> (Meilenstein 5). Der vollständige Plan steht in [`PLAN.md`](PLAN.md).
 
 ## Schnellstart
 

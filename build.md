@@ -51,6 +51,33 @@ Laufzeit-Oberflächen, QTimer-Verhalten), schreibt das Ergebnis als
 `probe-<Zeitstempel>.ndjson` ins Arbeitsverzeichnis und räumt anschließend
 restlos auf. Der Rückbau wird im selben Lauf nachgewiesen.
 
+### Signalprobe
+
+```bash
+nix run .#probe-signals                    # führt durch die Handgriffe
+nix run .#probe-signals -- --hotplug DP-9  # schaltet die Ausgabe selbst ab und an
+```
+
+Misst, welche KWin-Signale im Skriptkontext ankommen und was sie tragen:
+Signaturen der Workspace-Signale, `workspace.desktops`, das Verhalten von
+`clientArea` rund um Dock-Ereignisse (sofort, nach 500 und nach 1500 ms) und
+die Reihenfolge beim Hotplug. Ergebnis als `signals-<Zeitstempel>.ndjson`,
+Auswertung in `docs/research.md` Abschnitt 3.
+
+Der Lauf dauert knapp drei Minuten und führt durch sechs Phasen. Zwei davon
+verlangen einen Handgriff (Desktop wechseln, Panelhöhe ändern), die übrigen
+erledigt das Skript: es legt einen virtuellen Desktop und eine Activity an und
+entfernt beides wieder — anders zeigen sich `desktopsChanged` und
+`activitiesChanged` nicht, denn sie melden nur Anlegen und Entfernen. Beide
+Eingriffe werden im selben Lauf zurückgenommen und die Zahlen geprüft.
+
+**Anders als die Feature-Probe verbindet diese Probe echte Signale.** Sie führt
+deshalb über jede Verbindung Buch, trennt vor dem Abschlusssatz sämtliche
+Verbindungen, stoppt alle eigenen Timer und meldet beides (`"offen":0`,
+`"timer_aktiv":0`); das Shellskript entlädt danach und weist nach, dass keine
+Zeile mehr kommt. Es gibt keinen Unload-Hook — eine überlebende Verbindung
+würde später in eine zerstörte Engine feuern.
+
 ## Testen / Checks
 
 ```bash
@@ -82,12 +109,20 @@ Fenster und die Nachprüfung, die das Fenster im Ziehen antrifft. Auch der
 Nachprüfungstimer selbst steht unter Test: einer, dessen `singleShot` nicht
 durchschlägt, muss trotzdem zur Ruhe kommen.
 
+**Was der Unit-Test nicht abdeckt, und zwar grundsätzlich:** welches
+KWin-Signal an welchen Handler geht. Dass Docks am schmalen Satz hängen, dass
+`activitiesChanged` und `desktopsChanged` am Entpreller hängen und die
+Nachläufe an `screensChanged` — das steht ausschließlich in `adapter.ts` und
+wird nur auf der Maschine abgenommen (Matrix 9 und 10). Der Dock-Filtertest in
+`tests/kwin-filter.test.ts` belegt nur, dass ein Dock kein Layoutrechteck
+bekommt, **nicht**, dass sein Signal ankommt.
+
 Nur `src/kwin/read.ts` und `src/kwin/adapter.ts` fassen eine KWin-Global an;
 diese beiden werden auf der Maschine geprüft, nicht im Unit-Test. Die Grenze
 ist nachprüfbar:
 
 ```bash
-grep -n 'workspace\.\|KWin\.\|new QTimer' src/kwin/*.ts \
+grep -n 'workspace\.\|KWin\.\|new QTimer\|options\.' src/kwin/*.ts \
   | grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)'
 # darf nur Zeilen aus read.ts und adapter.ts zeigen
 ```
@@ -114,10 +149,25 @@ Der Adapter schreibt eine Zeile je Anordnungsepoche, eine je Surface und eine
 je tatsächlich geschriebener Geometrie:
 
 ```
+kwin-xmonad-lite: bereit perOutputDesktops=false
 kwin-xmonad-lite: arrange #2 grund=windowActivated,windowAdded surfaces=3 mitglieder=8 teilnehmer=5
 kwin-xmonad-lite: surface <activity>|<desktop>|DP-10 layout=tall n=3 ratio=0.65 flaeche=2560x1410+0+0
 kwin-xmonad-lite: apply {0fb083bd-…} soll=1664x1410+0+0
 ```
+
+Dazu ab Meilenstein 4:
+
+```
+kwin-xmonad-lite: dockGeometrie {285a8fb6-…}      # Panel hat sich bewegt
+kwin-xmonad-lite: dockEntfernt {baff47ba-…}       # Panel ist verschwunden
+kwin-xmonad-lite: gc #83 fenster=0 surfaces=3     # Registry-GC dieses Laufs
+kwin-xmonad-lite: surface entfernt <activity>|<desktop>|DP-1
+kwin-xmonad-lite: arrange #61 grund=nachlauf500   # verzögerter Nachlauf
+```
+
+`perOutputDesktops` steuert kein Verhalten, macht einen Journalauszug aber
+deutbar. Die `gc`-Zeile trägt die Epoche, weil sie **vor** der `arrange`-Zeile
+desselben Laufs steht.
 
 **Testmatrix 1** — ein Fenster allein auf einem Bildschirm bekommt die ganze
 Arbeitsfläche. Auf SPIELKISTE ist das `2560x1410`, nicht `2560x1440`: der
@@ -167,6 +217,50 @@ Layout-Teilnehmers verändert hat; darauf folgt genau ein
 `arrange grund=geometrieExtern`, der das Fenster zurückholt. Folgt darauf eine
 zweite `extern`-Zeile für dasselbe Fenster, ist die Nachhall-Erkennung
 kaputt.
+
+**Testmatrix 3–5** — mehrere Ausgaben und Desktops. Jede sichtbare Ausgabe
+bekommt eine eigene `surface`-Zeile mit eigener Reihenfolge, eigenem
+Verhältnis und eigenem Layout. Eine fremde Verschiebung auf einer Ausgabe darf
+auf den übrigen **keine** `apply`-Zeile erzeugen. Ein Desktopwechsel ergibt
+genau einen Lauf — `currentDesktopChanged` feuert zwar einmal je Ausgabe, die
+Entprellung fasst das zusammen — mit neuen Surface-Schlüsseln und ohne
+`apply` für Fenster, die auf ihrem Desktop bleiben. Der Per-Output-Desktop-Fall
+ist auf dieser Maschine **nicht** abnehmbar (`perOutputVirtualDesktops=false`);
+er steht ausschließlich in `tests/kwin-plan.test.ts`.
+
+**Testmatrix 9** — Bildschirm ab- und anstecken:
+
+```bash
+kscreen-doctor output.DP-10.disable
+kscreen-doctor output.DP-10.enable
+```
+
+Beim Abstecken kommt genau ein Lauf mit Schreibvorgängen, danach die beiden
+Nachläufe ohne. Beim **Anstecken** sind es mehrere: die Arbeitsfläche zieht bis
+zu 1,5 s nach (`docs/research.md` Abschnitt 3.3), und jeder Zwischenstand wird
+mitgeschrieben. Geprüft wird deshalb der **letzte** Lauf — er muss auf der
+eingeschwungenen Fläche rechnen (auf SPIELKISTE `2560x1410`, nicht `1440`) —,
+und dass nach dem 1500-ms-Nachlauf Ruhe ist. Der Zustand der abgesteckten
+Ausgabe überlebt am Namen: nach dem Anstecken steht die alte Reihenfolge wieder
+da.
+
+Der Registry-GC lässt sich gezielt auslösen, ohne etwas zu hinterlassen:
+
+```bash
+busctl --user call org.kde.KWin /VirtualDesktopManager \
+  org.kde.KWin.VirtualDesktopManager createDesktop us 4 kxl-gc
+# auf den neuen Desktop wechseln und zurück, damit Surfaces entstehen
+busctl --user call org.kde.KWin /VirtualDesktopManager \
+  org.kde.KWin.VirtualDesktopManager removeDesktop s <uuid>
+# erwartet: gc #N fenster=0 surfaces=3 plus drei "surface entfernt"-Zeilen
+```
+
+**Testmatrix 10** — Panelhöhe ändern. Erwartet: `dockGeometrie`, danach ein
+Lauf mit bereits **neuer** Fläche (`flaeche=2560x1404` statt `1410`) und die
+zugehörigen `apply`-Zeilen. Anders als beim Hotplug ist `clientArea` hier
+sofort aktuell; die Nachläufe finden nichts mehr zu tun. Während des Ziehens am
+Höhenregler kommt je Zwischenschritt ein Lauf — das ist die laufende
+Nutzeraktion, kein Flattern. Nach dem Loslassen muss es still sein.
 
 ### Eigenschaftsprüfung des Layoutkerns
 

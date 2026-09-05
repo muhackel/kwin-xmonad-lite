@@ -292,12 +292,15 @@ export function createAdapter(): Adapter {
 		for (const info of reading.snapshot.windows) {
 			live.add(info.id);
 		}
+		// Die Epoche steht mit in der Zeile: der GC laeuft vor der
+		// `arrange`-Zeile, sonst waere im Journal nicht zu sehen, zu welchem
+		// Lauf er gehoert.
 		const purged = purgeFromSnapshot(registry, reading.snapshot);
 		if (purged.skippedSurfaces) {
-			log("gc uebersprungen: Snapshot ohne gueltige Activities oder Desktops");
+			log(`gc #${epoch} uebersprungen: Snapshot ohne gueltige Activities oder Desktops`);
 		}
 		if (purged.windows.length > 0 || purged.surfaces.length > 0) {
-			log(`gc fenster=${purged.windows.length} surfaces=${purged.surfaces.length}`);
+			log(`gc #${epoch} fenster=${purged.windows.length} surfaces=${purged.surfaces.length}`);
 			for (const key of purged.surfaces) {
 				log(`surface entfernt ${key}`);
 			}
