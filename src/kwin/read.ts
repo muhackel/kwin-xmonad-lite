@@ -146,7 +146,12 @@ export function readSnapshot(): Reading {
 	const active = workspace.activeWindow;
 	const activeId = active === null ? null : windowId(active);
 
-	return { snapshot: { views, windows, activeId }, handles };
+	// Die Ist-Mengen fuer den Registry-GC. Beide Listen sind array-artig, aber
+	// keine Arrays -- dieselben Leser wie fuer die Fenstereigenschaften.
+	const activities = readActivityIds(workspace.activities);
+	const desktops = readDesktopIds(workspace.desktops);
+
+	return { snapshot: { views, windows, activeId, activities, desktops }, handles };
 }
 
 /** Immer das ganze Rect zuweisen — eine Teilzuweisung wirkt nicht. */

@@ -4,8 +4,9 @@
 // Wird mit jedem Meilenstein um die tatsaechlich benutzten Teile erweitert.
 //
 // tsconfig hat "types": [] und "lib": ["ES2016"] -- was hier fehlt, existiert
-// fuer den Typpruefer nicht. Alle Angaben sind in Meilenstein 0 an KWin 6.7.4
-// gemessen, siehe docs/research.md und die Rohdaten unter docs/.
+// fuer den Typpruefer nicht. Alle Angaben sind an KWin 6.7.4 gemessen --
+// die Objekte und Enums in Meilenstein 0, die Signalsignaturen in
+// Meilenstein 4; siehe docs/research.md und die Rohdaten unter docs/.
 //
 // Die Datei hat bewusst weder Import noch Export: damit bleibt sie ein Skript
 // und ihre Deklarationen global.
@@ -39,8 +40,13 @@ interface QSize {
 /**
  * Signale sind Funktionen mit `connect`/`disconnect`, keine eigenen Objekte.
  * Q_INVOKABLE-Methoden tragen dieselben Eigenschaften; am Typ allein sind
- * Signal und Methode nicht zu unterscheiden. Wo KWin Argumente mitschickt,
- * die der Adapter nicht liest, steht ebenfalls `Signal0`.
+ * Signal und Methode nicht zu unterscheiden.
+ *
+ * `Signal0` heisst hier **gemessen ohne Argumente**. Wo Argumente kommen, hat
+ * das Signal einen eigenen Typ -- auch dann, wenn der Adapter sie nicht liest:
+ * eine falsche Argumentzahl in der Deklaration faellt sonst niemandem auf.
+ * Gemessen in Meilenstein 4 mit `nix run .#probe-signals`, siehe
+ * `docs/research.md` Abschnitt 3.1.
  */
 interface Signal0 {
 	connect(handler: () => void): void;
@@ -50,6 +56,31 @@ interface Signal0 {
 interface SignalWindow {
 	connect(handler: (window: KwinWindow | null) => void): void;
 	disconnect(handler: (window: KwinWindow | null) => void): void;
+}
+
+/**
+ * `currentDesktopChanged(prev, cur, output)`. Gemessen dreiargumentig -- und
+ * es feuert **einmal je Ausgabe**, auch bei `perOutputVirtualDesktops = false`.
+ * Waehrend der Folge ist `workspace.currentDesktop` noch nicht umgestellt;
+ * im Callback wird deshalb nur entprellt, gelesen wird erst im Lauf.
+ */
+interface SignalDesktopChanged {
+	connect(
+		handler: (prev: KwinVirtualDesktop, cur: KwinVirtualDesktop, output: KwinOutput) => void,
+	): void;
+	disconnect(
+		handler: (prev: KwinVirtualDesktop, cur: KwinVirtualDesktop, output: KwinOutput) => void,
+	): void;
+}
+
+/**
+ * `currentActivityChanged(id)` und `activitiesChanged(id)` tragen je eine
+ * Activity-UUID. `activitiesChanged` meldet **nur** Anlegen und Entfernen,
+ * nicht den Wechsel -- genau der Ausloeser, den der Registry-GC braucht.
+ */
+interface SignalActivity {
+	connect(handler: (id: string) => void): void;
+	disconnect(handler: (id: string) => void): void;
 }
 
 /** `LogicalOutput`. Kein `uuid`, kein `enabled`, kein `scale` -- gemessen. */
@@ -125,6 +156,8 @@ interface KwinWindow {
 declare const workspace: {
 	readonly screens: ArrayLike<KwinOutput>;
 	readonly currentDesktop: KwinVirtualDesktop | null;
+	/** Alle virtuellen Desktops. Ist-Menge fuer `purgeSurfaces`. */
+	readonly desktops: ArrayLike<KwinVirtualDesktop>;
 	readonly currentActivity: string;
 	readonly activities: ArrayLike<string>;
 	activeWindow: KwinWindow | null;
@@ -138,10 +171,25 @@ declare const workspace: {
 	readonly windowAdded: SignalWindow;
 	readonly windowRemoved: SignalWindow;
 	readonly windowActivated: SignalWindow;
-	readonly currentDesktopChanged: Signal0;
-	readonly currentActivityChanged: Signal0;
+	readonly currentDesktopChanged: SignalDesktopChanged;
+	readonly currentActivityChanged: SignalActivity;
+	/** Anlegen und Entfernen einer Activity, nicht der Wechsel. */
+	readonly activitiesChanged: SignalActivity;
+	/** Anlegen und Entfernen eines Desktops, nicht der Wechsel. Ohne Argument. */
+	readonly desktopsChanged: Signal0;
+	/** Einziges Signal ueber die Menge der Ausgaben; kommt in der Folge zuletzt. */
 	readonly screensChanged: Signal0;
 	readonly virtualScreenGeometryChanged: Signal0;
+};
+
+/**
+ * Nur der eine gelesene Wert. `perOutputVirtualDesktops` steuert kein
+ * Verhalten -- `currentDesktopForScreen` mit Fallback deckt beide Faelle ab --,
+ * aber ohne die Journalzeile ist ein spaeterer Auszug nicht deutbar.
+ * Gemessen `false` auf SPIELKISTE.
+ */
+declare const options: {
+	readonly perOutputVirtualDesktops: boolean;
 };
 
 /**

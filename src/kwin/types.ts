@@ -76,14 +76,17 @@ export interface SurfaceView {
 	area: Rect;
 }
 
-/**
- * Was ein Lesedurchgang liefert. Bewusst schmal: Meilenstein 4 haengt fuer
- * `purgeSurfaces` die Listen der gueltigen Activities und Desktops an, das ist
- * additiv und bricht den Schnitt nicht.
- */
+/** Was ein Lesedurchgang liefert. */
 export interface Snapshot {
 	views: SurfaceView[];
 	windows: WindowInfo[];
 	/** Aus `workspace.activeWindow` **desselben** Durchgangs, nicht aus einem Signal. */
 	activeId: WindowId | null;
+	/**
+	 * Alle gueltigen Activity-UUIDs aus `workspace.activities`. Ist-Menge fuer
+	 * den Registry-GC in `purge.ts` -- nicht die Activities eines Fensters.
+	 */
+	activities: string[];
+	/** Alle gueltigen Desktop-Ids aus `workspace.desktops`. */
+	desktops: string[];
 }

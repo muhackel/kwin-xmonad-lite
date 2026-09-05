@@ -5,14 +5,14 @@ einen Teil des alten XMonad-Arbeitsgefühls zurück: Tall- und Full-Layout,
 Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
-und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 3
-samt den Stabilisierungen 3.1 und 3.1.1 abgeschlossen** — Gerüst, Build- und
-Testkette, Feature-Probe, Layoutkern (`rect`, `tall`, `full`), Fensterstapel,
-Registry und Reconcile, der KWin-Adapter und der Geometriecontroller mit
-geprüfter Signalfolge. Das geladene Skript kachelt mit `Tall`. Multi-Output und
-Hotplug folgen in Meilenstein 4, die Zustandsübergänge in 5, die Tastenkürzel
-in 6 — bis dahin ist `Full` nicht erreichbar, weil der Layoutwechsel an
-`Meta+Space` hängt.
+und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 4
+abgeschlossen** — Gerüst, Build- und Testkette, beide Proben, Layoutkern
+(`rect`, `tall`, `full`), Fensterstapel, Registry und Reconcile, der
+KWin-Adapter mit geprüfter Signalfolge, dazu Multi-Output, Desktopwechsel,
+Hotplug, Registry-GC, Dock-Beobachtung und die verzögerten Nachläufe. Das
+geladene Skript kachelt auf allen Ausgaben mit `Tall`. Die Zustandsübergänge
+folgen in Meilenstein 5, die Tastenkürzel in 6 — bis dahin ist `Full` nicht
+erreichbar, weil der Layoutwechsel an `Meta+Space` hängt.
 
 ## Ursprung & Zweck
 
@@ -49,17 +49,21 @@ Activities und verwaltet nicht die Zahl der Desktops.
   gemeinsame Einstieg: Typen, Ratio-Konstanten und die Layoutliste `LAYOUTS`,
   deren Reihenfolge der Zyklus von `Meta+Space` ist.
 - `src/state/` → Registry je Surface, Abgleich der Ist-Fenstermenge gegen die
-  gespeicherte Reihenfolge.
+  gespeicherte Reihenfolge. Der Ghost-Purge steht hier, gerufen wird er über
+  `kwin/purge.ts`.
 - `src/kwin/` → Adapter. Geteilt an der **Snapshot-Grenze**: `types` (die
   Datensätze), `filter` (Mitgliedschaft, Layout-Teilnahme, Surface-Zuordnung),
   `plan` (die ganze Anordnung), `geometry` (Klemmung und die beiden Urteile),
   `apply` (Geometrieerwartung, Nachprüfung, Nachbesserung) und `timer`
-  (Entprellung) sind reine Rechnung und mit `node --test` prüfbar. Nur `read`
+  (Entprellung samt der verzögerten Nachläufe) und `purge` (Registry-GC auf
+  dem Snapshot) sind reine Rechnung und mit `node --test` prüfbar. Nur `read`
   und `adapter` fassen eine KWin-Global an. `apply` bekommt seinen
   Fensterzugriff als `GeometryPort` und seinen Timer als Fabrik — damit läuft
   die ganze Signalfolge aus Write, Rücklesen und Nachbesserung im Test.
 - `package/` → KPackage-Wurzel; der Build legt `contents/code/main.js` hinein.
-- `dev/probe/` → Feature-Probe, misst die Skriptumgebung (siehe unten).
+- `dev/probe/` → zwei Proben: `probe.js` misst die Skriptumgebung,
+  `signals.js` misst, welche Signale im Betrieb ankommen und was sie tragen
+  (siehe unten).
 - `nix/`, `scripts/` → Paket, Entwicklungsumgebung, Lade- und Reload-Werkzeuge.
 
 ## Fallstricke / Merker
@@ -102,6 +106,18 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Klammern (`{uuid}`). `maxSize` meldet für „unbegrenzt" `2147483647`.
 - Eine Ausgabe hat `name`, `manufacturer`, `model`, `serialNumber`,
   `geometry`, `devicePixelRatio` — kein `uuid`, `enabled` oder `scale`.
+- **`currentDesktopChanged` feuert einmal je Ausgabe**, auch bei
+  `perOutputVirtualDesktops = false`, und trägt `(prev, cur, output)`. Während
+  der Folge ist `workspace.currentDesktop` noch nicht umgestellt — im Callback
+  nur entprellen, gelesen wird erst im Lauf.
+- **`activitiesChanged` und `desktopsChanged` melden nur Anlegen und
+  Entfernen**, nicht den Wechsel. Für den Registry-GC ist das genau richtig;
+  wer damit einen Wechsel abfangen will, wartet vergebens. `activitiesChanged`
+  trägt eine UUID, `desktopsChanged` nichts.
+- **Ein `outputAdded`/`outputRemoved` gibt es auf `workspace` nicht.**
+  `screensChanged` ist das einzige Signal über die Menge der Ausgaben und kommt
+  in der Hotplug-Folge **zuletzt** — wer darauf entprellt anordnet, sieht eine
+  vollständige Liste. Die Flächen sind dann trotzdem noch nicht fertig.
 
 ### Layoutkern
 
@@ -213,6 +229,28 @@ Activities und verwaltet nicht die Zahl der Desktops.
   berechnet und in der Closure gehalten; `windowRemoved` löst nur einen
   Durchlauf aus. `disconnect` braucht dieselbe Funktionsreferenz wie
   `connect`, deshalb liegt je Fenster eine Trennfunktion in der Tabelle.
+- **`clientArea` zieht nach einer Ausgabenänderung nach.** Im Signal ist sie
+  noch die alte, nach 500 ms teils noch ein Zwischenstand; erst nach 1500 ms
+  stimmte sie (zweimal gemessen). Deshalb **zwei** Nachläufe, nicht einer. Nach
+  einer reinen Panelhöhenänderung ist sie dagegen sofort neu — der Nachlauf ist
+  dort nur Absicherung. Folge für Testmatrix 9: die Zwischenstände werden
+  mitgeschrieben, „genau ein Lauf mit Schreibvorgängen" ist beim
+  Wiederanstecken nicht zu halten. Geprüft wird der **letzte** Lauf.
+- **Ein Nachlauf ruft nie `runArrange` direkt**, immer `debouncer.schedule`.
+  Sonst liefe er an der Koaleszierung vorbei und könnte mitten in einen
+  laufenden Durchgang schlagen.
+- **Docks hängen an einem eigenen, schmalen Signalsatz** und stehen **nicht**
+  in `handles`. Sie sind gemessen `managed` und liefen sonst in den vollen
+  Satz, wo ihr `frameGeometryChanged` in `geometry.notifyChanged` mangels
+  Registry-Eintrag versandet. Die Id für `closed` kommt aus der Closure. Nach
+  einem Hotplug kehrt ein Panel als **neues** Fenster zurück — `windowAdded`
+  verbindet es, ein einmaliges Verbinden beim Start genügt nicht.
+- **Der Registry-GC ist ein reiner Schritt** (`kwin/purge.ts`), kein
+  Adaptercode. Die Snapshot-Listen werden dort **explizit** zu `Set<string>`:
+  ein durchgereichtes Array wäre für `purgeSurfaces` still „nichts ist gültig"
+  und löschte jede Surface. Eine leere Liste gilt als misslungener
+  Lesedurchgang und löscht nichts — KWin hat immer mindestens eine Activity und
+  einen Desktop.
 - **Jede Ausgabe läuft durch `log()`**, sonst greift der Journalfilter in
   `scripts/logs.sh` nicht und die Zeile ist bei `nix run .#logs` unsichtbar.
 

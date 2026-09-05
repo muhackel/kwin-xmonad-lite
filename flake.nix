@@ -37,6 +37,7 @@
             pkgs.gnugrep
             pkgs.systemd # busctl, journalctl
             pkgs.kdePackages.kconfig # kwriteconfig6
+            pkgs.kdePackages.libkscreen # kscreen-doctor
           ];
           text = ''
             ${env}
@@ -71,6 +72,11 @@
             file = ./scripts/probe.sh;
             env = ''XML_PROBE_JS="${./dev/probe/probe.js}"'';
           };
+          probe-signals = mkTool system {
+            name = "probe-signals";
+            file = ./scripts/probe-signals.sh;
+            env = ''XML_SIGNALS_JS="${./dev/probe/signals.js}"'';
+          };
         };
 
       appFor = system: tool: {
@@ -97,6 +103,7 @@
           reload = appFor system tools.reload;
           logs = appFor system tools.logs;
           probe = appFor system tools.probe;
+          probe-signals = appFor system tools.probe-signals;
         }
       );
 

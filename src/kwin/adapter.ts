@@ -1,7 +1,7 @@
 import type { Rect } from "../core/rect.ts";
 import type { WindowId } from "../core/stack.ts";
 import type { Registry } from "../state/registry.ts";
-import { createRegistry, purgeWindows } from "../state/registry.ts";
+import { createRegistry } from "../state/registry.ts";
 import type { GeometryHooks, GeometryPort } from "./apply.ts";
 import { createGeometryController } from "./apply.ts";
 import { DEFAULT_EXCLUDES, makeExcludes } from "./filter.ts";
@@ -9,9 +9,10 @@ import { judgeWrite } from "./geometry.ts";
 import { log } from "./log.ts";
 import type { ArrangePlan, Placement } from "./plan.ts";
 import { NO_GAPS, planArrangement } from "./plan.ts";
+import { purgeFromSnapshot } from "./purge.ts";
 import type { Reading } from "./read.ts";
 import { readFrameGeometry, readSnapshot, windowId, writeFrameGeometry } from "./read.ts";
-import { createDebouncer, DEBOUNCE_MS } from "./timer.ts";
+import { createDebouncer, createFollowUps, DEBOUNCE_MS, FOLLOW_UP_MS } from "./timer.ts";
 import type { WindowInfo } from "./types.ts";
 
 export interface Adapter {
@@ -45,6 +46,19 @@ export function createAdapter(): Adapter {
 	let epoch = 0;
 
 	const debouncer = createDebouncer(() => new QTimer(), DEBOUNCE_MS, runArrange);
+	/**
+	 * Nach einer Ausgaben- oder Panelaenderung ist `clientArea` noch nicht
+	 * fertig (docs/research.md Abschnitt 3.3). Der Nachlauf meldet deshalb nur
+	 * beim Entpreller an -- nie `runArrange` direkt, sonst liefe er an der
+	 * Koaleszierung vorbei.
+	 */
+	const followUps = createFollowUps(
+		() => new QTimer(),
+		FOLLOW_UP_MS,
+		(delay) => {
+			debouncer.schedule(`nachlauf${delay}`);
+		},
+	);
 
 	const port: GeometryPort = {
 		read(id: WindowId): Rect | null {
@@ -68,8 +82,9 @@ export function createAdapter(): Adapter {
 	const hooks: GeometryHooks = {
 		external(id: WindowId): void {
 			// Nur ein zuletzt bekannter Layout-Teilnehmer ist einen Lauf wert.
-			// Ausgeschlossene und nicht teilnehmende Fenster fallen still durch;
-			// Dock und Panel bleiben Meilenstein 4.
+			// Ausgeschlossene und nicht teilnehmende Fenster fallen still durch.
+			// Ein Dock kommt hier ohnehin nie an: es steht weder in `handles`
+			// noch in der Registry und haengt an einem eigenen Signalsatz.
 			if (!lastParticipants.has(id)) {
 				return;
 			}
@@ -98,11 +113,53 @@ export function createAdapter(): Adapter {
 		}
 	}
 
+	/**
+	 * Ein Dock bekommt einen eigenen, schmalen Signalsatz. Es ist gemessen
+	 * `managed` und liefe sonst durch `connectWindow` in den vollen Satz --
+	 * sein `frameGeometryChanged` landete in `geometry.notifyChanged` und
+	 * versandete dort mangels Registry-Eintrag, statt eine Anordnung
+	 * auszuloesen. Es kommt auch **nicht** in `handles`: der Geometrieport soll
+	 * es gar nicht erreichen koennen.
+	 */
+	function connectDock(window: KwinWindow, id: WindowId): void {
+		const onDockChanged = (): void => {
+			log(`dockGeometrie ${id}`);
+			debouncer.schedule("dockGeometrie");
+			followUps.trigger();
+		};
+		const onDockClosed = (): void => {
+			// Wie bei den verwalteten Fenstern: die Id kommt aus dieser
+			// Closure, das sterbende Objekt wird nicht angefasst. Ein Panel
+			// kehrt nach einem Hotplug als **neues** Fenster zurueck
+			// (docs/research.md Abschnitt 3.4), `windowAdded` verbindet es.
+			log(`dockEntfernt ${id}`);
+			disconnectWindow(id);
+			debouncer.schedule("dockEntfernt");
+			followUps.trigger();
+		};
+
+		window.frameGeometryChanged.connect(onDockChanged);
+		window.outputChanged.connect(onDockChanged);
+		window.closed.connect(onDockClosed);
+
+		connections.set(id, () => {
+			window.frameGeometryChanged.disconnect(onDockChanged);
+			window.outputChanged.disconnect(onDockChanged);
+			window.closed.disconnect(onDockClosed);
+		});
+	}
+
 	function connectWindow(window: KwinWindow): void {
 		if (!window.managed || window.deleted) {
 			return;
 		}
 		const id = windowId(window);
+		if (window.dock) {
+			if (!connections.has(id)) {
+				connectDock(window, id);
+			}
+			return;
+		}
 		handles.set(id, window);
 		if (connections.has(id)) {
 			return;
@@ -235,9 +292,24 @@ export function createAdapter(): Adapter {
 		for (const info of reading.snapshot.windows) {
 			live.add(info.id);
 		}
-		purgeWindows(registry, live);
+		// Die Epoche steht mit in der Zeile: der GC laeuft vor der
+		// `arrange`-Zeile, sonst waere im Journal nicht zu sehen, zu welchem
+		// Lauf er gehoert.
+		const purged = purgeFromSnapshot(registry, reading.snapshot);
+		if (purged.skippedSurfaces) {
+			log(`gc #${epoch} uebersprungen: Snapshot ohne gueltige Activities oder Desktops`);
+		}
+		if (purged.windows.length > 0 || purged.surfaces.length > 0) {
+			log(`gc #${epoch} fenster=${purged.windows.length} surfaces=${purged.surfaces.length}`);
+			for (const key of purged.surfaces) {
+				log(`surface entfernt ${key}`);
+			}
+		}
 		pruneConnections(live);
 		for (const info of reading.snapshot.windows) {
+			if (info.dock) {
+				continue;
+			}
 			const window = reading.handles.get(info.id);
 			if (window !== undefined) {
 				handles.set(info.id, window);
@@ -282,11 +354,25 @@ export function createAdapter(): Adapter {
 		workspace.currentActivityChanged.connect(() => {
 			debouncer.schedule("activityChanged");
 		});
+		// Anlegen und Entfernen, nicht der Wechsel (docs/research.md 3.1).
+		// Ohne diese beiden liefe der Registry-GC erst beim naechsten
+		// Fensterereignis.
+		workspace.activitiesChanged.connect(() => {
+			debouncer.schedule("activitiesChanged");
+		});
+		workspace.desktopsChanged.connect(() => {
+			debouncer.schedule("desktopsChanged");
+		});
+		// `screensChanged` kommt in der Hotplug-Folge zuletzt, die Flaechen
+		// sind zu dem Zeitpunkt aber noch nicht fertig -- deshalb die
+		// Nachlaeufe.
 		workspace.screensChanged.connect(() => {
 			debouncer.schedule("screensChanged");
+			followUps.trigger();
 		});
 		workspace.virtualScreenGeometryChanged.connect(() => {
 			debouncer.schedule("screenGeometry");
+			followUps.trigger();
 		});
 
 		const list = workspace.windowList();
@@ -297,6 +383,10 @@ export function createAdapter(): Adapter {
 			}
 		}
 
+		// Steuert kein Verhalten -- `currentDesktopForScreen` mit Fallback deckt
+		// beide Faelle ab --, aber ohne die Zeile ist ein Journalauszug spaeter
+		// nicht deutbar.
+		log(`bereit perOutputDesktops=${String(options.perOutputVirtualDesktops)}`);
 		runArrange(["start"]);
 	}
 

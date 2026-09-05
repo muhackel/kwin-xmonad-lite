@@ -3,7 +3,7 @@ import { surfaceKey } from "../../src/core/surface.ts";
 import type { GeometryPort } from "../../src/kwin/apply.ts";
 import { UNLIMITED_SIZE } from "../../src/kwin/filter.ts";
 import type { Timer } from "../../src/kwin/timer.ts";
-import type { SurfaceView, WindowInfo } from "../../src/kwin/types.ts";
+import type { Snapshot, SurfaceView, WindowInfo } from "../../src/kwin/types.ts";
 
 export const ACTIVITY = "a89f5ec2-ab8e-4108-8088-7118500a3aab";
 export const DESKTOP = "89539ae6-e06b-4c76-a057-95df959578a9";
@@ -64,6 +64,21 @@ export function view(output: string, desktop: string, activity: string, area: Re
 /** Die Standard-Surface: eine Ausgabe, ein Desktop, eine Activity. */
 export function singleView(): SurfaceView {
 	return view(OUTPUT, DESKTOP, ACTIVITY, AREA);
+}
+
+/**
+ * Ein Lesedurchgang. `activities` und `desktops` sind die **Ist-Mengen des
+ * Systems** fuer den Registry-GC, nicht die eines Fensters; die Vorgabe
+ * erklaert die Standardwerte fuer gueltig.
+ */
+export function snapshotOf(
+	views: SurfaceView[],
+	windows: WindowInfo[],
+	activeId: string | null,
+	activities: string[] = [ACTIVITY],
+	desktops: string[] = [DESKTOP],
+): Snapshot {
+	return { views, windows, activeId, activities, desktops };
 }
 
 export interface FakeTimer extends Timer {
