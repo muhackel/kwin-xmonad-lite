@@ -90,7 +90,20 @@ export function createGeometryController(
 	timer.interval = RECHECK_MS;
 	timer.timeout.connect(onRecheck);
 
-	function settle(state: WindowState, actual: Rect): void {
+	/**
+	 * Nimmt ein Fenster aus der Nachpruefung. Bleibt danach nichts mehr zu tun,
+	 * haelt der Timer sofort an, statt noch einmal ins Leere zu feuern; sind
+	 * andere Fenster eingeplant, laeuft er weiter.
+	 */
+	function cancelRecheck(id: WindowId): void {
+		pending.delete(id);
+		if (pending.size === 0 && timer.active) {
+			timer.stop();
+		}
+	}
+
+	function settle(id: WindowId, state: WindowState, actual: Rect): void {
+		cancelRecheck(id);
 		state.expectedRect = null;
 		state.applyAttempts = 0;
 		state.tiledRect = actual;
@@ -105,7 +118,7 @@ export function createGeometryController(
 	}
 
 	function forget(id: WindowId): void {
-		pending.delete(id);
+		cancelRecheck(id);
 		clearExpectation(registry, id);
 	}
 
@@ -135,7 +148,7 @@ export function createGeometryController(
 			return;
 		}
 		if (equals(actual, target)) {
-			settle(state, actual);
+			settle(id, state, actual);
 			return;
 		}
 		planRecheck(id, state.writeGeneration);
@@ -168,7 +181,7 @@ export function createGeometryController(
 
 		if (state.expectedRect !== null) {
 			if (judgeSignal(state, actual) === "settled") {
-				settle(state, actual);
+				settle(id, state, actual);
 			} else {
 				planRecheck(id, state.writeGeneration);
 			}
@@ -177,11 +190,11 @@ export function createGeometryController(
 
 		// Keine Erwartung offen: entweder der eigene Nachhall -- eine verspaetete
 		// Bestaetigung des Werts, den der Controller bereits akzeptiert hat --
-		// oder eine wirklich fremde Aenderung.
-		const echo =
-			(state.tiledRect !== null && equals(actual, state.tiledRect)) ||
-			(state.lastObservedRect !== null && equals(actual, state.lastObservedRect));
-		if (echo) {
+		// oder eine wirklich fremde Aenderung. Massgeblich ist allein der
+		// zuletzt beobachtete Istwert: nach einem Giveup ist `tiledRect`
+		// absichtlich das nie erreichte Soll, und eine fremde Verschiebung genau
+		// dorthin waere sonst verschluckt.
+		if (state.lastObservedRect !== null && equals(actual, state.lastObservedRect)) {
 			return;
 		}
 		hooks.external(id);
@@ -193,6 +206,10 @@ export function createGeometryController(
 	 * Eintrag fuer den naechsten Lauf.
 	 */
 	function onRecheck(): void {
+		// Gemessen ist nur, dass `singleShot` existiert und `false` meldet --
+		// nicht, dass die Zuweisung durchschlaegt. Das explizite `stop()` macht
+		// die Annahme ueberfluessig (wie in `timer.ts`).
+		timer.stop();
 		const batch = Array.from(pending.keys());
 		const generations = new Map<WindowId, number>();
 		for (const id of batch) {
@@ -210,7 +227,10 @@ export function createGeometryController(
 			}
 		}
 
-		if (pending.size > 0) {
+		// Eine Nachbesserung hat den Timer ueber `planRecheck` schon gestartet;
+		// ohne den Waechter kaeme hier ein zweiter, das Intervall neu setzender
+		// Start hinterher.
+		if (pending.size > 0 && !timer.active) {
 			timer.start();
 		}
 	}
@@ -221,11 +241,18 @@ export function createGeometryController(
 			return;
 		}
 		if (state.writeGeneration !== generation) {
+			// Netz: seit `settle` und `forget` den Eintrag selbst abraeumen, ist
+			// dieser Zweig praktisch unerreichbar -- ein neuer Write ueberschreibt
+			// den Eintrag, statt ihn veralten zu lassen. `judgeRecheck` prueft
+			// "stale" weiterhin.
 			return;
 		}
 		if (port.dragging(id)) {
 			// Der Nutzer zieht gerade; `interactiveMoveResizeFinished` ordnet
-			// danach ohnehin neu an.
+			// danach ohnehin neu an. Die Erwartung faellt dabei: bliebe sie
+			// offen, schoebe das erste Signal nach dem Loslassen das Fenster
+			// ueber den Signalpfad zurueck, statt die Verschiebung zu melden.
+			forget(id);
 			return;
 		}
 		const actual = port.read(id);
@@ -236,11 +263,12 @@ export function createGeometryController(
 
 		const verdict = judgeRecheck(state, generation, actual);
 		if (verdict === "settled") {
-			settle(state, actual);
+			settle(id, state, actual);
 			return;
 		}
 		if (verdict === "giveup") {
 			hooks.log(`aufgegeben ${id} nach ${state.applyAttempts} Versuchen, ist=${fmt(actual)}`);
+			cancelRecheck(id);
 			state.expectedRect = null;
 			state.applyAttempts = 0;
 			// Der zuletzt beobachtete Istwert gilt ab jetzt als akzeptiert. Ohne
