@@ -180,11 +180,23 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Nachbesserungszyklus — genau das Flattern, das der Zähler verhindern soll.
   Das Feld ist bewusst von `tiledRect` getrennt: nach einem Giveup fallen Soll
   und Ist auseinander, und `tiledRect` trägt ab Meilenstein 5 die Rückkehr aus
-  dem Float.
+  dem Float. Deshalb entscheidet über den Nachhall **allein**
+  `lastObservedRect`: nähme `tiledRect` mit teil, würde eine fremde
+  Verschiebung genau auf das nie erreichte Soll als eigenes Echo verschluckt.
+  Im Gutfall sind beide ohnehin gleich, der zweite Vergleich brächte also
+  nichts und schadete nur im Giveup-Fall.
 - **Eine fremde Geometrieänderung löst genau einen Lauf aus**, und nur für ein
   Fenster, das zuletzt Layout-Teilnehmer war. Wer das Layout verlässt, verliert
   Erwartung **und** eingeplante Nachprüfung — `clearExpectation` allein räumt
-  nur die Registry, deshalb ruft der Adapter zusätzlich `forget`.
+  nur die Registry, deshalb ruft der Adapter zusätzlich `forget`. Dasselbe gilt,
+  wenn eine Nachprüfung das Fenster im Ziehen antrifft: die Erwartung fällt,
+  sonst schöbe der Signalpfad es nach dem Loslassen ohne Anordnungslauf zurück.
+- **Auch der Nachprüfungstimer verlässt sich nicht auf `singleShot`.** Gemessen
+  ist nur, dass die Eigenschaft existiert und `false` meldet, nicht dass die
+  Zuweisung wirkt — also stoppt `onRecheck` sich selbst zuerst, und wer ein
+  Fenster aus der Nachprüfung nimmt, hält den Timer an, sobald nichts mehr
+  ansteht. Ein leer feuernder Timer wäre im Journal unsichtbar; nachweisen kann
+  ihn nur der Test mit einem Timer, dessen `singleShot` nicht durchschlägt.
 - **Die eigentliche Flatterbremse ist `judgeWrite` mit `"unchanged"`.** Eine
   Epoche ohne Änderung schreibt gar nichts, also feuert auch kein Signal. Der
   Versuchszähler ist nur das Netz darunter.
