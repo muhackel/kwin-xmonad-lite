@@ -5,7 +5,7 @@ import type { SurfaceKey } from "../core/surface.ts";
 import { parseSurfaceKey } from "../core/surface.ts";
 
 /**
- * Fensterzustand, global und nicht je Surface: ein Fenster floatet ueberall
+ * Fensterzustand, global und nicht je Surface: ein Fenster floatet überall
  * oder nirgends (PLAN.md Abschnitt 7).
  */
 export interface WindowState {
@@ -16,24 +16,24 @@ export interface WindowState {
 	/**
 	 * Das Rechteck, das das Fenster zuletzt nachweislich **hatte** und das der
 	 * Controller akzeptiert hat -- gesetzt bei `settled` und bei `giveup`. Nach
-	 * einem Giveup faellt es von `tiledRect` auseinander, und genau daran
-	 * erkennt der Signalpfad den eigenen Nachhall: ein verspaetetes
-	 * `frameGeometryChanged` mit diesem Wert ist keine fremde Aenderung.
+	 * einem Giveup fällt es von `tiledRect` auseinander, und genau daran
+	 * erkennt der Signalpfad den eigenen Nachhall: ein verspätetes
+	 * `frameGeometryChanged` mit diesem Wert ist keine fremde Änderung.
 	 */
 	lastObservedRect: Rect | null;
 	expectedRect: Rect | null;
 	applyAttempts: number;
 	/**
-	 * Zaehlt **Schreibvorgaenge dieses Fensters**, nicht Anordnungsepochen: nur
-	 * ein neuer Zielwert erhoeht sie. Eine Epoche ohne Write darf eine offene
+	 * Zählt **Schreibvorgänge dieses Fensters**, nicht Anordnungsepochen: nur
+	 * ein neuer Zielwert erhöht sie. Eine Epoche ohne Write darf eine offene
 	 * Erwartung nicht altern lassen.
 	 */
 	writeGeneration: number;
 }
 
 /**
- * Der Behaelter ist veraenderlich, die Zustaende darin sind es nicht: ein
- * Reducer liefert einen neuen `SurfaceState`, der hier eingehaengt wird.
+ * Der Behälter ist veränderlich, die Zustände darin sind es nicht: ein
+ * Reducer liefert einen neuen `SurfaceState`, der hier eingehängt wird.
  */
 export interface Registry {
 	surfaces: Map<SurfaceKey, SurfaceState>;
@@ -98,7 +98,7 @@ export function setFloating(
 	state.floating = floating;
 	if (floating) {
 		// Beim ersten Umschalten die aktuelle Geometrie behalten, eine bereits
-		// gemerkte floatRect gewinnt und wird spaeter wiederhergestellt.
+		// gemerkte floatRect gewinnt und wird später wiederhergestellt.
 		if (state.floatRect === null) {
 			state.floatRect = current;
 		}
@@ -110,7 +110,7 @@ export function setFloating(
 	return state;
 }
 
-/** Vor jedem Verlassen der Layout-Teilnahme faellig (PLAN.md Abschnitt 4). */
+/** Vor jedem Verlassen der Layout-Teilnahme fällig (PLAN.md Abschnitt 4). */
 export function clearExpectation(registry: Registry, id: WindowId): void {
 	const state = registry.windows.get(id);
 	if (state === undefined) {
@@ -138,7 +138,7 @@ export function purgeWindows(registry: Registry, live: Set<WindowId>): WindowId[
 
 /**
  * Entfernt Surfaces verschwundener Activities und Desktops. Ausgaben werden
- * **nicht** geprueft: der Zustand eines abgesteckten Bildschirms bleibt am
+ * **nicht** geprüft: der Zustand eines abgesteckten Bildschirms bleibt am
  * Namen bis zum Sitzungsende erhalten (PLAN.md Abschnitt 4).
  */
 export function purgeSurfaces(

@@ -22,7 +22,7 @@ const RIGHT = surfaceKey({ activity: ACTIVITY, desktop: "1", output: "DP-2" });
 const RECT_A: Rect = { x: 10, y: 20, width: 800, height: 600 };
 const RECT_B: Rect = { x: 0, y: 0, width: 1280, height: 720 };
 
-/** Belegt eine Surface, ohne den Umweg ueber einzelne Reducer-Aufrufe. */
+/** Belegt eine Surface, ohne den Umweg über einzelne Reducer-Aufrufe. */
 function withOrder(state: SurfaceState, order: WindowId[], focus: WindowId | null): SurfaceState {
 	return {
 		order: order.slice(),
@@ -40,7 +40,7 @@ test("getSurface legt bei Bedarf an und liefert danach dasselbe Objekt", () => {
 	assert.equal(registry.surfaces.size, 1);
 });
 
-test("putSurface haengt das Ergebnis eines Reducers ein", () => {
+test("putSurface hängt das Ergebnis eines Reducers ein", () => {
 	const registry = createRegistry();
 	const state = withOrder(getSurface(registry, LEFT), ["a", "b"], "b");
 	putSurface(registry, LEFT, promote(state));
@@ -60,7 +60,7 @@ test("getWindow legt einen Fensterzustand mit Vorgaben an", () => {
 	assert.equal(getWindow(registry, "w1"), state);
 });
 
-test("Float merkt sich die Geometrie und loescht die Erwartung", () => {
+test("Float merkt sich die Geometrie und löscht die Erwartung", () => {
 	const registry = createRegistry();
 	const window = getWindow(registry, "w1");
 	window.expectedRect = RECT_B;
@@ -73,7 +73,7 @@ test("Float merkt sich die Geometrie und loescht die Erwartung", () => {
 	assert.equal(window.applyAttempts, 0);
 });
 
-test("eine bereits gemerkte Float-Geometrie ueberlebt das naechste Umschalten", () => {
+test("eine bereits gemerkte Float-Geometrie überlebt das nächste Umschalten", () => {
 	const registry = createRegistry();
 	setFloating(registry, "w1", true, RECT_A);
 	setFloating(registry, "w1", false, RECT_B);
@@ -90,7 +90,7 @@ test("Float doppelt gesetzt bleibt wirkungslos", () => {
 	assert.deepEqual(getWindow(registry, "w1").floatRect, RECT_A);
 });
 
-test("clearExpectation raeumt Erwartung und Versuchszaehler", () => {
+test("clearExpectation räumt Erwartung und Versuchszähler", () => {
 	const registry = createRegistry();
 	const window = getWindow(registry, "w1");
 	window.expectedRect = RECT_A;
@@ -100,12 +100,12 @@ test("clearExpectation raeumt Erwartung und Versuchszaehler", () => {
 	assert.equal(window.expectedRect, null);
 	assert.equal(window.applyAttempts, 0);
 	// Der zuletzt beobachtete Istwert bleibt: an ihm erkennt der Signalpfad
-	// spaeter den eigenen Nachhall.
+	// später den eigenen Nachhall.
 	assert.deepEqual(window.lastObservedRect, RECT_B);
 	clearExpectation(registry, "unbekannt");
 });
 
-test("purgeWindows loescht alles, was nicht in der Ist-Menge steht", () => {
+test("purgeWindows löscht alles, was nicht in der Ist-Menge steht", () => {
 	const registry = createRegistry();
 	getWindow(registry, "w1");
 	getWindow(registry, "w2");
@@ -127,7 +127,7 @@ test("purgeSurfaces entfernt verschwundene Activities und Desktops", () => {
 	assert.deepEqual(Array.from(registry.surfaces.keys()), [LEFT]);
 });
 
-test("der Zustand eines abgesteckten Bildschirms ueberlebt die Bereinigung", () => {
+test("der Zustand eines abgesteckten Bildschirms überlebt die Bereinigung", () => {
 	const registry = createRegistry();
 	getSurface(registry, LEFT);
 	getSurface(registry, RIGHT);
@@ -136,12 +136,12 @@ test("der Zustand eines abgesteckten Bildschirms ueberlebt die Bereinigung", () 
 	assert.equal(registry.surfaces.has(RIGHT), true);
 });
 
-test("Sticky: dasselbe Fenster steht unabhaengig in zwei Surfaces", () => {
+test("Sticky: dasselbe Fenster steht unabhängig in zwei Surfaces", () => {
 	const registry = createRegistry();
 	putSurface(registry, LEFT, withOrder(getSurface(registry, LEFT), ["a", "sticky"], "sticky"));
 	putSurface(registry, RIGHT, withOrder(getSurface(registry, RIGHT), ["sticky", "b"], "sticky"));
 
 	putSurface(registry, LEFT, promote(getSurface(registry, LEFT)));
 	assert.deepEqual(getSurface(registry, LEFT).order, ["sticky", "a"]);
-	assert.deepEqual(getSurface(registry, RIGHT).order, ["sticky", "b"], "andere Surface unberuehrt");
+	assert.deepEqual(getSurface(registry, RIGHT).order, ["sticky", "b"], "andere Surface unberührt");
 });

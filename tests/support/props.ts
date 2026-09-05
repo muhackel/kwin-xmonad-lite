@@ -21,10 +21,10 @@ export function innerArea(testCase: LayoutCase): Rect {
 }
 
 /**
- * Eigenschaften, die fuer jedes Layout gelten: richtige Anzahl, ganzzahlige
- * nichtnegative Werte, vollstaendig innerhalb der inneren Flaeche. Die
- * Ueberlappungsfreiheit steht bewusst nicht hier — `full` legt alle Zellen
- * absichtlich uebereinander.
+ * Eigenschaften, die für jedes Layout gelten: richtige Anzahl, ganzzahlige
+ * nichtnegative Werte, vollständig innerhalb der inneren Fläche. Die
+ * Überlappungsfreiheit steht bewusst nicht hier — `full` legt alle Zellen
+ * absichtlich übereinander.
  */
 export function assertCommon(rects: Rect[], testCase: LayoutCase, note: string): void {
 	const inner = innerArea(testCase);
@@ -37,18 +37,18 @@ export function assertCommon(rects: Rect[], testCase: LayoutCase, note: string):
 		assert.ok(Number.isInteger(r.y), `y nicht ganzzahlig, ${where}`);
 		assert.ok(Number.isInteger(r.width), `width nicht ganzzahlig, ${where}`);
 		assert.ok(Number.isInteger(r.height), `height nicht ganzzahlig, ${where}`);
-		assert.ok(r.width >= 0 && r.height >= 0, `negative Groesse, ${where}`);
-		assert.ok(contains(inner, r), `ragt aus der Flaeche, ${where}`);
+		assert.ok(r.width >= 0 && r.height >= 0, `negative Größe, ${where}`);
+		assert.ok(contains(inner, r), `ragt aus der Fläche, ${where}`);
 	}
 }
 
-/** Paarweise Ueberlappungsfreiheit — gilt fuer `tall`, nicht fuer `full`. */
+/** Paarweise Überlappungsfreiheit — gilt für `tall`, nicht für `full`. */
 export function assertDisjoint(rects: Rect[], testCase: LayoutCase, note: string): void {
 	for (let i = 0; i < rects.length; i++) {
 		for (let j = i + 1; j < rects.length; j++) {
 			const a = must(rects[i], `fehlt: ${note}`);
 			const b = must(rects[j], `fehlt: ${note}`);
-			assert.ok(!overlaps(a, b), `Zellen ${i} und ${j} ueberlappen: ${note} ${label(testCase)}`);
+			assert.ok(!overlaps(a, b), `Zellen ${i} und ${j} überlappen: ${note} ${label(testCase)}`);
 		}
 	}
 }

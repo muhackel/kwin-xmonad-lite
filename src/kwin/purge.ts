@@ -8,9 +8,9 @@ export interface PurgeResult {
 	windows: WindowId[];
 	surfaces: SurfaceKey[];
 	/**
-	 * Der Surface-Teil wurde ausgelassen, weil der Snapshot keine gueltigen
+	 * Der Surface-Teil wurde ausgelassen, weil der Snapshot keine gültigen
 	 * Activities oder Desktops meldete. Der Adapter schreibt das ins Journal:
-	 * stillschweigend nichts zu tun waere von "nichts zu tun" nicht zu
+	 * stillschweigend nichts zu tun wäre von "nichts zu tun" nicht zu
 	 * unterscheiden.
 	 */
 	skippedSurfaces: boolean;
@@ -23,10 +23,10 @@ export interface PurgeResult {
  *
  * Die Ist-Mengen entstehen **explizit** als `Set<string>` aus den
  * Snapshot-Arrays -- `purgeSurfaces` erwartet Mengen, und ein durchgereichtes
- * Array wuerde dort still zu "nichts ist gueltig" und alles loeschen.
+ * Array würde dort still zu "nichts ist gültig" und alles löschen.
  *
- * Ausgaben werden bewusst **nicht** geprueft: der Zustand eines abgesteckten
- * Bildschirms ueberlebt am Namen bis zum Sitzungsende (PLAN.md Abschnitt 4,
+ * Ausgaben werden bewusst **nicht** geprüft: der Zustand eines abgesteckten
+ * Bildschirms überlebt am Namen bis zum Sitzungsende (PLAN.md Abschnitt 4,
  * Testmatrix 9).
  */
 export function purgeFromSnapshot(registry: Registry, snapshot: Snapshot): PurgeResult {
@@ -46,8 +46,8 @@ export function purgeFromSnapshot(registry: Registry, snapshot: Snapshot): Purge
 	}
 
 	// KWin hat immer mindestens eine Activity und einen Desktop. Eine leere
-	// Menge ist deshalb kein gueltiger Zustand, sondern ein misslungener
-	// Lesedurchgang -- und wuerde hier jede gespeicherte Surface loeschen.
+	// Menge ist deshalb kein gültiger Zustand, sondern ein misslungener
+	// Lesedurchgang -- und würde hier jede gespeicherte Surface löschen.
 	if (activities.size === 0 || desktops.size === 0) {
 		return { windows, surfaces: [], skippedSurfaces: true };
 	}

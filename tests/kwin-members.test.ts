@@ -23,7 +23,7 @@ const DESKTOP_2 = "11111111-2222-3333-4444-555555555555";
 const ACTIVITY_2 = "99999999-8888-7777-6666-555555555555";
 const OUTPUT_2 = "DP-9";
 
-test("ein Fenster gehoert zur Surface seiner Ausgabe", () => {
+test("ein Fenster gehört zur Surface seiner Ausgabe", () => {
 	const info = windowInfo("a");
 	const views = [singleView(), view(OUTPUT_2, DESKTOP, ACTIVITY, AREA)];
 	assert.deepEqual(surfaceKeysFor(info, views), [`${ACTIVITY}|${DESKTOP}|${OUTPUT}`]);
@@ -41,7 +41,7 @@ test("ein Fenster ohne Ausgabe steht in keiner Surface", () => {
 	assert.deepEqual(surfaceKeysFor(info, [singleView()]), []);
 });
 
-test("eine leere Desktopliste heisst alle Desktops", () => {
+test("eine leere Desktopliste heißt alle Desktops", () => {
 	// So meldet sich ein Fenster auf allen Desktops, an einem Dock gemessen.
 	const info = windowInfo("a");
 	info.desktopIds = [];
@@ -50,7 +50,7 @@ test("eine leere Desktopliste heisst alle Desktops", () => {
 	assert.equal(surfaceKeysFor(info, views).length, 2);
 });
 
-test("eine leere Activityliste heisst alle Activities", () => {
+test("eine leere Activityliste heißt alle Activities", () => {
 	const info = windowInfo("a");
 	info.activityIds = [];
 	const views = [singleView(), view(OUTPUT, DESKTOP, ACTIVITY_2, AREA)];
@@ -70,7 +70,7 @@ test("ein Fenster einer fremden Activity steht in keiner Surface", () => {
 	assert.deepEqual(surfaceKeysFor(info, [singleView()]), []);
 });
 
-test("die Mitgliederliste behaelt die Reihenfolge der Fensterliste", () => {
+test("die Mitgliederliste behält die Reihenfolge der Fensterliste", () => {
 	const views = [singleView()];
 	const windows = [windowInfo("a"), windowInfo("b"), windowInfo("c")];
 	const members = membersBySurface(windows, views, EXCLUDES);
@@ -86,8 +86,8 @@ test("ausgeschlossene Fenster tauchen in keiner Surface auf", () => {
 	assert.deepEqual(membersBySurface(windows, views, EXCLUDES).get(views[0]?.key ?? ""), ["a"]);
 });
 
-test("eine Surface ohne Mitglieder erhaelt eine leere Liste", () => {
-	// Ohne diesen Eintrag behielte eine geraeumte Surface ihren alten Stapel.
+test("eine Surface ohne Mitglieder erhält eine leere Liste", () => {
+	// Ohne diesen Eintrag behielte eine geräumte Surface ihren alten Stapel.
 	const views = [singleView()];
 	const members = membersBySurface([], views, EXCLUDES);
 	assert.equal(members.size, 1);

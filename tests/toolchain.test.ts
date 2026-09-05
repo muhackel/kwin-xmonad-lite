@@ -3,7 +3,7 @@ import { test } from "node:test";
 
 import { format } from "../src/kwin/log.ts";
 
-test("format setzt das Praefix vor die Nachricht", () => {
+test("format setzt das Präfix vor die Nachricht", () => {
 	const result: string = format("Hallo");
 	assert.equal(result, "kwin-xmonad-lite: Hallo");
 });

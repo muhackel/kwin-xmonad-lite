@@ -5,21 +5,21 @@ import type { SurfaceKey, SurfaceRef } from "../core/surface.ts";
 /**
  * Momentaufnahme eines KWin-Fensters in schlichten Werten. Der Adapter liest
  * die KWin-Objekte genau einmal je Durchlauf hier hinein; Filter, Anordnung
- * und Geometriewaechter arbeiten danach nur noch auf diesen Zahlen und sind
- * deshalb ohne laufenden Compositor pruefbar.
+ * und Geometriewächter arbeiten danach nur noch auf diesen Zahlen und sind
+ * deshalb ohne laufenden Compositor prüfbar.
  *
- * Die Feldauswahl ist nicht auf Vorrat gewaehlt: was hier steht, braucht
- * entweder Meilenstein 3 selbst, oder es haelt die Grenze fuer Meilenstein 4
- * (Ausgabe, Desktops, Activities, `dock`) und 5 (Zustaende, Groessenschranken)
- * offen. Von den 160 Eigenschaften eines `Window` bleibt alles Uebrige drausen.
+ * Die Feldauswahl ist nicht auf Vorrat gewählt: was hier steht, braucht
+ * entweder Meilenstein 3 selbst, oder es hält die Grenze für Meilenstein 4
+ * (Ausgabe, Desktops, Activities, `dock`) und 5 (Zustände, Größenschranken)
+ * offen. Von den 160 Eigenschaften eines `Window` bleibt alles Übrige draußen.
  *
  * **Kein `floating`**: die Float-Markierung sitzt in der Registry, nicht am
  * KWin-Objekt. `participates` nimmt sie als eigenes Argument.
  */
 export interface WindowInfo {
-	/** `String(window.internalId)`, traegt geschweifte Klammern. */
+	/** `String(window.internalId)`, trägt geschweifte Klammern. */
 	id: WindowId;
-	/** Roh uebernommen; normalisiert wird erst im Filter, damit es im Test steckt. */
+	/** Roh übernommen; normalisiert wird erst im Filter, damit es im Test steckt. */
 	resourceClass: string;
 
 	// --- Mitgliedschaft -----------------------------------------------------
@@ -33,17 +33,17 @@ export interface WindowInfo {
 	splash: boolean;
 	transient: boolean;
 	modal: boolean;
-	/** Neben `normalWindow` redundant, aber Auswahlkriterium fuer MS 4. */
+	/** Neben `normalWindow` redundant, aber Auswahlkriterium für MS 4. */
 	dock: boolean;
 
 	// --- Surface-Zuordnung --------------------------------------------------
 	/** `output.name`; leer, wenn KWin dem Fenster keine Ausgabe zuordnet. */
 	outputName: string;
-	/** Desktop-Ids. **Leer heisst alle** (PLAN.md Risiko 7). */
+	/** Desktop-Ids. **Leer heißt alle** (PLAN.md Risiko 7). */
 	desktopIds: string[];
-	/** Activity-UUIDs. **Leer heisst alle**. */
+	/** Activity-UUIDs. **Leer heißt alle**. */
 	activityIds: string[];
-	/** Gegenprobe zur Regel "leere Liste heisst alle". */
+	/** Gegenprobe zur Regel "leere Liste heißt alle". */
 	onAllDesktops: boolean;
 
 	// --- Geometrie und Schranken --------------------------------------------
@@ -62,13 +62,13 @@ export interface WindowInfo {
 	moveable: boolean;
 	resizeable: boolean;
 
-	// --- Waechter -----------------------------------------------------------
+	// --- Wächter -----------------------------------------------------------
 	/** `window.move` / `window.resize`: der Nutzer zieht gerade. */
 	move: boolean;
 	resize: boolean;
 }
 
-/** Eine sichtbare Surface samt der Flaeche, auf der ihr Layout rechnet. */
+/** Eine sichtbare Surface samt der Fläche, auf der ihr Layout rechnet. */
 export interface SurfaceView {
 	key: SurfaceKey;
 	ref: SurfaceRef;
@@ -83,10 +83,10 @@ export interface Snapshot {
 	/** Aus `workspace.activeWindow` **desselben** Durchgangs, nicht aus einem Signal. */
 	activeId: WindowId | null;
 	/**
-	 * Alle gueltigen Activity-UUIDs aus `workspace.activities`. Ist-Menge fuer
+	 * Alle gültigen Activity-UUIDs aus `workspace.activities`. Ist-Menge für
 	 * den Registry-GC in `purge.ts` -- nicht die Activities eines Fensters.
 	 */
 	activities: string[];
-	/** Alle gueltigen Desktop-Ids aus `workspace.desktops`. */
+	/** Alle gültigen Desktop-Ids aus `workspace.desktops`. */
 	desktops: string[];
 }

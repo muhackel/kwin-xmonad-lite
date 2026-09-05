@@ -26,11 +26,11 @@ function expecting(rect: Rect, generation: number, attempts: number): WindowStat
 
 // --- fitToCell --------------------------------------------------------------
 
-test("fitToCell laesst eine passende Zelle unveraendert", () => {
+test("fitToCell lässt eine passende Zelle unverändert", () => {
 	assert.deepEqual(fitToCell(CELL, windowInfo("a"), AREA), CELL);
 });
 
-test("fitToCell haelt die Mindestbreite ein", () => {
+test("fitToCell hält die Mindestbreite ein", () => {
 	const info = windowInfo("a");
 	info.minWidth = 900;
 	const schmal: Rect = { x: 1664, y: 0, width: 896, height: 1410 };
@@ -38,10 +38,10 @@ test("fitToCell haelt die Mindestbreite ein", () => {
 	assert.equal(fit.width, 900);
 	// Rechts ist kein Platz mehr, also wandert das Fenster nach links.
 	assert.equal(fit.x, 1660);
-	assert.equal(fit.x + fit.width, AREA.x + AREA.width, "bleibt in der Arbeitsflaeche");
+	assert.equal(fit.x + fit.width, AREA.x + AREA.width, "bleibt in der Arbeitsfläche");
 });
 
-test("fitToCell haelt die Mindesthoehe ein", () => {
+test("fitToCell hält die Mindesthöhe ein", () => {
 	const info = windowInfo("a");
 	info.minHeight = 800;
 	const flach: Rect = { x: 1664, y: 705, width: 896, height: 705 };
@@ -50,25 +50,25 @@ test("fitToCell haelt die Mindesthoehe ein", () => {
 	assert.equal(fit.y, 610);
 });
 
-test("fitToCell achtet die Hoechstgroesse", () => {
+test("fitToCell achtet die Höchstgröße", () => {
 	const info = windowInfo("a");
 	info.maxWidth = 1000;
 	assert.equal(fitToCell(CELL, info, AREA).width, 1000);
 });
 
-test("fitToCell ignoriert die Hoechstgroesse 2147483647", () => {
+test("fitToCell ignoriert die Höchstgröße 2147483647", () => {
 	const info = windowInfo("a");
 	info.maxWidth = UNLIMITED_SIZE;
 	info.maxHeight = UNLIMITED_SIZE;
 	assert.deepEqual(fitToCell(CELL, info, AREA), CELL);
 });
 
-test("fitToCell verankert lieber links als unter die Mindestgroesse zu gehen", () => {
+test("fitToCell verankert lieber links als unter die Mindestgröße zu gehen", () => {
 	const info = windowInfo("a");
 	info.minWidth = 4000;
 	const fit = fitToCell(CELL, info, AREA);
 	assert.equal(fit.width, 4000, "die Mindestbreite gewinnt");
-	assert.equal(fit.x, AREA.x, "die linke obere Ecke bleibt in der Flaeche");
+	assert.equal(fit.x, AREA.x, "die linke obere Ecke bleibt in der Fläche");
 });
 
 // --- judgeWrite -------------------------------------------------------------
@@ -77,22 +77,22 @@ test("judgeWrite meldet write bei einer Abweichung", () => {
 	assert.equal(judgeWrite(windowInfo("a"), CELL), "write");
 });
 
-test("judgeWrite meldet unchanged bei genauer Uebereinstimmung", () => {
-	// Das ist die eigentliche Flatterbremse: keine Aenderung, kein Schreiben,
-	// also auch kein frameGeometryChanged und keine Rueckkopplung.
+test("judgeWrite meldet unchanged bei genauer Übereinstimmung", () => {
+	// Das ist die eigentliche Flatterbremse: keine Änderung, kein Schreiben,
+	// also auch kein frameGeometryChanged und keine Rückkopplung.
 	const info = windowInfo("a");
 	info.frameGeometry = { x: 0, y: 0, width: 1664, height: 1410 };
 	assert.equal(judgeWrite(info, CELL), "unchanged");
 });
 
-test("judgeWrite meldet drag waehrend move oder resize", () => {
+test("judgeWrite meldet drag während move oder resize", () => {
 	const zieht = windowInfo("a");
 	zieht.move = true;
 	assert.equal(judgeWrite(zieht, CELL), "drag");
 
-	const groesst = windowInfo("b");
-	groesst.resize = true;
-	assert.equal(judgeWrite(groesst, CELL), "drag");
+	const größt = windowInfo("b");
+	größt.resize = true;
+	assert.equal(judgeWrite(größt, CELL), "drag");
 });
 
 test("judgeWrite meldet maximized bei maximizeMode ungleich null", () => {
@@ -114,14 +114,14 @@ test("judgeSignal meldet ignore ohne Erwartung", () => {
 	assert.equal(judgeSignal(createWindowState(), CELL), "ignore");
 });
 
-test("judgeSignal meldet settled bei Uebereinstimmung", () => {
+test("judgeSignal meldet settled bei Übereinstimmung", () => {
 	const state = expecting(CELL, 3, 0);
 	assert.equal(judgeSignal(state, { x: 0, y: 0, width: 1664, height: 1410 }), "settled");
 });
 
 test("judgeSignal meldet diverged bei Abweichung, nie retry", () => {
-	// Ein KWin-Signal traegt keine Schreibgeneration, und der Signalpfad
-	// schreibt nie: er kann nur eine Nachpruefung einplanen.
+	// Ein KWin-Signal trägt keine Schreibgeneration, und der Signalpfad
+	// schreibt nie: er kann nur eine Nachprüfung einplanen.
 	const state = expecting(CELL, 3, MAX_CORRECTIONS);
 	assert.equal(judgeSignal(state, { x: 0, y: 0, width: 1660, height: 1410 }), "diverged");
 });
@@ -132,14 +132,14 @@ test("judgeRecheck meldet ignore ohne Erwartung", () => {
 	assert.equal(judgeRecheck(createWindowState(), 1, CELL), "ignore");
 });
 
-test("judgeRecheck meldet stale fuer eine aeltere Schreibgeneration", () => {
-	// Der Eintrag wurde fuer Generation 3 eingeplant, inzwischen laeuft 4:
+test("judgeRecheck meldet stale für eine ältere Schreibgeneration", () => {
+	// Der Eintrag wurde für Generation 3 eingeplant, inzwischen läuft 4:
 	// ein neuerer Write besitzt die Erwartung.
 	const state = expecting(CELL, 4, 0);
 	assert.equal(judgeRecheck(state, 3, { x: 9, y: 9, width: 9, height: 9 }), "stale");
 });
 
-test("judgeRecheck meldet settled bei Uebereinstimmung", () => {
+test("judgeRecheck meldet settled bei Übereinstimmung", () => {
 	const state = expecting(CELL, 3, 0);
 	assert.equal(judgeRecheck(state, 3, { x: 0, y: 0, width: 1664, height: 1410 }), "settled");
 });
@@ -157,7 +157,7 @@ test("judgeRecheck gibt nach zwei Nachbesserungen auf", () => {
 	assert.equal(judgeRecheck(expecting(CELL, 3, MAX_CORRECTIONS), 3, abweichung), "giveup");
 });
 
-test("eine angekommene Geometrie beruhigt auch nach ausgeschoepften Versuchen", () => {
+test("eine angekommene Geometrie beruhigt auch nach ausgeschöpften Versuchen", () => {
 	const state = expecting(CELL, 3, MAX_CORRECTIONS);
 	assert.equal(judgeRecheck(state, 3, { x: 0, y: 0, width: 1664, height: 1410 }), "settled");
 });

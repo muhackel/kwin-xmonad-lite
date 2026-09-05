@@ -9,19 +9,19 @@ const REF = {
 	output: "DP-1",
 };
 
-test("Surface-Schluessel laeuft verlustfrei hin und zurueck", () => {
+test("Surface-Schlüssel läuft verlustfrei hin und zurück", () => {
 	const key = surfaceKey(REF);
 	assert.equal(key, "b1f2c3d4-0000-4000-8000-abcdefabcdef|3|DP-1");
 	assert.deepEqual(parseSurfaceKey(key), REF);
 });
 
-test("Surface-Schluessel weist den Trenner in einer Komponente ab", () => {
+test("Surface-Schlüssel weist den Trenner in einer Komponente ab", () => {
 	assert.throws(() => surfaceKey({ activity: "a|b", desktop: "1", output: "DP-1" }));
 	assert.throws(() => surfaceKey({ activity: "a", desktop: "1|2", output: "DP-1" }));
 	assert.throws(() => surfaceKey({ activity: "a", desktop: "1", output: "DP|1" }));
 });
 
-test("parseSurfaceKey lehnt fehlerhafte Schluessel ab", () => {
+test("parseSurfaceKey lehnt fehlerhafte Schlüssel ab", () => {
 	assert.equal(parseSurfaceKey("nur-ein-teil"), null);
 	assert.equal(parseSurfaceKey("a|1"), null);
 	assert.equal(parseSurfaceKey("a|1|DP-1|zuviel"), null);

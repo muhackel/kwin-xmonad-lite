@@ -9,13 +9,13 @@ export const ACTIVITY = "a89f5ec2-ab8e-4108-8088-7118500a3aab";
 export const DESKTOP = "89539ae6-e06b-4c76-a057-95df959578a9";
 export const OUTPUT = "DP-1";
 
-/** Die auf SPIELKISTE gemessene Arbeitsflaeche, Panel abgezogen. */
+/** Die auf SPIELKISTE gemessene Arbeitsfläche, Panel abgezogen. */
 export const AREA: Rect = { x: 0, y: 0, width: 2560, height: 1410 };
 
 /**
- * Ein unauffaelliges, verwaltbares Fenster. Die Tests veraendern danach
+ * Ein unauffälliges, verwaltbares Fenster. Die Tests verändern danach
  * einzelne Felder direkt — Objekt-Spread scheitert am Parser der QJSEngine,
- * und `tests/` haelt sich an dieselben Grenzen wie `src/`.
+ * und `tests/` hält sich an dieselben Grenzen wie `src/`.
  */
 export function windowInfo(id: string): WindowInfo {
 	return {
@@ -68,8 +68,8 @@ export function singleView(): SurfaceView {
 
 /**
  * Ein Lesedurchgang. `activities` und `desktops` sind die **Ist-Mengen des
- * Systems** fuer den Registry-GC, nicht die eines Fensters; die Vorgabe
- * erklaert die Standardwerte fuer gueltig.
+ * Systems** für den Registry-GC, nicht die eines Fensters; die Vorgabe
+ * erklärt die Standardwerte für gültig.
  */
 export function snapshotOf(
 	views: SurfaceView[],
@@ -82,15 +82,15 @@ export function snapshotOf(
 }
 
 export interface FakeTimer extends Timer {
-	/** Loest den verbundenen Handler aus, wie es der echte Timer taete. */
+	/** Löst den verbundenen Handler aus, wie es der echte Timer täte. */
 	fire(): void;
-	/** Wie oft `start()` gerufen wurde — zeigt einen unnoetigen Neustart. */
+	/** Wie oft `start()` gerufen wurde — zeigt einen unnötigen Neustart. */
 	starts(): number;
 	/**
 	 * Stellt einen Timer nach, dessen `singleShot`-Zuweisung **nicht**
-	 * durchschlaegt: `fire()` laesst ihn dann laufen. Gemessen ist nur, dass die
+	 * durchschlägt: `fire()` lässt ihn dann laufen. Gemessen ist nur, dass die
 	 * Eigenschaft existiert und `false` meldet — wer sich auf ihre Wirkung
-	 * verlaesst, faellt hier auf.
+	 * verlässt, fällt hier auf.
 	 */
 	setRepeating(value: boolean): void;
 }
@@ -137,17 +137,17 @@ export function fakeTimer(): FakeTimer {
 // --- Geometriezugriff -------------------------------------------------------
 
 export interface FakePort extends GeometryPort {
-	/** Istgeometrie setzen, etwa fuer eine fremde Aenderung. */
+	/** Istgeometrie setzen, etwa für eine fremde Änderung. */
 	place(id: string, rect: Rect): void;
 	/** Handle entfernen: `read` liefert danach `null`, `write` `false`. */
 	drop(id: string): void;
 	setDragging(id: string, value: boolean): void;
 	/**
-	 * Was das Fenster aus einem Zielwert macht. Vorgabe ist die Uebernahme;
-	 * ein Groessenraster wird hier nachgestellt.
+	 * Was das Fenster aus einem Zielwert macht. Vorgabe ist die Übernahme;
+	 * ein Größenraster wird hier nachgestellt.
 	 */
 	setAccept(id: string, fn: (rect: Rect) => Rect): void;
-	/** Laeuft nach jedem `write` -- hier laesst sich ein synchrones Signal ausloesen. */
+	/** Läuft nach jedem `write` -- hier lässt sich ein synchrones Signal auslösen. */
 	setOnWrite(fn: (id: string, rect: Rect) => void): void;
 	reads(): number;
 	writes(): number;
