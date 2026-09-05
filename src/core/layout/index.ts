@@ -9,6 +9,7 @@ export {
 	RATIO_MAX,
 	RATIO_MIN,
 	RATIO_STEP,
+	stepRatio,
 	tall,
 } from "./tall.ts";
 export type { LayoutDef, LayoutFn, LayoutParams } from "./types.ts";

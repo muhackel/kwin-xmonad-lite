@@ -5,10 +5,11 @@ einen Teil des alten XMonad-Arbeitsgefühls zurück: Tall- und Full-Layout,
 Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
-und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 1
-abgeschlossen** — Gerüst, Build- und Testkette, Feature-Probe und der
-Layoutkern (`rect`, `tall`, `full`). Fensterstapel und Registry ab
-Meilenstein 2, der KWin-Adapter ab Meilenstein 3.
+und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 2
+abgeschlossen** — Gerüst, Build- und Testkette, Feature-Probe, Layoutkern
+(`rect`, `tall`, `full`) sowie Fensterstapel, Registry und Reconcile. Der
+KWin-Adapter folgt ab Meilenstein 3; das geladene Skript ordnet bis dahin
+nichts an.
 
 ## Ursprung & Zweck
 
@@ -67,6 +68,11 @@ Activities und verwaltet nicht die Zahl der Desktops.
   im Quelltext nicht vorkommen.
 - Kein `setTimeout`. Jede Verzögerung läuft über `new QTimer()`. Ein Einmal-
   Timer mit 20 ms feuerte nach 21 ms — das Entprellfenster trägt.
+- **Vorhanden und gemessen**, damit nicht aus Vorsicht darauf verzichtet wird:
+  `Map`, `Set`, `WeakMap`, `Symbol`, `Proxy`, `Reflect`, `Promise`, `for…of`,
+  Destrukturierung, Array-Spread, `class` (ohne Felder), `Array.from`,
+  `Array.isArray`, `Object.entries`, `Object.values`, `Number.isInteger`,
+  `print()`.
 
 ### KWin-Objekte
 
@@ -103,6 +109,26 @@ Activities und verwaltet nicht die Zahl der Desktops.
   `Math.floor`. Für die Schrittweite in Meilenstein 2 gilt: `0.65 + 0.05` ergibt
   `0.7000000000000001` — beim Schalten runden, sonst sammeln sich die
   Nachkommastellen im gespeicherten Zustand.
+
+### Zustandsschicht
+
+- **Reducer sind rein.** `core/stack` gibt bei jeder Änderung einen neuen
+  `SurfaceState` zurück und bei Wirkungslosigkeit **dasselbe Objekt**. Der
+  Adapter darf deshalb `state === vorher` als „nichts zu tun" lesen — und
+  niemals `state.order.push(…)` schreiben, das vergiftete die Registry
+  unbemerkt. `order` wird bei jeder Ableitung kopiert.
+- Der Registry-Behälter ist dagegen veränderlich: `putSurface` hängt das
+  Ergebnis eines Reducers ein, `WindowState` wird an Ort und Stelle
+  fortgeschrieben.
+- **Fokus ist eine Fenster-ID, kein Index.** Ein Index verrutscht bei jedem
+  Entfernen. `PLAN.md` Abschnitt 3 sagte ursprünglich „Fokusindex" und
+  widersprach damit Abschnitt 4; korrigiert.
+- Beim Reconcile gewinnt das aktive Fenster von KWin. Ohne aktives Fenster
+  behält die Surface ihren bisherigen Fokus — sonst stiehlt ein Sticky-Fenster
+  einer inaktiven Surface den Fokus, weil `insert` XMonad-treu fokussiert.
+- Die Bereinigung prüft Activity und Desktop, **nicht** die Ausgabe: der
+  Zustand eines abgesteckten Bildschirms überlebt am Namen bis zum
+  Sitzungsende.
 
 ### Offene Konflikte im Entwurf
 

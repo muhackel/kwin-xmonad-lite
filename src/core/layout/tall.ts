@@ -33,6 +33,16 @@ export function clampRatio(ratio: number): number {
 }
 
 /**
+ * Verhaeltnis um `delta` verschieben. Das Runden auf zwei Nachkommastellen ist
+ * Pflicht: `0.65 + 0.05` ergibt `0.7000000000000001`, und ohne Rundung sammeln
+ * sich die Nachkommastellen im gespeicherten Zustand an.
+ */
+export function stepRatio(ratio: number, delta: number): number {
+	const stepped = clampRatio(ratio) + delta;
+	return clampRatio(Math.round(stepped * 100) / 100);
+}
+
+/**
  * XMonads `Tall 1 delta ratio`: eine Masterzelle links, der Rest als Stapel
  * rechts. Masteranzahl ist fest 1. Zellen und Abstaende zerlegen die um den
  * Aussenabstand verkleinerte Flaeche exakt; alle Werte sind ganzzahlig.
