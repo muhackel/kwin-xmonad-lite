@@ -92,19 +92,23 @@ export function createDebouncer(
 }
 
 export interface FollowUps {
-	/** Alle Nachlaeufe neu starten; laufende werden zurueckgesetzt. */
-	trigger(): void;
-	/** Alle anhalten. */
+	/**
+	 * Alle Nachläufe neu starten; laufende werden zurückgesetzt. Die Quelle
+	 * steigt zum Satz dazu, sie ersetzt ihn nicht.
+	 */
+	trigger(quelle: string): void;
+	/** Alle anhalten und den Quellensatz leeren. */
 	cancel(): void;
 	/** Nur fuer Tests und Journalzeilen: wie viele gerade laufen. */
 	running(): number;
 }
 
 /**
- * Gemessen (docs/research.md Abschnitt 3.3): nach einer Ausgaben- oder
- * Panelaenderung ist `clientArea` im Signal noch die alte, und nach 500 ms war
- * sie noch ein Zwischenstand. Erst nach 1500 ms stimmte sie. Deshalb zwei
- * Nachlaeufe, nicht einer.
+ * Gemessen (docs/research.md Abschnitt 3.3): nach einer **Ausgabenaenderung**
+ * ist `clientArea` im Signal noch die alte, und nach 500 ms war sie noch ein
+ * Zwischenstand. Erst nach 1500 ms stimmte sie. Deshalb zwei Nachlaeufe, nicht
+ * einer. Nach einer reinen Panelhoehenaenderung war die Flaeche dagegen schon
+ * im entprellten Lauf neu; dort sind die Nachlaeufe nur Absicherung.
  */
 export const FOLLOW_UP_MS = [500, 1500];
 
@@ -115,13 +119,21 @@ export const FOLLOW_UP_MS = [500, 1500];
  * `run` ordnet **nie** selbst an, sondern meldet nur beim Entpreller an: ein
  * Nachlauf, der direkt anordnete, liefe an der Koaleszierung vorbei und
  * koennte mitten in einen laufenden Durchgang schlagen.
+ *
+ * Die Quellen werden **gesammelt**, nicht überschrieben: sonst verschwände
+ * `dockHinzugefügt` wieder aus dem Journal, sobald danach noch ein
+ * `dockGeometrie` auslöst — und der Nachlauf wäre keinem Auslöser mehr
+ * zuzuordnen. Geleert wird der Satz vom Nachlauf mit der größten Verzögerung,
+ * dem letzten der Runde, und von `cancel()`.
  */
 export function createFollowUps(
 	makeTimer: TimerFactory,
 	delays: number[],
-	run: (delayMs: number) => void,
+	run: (delayMs: number, quellen: string[]) => void,
 ): FollowUps {
 	const timers: Timer[] = [];
+	const quellen = new Set<string>();
+	const letzte = delays.length === 0 ? 0 : Math.max(...delays);
 
 	for (const delay of delays) {
 		const timer = makeTimer();
@@ -131,8 +143,14 @@ export function createFollowUps(
 			// Wie im Entpreller: `singleShot` ist gemessen vorhanden, seine
 			// Wirkung nicht.
 			timer.stop();
+			const satz = Array.from(quellen);
+			// Vor `run` leeren: eine Ausnahme dort darf den Satz nicht in die
+			// nächste Runde schleppen.
+			if (delay === letzte) {
+				quellen.clear();
+			}
 			try {
-				run(delay);
+				run(delay, satz);
 			} catch (error) {
 				log(`Nachlauf nach ${delay} ms fehlgeschlagen: ${String(error)}`);
 			}
@@ -141,7 +159,8 @@ export function createFollowUps(
 	}
 
 	return {
-		trigger(): void {
+		trigger(quelle: string): void {
+			quellen.add(quelle);
 			for (const timer of timers) {
 				// `restart()` gibt es nicht (gemessen abwesend).
 				timer.stop();
@@ -149,6 +168,7 @@ export function createFollowUps(
 			}
 		},
 		cancel(): void {
+			quellen.clear();
 			for (const timer of timers) {
 				timer.stop();
 			}

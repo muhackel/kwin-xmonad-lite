@@ -47,16 +47,21 @@ export function createAdapter(): Adapter {
 
 	const debouncer = createDebouncer(() => new QTimer(), DEBOUNCE_MS, runArrange);
 	/**
-	 * Nach einer Ausgaben- oder Panelaenderung ist `clientArea` noch nicht
-	 * fertig (docs/research.md Abschnitt 3.3). Der Nachlauf meldet deshalb nur
-	 * beim Entpreller an -- nie `runArrange` direkt, sonst liefe er an der
-	 * Koaleszierung vorbei.
+	 * Nach einer Ausgabenaenderung ist `clientArea` noch nicht fertig
+	 * (docs/research.md Abschnitt 3.3); nach einer reinen Panelhoehenaenderung
+	 * war sie dagegen schon im entprellten Lauf neu, dort sichert der Nachlauf
+	 * nur ab. Er meldet immer nur beim Entpreller an -- nie `runArrange`
+	 * direkt, sonst liefe er an der Koaleszierung vorbei.
+	 *
+	 * Der Grund traegt die Quellen mit: vier verschiedene Ausloeser starten
+	 * dieselben zwei Timer, und ohne sie waere im Journal nicht zu sehen,
+	 * welcher es war.
 	 */
 	const followUps = createFollowUps(
 		() => new QTimer(),
 		FOLLOW_UP_MS,
-		(delay) => {
-			debouncer.schedule(`nachlauf${delay}`);
+		(delay, quellen) => {
+			debouncer.schedule(`nachlauf${delay}:${quellen.join("+")}`);
 		},
 	);
 
@@ -125,7 +130,7 @@ export function createAdapter(): Adapter {
 		const onDockChanged = (): void => {
 			log(`dockGeometrie ${id}`);
 			debouncer.schedule("dockGeometrie");
-			followUps.trigger();
+			followUps.trigger("dockGeometrie");
 		};
 		const onDockClosed = (): void => {
 			// Wie bei den verwalteten Fenstern: die Id kommt aus dieser
@@ -135,7 +140,7 @@ export function createAdapter(): Adapter {
 			log(`dockEntfernt ${id}`);
 			disconnectWindow(id);
 			debouncer.schedule("dockEntfernt");
-			followUps.trigger();
+			followUps.trigger("dockEntfernt");
 		};
 
 		window.frameGeometryChanged.connect(onDockChanged);
@@ -337,6 +342,15 @@ export function createAdapter(): Adapter {
 		workspace.windowAdded.connect((window) => {
 			if (window !== null) {
 				connectWindow(window);
+				// Ein Panel erscheint beim Login nach dem Controller und ändert
+				// die Arbeitsfläche, ohne dass zwingend ein Geometriesignal
+				// folgt. Der Abbau hing schon an `onDockClosed`, der Aufbau
+				// fehlte. Die eigene Zeile ist der einzige Weg, diesen Zweig
+				// im Journal von `dockGeometrie` zu unterscheiden.
+				if (window.dock) {
+					log(`dockHinzugefügt ${windowId(window)}`);
+					followUps.trigger("dockHinzugefügt");
+				}
 			}
 			debouncer.schedule("windowAdded");
 		});
@@ -368,11 +382,11 @@ export function createAdapter(): Adapter {
 		// Nachlaeufe.
 		workspace.screensChanged.connect(() => {
 			debouncer.schedule("screensChanged");
-			followUps.trigger();
+			followUps.trigger("screensChanged");
 		});
 		workspace.virtualScreenGeometryChanged.connect(() => {
 			debouncer.schedule("screenGeometry");
-			followUps.trigger();
+			followUps.trigger("screenGeometry");
 		});
 
 		const list = workspace.windowList();

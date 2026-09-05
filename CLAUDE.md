@@ -245,6 +245,18 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Registry-Eintrag versandet. Die Id für `closed` kommt aus der Closure. Nach
   einem Hotplug kehrt ein Panel als **neues** Fenster zurück — `windowAdded`
   verbindet es, ein einmaliges Verbinden beim Start genügt nicht.
+- **Der Dock-Aufbau hängt an `windowAdded`, der Abbau an `closed`** — und
+  beide starten die Nachläufe. Ein Panel, das beim Login nach dem Controller
+  erscheint, ändert die Arbeitsfläche, ohne dass zwingend ein Geometriesignal
+  folgt; ohne den Nachlauf bliebe eine verspätet aktualisierte `clientArea`
+  ungelesen. `start()` löst dagegen bewusst **keinen** Nachlauf aus, damit das
+  Laden ein einziger Lauf bleibt.
+- **Der Nachlauf trägt seine Quellen im Grund** (`nachlauf500:dockHinzugefügt`).
+  Fünf Auslöser starten dieselben zwei Timer; ohne die Quelle ist im Journal
+  nicht zu sehen, welcher es war, und der Dock-Zweig wäre nicht abnehmbar. Die
+  Quellen werden **gesammelt**, nicht überschrieben: bei „letzter gewinnt"
+  verschwände die gesuchte Quelle, sobald danach noch etwas auslöst. Geleert
+  wird der Satz vom letzten Nachlauf einer Runde und von `cancel()`.
 - **Der Registry-GC ist ein reiner Schritt** (`kwin/purge.ts`), kein
   Adaptercode. Die Snapshot-Listen werden dort **explizit** zu `Set<string>`:
   ein durchgereichtes Array wäre für `purgeSurfaces` still „nichts ist gültig"

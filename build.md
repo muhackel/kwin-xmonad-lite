@@ -158,12 +158,19 @@ kwin-xmonad-lite: apply {0fb083bd-…} soll=1664x1410+0+0
 Dazu ab Meilenstein 4:
 
 ```
+kwin-xmonad-lite: dockHinzugefügt {285a8fb6-…}    # Panel ist erschienen
 kwin-xmonad-lite: dockGeometrie {285a8fb6-…}      # Panel hat sich bewegt
 kwin-xmonad-lite: dockEntfernt {baff47ba-…}       # Panel ist verschwunden
 kwin-xmonad-lite: gc #83 fenster=0 surfaces=3     # Registry-GC dieses Laufs
 kwin-xmonad-lite: surface entfernt <activity>|<desktop>|DP-1
-kwin-xmonad-lite: arrange #61 grund=nachlauf500   # verzögerter Nachlauf
+kwin-xmonad-lite: arrange #61 grund=nachlauf500:dockHinzugefügt+dockGeometrie
 ```
+
+Der Nachlaufgrund trägt seine **Quellen** mit: `dockHinzugefügt`,
+`dockGeometrie`, `dockEntfernt`, `screensChanged` und `screenGeometry` starten
+dieselben zwei Timer. Sie werden über die ganze Runde gesammelt und erst vom
+Nachlauf nach 1500 ms geleert — ein Nachlauf ist damit eindeutig zuzuordnen,
+auch wenn zwischendurch noch etwas auslöst.
 
 `perOutputDesktops` steuert kein Verhalten, macht einen Journalauszug aber
 deutbar. Die `gc`-Zeile trägt die Epoche, weil sie **vor** der `arrange`-Zeile
