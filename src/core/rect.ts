@@ -9,6 +9,21 @@ export function equals(a: Rect, b: Rect): boolean {
 	return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
 }
 
+/**
+ * Rundet alle vier Werte auf ganze Pixel. Der Layoutkern liefert ohnehin nur
+ * ganze Zahlen; ein gelesenes `frameGeometry` kann auf Wayland bei gebrochener
+ * Skalierung Nachkommastellen tragen. Ohne die Rundung meldete `equals` dann in
+ * jeder Epoche eine Abweichung, und jeder Lauf schriebe erneut.
+ */
+export function rounded(rect: Rect): Rect {
+	return {
+		x: Math.round(rect.x),
+		y: Math.round(rect.y),
+		width: Math.round(rect.width),
+		height: Math.round(rect.height),
+	};
+}
+
 export function contains(outer: Rect, inner: Rect): boolean {
 	return (
 		inner.x >= outer.x &&
@@ -18,7 +33,7 @@ export function contains(outer: Rect, inner: Rect): boolean {
 	);
 }
 
-/** Echte Schnittflaeche. Leere Rechtecke ueberlappen nie, Beruehrung zaehlt nicht. */
+/** Echte Schnittfläche. Leere Rechtecke überlappen nie, Berührung zählt nicht. */
 export function overlaps(a: Rect, b: Rect): boolean {
 	const left = Math.max(a.x, b.x);
 	const right = Math.min(a.x + a.width, b.x + b.width);
@@ -28,9 +43,9 @@ export function overlaps(a: Rect, b: Rect): boolean {
 }
 
 /**
- * Groesster Abstand, der zwischen `count` Zellen der Gesamtlaenge `total` noch
- * Platz laesst, ohne eine Zelle unter 1 px zu druecken. Reicht der Platz nicht,
- * faellt der Abstand auf 0 zurueck.
+ * Größter Abstand, der zwischen `count` Zellen der Gesamtlänge `total` noch
+ * Platz lässt, ohne eine Zelle unter 1 px zu drücken. Reicht der Platz nicht,
+ * fällt der Abstand auf 0 zurück.
  */
 export function clampGap(gap: number, total: number, count: number): number {
 	if (count < 2 || !Number.isFinite(gap) || gap <= 0) {
@@ -44,8 +59,8 @@ export function clampGap(gap: number, total: number, count: number): number {
 }
 
 /**
- * Zieht den Aussenabstand allseitig ab. Der Abstand wird so weit verkleinert,
- * dass mindestens 1 px Flaeche uebrig bleibt; eine bereits leere Flaeche bleibt
+ * Zieht den Außenabstand allseitig ab. Der Abstand wird so weit verkleinert,
+ * dass mindestens 1 px Fläche übrig bleibt; eine bereits leere Fläche bleibt
  * leer.
  */
 export function shrink(area: Rect, gap: number): Rect {
@@ -118,8 +133,8 @@ function distribute(inner: number, weights: number[]): number[] {
 }
 
 /**
- * Zellenlaengen fuer einen gewichteten Split von `total` mit `gap` zwischen den
- * Zellen. Summe der Rueckgabewerte plus `gap * (n - 1)` ergibt exakt `total`,
+ * Zellenlängen für einen gewichteten Split von `total` mit `gap` zwischen den
+ * Zellen. Summe der Rückgabewerte plus `gap * (n - 1)` ergibt exakt `total`,
  * sofern `total >= n` ist.
  */
 export function splitWeighted(total: number, weights: number[], gap: number): number[] {
@@ -127,7 +142,7 @@ export function splitWeighted(total: number, weights: number[], gap: number): nu
 	return distribute(total - effectiveGap * (weights.length - 1), weights);
 }
 
-/** Zerlegt `area` waagerecht in uebereinanderliegende Streifen. */
+/** Zerlegt `area` waagerecht in übereinanderliegende Streifen. */
 export function divideVertical(area: Rect, weights: number[], gap: number): Rect[] {
 	const heights = splitWeighted(area.height, weights, gap);
 	const effectiveGap = clampGap(gap, area.height, weights.length);

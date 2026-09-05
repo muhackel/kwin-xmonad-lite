@@ -13,7 +13,7 @@ import { fakePort, fakeTimer } from "./support/kwinfake.ts";
 const START: Rect = { x: 0, y: 0, width: 800, height: 600 };
 const TARGET: Rect = { x: 0, y: 0, width: 1664, height: 1410 };
 const ANDERS: Rect = { x: 1664, y: 0, width: 896, height: 1410 };
-/** Was ein Fenster mit Groessenraster daraus macht. */
+/** Was ein Fenster mit Größenraster daraus macht. */
 const GERASTERT: Rect = { x: 0, y: 0, width: 1660, height: 1410 };
 
 interface Rig {
@@ -24,6 +24,7 @@ interface Rig {
 	logs: string[];
 	apply(id: WindowId, target: Rect): void;
 	notifyChanged(id: WindowId): void;
+	accept(id: WindowId, actual: Rect): void;
 	forget(id: WindowId): void;
 	pendingCount(): number;
 }
@@ -50,17 +51,18 @@ function rig(): Rig {
 		logs,
 		apply: controller.apply,
 		notifyChanged: controller.notifyChanged,
+		accept: controller.accept,
 		forget: controller.forget,
 		pendingCount: controller.pendingCount,
 	};
 }
 
-/** Ein Fenster, das jeden Zielwert brav uebernimmt. */
+/** Ein Fenster, das jeden Zielwert brav übernimmt. */
 function braves(r: Rig, id: WindowId): void {
 	r.port.place(id, START);
 }
 
-/** Ein Fenster mit Groessenraster: es nimmt den Zielwert nie genau an. */
+/** Ein Fenster mit Größenraster: es nimmt den Zielwert nie genau an. */
 function stures(r: Rig, id: WindowId): void {
 	r.port.place(id, START);
 	r.port.setAccept(id, () => GERASTERT);
@@ -80,30 +82,30 @@ test("ein angenommener Zielwert ist sofort erledigt", () => {
 	assert.equal(state.writeGeneration, 1);
 	assert.equal(r.port.writes(), 1);
 	assert.equal(r.pendingCount(), 0);
-	assert.equal(r.timer.active, false, "keine Nachpruefung noetig");
+	assert.equal(r.timer.active, false, "keine Nachprüfung nötig");
 });
 
-test("das eigene synchrone Signal waehrend des Writes wird verworfen", () => {
+test("das eigene synchrone Signal während des Writes wird verworfen", () => {
 	// Auf Wayland ist eine reine Verschiebung sofort wirksam:
-	// frameGeometryChanged kommt mitten im Schreiben zurueck.
+	// frameGeometryChanged kommt mitten im Schreiben zurück.
 	const r = rig();
 	braves(r, "a");
-	let rueckstoesse = 0;
+	let rückstöße = 0;
 	r.port.setOnWrite((id) => {
-		rueckstoesse += 1;
+		rückstöße += 1;
 		r.notifyChanged(id);
 	});
 
 	r.apply("a", TARGET);
 
-	assert.equal(rueckstoesse, 1, "der Rueckstoss ist tatsaechlich gelaufen");
+	assert.equal(rückstöße, 1, "der Rückstoß ist tatsächlich gelaufen");
 	assert.equal(r.port.writes(), 1, "kein zweiter Write");
 	assert.equal(r.pendingCount(), 0);
 });
 
-// --- Abweichung, Nachpruefung, Nachbesserung --------------------------------
+// --- Abweichung, Nachprüfung, Nachbesserung --------------------------------
 
-test("ein abweichendes Ruecklesen plant eine Nachpruefung, schreibt aber nicht", () => {
+test("ein abweichendes Rücklesen plant eine Nachprüfung, schreibt aber nicht", () => {
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
@@ -114,7 +116,7 @@ test("ein abweichendes Ruecklesen plant eine Nachpruefung, schreibt aber nicht",
 	assert.deepEqual(getWindow(r.registry, "a").expectedRect, TARGET, "Erwartung bleibt offen");
 });
 
-test("eine zeitversetzte Bestaetigung beruhigt ueber den Signalpfad", () => {
+test("eine zeitversetzte Bestätigung beruhigt über den Signalpfad", () => {
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
@@ -130,9 +132,9 @@ test("eine zeitversetzte Bestaetigung beruhigt ueber den Signalpfad", () => {
 	assert.equal(r.port.writes(), 1, "der Signalpfad schreibt nie");
 });
 
-test("eine zeitversetzte Bestaetigung raeumt auch die Nachpruefung ab", () => {
+test("eine zeitversetzte Bestätigung räumt auch die Nachprüfung ab", () => {
 	// Bliebe der Eintrag stehen, feuerte der Timer noch einmal ins Leere und
-	// laese dabei ein Fenster, an dem es nichts mehr zu tun gibt.
+	// läse dabei ein Fenster, an dem es nichts mehr zu tun gibt.
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
@@ -143,16 +145,16 @@ test("eine zeitversetzte Bestaetigung raeumt auch die Nachpruefung ab", () => {
 	r.notifyChanged("a");
 
 	assert.equal(r.pendingCount(), 0);
-	assert.equal(r.timer.active, false, "ohne verbleibende Arbeit haelt der Timer an");
+	assert.equal(r.timer.active, false, "ohne verbleibende Arbeit hält der Timer an");
 
 	const reads = r.port.reads();
 	const writes = r.port.writes();
 	r.timer.fire();
-	assert.equal(r.port.reads(), reads, "ein dennoch ausgeloester Lauf liest nichts");
+	assert.equal(r.port.reads(), reads, "ein dennoch ausgelöster Lauf liest nichts");
 	assert.equal(r.port.writes(), writes);
 });
 
-test("der Signalpfad plant bei Abweichung nur eine Nachpruefung ein", () => {
+test("der Signalpfad plant bei Abweichung nur eine Nachprüfung ein", () => {
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
@@ -164,7 +166,7 @@ test("der Signalpfad plant bei Abweichung nur eine Nachpruefung ein", () => {
 	assert.equal(r.pendingCount(), 1);
 });
 
-test("nachgebessert wird hoechstens einmal je Fenster und Timerlauf", () => {
+test("nachgebessert wird höchstens einmal je Fenster und Timerlauf", () => {
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
@@ -173,7 +175,7 @@ test("nachgebessert wird hoechstens einmal je Fenster und Timerlauf", () => {
 	r.timer.fire();
 	assert.equal(r.port.writesFor("a"), 2, "erster Versuch");
 	assert.equal(getWindow(r.registry, "a").applyAttempts, 1);
-	assert.equal(r.timer.active, true, "der naechste Lauf ist eingeplant");
+	assert.equal(r.timer.active, true, "der nächste Lauf ist eingeplant");
 
 	r.timer.fire();
 	assert.equal(r.port.writesFor("a"), 3, "zweiter Versuch");
@@ -183,7 +185,7 @@ test("nachgebessert wird hoechstens einmal je Fenster und Timerlauf", () => {
 	assert.equal(r.port.writesFor("a"), 3, "danach ist Schluss");
 });
 
-test("nach dem Aufgeben sind Erwartung und Nachpruefung leer", () => {
+test("nach dem Aufgeben sind Erwartung und Nachprüfung leer", () => {
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
@@ -204,10 +206,10 @@ test("nach dem Aufgeben sind Erwartung und Nachpruefung leer", () => {
 	);
 });
 
-test("ein verspaetetes Signal nach dem Aufgeben ist Nachhall, keine fremde Aenderung", () => {
-	// Ohne lastObservedRect startete jedes aufgegebene Fenster im naechsten
+test("ein verspätetes Signal nach dem Aufgeben ist Nachhall, keine fremde Änderung", () => {
+	// Ohne lastObservedRect startete jedes aufgegebene Fenster im nächsten
 	// Signal einen neuen Anordnungs- und Nachbesserungszyklus -- genau das
-	// Flattern, das der Zaehler verhindern soll.
+	// Flattern, das der Zähler verhindern soll.
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
@@ -253,27 +255,27 @@ test("eine fremde Verschiebung auf das alte Soll ist kein Nachhall", () => {
 
 test("eine Anordnung ohne eigenen Write entwertet die Erwartung nicht", () => {
 	// Die Regressionsprobe auf den Fehler aus Meilenstein 3: dort hing die
-	// Generation an der globalen Arrange-Epoche, und schon der naechste Lauf
+	// Generation an der globalen Arrange-Epoche, und schon der nächste Lauf
 	// eines beliebigen anderen Fensters machte die Erwartung unerreichbar.
 	const r = rig();
 	stures(r, "a");
 	braves(r, "b");
 	r.apply("a", TARGET);
 
-	r.apply("b", ANDERS); // eine spaetere Epoche, ein anderes Fenster
+	r.apply("b", ANDERS); // eine spätere Epoche, ein anderes Fenster
 
 	r.timer.fire();
 	assert.equal(r.port.writesFor("a"), 2, "a wird trotzdem nachgebessert");
 });
 
-test("ein neuer Zielwert ersetzt die Erwartung und entwertet die alte Nachpruefung", () => {
+test("ein neuer Zielwert ersetzt die Erwartung und entwertet die alte Nachprüfung", () => {
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
 	assert.equal(r.pendingCount(), 1);
 
-	// Der zweite Zielwert wird angenommen; die alte Nachpruefung steht noch,
-	// gehoert aber zur vorigen Schreibgeneration.
+	// Der zweite Zielwert wird angenommen; die alte Nachprüfung steht noch,
+	// gehört aber zur vorigen Schreibgeneration.
 	r.port.setAccept("a", (rect) => rect);
 	r.apply("a", ANDERS);
 	const state = getWindow(r.registry, "a");
@@ -291,7 +293,7 @@ test("ein neuer Zielwert ersetzt die Erwartung und entwertet die alte Nachpruefu
 // --- Verlassen der Layout-Teilnahme ----------------------------------------
 
 for (const grund of ["minimiert", "maximiert", "Vollbild", "floatend"]) {
-	test(`${grund}: forget loescht Erwartung und Nachpruefung`, () => {
+	test(`${grund}: forget löscht Erwartung und Nachprüfung`, () => {
 		const r = rig();
 		stures(r, "a");
 		r.apply("a", TARGET);
@@ -307,14 +309,14 @@ for (const grund of ["minimiert", "maximiert", "Vollbild", "floatend"]) {
 		const reads = r.port.reads();
 		const writes = r.port.writes();
 		r.timer.fire();
-		assert.equal(r.port.reads(), reads, "kein spaeterer Timerlauf liest");
+		assert.equal(r.port.reads(), reads, "kein späterer Timerlauf liest");
 		assert.equal(r.port.writes(), writes, "und schreibt erst recht nicht");
 	});
 }
 
-// --- Fremde Aenderungen -----------------------------------------------------
+// --- Fremde Änderungen -----------------------------------------------------
 
-test("die eigene, bereits beruhigte Geometrie meldet keine fremde Aenderung", () => {
+test("die eigene, bereits beruhigte Geometrie meldet keine fremde Änderung", () => {
 	const r = rig();
 	braves(r, "a");
 	r.apply("a", TARGET);
@@ -333,10 +335,10 @@ test("eine fremde Verschiebung meldet genau einmal external", () => {
 	r.notifyChanged("a");
 
 	assert.deepEqual(r.extern, ["a"]);
-	assert.equal(r.port.writes(), 1, "gemeldet, nicht zurueckgeschrieben");
+	assert.equal(r.port.writes(), 1, "gemeldet, nicht zurückgeschrieben");
 });
 
-test("waehrend eines Ziehens wird nichts gemeldet", () => {
+test("während eines Ziehens wird nichts gemeldet", () => {
 	const r = rig();
 	braves(r, "a");
 	r.apply("a", TARGET);
@@ -348,10 +350,10 @@ test("waehrend eines Ziehens wird nichts gemeldet", () => {
 	assert.deepEqual(r.extern, [], "interactiveMoveResizeFinished ordnet danach an");
 });
 
-test("eine Nachpruefung waehrend des Ziehens laesst die Erwartung fallen", () => {
+test("eine Nachprüfung während des Ziehens lässt die Erwartung fallen", () => {
 	// Bliebe sie offen, fiele das erste Signal nach dem Loslassen in den
-	// Erwartungszweig: der Timer schoebe das Fenster ohne Anordnungslauf
-	// zurueck, statt die Verschiebung zu melden.
+	// Erwartungszweig: der Timer schöbe das Fenster ohne Anordnungslauf
+	// zurück, statt die Verschiebung zu melden.
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
@@ -370,15 +372,50 @@ test("eine Nachpruefung waehrend des Ziehens laesst die Erwartung fallen", () =>
 	const writes = r.port.writes();
 	r.notifyChanged("a");
 
-	assert.deepEqual(r.extern, ["a"], "gemeldet, nicht unter der Hand zurueckgeschoben");
+	assert.deepEqual(r.extern, ["a"], "gemeldet, nicht unter der Hand zurückgeschoben");
 	assert.equal(r.port.writes(), writes);
 });
 
-test("das Signal eines anderen Fensters geht waehrend eines Writes nicht verloren", () => {
+test("accept schließt eine offene Erwartung eines älteren Zielwerts", () => {
+	// Der Client lieferte GERASTERT statt TARGET, die Nachprüfung steht an.
+	// Rechnet die nächste Epoche genau GERASTERT als neues Soll, meldet
+	// `judgeWrite` "unchanged" und der Adapter ruft `accept`. Ohne das schöbe
+	// der Nachprüfungslauf das Fenster auf das veraltete TARGET zurück.
+	const r = rig();
+	stures(r, "a");
+	r.apply("a", TARGET);
+	assert.equal(r.pendingCount(), 1);
+	const writes = r.port.writes();
+
+	r.accept("a", GERASTERT);
+
+	const state = getWindow(r.registry, "a");
+	assert.equal(state.expectedRect, null);
+	assert.equal(r.pendingCount(), 0);
+	assert.equal(r.timer.active, false, "nichts mehr eingeplant, der Timer steht");
+	assert.deepEqual(state.tiledRect, GERASTERT);
+	assert.deepEqual(state.lastObservedRect, GERASTERT);
+
+	r.timer.fire();
+	assert.equal(r.port.writes(), writes, "kein Write auf das alte Soll");
+
+	// Der Nachhall dieses Werts ist keine fremde Änderung mehr.
+	r.notifyChanged("a");
+	assert.deepEqual(r.extern, []);
+});
+
+test("accept ohne Registry-Eintrag ist wirkungslos", () => {
+	const r = rig();
+	r.accept("fremd", TARGET);
+	assert.equal(r.registry.windows.has("fremd"), false);
+	assert.equal(r.pendingCount(), 0);
+});
+
+test("das Signal eines anderen Fensters geht während eines Writes nicht verloren", () => {
 	const r = rig();
 	braves(r, "a");
 	braves(r, "b");
-	// b ist bereits gekachelt und wird von aussen verschoben, waehrend an a
+	// b ist bereits gekachelt und wird von außen verschoben, während an a
 	// geschrieben wird.
 	r.apply("b", ANDERS);
 	r.port.place("b", START);
@@ -406,7 +443,7 @@ test("an einem verschwundenen Fenster wird weder geschrieben noch gelesen", () =
 	assert.equal(r.pendingCount(), 0);
 });
 
-test("ein zwischen Write und Nachpruefung geschlossenes Fenster wird vergessen", () => {
+test("ein zwischen Write und Nachprüfung geschlossenes Fenster wird vergessen", () => {
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
@@ -421,7 +458,7 @@ test("ein zwischen Write und Nachpruefung geschlossenes Fenster wird vergessen",
 	assert.equal(getWindow(r.registry, "a").expectedRect, null);
 });
 
-// --- Der Nachpruefungstimer -------------------------------------------------
+// --- Der Nachprüfungstimer -------------------------------------------------
 
 test("der Controller stellt den Timer auf Einmalbetrieb ein", () => {
 	const r = rig();
@@ -429,11 +466,11 @@ test("der Controller stellt den Timer auf Einmalbetrieb ein", () => {
 	assert.equal(r.timer.interval, RECHECK_MS);
 });
 
-test("ein leerer Durchlauf haelt den Timer an", () => {
+test("ein leerer Durchlauf hält den Timer an", () => {
 	// Gemessen ist nur, dass `singleShot` existiert — nicht, dass die Zuweisung
-	// wirkt. Ohne das eigene `stop()` feuerte der Timer sonst fuer immer alle
-	// 50 ms ins Leere. Bewusst am nackten Timer aufgebaut: jeder Weg ueber
-	// settle, forget oder giveup raeumte selbst auf und verdeckte die Annahme.
+	// wirkt. Ohne das eigene `stop()` feuerte der Timer sonst für immer alle
+	// 50 ms ins Leere. Bewusst am nackten Timer aufgebaut: jeder Weg über
+	// settle, forget oder giveup räumte selbst auf und verdeckte die Annahme.
 	const r = rig();
 	r.timer.setRepeating(true);
 	r.timer.start();
@@ -447,7 +484,7 @@ test("eine Nachbesserung startet den Timer nicht zweimal", () => {
 	const r = rig();
 	stures(r, "a");
 	r.apply("a", TARGET);
-	assert.equal(r.timer.starts(), 1, "das abweichende Ruecklesen plant ein");
+	assert.equal(r.timer.starts(), 1, "das abweichende Rücklesen plant ein");
 
 	r.timer.fire();
 
