@@ -6,9 +6,10 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 3
-abgeschlossen** — Gerüst, Build- und Testkette, Feature-Probe, Layoutkern
-(`rect`, `tall`, `full`), Fensterstapel, Registry und Reconcile sowie der
-KWin-Adapter. Das geladene Skript kachelt mit `Tall`. Multi-Output und Hotplug
+samt Stabilisierung 3.1 abgeschlossen** — Gerüst, Build- und Testkette,
+Feature-Probe, Layoutkern (`rect`, `tall`, `full`), Fensterstapel, Registry und
+Reconcile, der KWin-Adapter und der Geometriecontroller mit geprüfter
+Signalfolge. Das geladene Skript kachelt mit `Tall`. Multi-Output und Hotplug
 folgen in Meilenstein 4, die Zustandsübergänge in 5, die Tastenkürzel in 6 —
 bis dahin ist `Full` nicht erreichbar, weil der Layoutwechsel an `Meta+Space`
 hängt.
@@ -51,9 +52,12 @@ Activities und verwaltet nicht die Zahl der Desktops.
   gespeicherte Reihenfolge.
 - `src/kwin/` → Adapter. Geteilt an der **Snapshot-Grenze**: `types` (die
   Datensätze), `filter` (Mitgliedschaft, Layout-Teilnahme, Surface-Zuordnung),
-  `plan` (die ganze Anordnung), `geometry` (Klemmung und die beiden Urteile)
-  und `timer` (Entprellung) sind reine Rechnung und mit `node --test` prüfbar.
-  Nur `read` und `adapter` fassen eine KWin-Global an.
+  `plan` (die ganze Anordnung), `geometry` (Klemmung und die beiden Urteile),
+  `apply` (Geometrieerwartung, Nachprüfung, Nachbesserung) und `timer`
+  (Entprellung) sind reine Rechnung und mit `node --test` prüfbar. Nur `read`
+  und `adapter` fassen eine KWin-Global an. `apply` bekommt seinen
+  Fensterzugriff als `GeometryPort` und seinen Timer als Fabrik — damit läuft
+  die ganze Signalfolge aus Write, Rücklesen und Nachbesserung im Test.
 - `package/` → KPackage-Wurzel; der Build legt `contents/code/main.js` hinein.
 - `dev/probe/` → Feature-Probe, misst die Skriptumgebung (siehe unten).
 - `nix/`, `scripts/` → Paket, Entwicklungsumgebung, Lade- und Reload-Werkzeuge.
@@ -152,15 +156,35 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Mitgliedschaft.** Ein Vollbildfenster meldet beide als `false`, ebenso das
   Panel — als Mitgliedschaftskriterium taugen sie für nichts. Entschieden in
   Meilenstein 3, begründet in `PLAN.md` Abschnitt 7.
-- **`frameGeometryChanged` darf niemals `schedule()` auslösen.** Das wäre die
-  direkte Rückkopplung: schreiben, Signal, anordnen, schreiben. Das Signal
-  führt ausschließlich in den Prüfpfad.
+- **Der Signal-Callback schreibt nie.** `frameGeometryChanged` darf lesen, bei
+  Übereinstimmung die Erwartung beruhigen, sonst eine Nachprüfung einplanen —
+  mehr nicht. Ein Write innerhalb des Signals wäre ein verschachtelter Write.
+  Nachgebessert wird ausschließlich im Recheck-Timer, dort höchstens einmal je
+  Fenster und Durchlauf; bis zum Aufgeben braucht es deshalb drei Läufe.
 - **Der eigene Schreibvorgang feuert das Signal synchron.** Auf Wayland ist
   eine reine Verschiebung sofort wirksam, `frameGeometryChanged` kommt also
-  mitten im Schreiben zurück. Ohne das `applying`-Flag liefe der Prüfpfad
-  rekursiv an; die Bestätigung holt sich der Adapter deshalb eine Zeile später
-  selbst durch Rücklesen. Nur der asynchrone Fall — eine Größenänderung per
-  xdg-configure — landet später im Signal.
+  mitten im Schreiben zurück. Die Sperre dagegen ist ein `Set` der gerade
+  beschriebenen Fenster, **kein** globales Flag: das synchrone Signal eines
+  anderen Fensters soll währenddessen ausdrücklich durchkommen.
+- **Weicht schon das Rücklesen ab, muss die Nachprüfung eingeplant werden.**
+  Sich auf ein späteres `frameGeometryChanged` zu verlassen, läuft ins Leere:
+  das Signal kann während des eigenen Schreibens gefeuert und dabei verworfen
+  worden sein. Ein Fenster mit Größenraster bekäme sonst nie eine Nachbesserung.
+- **Die Schreibgeneration gehört zum Fenster, nicht zur Anordnungsepoche.** In
+  Meilenstein 3 hing sie an der globalen Epoche; damit machte schon der nächste
+  Lauf eines beliebigen anderen Fensters die offene Erwartung `stale`, und sie
+  blieb es für immer. Nur ein neuer Zielwert erhöht sie.
+- **Nach dem Aufgeben gilt der beobachtete Istwert als akzeptiert**
+  (`lastObservedRect`). Ohne ihn liefe eine verspätete Meldung derselben
+  Geometrie als fremde Änderung in einen neuen Anordnungs- und
+  Nachbesserungszyklus — genau das Flattern, das der Zähler verhindern soll.
+  Das Feld ist bewusst von `tiledRect` getrennt: nach einem Giveup fallen Soll
+  und Ist auseinander, und `tiledRect` trägt ab Meilenstein 5 die Rückkehr aus
+  dem Float.
+- **Eine fremde Geometrieänderung löst genau einen Lauf aus**, und nur für ein
+  Fenster, das zuletzt Layout-Teilnehmer war. Wer das Layout verlässt, verliert
+  Erwartung **und** eingeplante Nachprüfung — `clearExpectation` allein räumt
+  nur die Registry, deshalb ruft der Adapter zusätzlich `forget`.
 - **Die eigentliche Flatterbremse ist `judgeWrite` mit `"unchanged"`.** Eine
   Epoche ohne Änderung schreibt gar nichts, also feuert auch kein Signal. Der
   Versuchszähler ist nur das Netz darunter.

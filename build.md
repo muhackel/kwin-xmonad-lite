@@ -72,6 +72,14 @@ danach kommt — Fensterfilter, Surface-Zuordnung, die vollständige Anordnung,
 die Geometrieklemmung und der Nachbesserungswächter —, ist reine Rechnung und
 läuft unter `node --test`.
 
+Auch die **Signalfolge** ist geprüft: `src/kwin/apply.ts` bekommt den
+Fensterzugriff als `GeometryPort` und den Timer als Fabrik herein, und
+`tests/kwin-apply.test.ts` stellt damit den ganzen Ablauf nach — synchroner
+Rückstoß während des Schreibens, abweichendes Rücklesen, verspätete
+Bestätigung, zwei Nachbesserungen, Aufgeben, der Nachhall danach, das Signal
+eines zweiten Fensters mitten im Schreibvorgang und das zwischendurch
+geschlossene Fenster.
+
 Nur `src/kwin/read.ts` und `src/kwin/adapter.ts` fassen eine KWin-Global an;
 diese beiden werden auf der Maschine geprüft, nicht im Unit-Test. Die Grenze
 ist nachprüfbar:
@@ -121,11 +129,14 @@ sind Adapter und Kern in Deckung. Weicht eine Stapelbreite nach oben ab, ist
 das keine Abweichung, sondern die Klemmung an der Mindestbreite des Fensters —
 solche Zellen bleiben am rechten Rand der Arbeitsfläche verankert.
 
-**Kein Flattern.** Die schärfste Probe ist ein Reload: nach `nix run .#reload`
-darf **keine einzige** `apply`-Zeile mehr erscheinen. Der neue Durchlauf baut
-den Zustand aus der Ist-Menge neu auf und findet jedes Fenster bereits am
-richtigen Platz — das beweist zugleich, dass die Geometrien angekommen sind
-und keine Signalverbindung doppelt hängt.
+**Kein Flattern.** Die schärfste Laufzeitprobe ist ein Reload: nach
+`nix run .#reload` darf **keine einzige** `apply`-Zeile mehr erscheinen. Der
+neue Durchlauf baut den Zustand aus der Ist-Menge neu auf und findet jedes
+Fenster bereits am richtigen Platz. Das zeigt zweierlei: die Geometrien sind
+angekommen, und es hängt keine Signalverbindung doppelt. Ein Beweis für **alle**
+Signal- und Verbindungslebenszyklen ist es nicht — ob Qt beim `deleteLater()`
+eines entladenen Skripts jede Verbindung trennt, bleibt unbelegt, und der
+Reload prüft nur den ruhenden Zustand.
 
 Im Leerlauf darf ohne Nutzeraktion gar nichts geschrieben werden:
 
@@ -143,8 +154,17 @@ journalctl --user -u plasma-kwin_wayland --since "-60 min" -o cat \
 ```
 
 Zeilen mit `nachbessern` oder `aufgegeben` weisen auf ein Fenster hin, das die
-geschriebene Größe nicht annimmt; bis zu zwei Nachbesserungen je Epoche sind
-vorgesehen, danach ruht der Fall bis zum nächsten äußeren Ereignis.
+geschriebene Größe nicht annimmt; bis zu zwei Nachbesserungen je
+Schreibgeneration sind vorgesehen, danach ruht der Fall bis zum nächsten
+äußeren Ereignis. Bleiben sie im Journal aus, ist das ein **positiver
+Laufzeitbefund** — kein Nachweis, dass der Nachbesserungspfad funktioniert. Den
+führt `tests/kwin-apply.test.ts`.
+
+Eine `extern`-Zeile meldet, dass ein anderes Programm die Geometrie eines
+Layout-Teilnehmers verändert hat; darauf folgt genau ein
+`arrange grund=geometrieExtern`, der das Fenster zurückholt. Folgt darauf eine
+zweite `extern`-Zeile für dasselbe Fenster, ist die Nachhall-Erkennung
+kaputt.
 
 ### Eigenschaftsprüfung des Layoutkerns
 
