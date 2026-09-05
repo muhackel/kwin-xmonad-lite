@@ -1,20 +1,30 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
+import type { Rect } from "../src/core/rect.ts";
 import type { WindowId } from "../src/core/stack.ts";
 import { DEFAULT_EXCLUDES, makeExcludes } from "../src/kwin/filter.ts";
-import type { SurfacePlan } from "../src/kwin/plan.ts";
+import type { ArrangePlan, SurfacePlan } from "../src/kwin/plan.ts";
 import { NO_GAPS, planArrangement } from "../src/kwin/plan.ts";
 import type { Snapshot, WindowInfo } from "../src/kwin/types.ts";
 import type { Registry } from "../src/state/registry.ts";
 import { createRegistry, getSurface, getWindow, setFloating } from "../src/state/registry.ts";
-import { AREA, singleView, windowInfo } from "./support/kwinfake.ts";
+import {
+	ACTIVITY,
+	AREA,
+	DESKTOP,
+	OUTPUT,
+	singleView,
+	snapshotOf,
+	view,
+	windowInfo,
+} from "./support/kwinfake.ts";
 
 const EXCLUDES = makeExcludes(DEFAULT_EXCLUDES);
 const KEY = singleView().key;
 
 function snapshot(windows: WindowInfo[], activeId: WindowId | null): Snapshot {
-	return { views: [singleView()], windows, activeId };
+	return snapshotOf([singleView()], windows, activeId);
 }
 
 function only(registry: Registry, windows: WindowInfo[], activeId: WindowId | null): SurfacePlan {
@@ -218,4 +228,149 @@ test("full hebt nichts, wenn niemand teilnimmt", () => {
 	const surface = only(registry, [a], null);
 	assert.equal(surface.layoutId, "full");
 	assert.equal(surface.raise, null);
+});
+
+// --- Mehrere Ausgaben und Desktops (Meilenstein 4) -----------------------
+
+const AUSGABE_B = "DP-9";
+const DESKTOP_B = "b7798180-564c-4f75-ad4a-284026ac7a68";
+/** Zweite Ausgabe, gleich gross, rechts daneben. */
+const AREA_B: Rect = { x: 2560, y: 0, width: 2560, height: 1410 };
+
+function auf(output: string, info: WindowInfo): WindowInfo {
+	info.outputName = output;
+	return info;
+}
+
+function aufDesktop(desktop: string, info: WindowInfo): WindowInfo {
+	info.desktopIds = [desktop];
+	return info;
+}
+
+function surfaceOf(plan: ArrangePlan, key: string): SurfacePlan {
+	for (const surface of plan.surfaces) {
+		if (surface.key === key) {
+			return surface;
+		}
+	}
+	throw new Error(`Surface ${key} nicht geplant`);
+}
+
+test("zwei Ausgaben fuehren unabhaengige Stapel", () => {
+	// Testmatrix 3: eigene Reihenfolge, eigenes Verhaeltnis, eigenes Layout je
+	// Surface -- eine Ausgabe darf die andere nicht anfassen.
+	const registry = createRegistry();
+	const viewA = singleView();
+	const viewB = view(AUSGABE_B, DESKTOP, ACTIVITY, AREA_B);
+	const fenster = [
+		windowInfo("a1"),
+		windowInfo("a2"),
+		auf(AUSGABE_B, windowInfo("b1")),
+		auf(AUSGABE_B, windowInfo("b2")),
+	];
+
+	planArrangement(snapshotOf([viewA, viewB], fenster, null), registry, NO_GAPS, EXCLUDES);
+	getSurface(registry, viewB.key).layoutIndex = 1;
+	getSurface(registry, viewB.key).masterRatio = 0.5;
+
+	const plan = planArrangement(
+		snapshotOf([viewA, viewB], fenster, null),
+		registry,
+		NO_GAPS,
+		EXCLUDES,
+	);
+	const a = surfaceOf(plan, viewA.key);
+	const b = surfaceOf(plan, viewB.key);
+
+	assert.deepEqual(a.members, ["a2", "a1"]);
+	assert.deepEqual(b.members, ["b2", "b1"]);
+	assert.equal(a.layoutId, "tall");
+	assert.equal(b.layoutId, "full");
+	assert.equal(a.ratio, 0.65);
+	assert.equal(b.ratio, 0.5);
+	// Jede Surface rechnet auf ihrer eigenen Flaeche.
+	assert.deepEqual(a.area, AREA);
+	assert.deepEqual(b.area, AREA_B);
+	for (const placement of b.placements) {
+		assert.equal(placement.rect.x, 2560, "die zweite Ausgabe beginnt bei 2560");
+	}
+});
+
+test("faellt eine Ausgabe weg, wandern ihre Fenster und der alte Zustand bleibt", () => {
+	// Testmatrix 9: die Surface der abgesteckten Ausgabe bleibt am Namen
+	// erhalten -- `purgeFromSnapshot` prueft Ausgaben bewusst nicht.
+	const registry = createRegistry();
+	const viewA = singleView();
+	const viewB = view(AUSGABE_B, DESKTOP, ACTIVITY, AREA_B);
+	const b1 = auf(AUSGABE_B, windowInfo("b1"));
+	planArrangement(
+		snapshotOf([viewA, viewB], [windowInfo("a1"), b1], null),
+		registry,
+		NO_GAPS,
+		EXCLUDES,
+	);
+	assert.deepEqual(getSurface(registry, viewB.key).order, ["b1"]);
+
+	// DP-9 verschwindet, KWin schiebt das Fenster auf die verbliebene Ausgabe.
+	auf(OUTPUT, b1);
+	const plan = planArrangement(
+		snapshotOf([viewA], [windowInfo("a1"), b1], null),
+		registry,
+		NO_GAPS,
+		EXCLUDES,
+	);
+
+	assert.equal(plan.surfaces.length, 1);
+	assert.deepEqual(surfaceOf(plan, viewA.key).members, ["b1", "a1"]);
+	assert.deepEqual(
+		getSurface(registry, viewB.key).order,
+		["b1"],
+		"der Zustand der abgesteckten Ausgabe ueberlebt",
+	);
+});
+
+test("zwei Ausgaben auf verschiedenen Desktops kacheln je ihre eigene Menge", () => {
+	// Der Per-Output-Desktop-Fall. Auf SPIELKISTE ist
+	// `options.perOutputVirtualDesktops` gemessen `false`, alle Ausgaben melden
+	// denselben Desktop -- abnehmen laesst sich das dort also nicht. Hier ist
+	// es der reine Test.
+	const registry = createRegistry();
+	const viewA = singleView();
+	const viewB = view(AUSGABE_B, DESKTOP_B, ACTIVITY, AREA_B);
+	const fenster = [
+		windowInfo("a1"),
+		auf(AUSGABE_B, aufDesktop(DESKTOP_B, windowInfo("b1"))),
+		auf(AUSGABE_B, aufDesktop(DESKTOP_B, windowInfo("b2"))),
+	];
+
+	const plan = planArrangement(
+		snapshotOf([viewA, viewB], fenster, null),
+		registry,
+		NO_GAPS,
+		EXCLUDES,
+	);
+
+	assert.deepEqual(surfaceOf(plan, viewA.key).members, ["a1"]);
+	assert.deepEqual(surfaceOf(plan, viewB.key).members, ["b2", "b1"]);
+});
+
+test("nach einem Desktopwechsel kachelt die neue Surface und die alte behaelt ihre Reihenfolge", () => {
+	// Testmatrix 5.
+	const registry = createRegistry();
+	const viewAlt = singleView();
+	const viewNeu = view(OUTPUT, DESKTOP_B, ACTIVITY, AREA);
+	const alt = [windowInfo("a1"), windowInfo("a2")];
+	planArrangement(snapshotOf([viewAlt], alt, null), registry, NO_GAPS, EXCLUDES);
+	assert.deepEqual(getSurface(registry, viewAlt.key).order, ["a2", "a1"]);
+
+	const neu = [aufDesktop(DESKTOP_B, windowInfo("b1"))];
+	const plan = planArrangement(snapshotOf([viewNeu], neu, null), registry, NO_GAPS, EXCLUDES);
+
+	assert.deepEqual(surfaceOf(plan, viewNeu.key).members, ["b1"]);
+	assert.deepEqual(surfaceOf(plan, viewNeu.key).placements, [{ id: "b1", rect: AREA }]);
+	assert.deepEqual(
+		getSurface(registry, viewAlt.key).order,
+		["a2", "a1"],
+		"die verlassene Surface behaelt ihre Reihenfolge",
+	);
 });

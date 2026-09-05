@@ -90,3 +90,77 @@ export function createDebouncer(
 		pending: () => timer.active || dirty,
 	};
 }
+
+export interface FollowUps {
+	/** Alle Nachlaeufe neu starten; laufende werden zurueckgesetzt. */
+	trigger(): void;
+	/** Alle anhalten. */
+	cancel(): void;
+	/** Nur fuer Tests und Journalzeilen: wie viele gerade laufen. */
+	running(): number;
+}
+
+/**
+ * Gemessen (docs/research.md Abschnitt 3.3): nach einer Ausgaben- oder
+ * Panelaenderung ist `clientArea` im Signal noch die alte, und nach 500 ms war
+ * sie noch ein Zwischenstand. Erst nach 1500 ms stimmte sie. Deshalb zwei
+ * Nachlaeufe, nicht einer.
+ */
+export const FOLLOW_UP_MS = [500, 1500];
+
+/**
+ * Verzoegerte Nachlaeufe nach einer Aenderung, deren Wirkung erst spaeter
+ * vollstaendig ist (Muster Karousel `World.ts:34-40`, Krohnkite-Issue #35).
+ *
+ * `run` ordnet **nie** selbst an, sondern meldet nur beim Entpreller an: ein
+ * Nachlauf, der direkt anordnete, liefe an der Koaleszierung vorbei und
+ * koennte mitten in einen laufenden Durchgang schlagen.
+ */
+export function createFollowUps(
+	makeTimer: TimerFactory,
+	delays: number[],
+	run: (delayMs: number) => void,
+): FollowUps {
+	const timers: Timer[] = [];
+
+	for (const delay of delays) {
+		const timer = makeTimer();
+		timer.singleShot = true;
+		timer.interval = delay;
+		timer.timeout.connect(() => {
+			// Wie im Entpreller: `singleShot` ist gemessen vorhanden, seine
+			// Wirkung nicht.
+			timer.stop();
+			try {
+				run(delay);
+			} catch (error) {
+				log(`Nachlauf nach ${delay} ms fehlgeschlagen: ${String(error)}`);
+			}
+		});
+		timers.push(timer);
+	}
+
+	return {
+		trigger(): void {
+			for (const timer of timers) {
+				// `restart()` gibt es nicht (gemessen abwesend).
+				timer.stop();
+				timer.start();
+			}
+		},
+		cancel(): void {
+			for (const timer of timers) {
+				timer.stop();
+			}
+		},
+		running(): number {
+			let n = 0;
+			for (const timer of timers) {
+				if (timer.active) {
+					n += 1;
+				}
+			}
+			return n;
+		},
+	};
+}

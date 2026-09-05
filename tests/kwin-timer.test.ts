@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { createDebouncer } from "../src/kwin/timer.ts";
+import { createDebouncer, createFollowUps } from "../src/kwin/timer.ts";
+import type { FakeTimer } from "./support/kwinfake.ts";
 import { fakeTimer } from "./support/kwinfake.ts";
+import { must } from "./support/props.ts";
 
 test("mehrere Ausloeser innerhalb des Fensters ergeben einen Lauf", () => {
 	const timer = fakeTimer();
@@ -153,4 +155,123 @@ test("pending meldet einen offenen Lauf", () => {
 	assert.equal(debouncer.pending(), true);
 	timer.fire();
 	assert.equal(debouncer.pending(), false);
+});
+
+// --- Nachlaeufe ---------------------------------------------------------
+
+/** Eine Fabrik, die der Reihe nach die uebergebenen Fake-Timer ausgibt. */
+function reihe(timers: FakeTimer[]): () => FakeTimer {
+	let i = 0;
+	return () => {
+		const timer = timers[i];
+		i += 1;
+		if (timer === undefined) {
+			throw new Error("mehr Timer angefordert als bereitgestellt");
+		}
+		return timer;
+	};
+}
+
+test("ein Ausloeser startet jeden Nachlauf", () => {
+	const timers = [fakeTimer(), fakeTimer()];
+	const followUps = createFollowUps(reihe(timers), [500, 1500], () => {});
+
+	assert.equal(followUps.running(), 0);
+	followUps.trigger();
+
+	assert.equal(followUps.running(), 2);
+	assert.deepEqual(
+		timers.map((t) => t.interval),
+		[500, 1500],
+	);
+});
+
+test("ein zweiter Ausloeser setzt die Nachlaeufe zurueck statt sie zu verdoppeln", () => {
+	// Anders als beim Entpreller ist der Neustart hier gewollt: nach einem
+	// zweiten Ereignis zaehlt die Frist ab dem zweiten. `restart()` gibt es
+	// nicht, deshalb muss auf jeden Start ein `stop()` gefolgt sein.
+	const timers = [fakeTimer(), fakeTimer()];
+	const followUps = createFollowUps(reihe(timers), [500, 1500], () => {});
+
+	followUps.trigger();
+	followUps.trigger();
+
+	assert.equal(followUps.running(), 2);
+	assert.deepEqual(
+		timers.map((t) => t.starts()),
+		[2, 2],
+	);
+});
+
+test("cancel haelt alle Nachlaeufe an", () => {
+	const timers = [fakeTimer(), fakeTimer()];
+	const followUps = createFollowUps(reihe(timers), [500, 1500], () => {});
+
+	followUps.trigger();
+	followUps.cancel();
+
+	assert.equal(followUps.running(), 0);
+});
+
+test("jeder Nachlauf haelt seinen Timer selbst an", () => {
+	// Gemessen ist nur, dass `singleShot` existiert und `false` meldet -- nicht,
+	// dass die Zuweisung durchschlaegt. Ein Timer, bei dem sie es nicht tut,
+	// muss trotzdem zur Ruhe kommen.
+	const timers = [fakeTimer(), fakeTimer()];
+	for (const timer of timers) {
+		timer.setRepeating(true);
+	}
+	const followUps = createFollowUps(reihe(timers), [500, 1500], () => {});
+
+	followUps.trigger();
+	const erster = must(timers[0], "erster Timer");
+	erster.fire();
+
+	assert.equal(erster.active, false);
+	assert.equal(followUps.running(), 1, "der zweite laeuft weiter");
+});
+
+test("ein Nachlauf meldet beim Entpreller an, statt selbst anzuordnen", () => {
+	// Ein Nachlauf, der direkt anordnete, liefe an der Koaleszierung vorbei.
+	const nachlaeufe = [fakeTimer(), fakeTimer()];
+	const entpreller = fakeTimer();
+	let laeufe = 0;
+	let gruende: string[] = [];
+	const debouncer = createDebouncer(
+		() => entpreller,
+		20,
+		(reasons) => {
+			laeufe += 1;
+			gruende = reasons;
+		},
+	);
+	const followUps = createFollowUps(reihe(nachlaeufe), [500, 1500], (delay) => {
+		debouncer.schedule(`nachlauf${delay}`);
+	});
+
+	followUps.trigger();
+	must(nachlaeufe[0], "erster Nachlauf").fire();
+	must(nachlaeufe[1], "zweiter Nachlauf").fire();
+
+	assert.equal(laeufe, 0, "vor dem Entprellfenster passiert nichts");
+	entpreller.fire();
+	assert.equal(laeufe, 1, "beide Nachlaeufe ergeben einen Lauf");
+	assert.deepEqual(gruende, ["nachlauf500", "nachlauf1500"]);
+});
+
+test("ein Fehler im Nachlauf reisst den zweiten nicht mit", () => {
+	const timers = [fakeTimer(), fakeTimer()];
+	let zweiter = 0;
+	const followUps = createFollowUps(reihe(timers), [500, 1500], (delay) => {
+		if (delay === 500) {
+			throw new Error("Nachlauf kaputt");
+		}
+		zweiter += 1;
+	});
+
+	followUps.trigger();
+	must(timers[0], "erster Timer").fire();
+	must(timers[1], "zweiter Timer").fire();
+
+	assert.equal(zweiter, 1);
 });
