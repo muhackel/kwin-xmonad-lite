@@ -4,8 +4,29 @@
 # Store-Paket überlagern (PLAN.md Risiko 11).
 
 MAIN_JS="${XML_MAIN_JS:?XML_MAIN_JS ist nicht gesetzt}"
+DEV_MENU_JS="${XML_DEV_MENU_JS:?XML_DEV_MENU_JS ist nicht gesetzt}"
 DEV_NAME="${XML_DEV_NAME:-kwin-xmonad-lite-dev}"
 PROD_NAME="${XML_PROD_NAME:-kwin-xmonad-lite}"
+SCRIPT_JS="$MAIN_JS"
+MODE="ohne Fenstermenü"
+
+case "${1:-}" in
+	"") ;;
+	--menu)
+		SCRIPT_JS="$DEV_MENU_JS"
+		MODE="mit Fenstermenü"
+		shift
+		;;
+	*)
+		log_err "Unbekannte Option: $1"
+		log_err "Aufruf: nix run -- [--menu]"
+		exit 2
+		;;
+esac
+if [ "$#" -ne 0 ]; then
+	log_err "Zu viele Argumente. Aufruf: nix run -- [--menu]"
+	exit 2
+fi
 
 require_kwin
 require_no_production "$PROD_NAME"
@@ -16,7 +37,7 @@ if [ "$(script_loaded "$DEV_NAME")" = "true" ]; then
 	wait_unloaded "$DEV_NAME"
 fi
 
-log_info "Lade $MAIN_JS als '$DEV_NAME'."
-id="$(script_load_and_run "$MAIN_JS" "$DEV_NAME")"
-log_ok "Geladen als /Scripting/Script$id."
+log_info "Lade $SCRIPT_JS als '$DEV_NAME' $MODE."
+id="$(script_load_and_run "$SCRIPT_JS" "$DEV_NAME")"
+log_ok "Geladen als /Scripting/Script$id ($MODE)."
 log_info "Journal ansehen mit: nix run .#logs"

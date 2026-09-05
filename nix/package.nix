@@ -31,6 +31,12 @@ stdenvNoCC.mkDerivation (finalAttrs: {
       --format=iife \
       --target=es2016 \
       --outfile=package/contents/code/main.js
+    mkdir -p build
+    esbuild src/dev.ts \
+      --bundle \
+      --format=iife \
+      --target=es2016 \
+      --outfile=build/dev.js
 
     runHook postBuild
   '';
@@ -42,6 +48,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     install -d "$scriptDir"
     cp -r package/contents "$scriptDir/"
     install -Dm644 -t "$scriptDir" package/metadata.json LICENSE README.md
+    install -Dm644 build/dev.js "$out/share/kwin-xmonad-lite-dev/dev.js"
 
     runHook postInstall
   '';

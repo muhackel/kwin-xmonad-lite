@@ -217,3 +217,19 @@ interface QTimerInstance {
 }
 
 declare const QTimer: { new (): QTimerInstance };
+
+/**
+ * Ein Eintrag im KWin-Fenstermenü. `triggered` bekommt die QAction; ein dort
+ * benötigtes Fenster muss der Callback von `registerUserActionsMenu` binden.
+ * Belegt in KWin 6.7.4, `scripting.cpp:461-530`.
+ */
+interface UserActionItem {
+	text: string;
+	checkable?: boolean;
+	checked?: boolean;
+	triggered(action: unknown): void;
+	items?: UserActionItem[];
+}
+
+/** Der Callback läuft bei jedem Öffnen des Fenstermenüs für dessen Fenster. */
+declare function registerUserActionsMenu(callback: (window: KwinWindow) => UserActionItem): void;
