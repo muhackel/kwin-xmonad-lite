@@ -455,7 +455,16 @@ script_unload "$PROBE_NAME"
 wait_unloaded "$PROBE_NAME"
 probe_owned=0
 
-t1="$(date +%s)"
+# Abgegrenzt wird über die Satznummer der Probe, nicht über die Uhr: `n` zählt
+# monoton hoch, `journalctl --since "@$t1"` hat dagegen Sekundenauflösung und
+# schloss in einem Lauf die eigenen Abschlusszeilen mit ein, weil sie in
+# dieselbe Sekunde fielen wie das Entladen -- ein falscher Alarm mit dem
+# denkbar unangenehmsten Wortlaut ("eine Verbindung hat überlebt").
+# `|| true`: eine leere Ergebnisdatei laesst `grep` fehlschlagen, und mit
+# `pipefail` risse das unter `errexit` das Skript ab.
+n_vor="$(grep -o '"n":[0-9]*' "$result" | cut -d: -f2 | sort -n | tail -1 || true)"
+n_vor="${n_vor:--1}"
+
 log_info "Nachweis: löse nach dem Entladen noch einmal Signale aus."
 busctl --user call "$KWIN_SERVICE" /KWin org.kde.KWin nextDesktop >/dev/null 2>&1 \
 	|| log_warn "nextDesktop über D-Bus nicht verfügbar -- Nachweis nur passiv"
@@ -463,11 +472,13 @@ sleep 3
 busctl --user call "$KWIN_SERVICE" /KWin org.kde.KWin previousDesktop >/dev/null 2>&1 || true
 sleep 3
 
-after="$(journalctl --user -u plasma-kwin_wayland --since "@$t1" -o cat | grep -c 'KXLSIG1' || true)"
+after="$(journalctl --user -u plasma-kwin_wayland --since "@$t0" -o cat \
+	| grep -o 'KXLSIG1 {.*}' | grep -o '"n":[0-9]*' | cut -d: -f2 \
+	| awk -v v="$n_vor" '$1 > v' | wc -l || true)"
 if [ "$after" -eq 0 ]; then
-	log_ok "Nach dem Entladen keine einzige Probe-Zeile mehr."
+	log_ok "Nach dem Entladen keine einzige Probe-Zeile mehr (letzte war n=$n_vor)."
 else
-	probe_fail "Nach dem Entladen noch $after Probe-Zeilen -- eine Verbindung hat überlebt."
+	probe_fail "Nach dem Entladen noch $after Probe-Zeilen mit n > $n_vor -- eine Verbindung hat überlebt."
 fi
 
 # Das Paar oben kann am Rand der Desktopreihe woanders enden; vor der Prüfung
