@@ -232,8 +232,9 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - **`clientArea` zieht nach einer Ausgabenänderung nach.** Im Signal ist sie
   noch die alte, nach 500 ms teils noch ein Zwischenstand; erst nach 1500 ms
   stimmte sie (zweimal gemessen). Deshalb **zwei** Nachläufe, nicht einer. Nach
-  einer reinen Panelhöhenänderung ist sie dagegen sofort neu — der Nachlauf ist
-  dort nur Absicherung. Folge für Testmatrix 9: die Zwischenstände werden
+  einer reinen Panelhöhenänderung war sie dagegen schon im entprellten Lauf
+  neu (der Moment des Signals ist für diesen Fall nicht gemessen) — der
+  Nachlauf ist dort nur Absicherung. Folge für Testmatrix 9: die Zwischenstände werden
   mitgeschrieben, „genau ein Lauf mit Schreibvorgängen" ist beim
   Wiederanstecken nicht zu halten. Geprüft wird der **letzte** Lauf.
 - **Ein Nachlauf ruft nie `runArrange` direkt**, immer `debouncer.schedule`.
@@ -261,8 +262,9 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Adaptercode. Die Snapshot-Listen werden dort **explizit** zu `Set<string>`:
   ein durchgereichtes Array wäre für `purgeSurfaces` still „nichts ist gültig"
   und löschte jede Surface. Eine leere Liste gilt als misslungener
-  Lesedurchgang und löscht nichts — KWin hat immer mindestens eine Activity und
-  einen Desktop.
+  Lesedurchgang und löscht **keine Surfaces** — KWin hat immer mindestens eine
+  Activity und einen Desktop. Die **Fensterzustände** werden davor regulär
+  bereinigt; der Schutz greift nur für den Surface-Teil.
 - **Jede Ausgabe läuft durch `log()`**, sonst greift der Journalfilter in
   `scripts/logs.sh` nicht und die Zeile ist bei `nix run .#logs` unsichtbar.
 

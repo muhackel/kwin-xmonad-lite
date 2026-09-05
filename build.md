@@ -265,7 +265,7 @@ busctl --user call org.kde.KWin /VirtualDesktopManager \
 **Testmatrix 10** — Panelhöhe ändern. Erwartet: `dockGeometrie`, danach ein
 Lauf mit bereits **neuer** Fläche (`flaeche=2560x1404` statt `1410`) und die
 zugehörigen `apply`-Zeilen. Anders als beim Hotplug ist `clientArea` hier
-sofort aktuell; die Nachläufe finden nichts mehr zu tun. Während des Ziehens am
+schon im entprellten Lauf aktuell; die Nachläufe finden nichts mehr zu tun. Während des Ziehens am
 Höhenregler kommt je Zwischenschritt ein Lauf — das ist die laufende
 Nutzeraktion, kein Flattern. Nach dem Loslassen muss es still sein.
 
