@@ -262,6 +262,23 @@ busctl --user call org.kde.KWin /VirtualDesktopManager \
 # erwartet: gc #N fenster=0 surfaces=3 plus drei "surface entfernt"-Zeilen
 ```
 
+**Dock-Aufbau** — dass ein *erscheinendes* Panel die Nachläufe startet, ist nur
+zu sehen, wenn beim Laden **kein** Dock existiert; sonst löst schon der Abbau
+über `closed` dieselben Timer aus:
+
+```bash
+systemctl --user stop plasma-plasmashell.service   # Panels verschwinden
+nix run .#dev-load                                 # Controller ohne jedes Dock
+systemctl --user start plasma-plasmashell.service
+```
+
+Erwartet: je Panel eine Zeile `dockHinzugefügt {…}`, danach
+`arrange … grund=nachlauf500:dockHinzugefügt` und `nachlauf1500:…` — und
+**kein** `dockEntfernt`, weil beim Laden kein Dock verbunden war. Damit kann
+der Nachlauf nur aus dem `windowAdded`-Zweig stammen. Gemessen auf SPIELKISTE:
+der Startlauf rechnete noch mit `flaeche=…x1440`, der Lauf nach dem letzten
+`dockHinzugefügt` mit `1410`.
+
 **Testmatrix 10** — Panelhöhe ändern. Erwartet: `dockGeometrie`, danach ein
 Lauf mit bereits **neuer** Fläche (`flaeche=2560x1404` statt `1410`) und die
 zugehörigen `apply`-Zeilen. Anders als beim Hotplug ist `clientArea` hier

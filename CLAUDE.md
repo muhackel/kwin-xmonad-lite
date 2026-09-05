@@ -290,6 +290,19 @@ Activities und verwaltet nicht die Zahl der Desktops.
 
 ### Werkzeugkette
 
+- **In den Entwicklungsskripten ist jeder früh endende Leser einer Pipeline
+  eine Falle.** `writeShellApplication` setzt `pipefail` **und** `errexit`:
+  `awk … exit`, `grep -q` und `grep -m1` beenden sich beim ersten Treffer, die
+  Vorstufe bekommt SIGPIPE, die Pipeline meldet 141 — und das Skript endet
+  wortlos, oft noch vor der ersten Ausgabezeile. Deshalb liest `awk` bis `END`,
+  Mengenprüfungen laufen über `<<<` statt über eine Pipe, und auf eine
+  Journalzeile wird mit `grep … >/dev/null` gepollt statt mit
+  `journalctl -f | grep -q -m1` gewartet. Letzteres meldete einen Fehlschlag
+  genau dann, wenn die Zeile da war.
+- **Ein laufendes Shellskript nie überschreiben.** bash liest die Datei
+  byteweise nach; ein Überschreiben mitten im Lauf führt zu
+  `syntax error near unexpected token` an einer Stelle, die im Quelltext gar
+  nicht existiert. Für eine geänderte Fassung eine neue Datei anlegen.
 - `node --test tests/` schlägt fehl — Node deutet das Verzeichnis als
   Modulpfad. Immer `node --test tests/*.test.ts`. Generatoren und
   Prüfhilfen liegen deshalb unter `tests/support/`: das Glob sammelt sie nicht
