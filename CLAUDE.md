@@ -6,7 +6,7 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 5
-ist implementiert und durch Unit-Tests geprüft; die Live-Abnahme Matrix 11–15 steht
+ist implementiert; Matrix 11–13 und 15 sind live geprüft, Matrix 14 steht
 aus.** Meilenstein 4 samt 4.1, 4.1.1 und Audit 4.2 ist abgeschlossen. Der
 Controller kachelt auf allen Ausgaben mit `Tall`; Zustandsübergänge, Float,
 Dialogfilter und Größenschranken liegen hinter der Snapshot-Grenze. Die
@@ -211,14 +211,13 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - **Nach dem Aufgeben gilt der beobachtete Istwert als akzeptiert**
   (`lastObservedRect`). Ohne ihn liefe eine verspätete Meldung derselben
   Geometrie als fremde Änderung in einen neuen Anordnungs- und
-  Nachbesserungszyklus — genau das Flattern, das der Zähler verhindern soll.
-  Das Feld ist bewusst von `tiledRect` getrennt: nach einem Giveup fallen Soll
-  und Ist auseinander, und `tiledRect` trägt ab Meilenstein 5 die Rückkehr aus
-  dem Float. Deshalb entscheidet über den Nachhall **allein**
-  `lastObservedRect`: nähme `tiledRect` mit teil, würde eine fremde
-  Verschiebung genau auf das nie erreichte Soll als eigenes Echo verschluckt.
-  Im Gutfall sind beide ohnehin gleich, der zweite Vergleich brächte also
-  nichts und schadete nur im Giveup-Fall.
+  Nachbesserungszyklus. Das nicht erreichte Soll bleibt in `tiledRect`, der
+  Zähler auf `MAX_CORRECTIONS`. `judgeWrite` meldet `abandoned`, solange eine
+  spätere Epoche genau dasselbe Soll und denselben Istwert sieht. Ein anderes
+  Ziel oder ein anderer Istwert öffnet einen neuen Versuch; `forget` räumt das
+  Sperrmerkmal bei einem Zustandswechsel ab. Der Signalnachhall hängt trotzdem
+  allein an `lastObservedRect`, damit eine fremde Verschiebung auf das Soll
+  nicht verschluckt wird.
 - **Eine fremde Geometrieänderung löst genau einen Lauf aus**, und nur für ein
   Fenster, das zuletzt Layout-Teilnehmer war. Wer das Layout verlässt, verliert
   Erwartung **und** eingeplante Nachprüfung — `clearExpectation` allein räumt

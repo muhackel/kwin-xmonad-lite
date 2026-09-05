@@ -168,6 +168,40 @@ test("ein Client mit Größenraster terminiert innerhalb der Korrekturgrenze", (
 	assert.equal(rig.geometry.pendingCount(), 0);
 });
 
+test("eine spätere Epoche wiederholt ein bereits aufgegebenes Ziel nicht", () => {
+	const rig = epochRig();
+	const a = windowInfo("a");
+	rig.port.place("a", START);
+	rig.port.setAccept("a", () => GERASTERT);
+	const first = surface(rig.run([a], "a"));
+	const target = first.placements[0]?.rect;
+	assert.notEqual(target, undefined);
+
+	for (let i = 0; i < MAX_CORRECTIONS + 1; i++) {
+		rig.timer.fire();
+	}
+	const state = getWindow(rig.registry, "a");
+	const writes = rig.port.writesFor("a");
+	const giveups = rig.logs.filter((line) => line.indexOf("aufgegeben a") === 0).length;
+	assert.deepEqual(state.tiledRect, target, "das aufgegebene Layoutziel bleibt vermerkt");
+
+	rig.run([a], "a");
+	assert.equal(rig.port.writesFor("a"), writes);
+	assert.equal(rig.geometry.pendingCount(), 0);
+	assert.equal(rig.logs.filter((line) => line.indexOf("aufgegeben a") === 0).length, giveups);
+
+	const moved: Rect = { x: 20, y: 30, width: 900, height: 700 };
+	rig.port.place("a", moved);
+	rig.geometry.notifyChanged("a");
+	assert.deepEqual(rig.externals, ["a"]);
+	rig.run([a], "a");
+	assert.equal(
+		rig.port.writesFor("a"),
+		writes + 1,
+		"eine echte Verschiebung öffnet einen neuen Versuch",
+	);
+});
+
 test("ein Fenster ohne Handle löst nach dem Schreibfehler keinen Lesezugriff aus", () => {
 	const rig = epochRig();
 	const a = windowInfo("a");

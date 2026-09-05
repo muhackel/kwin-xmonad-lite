@@ -22,6 +22,7 @@ export interface WindowState {
 	 */
 	lastObservedRect: Rect | null;
 	expectedRect: Rect | null;
+	/** Nach `giveup` bleibt `MAX_CORRECTIONS` als Sperrmerkmal stehen. */
 	applyAttempts: number;
 	/**
 	 * Zählt **Schreibvorgänge dieses Fensters**, nicht Anordnungsepochen: nur

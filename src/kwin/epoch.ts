@@ -1,6 +1,7 @@
 import type { Rect } from "../core/rect.ts";
 import type { WindowId } from "../core/stack.ts";
 import type { Registry } from "../state/registry.ts";
+import { getWindow } from "../state/registry.ts";
 import type { GeometryController } from "./apply.ts";
 import { judgeWrite } from "./geometry.ts";
 import type { ArrangePlan, Gaps, Placement } from "./plan.ts";
@@ -34,13 +35,14 @@ function participantsOf(plan: ArrangePlan): Set<WindowId> {
 function applyPlacement(
 	placement: Placement,
 	infos: Map<WindowId, WindowInfo>,
+	registry: Registry,
 	geometry: GeometryController,
 ): void {
 	const info = infos.get(placement.id);
 	if (info === undefined) {
 		return;
 	}
-	const verdict = judgeWrite(info, placement.rect);
+	const verdict = judgeWrite(info, placement.rect, getWindow(registry, placement.id));
 	if (verdict === "unchanged") {
 		geometry.accept(placement.id, info.frameGeometry);
 		return;
@@ -99,7 +101,7 @@ export function runEpoch(
 				`fläche=${fmt(surface.area)}`,
 		);
 		for (const placement of surface.placements) {
-			applyPlacement(placement, infos, geometry);
+			applyPlacement(placement, infos, registry, geometry);
 		}
 		for (const id of surface.raise) {
 			ports.raise(id);

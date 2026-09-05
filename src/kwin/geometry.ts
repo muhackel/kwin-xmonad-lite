@@ -8,7 +8,7 @@ import type { WindowInfo } from "./types.ts";
 export const MAX_CORRECTIONS = 2;
 
 /** Warum eine Geometrie geschrieben wird — oder eben nicht. */
-export type WriteVerdict = "write" | "unchanged" | "drag" | "maximized";
+export type WriteVerdict = "write" | "unchanged" | "abandoned" | "drag" | "maximized";
 
 /** Was eine Meldung von `frameGeometryChanged` bedeutet. */
 export type SignalVerdict = "ignore" | "settled" | "diverged";
@@ -73,11 +73,11 @@ export function fitToCell(cell: Rect, info: WindowInfo, area: Rect): Rect {
 }
 
 /**
- * Vor dem Schreiben. `"unchanged"` ist die eigentliche Flatterbremse: eine
- * Epoche ohne Änderung schreibt gar nichts, also feuert auch kein
- * `frameGeometryChanged`, also entsteht keine Rückkopplung.
+ * Vor dem Schreiben. `"unchanged"` deckt ein erreichtes Ziel ab;
+ * `"abandoned"` ein bereits aufgegebenes, unverändertes Soll/Ist-Paar. Beide
+ * verhindern einen Write und damit eine neue Rückkopplung.
  */
-export function judgeWrite(info: WindowInfo, target: Rect): WriteVerdict {
+export function judgeWrite(info: WindowInfo, target: Rect, state: WindowState): WriteVerdict {
 	if (info.move || info.resize) {
 		return "drag";
 	}
@@ -86,6 +86,16 @@ export function judgeWrite(info: WindowInfo, target: Rect): WriteVerdict {
 	}
 	if (equals(info.frameGeometry, target)) {
 		return "unchanged";
+	}
+	if (
+		state.expectedRect === null &&
+		state.applyAttempts >= MAX_CORRECTIONS &&
+		state.tiledRect !== null &&
+		state.lastObservedRect !== null &&
+		equals(target, state.tiledRect) &&
+		equals(info.frameGeometry, state.lastObservedRect)
+	) {
+		return "abandoned";
 	}
 	return "write";
 }

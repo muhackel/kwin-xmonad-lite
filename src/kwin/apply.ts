@@ -321,8 +321,13 @@ export function createGeometryController(
 		if (verdict === "giveup") {
 			hooks.log(`aufgegeben ${id} nach ${state.applyAttempts} Versuchen, ist=${fmt(actual)}`);
 			cancelRecheck(id);
+			const target = state.expectedRect;
 			state.expectedRect = null;
-			state.applyAttempts = 0;
+			if (target !== null) {
+				state.tiledRect = target;
+			}
+			// applyAttempts bleibt auf MAX_CORRECTIONS. Zusammen mit Soll und
+			// Ist kennzeichnet das einen abgeschlossenen, unveränderten Fall.
 			// Der zuletzt beobachtete Istwert gilt ab jetzt als akzeptiert. Ohne
 			// ihn liefe eine verspätete Meldung derselben Geometrie als fremde
 			// Änderung in einen neuen Anordnungs- und Nachbesserungszyklus.

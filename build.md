@@ -328,6 +328,7 @@ Die reproduzierbaren Testfenster starten so:
 nix run .#size-window -- --min 1200x900 --title kxl-min
 nix run .#size-window -- --max 800x500 --title kxl-max
 nix run .#size-window -- --grid 20x10 --title kxl-raster
+nix shell nixpkgs#foot -c foot -T kxl-stubborn
 nix shell nixpkgs#kdePackages.kdialog -c kdialog --msgbox Hallo
 # Transient: in kwrite Strg+O
 ```
@@ -365,8 +366,13 @@ Der Menüeintrag ist im Float-Zustand angehakt. Danach `nix run .#unload`:
 **Testmatrix 15** — `kxl-min` und `kxl-max` in Stapelzellen legen. Soll und Ist
 müssen die geklemmte, in der Arbeitsfläche verankerte Geometrie zeigen. Nach
 dem Einschwingen fünf Minuten lang kein `apply`, kein `aufgegeben` und keine
-Ausnahme. `kxl-raster` darf je Auslöser höchstens drei Writes erzeugen und
-endet genau einmal mit `aufgegeben`.
+Ausnahme. `kxl-raster` belegt die X11-Größenhinweise, erzwingt unter KWin 6.7.4
+aber keine Ablehnung: `frameGeometry` darf außerhalb des Rasters ankommen.
+Den Give-up-Pfad deshalb mit dem nativen Wayland-Client `kxl-stubborn` prüfen:
+höchstens drei Writes und genau ein `aufgegeben`. Ein anschließender
+Fokuswechsel erzeugt eine neue Epoche, aber keinen weiteren Write auf dieselbe
+ID. Ein neues Layoutziel oder eine fremde Verschiebung darf wieder einen
+Versuch auslösen.
 
 Zum Abschluss Reload und Grenzen prüfen:
 

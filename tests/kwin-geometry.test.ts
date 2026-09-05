@@ -123,7 +123,7 @@ test("anchorInto lässt Größe und ein passendes Rechteck unverändert", () => 
 // --- judgeWrite -------------------------------------------------------------
 
 test("judgeWrite meldet write bei einer Abweichung", () => {
-	assert.equal(judgeWrite(windowInfo("a"), CELL), "write");
+	assert.equal(judgeWrite(windowInfo("a"), CELL, createWindowState()), "write");
 });
 
 test("judgeWrite meldet unchanged bei genauer Übereinstimmung", () => {
@@ -131,30 +131,40 @@ test("judgeWrite meldet unchanged bei genauer Übereinstimmung", () => {
 	// also auch kein frameGeometryChanged und keine Rückkopplung.
 	const info = windowInfo("a");
 	info.frameGeometry = { x: 0, y: 0, width: 1664, height: 1410 };
-	assert.equal(judgeWrite(info, CELL), "unchanged");
+	assert.equal(judgeWrite(info, CELL, createWindowState()), "unchanged");
+});
+
+test("judgeWrite lässt ein unverändertes aufgegebenes Ziel in Ruhe", () => {
+	const info = windowInfo("a");
+	info.frameGeometry = { x: 0, y: 0, width: 1660, height: 1400 };
+	const state = createWindowState();
+	state.tiledRect = CELL;
+	state.lastObservedRect = info.frameGeometry;
+	state.applyAttempts = MAX_CORRECTIONS;
+	assert.equal(judgeWrite(info, CELL, state), "abandoned");
 });
 
 test("judgeWrite meldet drag während move oder resize", () => {
 	const zieht = windowInfo("a");
 	zieht.move = true;
-	assert.equal(judgeWrite(zieht, CELL), "drag");
+	assert.equal(judgeWrite(zieht, CELL, createWindowState()), "drag");
 
 	const größt = windowInfo("b");
 	größt.resize = true;
-	assert.equal(judgeWrite(größt, CELL), "drag");
+	assert.equal(judgeWrite(größt, CELL, createWindowState()), "drag");
 });
 
 test("judgeWrite meldet maximized bei maximizeMode ungleich null", () => {
 	const info = windowInfo("a");
 	info.maximizeMode = 3;
-	assert.equal(judgeWrite(info, CELL), "maximized");
+	assert.equal(judgeWrite(info, CELL, createWindowState()), "maximized");
 });
 
 test("der Ziehzustand gewinnt gegen die Maximierung", () => {
 	const info = windowInfo("a");
 	info.move = true;
 	info.maximizeMode = 3;
-	assert.equal(judgeWrite(info, CELL), "drag");
+	assert.equal(judgeWrite(info, CELL, createWindowState()), "drag");
 });
 
 // --- judgeSignal ------------------------------------------------------------

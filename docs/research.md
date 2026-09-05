@@ -361,3 +361,19 @@ In `~/.config/kglobalshortcutsrc` unter `[kwin]` existieren die Aktionen
 `Window Maximize Vertical` und `Window Minimize`. Die D-Bus-Introspektion von
 `org.kde.kglobalaccel /component/kwin` weist dafür `invokeShortcut s` aus. Die
 Live-Abnahme kann diese Zustände damit ohne neue Tastenbelegung auslösen.
+
+## 5. Livebefunde, Meilenstein 5
+
+Gemessen am 2026-09-06 auf SPIELKISTE mit KWin 6.7.4.
+
+Der Tk-Testclient mit `wm_grid(0, 0, 20, 10)` veröffentlichte laut `xprop`
+einen Rasterabstand von `20x10` und eine Basisgröße von `111x69`. KWin nahm
+die direkte `frameGeometry`-Zuweisung trotzdem exakt an; die X11-Clientgröße
+`896x254` liegt in beiden Achsen fünf Pixel neben diesem Raster. Das Raster
+eignet sich daher nicht als reproduzierbarer Give-up-Auslöser.
+
+Der native Wayland-Client foot quittierte dagegen ein Soll von `896x235` als
+`894x223`. Der Controller schrieb einmal und besserte zweimal nach, danach
+folgte genau ein `aufgegeben`. Vor dem MS-5-Nachschlag startete jede spätere
+Epoche denselben Zyklus neu. Mit dem Sperrmerkmal aus Soll, Ist und
+`MAX_CORRECTIONS` blieb ein anschließender Fokuslauf ohne weiteren Write.

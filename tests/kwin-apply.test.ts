@@ -299,7 +299,8 @@ test("nach dem Aufgeben sind Erwartung und Nachprüfung leer", () => {
 
 	const state = getWindow(r.registry, "a");
 	assert.equal(state.expectedRect, null);
-	assert.equal(state.applyAttempts, 0);
+	assert.equal(state.applyAttempts, MAX_CORRECTIONS);
+	assert.deepEqual(state.tiledRect, TARGET, "das aufgegebene Soll bleibt vermerkt");
 	assert.deepEqual(state.lastObservedRect, GERASTERT, "der Istwert gilt als akzeptiert");
 	assert.equal(r.pendingCount(), 0);
 	assert.equal(r.timer.active, false);
@@ -330,9 +331,9 @@ test("ein verspätetes Signal nach dem Aufgeben ist Nachhall, keine fremde Ände
 	assert.equal(r.timer.active, false, "kein neuer Timer");
 });
 
-test("eine fremde Verschiebung auf das alte Soll ist kein Nachhall", () => {
-	// Nach einem Giveup ist tiledRect absichtlich das nie erreichte Soll. Wer
-	// den Nachhall auch daran erkennt, verschluckt genau diese Verschiebung.
+test("eine fremde Verschiebung auf das frühere Soll ist kein Nachhall", () => {
+	// Nach einem Giveup ist tiledRect das zuletzt aufgegebene Soll. Für den
+	// Nachhall zählt trotzdem nur der beobachtete Istwert.
 	const r = rig();
 	braves(r, "a");
 	r.apply("a", TARGET);
@@ -345,7 +346,7 @@ test("eine fremde Verschiebung auf das alte Soll ist kein Nachhall", () => {
 	r.timer.fire();
 
 	const state = getWindow(r.registry, "a");
-	assert.deepEqual(state.tiledRect, TARGET, "das alte Soll steht noch");
+	assert.deepEqual(state.tiledRect, ANDERS, "das aufgegebene Soll steht fest");
 	assert.deepEqual(state.lastObservedRect, GERASTERT, "der Istwert weicht davon ab");
 
 	// Ein fremdes Programm schiebt das Fenster genau auf das alte Soll.
