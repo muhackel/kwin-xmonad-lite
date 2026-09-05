@@ -57,7 +57,7 @@ in die Host-Konfiguration.
 src/core/     Layoutberechnung und Fensterstapel, ohne KWin-Abhängigkeit
 src/core/layout/  Tall und Full, gemeinsame Typen und Layoutliste
 src/state/    Zustand je Activity × Desktop × Bildschirm, Abgleich gegen KWin
-src/kwin/     Adapter: Filter, Anordnung, Geometrie, Entprellung, Signale
+src/kwin/     Adapter: Filter, Anordnung, Geometrie, Nachbesserung, Signale
 package/      KPackage-Wurzel (metadata.json, gebündeltes main.js)
 dev/probe/    Feature-Probe: misst die KWin-Skript-Umgebung
 nix/          Paket- und Entwicklungsumgebung

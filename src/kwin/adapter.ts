@@ -1,10 +1,11 @@
 import type { Rect } from "../core/rect.ts";
-import { equals } from "../core/rect.ts";
 import type { WindowId } from "../core/stack.ts";
-import type { Registry, WindowState } from "../state/registry.ts";
-import { createRegistry, getWindow, purgeWindows } from "../state/registry.ts";
+import type { Registry } from "../state/registry.ts";
+import { createRegistry, purgeWindows } from "../state/registry.ts";
+import type { GeometryHooks, GeometryPort } from "./apply.ts";
+import { createGeometryController } from "./apply.ts";
 import { DEFAULT_EXCLUDES, makeExcludes } from "./filter.ts";
-import { judgeCorrection, judgeWrite } from "./geometry.ts";
+import { judgeWrite } from "./geometry.ts";
 import { log } from "./log.ts";
 import type { ArrangePlan, Placement } from "./plan.ts";
 import { NO_GAPS, planArrangement } from "./plan.ts";
@@ -25,96 +26,66 @@ function fmt(rect: Rect): string {
 /**
  * Verdrahtet KWin mit dem Kern. Zusammen mit `read.ts` die einzige Datei, die
  * eine KWin-Global anfassen darf — alles Uebrige ist reine Rechnung und laeuft
- * unter `node --test`.
+ * unter `node --test`. Die Geometrieerwartung samt Nachbesserung liegt in
+ * `apply.ts` und bekommt ihren Fensterzugriff von hier als Port.
  */
 export function createAdapter(): Adapter {
 	const registry: Registry = createRegistry();
 	const excludes = makeExcludes(DEFAULT_EXCLUDES);
 	const connections = new Map<WindowId, () => void>();
-	let epoch = 0;
 	/**
-	 * Waehrend eines eigenen Schreibvorgangs. Auf Wayland ist eine reine
-	 * Verschiebung synchron, `frameGeometryChanged` feuert also mitten im
-	 * Schreiben; ohne dieses Flag liefe der Pruefpfad rekursiv an.
+	 * Die einzige Stelle, an der ein KWin-Fensterobjekt ueber den Lesedurchgang
+	 * hinaus aufbewahrt wird. Ein Eintrag verschwindet mit `closed` und mit dem
+	 * naechsten Abgleich; danach meldet der Port das Fenster als fort, statt an
+	 * einem toten Objekt zu lesen.
 	 */
-	let applying = false;
+	const handles = new Map<WindowId, KwinWindow>();
+	/** Wer beim letzten Lauf ein Layoutrechteck bekommen hat. */
+	let lastParticipants = new Set<WindowId>();
+	let epoch = 0;
 
 	const debouncer = createDebouncer(() => new QTimer(), DEBOUNCE_MS, runArrange);
 
-	function settle(state: WindowState, actual: Rect): void {
-		state.expectedRect = null;
-		state.applyAttempts = 0;
-		// Meilenstein 5 braucht die letzte gekachelte Geometrie fuer die
-		// Rueckkehr aus dem Float; sie jetzt zu fuellen kostet nichts.
-		state.tiledRect = actual;
-	}
+	const port: GeometryPort = {
+		read(id: WindowId): Rect | null {
+			const window = handles.get(id);
+			return window === undefined ? null : readFrameGeometry(window);
+		},
+		write(id: WindowId, rect: Rect): boolean {
+			const window = handles.get(id);
+			if (window === undefined) {
+				return false;
+			}
+			writeFrameGeometry(window, rect);
+			return true;
+		},
+		dragging(id: WindowId): boolean {
+			const window = handles.get(id);
+			return window !== undefined && (window.move || window.resize);
+		},
+	};
 
-	/**
-	 * Schreibt und holt sich die Bestaetigung gleich selbst: eine reine
-	 * Verschiebung ist synchron und waere sonst nur ueber das eigene, gerade
-	 * gesperrte Signal zu erfahren. Nur der asynchrone Fall — eine
-	 * Groessenaenderung per xdg-configure — landet spaeter im Signalpfad.
-	 */
-	function write(id: WindowId, window: KwinWindow, target: Rect): void {
-		applying = true;
-		try {
-			writeFrameGeometry(window, target);
-		} finally {
-			applying = false;
-		}
-		const actual = readFrameGeometry(window);
-		if (equals(actual, target)) {
-			settle(getWindow(registry, id), actual);
-		}
-	}
+	const hooks: GeometryHooks = {
+		external(id: WindowId): void {
+			// Nur ein zuletzt bekannter Layout-Teilnehmer ist einen Lauf wert.
+			// Ausgeschlossene und nicht teilnehmende Fenster fallen still durch;
+			// Dock und Panel bleiben Meilenstein 4.
+			if (!lastParticipants.has(id)) {
+				return;
+			}
+			log(`extern ${id}`);
+			debouncer.schedule("geometrieExtern");
+		},
+		log,
+	};
 
-	function apply(id: WindowId, window: KwinWindow, target: Rect): void {
-		const state = getWindow(registry, id);
-		state.expectedRect = target;
-		state.applyGeneration = epoch;
-		state.applyAttempts = 0;
-		log(`apply ${id} soll=${fmt(target)}`);
-		write(id, window, target);
-	}
-
-	function onGeometryChanged(id: WindowId, window: KwinWindow): void {
-		if (applying) {
-			return;
-		}
-		if (window.move || window.resize) {
-			return;
-		}
-		const state = getWindow(registry, id);
-		const actual = readFrameGeometry(window);
-		const verdict = judgeCorrection(state, epoch, actual);
-
-		if (verdict === "settled") {
-			settle(state, actual);
-			return;
-		}
-		if (verdict === "giveup") {
-			log(`aufgegeben ${id} nach ${state.applyAttempts} Versuchen, ist=${fmt(actual)}`);
-			// Ohne das Loeschen beantwortet eine verspaetete Bestaetigung
-			// Epochen spaeter noch diese Erwartung.
-			state.expectedRect = null;
-			state.applyAttempts = 0;
-			return;
-		}
-		if (verdict !== "retry") {
-			return;
-		}
-		const target = state.expectedRect;
-		if (target === null) {
-			return;
-		}
-		state.applyAttempts += 1;
-		log(`nachbessern ${id} versuch=${state.applyAttempts} ist=${fmt(actual)} soll=${fmt(target)}`);
-		write(id, window, target);
-	}
+	const geometry = createGeometryController(registry, port, () => new QTimer(), hooks);
 
 	function disconnectWindow(id: WindowId): void {
 		const cut = connections.get(id);
 		connections.delete(id);
+		handles.delete(id);
+		geometry.forget(id);
 		if (cut === undefined) {
 			return;
 		}
@@ -132,12 +103,13 @@ export function createAdapter(): Adapter {
 			return;
 		}
 		const id = windowId(window);
+		handles.set(id, window);
 		if (connections.has(id)) {
 			return;
 		}
 
 		const onGeometry = (): void => {
-			onGeometryChanged(id, window);
+			geometry.notifyChanged(id);
 		};
 		const onChanged = (): void => {
 			debouncer.schedule("fensterzustand");
@@ -175,13 +147,44 @@ export function createAdapter(): Adapter {
 		});
 	}
 
-	/** Verbindungen zu Fenstern kappen, die nicht mehr in der Ist-Menge stehen. */
+	/** Verbindungen und Handles zu Fenstern kappen, die nicht mehr da sind. */
 	function pruneConnections(live: Set<WindowId>): void {
 		for (const id of Array.from(connections.keys())) {
 			if (!live.has(id)) {
 				disconnectWindow(id);
 			}
 		}
+		for (const id of Array.from(handles.keys())) {
+			if (!live.has(id)) {
+				handles.delete(id);
+				geometry.forget(id);
+			}
+		}
+	}
+
+	function participantsOf(plan: ArrangePlan): Set<WindowId> {
+		const set = new Set<WindowId>();
+		for (const surface of plan.surfaces) {
+			for (const id of surface.participants) {
+				set.add(id);
+			}
+		}
+		return set;
+	}
+
+	/**
+	 * Wer das Layout verlaesst, verliert Erwartung **und** eingeplante
+	 * Nachpruefung. `clearExpectation` in `plan.ts` raeumt nur die Registry;
+	 * ohne diesen Schritt liefe ein spaeterer Timerlauf noch an einem Fenster,
+	 * das inzwischen minimiert, maximiert, im Vollbild oder floatend ist.
+	 */
+	function forgetDeparted(current: Set<WindowId>): void {
+		for (const id of Array.from(lastParticipants)) {
+			if (!current.has(id)) {
+				geometry.forget(id);
+			}
+		}
+		lastParticipants = current;
 	}
 
 	function applyPlan(plan: ArrangePlan, reading: Reading): void {
@@ -201,11 +204,11 @@ export function createAdapter(): Adapter {
 			);
 
 			for (const placement of surface.placements) {
-				applyPlacement(placement, reading, infos);
+				applyPlacement(placement, infos);
 			}
 
 			if (surface.raise !== null) {
-				const window = reading.handles.get(surface.raise);
+				const window = handles.get(surface.raise);
 				if (window !== undefined) {
 					workspace.raiseWindow(window);
 				}
@@ -213,20 +216,15 @@ export function createAdapter(): Adapter {
 		}
 	}
 
-	function applyPlacement(
-		placement: Placement,
-		reading: Reading,
-		infos: Map<WindowId, WindowInfo>,
-	): void {
-		const window = reading.handles.get(placement.id);
+	function applyPlacement(placement: Placement, infos: Map<WindowId, WindowInfo>): void {
 		const info = infos.get(placement.id);
-		if (window === undefined || info === undefined) {
+		if (info === undefined || !handles.has(placement.id)) {
 			return;
 		}
 		if (judgeWrite(info, placement.rect) !== "write") {
 			return;
 		}
-		apply(placement.id, window, placement.rect);
+		geometry.apply(placement.id, placement.rect);
 	}
 
 	function runArrange(reasons: string[]): void {
@@ -239,8 +237,15 @@ export function createAdapter(): Adapter {
 		}
 		purgeWindows(registry, live);
 		pruneConnections(live);
+		for (const info of reading.snapshot.windows) {
+			const window = reading.handles.get(info.id);
+			if (window !== undefined) {
+				handles.set(info.id, window);
+			}
+		}
 
 		const plan = planArrangement(reading.snapshot, registry, NO_GAPS, excludes);
+		forgetDeparted(participantsOf(plan));
 
 		let members = 0;
 		let participants = 0;

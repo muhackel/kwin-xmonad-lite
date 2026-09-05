@@ -179,3 +179,43 @@ test("Tall bleibt das Layout, solange niemand wechselt", () => {
 	assert.equal(surface.layoutId, "tall");
 	assert.equal(surface.raise, null);
 });
+
+test("full hebt den fokussierten Teilnehmer", () => {
+	const registry = createRegistry();
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	only(registry, [a, b], "b");
+	getSurface(registry, KEY).layoutIndex = 1;
+
+	const surface = only(registry, [a, b], "b");
+	assert.equal(surface.layoutId, "full");
+	assert.equal(surface.raise, "b");
+});
+
+test("full hebt keinen Nichtteilnehmer, sondern den Master", () => {
+	// Ein minimiertes Fenster behaelt den Fokus der Surface, darf aber nicht
+	// ueber die gekachelten gehoben werden.
+	const registry = createRegistry();
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	only(registry, [a, b], "b");
+	getSurface(registry, KEY).layoutIndex = 1;
+	b.minimized = true;
+
+	const surface = only(registry, [a, b], null);
+	assert.equal(surface.layoutId, "full");
+	assert.deepEqual(surface.participants, ["a"]);
+	assert.equal(surface.raise, "a", "der Master ersetzt den fehlenden Teilnehmer");
+});
+
+test("full hebt nichts, wenn niemand teilnimmt", () => {
+	const registry = createRegistry();
+	const a = windowInfo("a");
+	only(registry, [a], "a");
+	getSurface(registry, KEY).layoutIndex = 1;
+	a.minimized = true;
+
+	const surface = only(registry, [a], null);
+	assert.equal(surface.layoutId, "full");
+	assert.equal(surface.raise, null);
+});

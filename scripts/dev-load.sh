@@ -8,13 +8,7 @@ DEV_NAME="${XML_DEV_NAME:-kwin-xmonad-lite-dev}"
 PROD_NAME="${XML_PROD_NAME:-kwin-xmonad-lite}"
 
 require_kwin
-
-if [ "$(script_loaded "$PROD_NAME")" = "true" ]; then
-	log_err "Die Produktionsinstanz '$PROD_NAME' ist geladen."
-	log_err "Erst ueber kwinrc [Plugins] ${PROD_NAME}Enabled=false deaktivieren,"
-	log_err "sonst laufen zwei Layout-Controller gleichzeitig."
-	exit 1
-fi
+require_no_production "$PROD_NAME"
 
 if [ "$(script_loaded "$DEV_NAME")" = "true" ]; then
 	log_info "Entwicklungsinstanz laeuft bereits, wird entladen."

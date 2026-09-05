@@ -1,6 +1,6 @@
 # Implementierungsplan `kwin-xmonad-lite`
 
-Stand: 2026-09-05. Planungsstand mit den drei Nutzerentscheidungen (Abschnitt 12). Noch kein Code, kein Git.
+Stand: 2026-09-05. Der Entwurf mit allen Nutzerentscheidungen (Abschnitt 12). Umgesetzt sind die Meilensteine 0 bis 3 samt dem Stabilisierungsschritt 3.1; das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
 
 ## 0. Position
 
@@ -132,7 +132,7 @@ sequenceDiagram
 1. Auslöser → `schedule(reason, outputs?)` → Koaleszierung über einen `QTimer`-Single-Shot (ca. 20 ms; Idee Polonium `src/controller/event.ts:200-269`, MIT). Events werden **nicht** verworfen, sondern als „dirty" nachgezogen (Anti-Pattern Polonium `index.ts:69-70`, Krohnkite `kwindriver.ts:342`).
 2. `arrange()`: pro sichtbarer Surface die Surface-Mitglieder aus `windowList()` bilden. Der dauerhafte Mitgliedschaftsfilter prüft Fenstertyp, Ausschlussliste, Output, Desktop und Activity, aber nicht Floating, Minimierung, Fullscreen oder Maximierung. `reconcile` gleicht ausschließlich diese Mitgliedermenge gegen die gespeicherte Reihenfolge ab: neue Fenster oberhalb des fokussierten wie XMonads `insertUp`, verschwundene entfernen; Ghost-Purge nur über die Workspace-Liste, nie Eigenschaften toter Objekte lesen (Tessera `driver.ts:239-258`). Danach die Layout-Teilnehmer bestimmen, Layout rechnen und Geometrien anwenden.
 3. Anwenden nur auf Layout-Teilnehmer mit `maximizeMode == 0`: Zielrect gegen `frameGeometry` gerundet vergleichen, bei Gleichheit nichts tun; sonst `expectedRect`, `applyGeneration` und Versuchszähler setzen und das **ganze** Rect als Plain-Object `{x,y,width,height}` zuweisen (Teilzuweisung wirkt nicht, Tessera `driver.ts:447-450`). Der Controller hebt eine Maximierung niemals selbst auf. Verlässt ein Fenster die Layout-Teilnahme, werden `expectedRect` und `applyAttempts` sofort gelöscht.
-4. `frameGeometryChanged`: ignorieren während `window.move || window.resize`; nur die neueste `applyGeneration` gegen `expectedRect` prüfen. Bei Abweichung maximal 2 Nachbesserungen je Arrange-Epoche, danach Aufgabe bis zum nächsten externen Ereignis (Flatter-Schutz). `interactiveMoveResizeFinished` → neu anordnen.
+4. `frameGeometryChanged`: ignorieren während eines eigenen Schreibvorgangs an **diesem** Fenster und während `window.move || window.resize`. Der Signalpfad **schreibt nie** — er liest, beruhigt bei Übereinstimmung die Erwartung und plant sonst eine Nachprüfung ein; ein Write innerhalb des Signals wäre ein verschachtelter Write. Die Schreibgeneration gehört zum Fenster und wird nur bei einem neuen Zielwert erhöht: eine Anordnungsepoche ohne eigenen Write darf eine offene Erwartung nicht altern lassen. Weicht schon das unmittelbare Rücklesen nach einem Write ab, wird die Nachprüfung **garantiert** eingeplant, statt auf ein Signal zu warten, das synchron bereits verworfen worden sein kann. Nachgebessert wird ausschließlich im Timerlauf, höchstens einmal je Fenster und Durchlauf und höchstens zweimal je Schreibgeneration; danach Aufgabe bis zum nächsten externen Ereignis (Flatter-Schutz), wobei der zuletzt beobachtete Istwert als akzeptiert festgehalten wird, damit eine verspätete Meldung desselben Werts keinen neuen Zyklus startet. Ändert sich die Geometrie eines zuletzt bekannten Layout-Teilnehmers ohne eigenen Write, löst das genau einen entprellten Anordnungslauf aus. `interactiveMoveResizeFinished` → neu anordnen.
 5. Auslöser: `windowAdded/Removed`, `windowActivated` (Fokus in der Surface nachführen; in `Full` das aktive Fenster mit `raiseWindow` heben), `currentDesktopChanged` (nur den gemeldeten Output), `currentActivityChanged`, `screensChanged` (Outputliste neu, Zustände überleben am `output.name`), `virtualScreenGeometryChanged`, je Fenster `outputChanged`, `desktopsChanged`, `activitiesChanged`, `minimizedChanged`, `fullScreenChanged`, `maximizedChanged`, `closed`. Auch ausgeschlossene Dock-Fenster werden beobachtet: `frameGeometryChanged` und `outputChanged` lösen ein erneutes Abfragen der `clientArea` aus. Dock-`windowAdded/Removed` und Paneländerungen erhalten zusätzliche Durchläufe nach 500 ms und 1500 ms.
 6. Fensterverbindungen werden protokolliert und bei `windowRemoved` getrennt (Idee Aerogel `WorkspaceManager.ts:1292-1312`).
 7. Init: erst starten, wenn `workspace.activities` keine Null-UUID mehr enthält (Tessera `controller/index.ts:213-233`, MIT), sonst Retry über `QTimer`.
@@ -154,9 +154,9 @@ kwin-xmonad-lite/
 ├── src/
 │   ├── core/{rect,stack,surface}.ts, core/layout/{index,types,tall,full}.ts
 │   ├── state/{registry,reconcile}.ts
-│   ├── kwin/{globals.d,types,filter,plan,geometry,timer,read,adapter,log}.ts
+│   ├── kwin/{globals.d,types,filter,plan,geometry,apply,timer,read,adapter,log}.ts
 │   └── main.ts                   # Einstieg, verdrahtet Adapter und Kern
-├── tests/                        # node --test, nur core/ und state/; Hilfen in tests/support/
+├── tests/                        # node --test, core/, state/ und kwin/ bis zur Snapshot-Grenze
 ├── dev/probe/probe.js            # Feature-Probe, ES5, nicht Teil des KPackage
 ├── nix/{package,home-module,devshell,vm-test}.nix
 ├── scripts/{lib,dev-load,reload,logs,probe}.sh
@@ -241,6 +241,7 @@ Unangetastet bleiben `Meta+1..4`, `Meta+!@#$`, `Meta+Gravis` (Yakuake), `Meta+Ta
 | 1 | **erledigt 2026-09-05.** `core/rect`, `core/layout/tall`, `core/layout/full`, Unit-Tests mit Eigenschaftsprüfung (2025 Gitter- und 500 Fuzz-Fälle) | `node --test` grün (27 Tests) |
 | 2 | **erledigt 2026-09-05.** `core/stack`, `core/surface`, `state/registry`, `state/reconcile`, Tests für Fokus/Swap/Promote/Insert/Purge/Sticky | Tests grün (73 Tests) |
 | 3 | **erledigt 2026-09-05.** Adapter: Mitgliedschaft und Layout-Teilnahme getrennt, Surface-Auflösung, Debounce, Geometrie-Anwendung mit Generation/Guards. Die Surface-Auflösung beherrscht bereits mehrere Ausgaben und Sticky-Fenster; die Abnahme lief auf einer Ausgabe | Tests grün (138), Matrix 1–2, kein Flattern im Journal |
+| 3.1 | **erledigt 2026-09-05.** Stabilisierung des Schreib- und Prüfpfads: Schreibgeneration je Fenster statt je Anordnungsepoche, garantierte Nachprüfung nach abweichendem Rücklesen, Nachbessern ausschließlich im Timerlauf, fremde Geometrieänderungen lösen einen Lauf aus, `full` hebt nur Layout-Teilnehmer | Tests grün (164), vier Mutationsproben erkannt, Signalfolgen im Unit-Test |
 | 4 | Multi-Output, Desktopwechsel, Hotplug, Registry-GC, Dock-Geometriesignale, Panel-Proxy, Per-Output-Desktops feature-detected | Matrix 3–5, 9–10 auf SPIELKISTE (3 Outputs) |
 | 5 | Zustandsübergänge Fullscreen/Maximiert/Minimiert, Float-Toggle, Dialoge, Mindestgrößen | Matrix 11–15 |
 | 6 | Eigene Shortcuts, `readConfig`, plasma-manager-basiertes Home-Manager-Modul, `nix run` ohne lokale Schattenkopie; KDE-Konflikte explizit in `nixosconfig` | Einbindung in `nixosconfig` als Feature-Branch |
@@ -298,6 +299,8 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
 | Test-VM im MVP | Wayland-Smoke-Test mit einem Output; Zwei-Output-VM als Stufe-2-Experiment |
 | `moveable`/`resizeable` im Filter (Meilenstein 3) | nur bei der Layout-Teilnahme prüfen, nicht bei der Mitgliedschaft (Begründung in Abschnitt 7) |
 | Testschnitt des Adapters (Meilenstein 3) | Snapshot-Grenze: der Adapter liest KWin einmal in schlichte Datensätze aus, Filter, Zuordnung, Anordnung und Geometriewächter sind reine Funktionen darauf und laufen unter `node --test` |
+| Wer nachbessert (Meilenstein 3.1) | ausschließlich der Recheck-Timer, höchstens einmal je Fenster und Durchlauf. Der Signal-Callback liest, beruhigt und plant — er schreibt nie, sonst entstünde ein Write innerhalb von `frameGeometryChanged`. |
+| Nachhall nach dem Aufgeben (Meilenstein 3.1) | eigenes Feld `lastObservedRect` statt erweitertem `tiledRect`: nach einem Giveup fallen Soll und Ist auseinander, und `tiledRect` trägt ab Meilenstein 5 die Rückkehr aus dem Float. |
 
 Vom Planer entschieden und oben begründet: JS-Modus statt QML, keine Tile-API, keine dauerhaften Fenster-Eigenschaften, Maximiert verlässt das Tiling wie Fullscreen und wird vom Controller nicht aufgehoben, neue Fenster oberhalb des Fokus wie XMonad, Master-Anzahl fest 1, kein KCM-Dialog im MVP.
 

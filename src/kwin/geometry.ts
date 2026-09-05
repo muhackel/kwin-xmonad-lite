@@ -4,14 +4,17 @@ import type { WindowState } from "../state/registry.ts";
 import { UNLIMITED_SIZE } from "./filter.ts";
 import type { WindowInfo } from "./types.ts";
 
-/** Nachbesserungen je Anordnungsepoche (PLAN.md Abschnitt 4, Punkt 4). */
+/** Nachbesserungen je **Schreibgeneration** (PLAN.md Abschnitt 4, Punkt 4). */
 export const MAX_CORRECTIONS = 2;
 
 /** Warum eine Geometrie geschrieben wird — oder eben nicht. */
 export type WriteVerdict = "write" | "unchanged" | "drag" | "maximized";
 
 /** Was eine Meldung von `frameGeometryChanged` bedeutet. */
-export type CheckVerdict = "ignore" | "stale" | "settled" | "retry" | "giveup";
+export type SignalVerdict = "ignore" | "settled" | "diverged";
+
+/** Was eine eingeplante Nachpruefung ergibt. */
+export type RecheckVerdict = "ignore" | "stale" | "settled" | "retry" | "giveup";
 
 /**
  * Klemmt die Layoutzelle an die Groessenschranken des Fensters. Der
@@ -82,19 +85,33 @@ export function judgeWrite(info: WindowInfo, target: Rect): WriteVerdict {
 }
 
 /**
- * Nach einer Meldung von `frameGeometryChanged`. `"stale"` verwirft eine
- * Bestaetigung, die zu einer aelteren Epoche gehoert — auf Wayland kann eine
- * Groessenaenderung beliebig spaet zurueckkommen.
+ * Nach einer Meldung von `frameGeometryChanged`. Ein KWin-Signal traegt
+ * **keine** Schreibgeneration; eine zu erfinden waere eine Luege im
+ * Datenfluss. Das Urteil prueft deshalb nur gegen die aktuelle Erwartung des
+ * Fensters, und `"diverged"` heisst ausschliesslich "eine Nachpruefung
+ * einplanen" — nachgebessert wird nie im Signalpfad.
  */
-export function judgeCorrection(
-	state: WindowState,
-	generation: number,
-	actual: Rect,
-): CheckVerdict {
+export function judgeSignal(state: WindowState, actual: Rect): SignalVerdict {
 	if (state.expectedRect === null) {
 		return "ignore";
 	}
-	if (state.applyGeneration !== generation) {
+	if (equals(actual, state.expectedRect)) {
+		return "settled";
+	}
+	return "diverged";
+}
+
+/**
+ * Fuer die eingeplante Nachpruefung, die ihre Generation aus dem Zeitpunkt des
+ * Einplanens mitbringt. `"stale"` heisst: ein neuerer Write besitzt diese
+ * Erwartung inzwischen, dieser Eintrag hat nichts mehr zu melden. Der Zaehler
+ * begrenzt die Nachbesserungen je Schreibgeneration.
+ */
+export function judgeRecheck(state: WindowState, generation: number, actual: Rect): RecheckVerdict {
+	if (state.expectedRect === null) {
+		return "ignore";
+	}
+	if (state.writeGeneration !== generation) {
 		return "stale";
 	}
 	if (equals(actual, state.expectedRect)) {

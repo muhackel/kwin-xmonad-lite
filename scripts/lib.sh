@@ -35,6 +35,18 @@ require_kwin() {
 	fi
 }
 
+# Zwei Layout-Controller gleichzeitig waeren fatal: beide schrieben in
+# derselben Sitzung Geometrien und ueberschrieben sich gegenseitig.
+require_no_production() {
+	local name="${1:-kwin-xmonad-lite}"
+	if [ "$(script_loaded "$name")" = "true" ]; then
+		log_err "Die Produktionsinstanz '$name' ist geladen."
+		log_err "Erst ueber kwinrc [Plugins] ${name}Enabled=false deaktivieren,"
+		log_err "sonst laufen zwei Layout-Controller gleichzeitig."
+		exit 1
+	fi
+}
+
 # Gibt "true" oder "false" aus.
 script_loaded() {
 	busctl --user call "$KWIN_SERVICE" /Scripting "$KWIN_SCRIPTING_IFACE" \

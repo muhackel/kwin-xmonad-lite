@@ -1,5 +1,6 @@
 import type { Rect } from "../../src/core/rect.ts";
 import { surfaceKey } from "../../src/core/surface.ts";
+import type { GeometryPort } from "../../src/kwin/apply.ts";
 import { UNLIMITED_SIZE } from "../../src/kwin/filter.ts";
 import type { Timer } from "../../src/kwin/timer.ts";
 import type { SurfaceView, WindowInfo } from "../../src/kwin/types.ts";
@@ -104,5 +105,81 @@ export function fakeTimer(): FakeTimer {
 		starts(): number {
 			return started;
 		},
+	};
+}
+
+// --- Geometriezugriff -------------------------------------------------------
+
+export interface FakePort extends GeometryPort {
+	/** Istgeometrie setzen, etwa fuer eine fremde Aenderung. */
+	place(id: string, rect: Rect): void;
+	/** Handle entfernen: `read` liefert danach `null`, `write` `false`. */
+	drop(id: string): void;
+	setDragging(id: string, value: boolean): void;
+	/**
+	 * Was das Fenster aus einem Zielwert macht. Vorgabe ist die Uebernahme;
+	 * ein Groessenraster wird hier nachgestellt.
+	 */
+	setAccept(id: string, fn: (rect: Rect) => Rect): void;
+	/** Laeuft nach jedem `write` -- hier laesst sich ein synchrones Signal ausloesen. */
+	setOnWrite(fn: (id: string, rect: Rect) => void): void;
+	reads(): number;
+	writes(): number;
+	writesFor(id: string): number;
+}
+
+export function fakePort(): FakePort {
+	const geometry = new Map<string, Rect>();
+	const dragging = new Set<string>();
+	const accept = new Map<string, (rect: Rect) => Rect>();
+	const writeCount = new Map<string, number>();
+	let onWrite: ((id: string, rect: Rect) => void) | null = null;
+	let readTotal = 0;
+	let writeTotal = 0;
+
+	function place(id: string, rect: Rect): void {
+		geometry.set(id, rect);
+	}
+
+	return {
+		place,
+		drop(id: string): void {
+			geometry.delete(id);
+		},
+		setDragging(id: string, value: boolean): void {
+			if (value) {
+				dragging.add(id);
+			} else {
+				dragging.delete(id);
+			}
+		},
+		setAccept(id: string, fn: (rect: Rect) => Rect): void {
+			accept.set(id, fn);
+		},
+		setOnWrite(fn: (id: string, rect: Rect) => void): void {
+			onWrite = fn;
+		},
+		reads: () => readTotal,
+		writes: () => writeTotal,
+		writesFor: (id: string) => writeCount.get(id) ?? 0,
+
+		read(id: string): Rect | null {
+			readTotal += 1;
+			return geometry.get(id) ?? null;
+		},
+		write(id: string, rect: Rect): boolean {
+			if (!geometry.has(id)) {
+				return false;
+			}
+			writeTotal += 1;
+			writeCount.set(id, (writeCount.get(id) ?? 0) + 1);
+			const shape = accept.get(id);
+			geometry.set(id, shape === undefined ? rect : shape(rect));
+			if (onWrite !== null) {
+				onWrite(id, rect);
+			}
+			return true;
+		},
+		dragging: (id: string) => dragging.has(id),
 	};
 }
