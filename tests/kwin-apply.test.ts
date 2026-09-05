@@ -3,7 +3,7 @@ import { test } from "node:test";
 
 import type { Rect } from "../src/core/rect.ts";
 import type { WindowId } from "../src/core/stack.ts";
-import { createGeometryController } from "../src/kwin/apply.ts";
+import { createGeometryController, RECHECK_MS } from "../src/kwin/apply.ts";
 import { MAX_CORRECTIONS } from "../src/kwin/geometry.ts";
 import type { Registry } from "../src/state/registry.ts";
 import { createRegistry, getWindow } from "../src/state/registry.ts";
@@ -130,6 +130,28 @@ test("eine zeitversetzte Bestaetigung beruhigt ueber den Signalpfad", () => {
 	assert.equal(r.port.writes(), 1, "der Signalpfad schreibt nie");
 });
 
+test("eine zeitversetzte Bestaetigung raeumt auch die Nachpruefung ab", () => {
+	// Bliebe der Eintrag stehen, feuerte der Timer noch einmal ins Leere und
+	// laese dabei ein Fenster, an dem es nichts mehr zu tun gibt.
+	const r = rig();
+	stures(r, "a");
+	r.apply("a", TARGET);
+	assert.equal(r.pendingCount(), 1);
+
+	r.port.setAccept("a", (rect) => rect);
+	r.port.place("a", TARGET);
+	r.notifyChanged("a");
+
+	assert.equal(r.pendingCount(), 0);
+	assert.equal(r.timer.active, false, "ohne verbleibende Arbeit haelt der Timer an");
+
+	const reads = r.port.reads();
+	const writes = r.port.writes();
+	r.timer.fire();
+	assert.equal(r.port.reads(), reads, "ein dennoch ausgeloester Lauf liest nichts");
+	assert.equal(r.port.writes(), writes);
+});
+
 test("der Signalpfad plant bei Abweichung nur eine Nachpruefung ein", () => {
 	const r = rig();
 	stures(r, "a");
@@ -200,6 +222,31 @@ test("ein verspaetetes Signal nach dem Aufgeben ist Nachhall, keine fremde Aende
 	assert.equal(r.port.writes(), writes, "kein weiterer Write");
 	assert.equal(r.pendingCount(), 0);
 	assert.equal(r.timer.active, false, "kein neuer Timer");
+});
+
+test("eine fremde Verschiebung auf das alte Soll ist kein Nachhall", () => {
+	// Nach einem Giveup ist tiledRect absichtlich das nie erreichte Soll. Wer
+	// den Nachhall auch daran erkennt, verschluckt genau diese Verschiebung.
+	const r = rig();
+	braves(r, "a");
+	r.apply("a", TARGET);
+
+	// Ab jetzt nimmt das Fenster keinen Zielwert mehr genau an.
+	r.port.setAccept("a", () => GERASTERT);
+	r.apply("a", ANDERS);
+	r.timer.fire();
+	r.timer.fire();
+	r.timer.fire();
+
+	const state = getWindow(r.registry, "a");
+	assert.deepEqual(state.tiledRect, TARGET, "das alte Soll steht noch");
+	assert.deepEqual(state.lastObservedRect, GERASTERT, "der Istwert weicht davon ab");
+
+	// Ein fremdes Programm schiebt das Fenster genau auf das alte Soll.
+	r.port.place("a", TARGET);
+	r.notifyChanged("a");
+
+	assert.deepEqual(r.extern, ["a"]);
 });
 
 // --- Generationen -----------------------------------------------------------
@@ -301,6 +348,32 @@ test("waehrend eines Ziehens wird nichts gemeldet", () => {
 	assert.deepEqual(r.extern, [], "interactiveMoveResizeFinished ordnet danach an");
 });
 
+test("eine Nachpruefung waehrend des Ziehens laesst die Erwartung fallen", () => {
+	// Bliebe sie offen, fiele das erste Signal nach dem Loslassen in den
+	// Erwartungszweig: der Timer schoebe das Fenster ohne Anordnungslauf
+	// zurueck, statt die Verschiebung zu melden.
+	const r = rig();
+	stures(r, "a");
+	r.apply("a", TARGET);
+	assert.equal(r.pendingCount(), 1);
+
+	r.port.setDragging("a", true);
+	r.timer.fire();
+
+	const state = getWindow(r.registry, "a");
+	assert.equal(state.expectedRect, null);
+	assert.equal(r.pendingCount(), 0);
+
+	// Loslassen: die Geometrie steht dort, wo der Nutzer sie hingezogen hat.
+	r.port.setDragging("a", false);
+	r.port.place("a", ANDERS);
+	const writes = r.port.writes();
+	r.notifyChanged("a");
+
+	assert.deepEqual(r.extern, ["a"], "gemeldet, nicht unter der Hand zurueckgeschoben");
+	assert.equal(r.port.writes(), writes);
+});
+
 test("das Signal eines anderen Fensters geht waehrend eines Writes nicht verloren", () => {
 	const r = rig();
 	braves(r, "a");
@@ -346,4 +419,38 @@ test("ein zwischen Write und Nachpruefung geschlossenes Fenster wird vergessen",
 	assert.equal(r.port.writes(), writes, "kein Write an einem toten Objekt");
 	assert.equal(r.pendingCount(), 0);
 	assert.equal(getWindow(r.registry, "a").expectedRect, null);
+});
+
+// --- Der Nachpruefungstimer -------------------------------------------------
+
+test("der Controller stellt den Timer auf Einmalbetrieb ein", () => {
+	const r = rig();
+	assert.equal(r.timer.singleShot, true);
+	assert.equal(r.timer.interval, RECHECK_MS);
+});
+
+test("ein leerer Durchlauf haelt den Timer an", () => {
+	// Gemessen ist nur, dass `singleShot` existiert — nicht, dass die Zuweisung
+	// wirkt. Ohne das eigene `stop()` feuerte der Timer sonst fuer immer alle
+	// 50 ms ins Leere. Bewusst am nackten Timer aufgebaut: jeder Weg ueber
+	// settle, forget oder giveup raeumte selbst auf und verdeckte die Annahme.
+	const r = rig();
+	r.timer.setRepeating(true);
+	r.timer.start();
+
+	r.timer.fire();
+
+	assert.equal(r.timer.active, false);
+});
+
+test("eine Nachbesserung startet den Timer nicht zweimal", () => {
+	const r = rig();
+	stures(r, "a");
+	r.apply("a", TARGET);
+	assert.equal(r.timer.starts(), 1, "das abweichende Ruecklesen plant ein");
+
+	r.timer.fire();
+
+	assert.equal(r.timer.starts(), 2, "der Retry plant ein, der Schlussblock nicht noch einmal");
+	assert.equal(r.timer.active, true);
 });
