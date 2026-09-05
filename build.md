@@ -158,12 +158,19 @@ kwin-xmonad-lite: apply {0fb083bd-…} soll=1664x1410+0+0
 Dazu ab Meilenstein 4:
 
 ```
+kwin-xmonad-lite: dockHinzugefügt {285a8fb6-…}    # Panel ist erschienen
 kwin-xmonad-lite: dockGeometrie {285a8fb6-…}      # Panel hat sich bewegt
 kwin-xmonad-lite: dockEntfernt {baff47ba-…}       # Panel ist verschwunden
 kwin-xmonad-lite: gc #83 fenster=0 surfaces=3     # Registry-GC dieses Laufs
 kwin-xmonad-lite: surface entfernt <activity>|<desktop>|DP-1
-kwin-xmonad-lite: arrange #61 grund=nachlauf500   # verzögerter Nachlauf
+kwin-xmonad-lite: arrange #61 grund=nachlauf500:dockHinzugefügt+dockGeometrie
 ```
+
+Der Nachlaufgrund trägt seine **Quellen** mit: `dockHinzugefügt`,
+`dockGeometrie`, `dockEntfernt`, `screensChanged` und `screenGeometry` starten
+dieselben zwei Timer. Sie werden über die ganze Runde gesammelt und erst vom
+Nachlauf nach 1500 ms geleert — ein Nachlauf ist damit eindeutig zuzuordnen,
+auch wenn zwischendurch noch etwas auslöst.
 
 `perOutputDesktops` steuert kein Verhalten, macht einen Journalauszug aber
 deutbar. Die `gc`-Zeile trägt die Epoche, weil sie **vor** der `arrange`-Zeile
@@ -255,10 +262,27 @@ busctl --user call org.kde.KWin /VirtualDesktopManager \
 # erwartet: gc #N fenster=0 surfaces=3 plus drei "surface entfernt"-Zeilen
 ```
 
+**Dock-Aufbau** — dass ein *erscheinendes* Panel die Nachläufe startet, ist nur
+zu sehen, wenn beim Laden **kein** Dock existiert; sonst löst schon der Abbau
+über `closed` dieselben Timer aus:
+
+```bash
+systemctl --user stop plasma-plasmashell.service   # Panels verschwinden
+nix run .#dev-load                                 # Controller ohne jedes Dock
+systemctl --user start plasma-plasmashell.service
+```
+
+Erwartet: je Panel eine Zeile `dockHinzugefügt {…}`, danach
+`arrange … grund=nachlauf500:dockHinzugefügt` und `nachlauf1500:…` — und
+**kein** `dockEntfernt`, weil beim Laden kein Dock verbunden war. Damit kann
+der Nachlauf nur aus dem `windowAdded`-Zweig stammen. Gemessen auf SPIELKISTE:
+der Startlauf rechnete noch mit `flaeche=…x1440`, der Lauf nach dem letzten
+`dockHinzugefügt` mit `1410`.
+
 **Testmatrix 10** — Panelhöhe ändern. Erwartet: `dockGeometrie`, danach ein
 Lauf mit bereits **neuer** Fläche (`flaeche=2560x1404` statt `1410`) und die
 zugehörigen `apply`-Zeilen. Anders als beim Hotplug ist `clientArea` hier
-sofort aktuell; die Nachläufe finden nichts mehr zu tun. Während des Ziehens am
+schon im entprellten Lauf aktuell; die Nachläufe finden nichts mehr zu tun. Während des Ziehens am
 Höhenregler kommt je Zwischenschritt ein Lauf — das ist die laufende
 Nutzeraktion, kein Flattern. Nach dem Loslassen muss es still sein.
 

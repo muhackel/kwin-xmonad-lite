@@ -265,10 +265,13 @@ verzögerten Nachläufe bei 500 **und** 1500 ms sind beide nötig — 500 ms all
 traf einen Zwischenstand. Sie hängen deshalb nicht nur an `screensChanged`,
 sondern auch an den Dock-Signalen.
 
-**Nicht belegt:** dass `clientArea` auch beim reinen Panelhöhenwechsel ohne
-Bildschirmänderung nachzieht. Im Lauf mit den Panel-Handgriffen wurde die Höhe
-wieder auf den Ausgangswert gestellt, bevor sich ein Unterschied zeigen konnte.
-Das gehört in die Abnahme von Testmatrix 10.
+**Der reine Panelhöhenwechsel verhält sich anders** — nachgetragen aus der
+Abnahme von Testmatrix 10 (SPIELKISTE, drei Ausgaben): auf `dockGeometrie`
+folgte ein Lauf mit `flaeche=2560x1404` statt der vorherigen `1410`, die Fläche
+war dort also bereits neu. Gemessen ist damit der **entprellte Lauf** rund
+20 ms nach dem Signal, nicht der Moment des Signals selbst — dieser Zeitpunkt
+bleibt für den Panelfall unbelegt. Für die Nachläufe genügt das: sie sind hier
+nur Absicherung, während sie nach einer Ausgabenänderung tragen.
 
 ### 3.4 Reihenfolge beim Hotplug
 

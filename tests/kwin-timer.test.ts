@@ -177,7 +177,7 @@ test("ein Ausloeser startet jeden Nachlauf", () => {
 	const followUps = createFollowUps(reihe(timers), [500, 1500], () => {});
 
 	assert.equal(followUps.running(), 0);
-	followUps.trigger();
+	followUps.trigger("screensChanged");
 
 	assert.equal(followUps.running(), 2);
 	assert.deepEqual(
@@ -193,8 +193,8 @@ test("ein zweiter Ausloeser setzt die Nachlaeufe zurueck statt sie zu verdoppeln
 	const timers = [fakeTimer(), fakeTimer()];
 	const followUps = createFollowUps(reihe(timers), [500, 1500], () => {});
 
-	followUps.trigger();
-	followUps.trigger();
+	followUps.trigger("screensChanged");
+	followUps.trigger("screenGeometry");
 
 	assert.equal(followUps.running(), 2);
 	assert.deepEqual(
@@ -207,7 +207,7 @@ test("cancel haelt alle Nachlaeufe an", () => {
 	const timers = [fakeTimer(), fakeTimer()];
 	const followUps = createFollowUps(reihe(timers), [500, 1500], () => {});
 
-	followUps.trigger();
+	followUps.trigger("screensChanged");
 	followUps.cancel();
 
 	assert.equal(followUps.running(), 0);
@@ -223,7 +223,7 @@ test("jeder Nachlauf haelt seinen Timer selbst an", () => {
 	}
 	const followUps = createFollowUps(reihe(timers), [500, 1500], () => {});
 
-	followUps.trigger();
+	followUps.trigger("screensChanged");
 	const erster = must(timers[0], "erster Timer");
 	erster.fire();
 
@@ -245,18 +245,18 @@ test("ein Nachlauf meldet beim Entpreller an, statt selbst anzuordnen", () => {
 			gruende = reasons;
 		},
 	);
-	const followUps = createFollowUps(reihe(nachlaeufe), [500, 1500], (delay) => {
-		debouncer.schedule(`nachlauf${delay}`);
+	const followUps = createFollowUps(reihe(nachlaeufe), [500, 1500], (delay, quellen) => {
+		debouncer.schedule(`nachlauf${delay}:${quellen.join("+")}`);
 	});
 
-	followUps.trigger();
+	followUps.trigger("dockGeometrie");
 	must(nachlaeufe[0], "erster Nachlauf").fire();
 	must(nachlaeufe[1], "zweiter Nachlauf").fire();
 
 	assert.equal(laeufe, 0, "vor dem Entprellfenster passiert nichts");
 	entpreller.fire();
 	assert.equal(laeufe, 1, "beide Nachlaeufe ergeben einen Lauf");
-	assert.deepEqual(gruende, ["nachlauf500", "nachlauf1500"]);
+	assert.deepEqual(gruende, ["nachlauf500:dockGeometrie", "nachlauf1500:dockGeometrie"]);
 });
 
 test("ein Fehler im Nachlauf reisst den zweiten nicht mit", () => {
@@ -269,9 +269,64 @@ test("ein Fehler im Nachlauf reisst den zweiten nicht mit", () => {
 		zweiter += 1;
 	});
 
-	followUps.trigger();
+	followUps.trigger("screensChanged");
 	must(timers[0], "erster Timer").fire();
 	must(timers[1], "zweiter Timer").fire();
 
 	assert.equal(zweiter, 1);
+});
+
+test("die Quellen mehrerer Auslöser werden gesammelt, nicht ersetzt", () => {
+	// „Letzter Auslöser gewinnt" hätte die Abnahme unbrauchbar gemacht: folgt
+	// auf `dockHinzugefügt` noch ein `dockGeometrie`, wäre die gesuchte Quelle
+	// aus dem Journal verschwunden.
+	const timers = [fakeTimer(), fakeTimer()];
+	const gesehen: string[][] = [];
+	const followUps = createFollowUps(reihe(timers), [500, 1500], (_delay, quellen) => {
+		gesehen.push(quellen);
+	});
+
+	followUps.trigger("dockHinzugefügt");
+	followUps.trigger("dockGeometrie");
+	must(timers[0], "erster Timer").fire();
+	must(timers[1], "zweiter Timer").fire();
+
+	assert.deepEqual(gesehen, [
+		["dockHinzugefügt", "dockGeometrie"],
+		["dockHinzugefügt", "dockGeometrie"],
+	]);
+});
+
+test("der letzte Nachlauf leert den Quellensatz", () => {
+	// Sonst schleppte eine Runde ihre Quellen in die nächste und der Grund im
+	// Journal wüchse endlos.
+	const timers = [fakeTimer(), fakeTimer()];
+	const gesehen: string[][] = [];
+	const followUps = createFollowUps(reihe(timers), [500, 1500], (_delay, quellen) => {
+		gesehen.push(quellen);
+	});
+
+	followUps.trigger("dockHinzugefügt");
+	must(timers[0], "erster Timer").fire();
+	must(timers[1], "zweiter Timer").fire();
+
+	followUps.trigger("screensChanged");
+	must(timers[0], "erster Timer").fire();
+
+	assert.deepEqual(gesehen, [["dockHinzugefügt"], ["dockHinzugefügt"], ["screensChanged"]]);
+});
+
+test("cancel leert den Quellensatz mit", () => {
+	const timers = [fakeTimer(), fakeTimer()];
+	const gesehen: string[][] = [];
+	const followUps = createFollowUps(reihe(timers), [500, 1500], (_delay, quellen) => {
+		gesehen.push(quellen);
+	});
+
+	followUps.trigger("dockEntfernt");
+	followUps.cancel();
+	followUps.trigger("screenGeometry");
+	must(timers[0], "erster Timer").fire();
+
+	assert.deepEqual(gesehen, [["screenGeometry"]]);
 });

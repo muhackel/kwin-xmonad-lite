@@ -232,8 +232,9 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - **`clientArea` zieht nach einer Ausgabenänderung nach.** Im Signal ist sie
   noch die alte, nach 500 ms teils noch ein Zwischenstand; erst nach 1500 ms
   stimmte sie (zweimal gemessen). Deshalb **zwei** Nachläufe, nicht einer. Nach
-  einer reinen Panelhöhenänderung ist sie dagegen sofort neu — der Nachlauf ist
-  dort nur Absicherung. Folge für Testmatrix 9: die Zwischenstände werden
+  einer reinen Panelhöhenänderung war sie dagegen schon im entprellten Lauf
+  neu (der Moment des Signals ist für diesen Fall nicht gemessen) — der
+  Nachlauf ist dort nur Absicherung. Folge für Testmatrix 9: die Zwischenstände werden
   mitgeschrieben, „genau ein Lauf mit Schreibvorgängen" ist beim
   Wiederanstecken nicht zu halten. Geprüft wird der **letzte** Lauf.
 - **Ein Nachlauf ruft nie `runArrange` direkt**, immer `debouncer.schedule`.
@@ -245,12 +246,25 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Registry-Eintrag versandet. Die Id für `closed` kommt aus der Closure. Nach
   einem Hotplug kehrt ein Panel als **neues** Fenster zurück — `windowAdded`
   verbindet es, ein einmaliges Verbinden beim Start genügt nicht.
+- **Der Dock-Aufbau hängt an `windowAdded`, der Abbau an `closed`** — und
+  beide starten die Nachläufe. Ein Panel, das beim Login nach dem Controller
+  erscheint, ändert die Arbeitsfläche, ohne dass zwingend ein Geometriesignal
+  folgt; ohne den Nachlauf bliebe eine verspätet aktualisierte `clientArea`
+  ungelesen. `start()` löst dagegen bewusst **keinen** Nachlauf aus, damit das
+  Laden ein einziger Lauf bleibt.
+- **Der Nachlauf trägt seine Quellen im Grund** (`nachlauf500:dockHinzugefügt`).
+  Fünf Auslöser starten dieselben zwei Timer; ohne die Quelle ist im Journal
+  nicht zu sehen, welcher es war, und der Dock-Zweig wäre nicht abnehmbar. Die
+  Quellen werden **gesammelt**, nicht überschrieben: bei „letzter gewinnt"
+  verschwände die gesuchte Quelle, sobald danach noch etwas auslöst. Geleert
+  wird der Satz vom letzten Nachlauf einer Runde und von `cancel()`.
 - **Der Registry-GC ist ein reiner Schritt** (`kwin/purge.ts`), kein
   Adaptercode. Die Snapshot-Listen werden dort **explizit** zu `Set<string>`:
   ein durchgereichtes Array wäre für `purgeSurfaces` still „nichts ist gültig"
   und löschte jede Surface. Eine leere Liste gilt als misslungener
-  Lesedurchgang und löscht nichts — KWin hat immer mindestens eine Activity und
-  einen Desktop.
+  Lesedurchgang und löscht **keine Surfaces** — KWin hat immer mindestens eine
+  Activity und einen Desktop. Die **Fensterzustände** werden davor regulär
+  bereinigt; der Schutz greift nur für den Surface-Teil.
 - **Jede Ausgabe läuft durch `log()`**, sonst greift der Journalfilter in
   `scripts/logs.sh` nicht und die Zeile ist bei `nix run .#logs` unsichtbar.
 
@@ -276,6 +290,19 @@ Activities und verwaltet nicht die Zahl der Desktops.
 
 ### Werkzeugkette
 
+- **In den Entwicklungsskripten ist jeder früh endende Leser einer Pipeline
+  eine Falle.** `writeShellApplication` setzt `pipefail` **und** `errexit`:
+  `awk … exit`, `grep -q` und `grep -m1` beenden sich beim ersten Treffer, die
+  Vorstufe bekommt SIGPIPE, die Pipeline meldet 141 — und das Skript endet
+  wortlos, oft noch vor der ersten Ausgabezeile. Deshalb liest `awk` bis `END`,
+  Mengenprüfungen laufen über `<<<` statt über eine Pipe, und auf eine
+  Journalzeile wird mit `grep … >/dev/null` gepollt statt mit
+  `journalctl -f | grep -q -m1` gewartet. Letzteres meldete einen Fehlschlag
+  genau dann, wenn die Zeile da war.
+- **Ein laufendes Shellskript nie überschreiben.** bash liest die Datei
+  byteweise nach; ein Überschreiben mitten im Lauf führt zu
+  `syntax error near unexpected token` an einer Stelle, die im Quelltext gar
+  nicht existiert. Für eine geänderte Fassung eine neue Datei anlegen.
 - `node --test tests/` schlägt fehl — Node deutet das Verzeichnis als
   Modulpfad. Immer `node --test tests/*.test.ts`. Generatoren und
   Prüfhilfen liegen deshalb unter `tests/support/`: das Glob sammelt sie nicht

@@ -92,7 +92,7 @@ test("die Snapshot-Listen wirken als Mengen, nicht als Zeichenketten", () => {
 	assert.equal(registry.surfaces.size, 2);
 });
 
-test("ein Snapshot ohne Activities oder Desktops loescht nichts", () => {
+test("ein Snapshot ohne Activities oder Desktops löscht keine Surfaces", () => {
 	// KWin hat immer mindestens eine Activity und einen Desktop; eine leere
 	// Menge ist ein misslungener Lesedurchgang und kein Loeschauftrag.
 	const registry = createRegistry();
