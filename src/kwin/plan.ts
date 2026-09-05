@@ -39,6 +39,19 @@ export interface ArrangePlan {
 	surfaces: SurfacePlan[];
 }
 
+/**
+ * Wen `full` obenauf legt. Der fokussierte Eintrag kann minimiert, floatend
+ * oder im Vollbild sein — dann ist er kein Layout-Teilnehmer und darf nicht
+ * ueber die gekachelten gehoben werden. Ersatz ist der Master: im Monocle
+ * liegen die uebrigen ohnehin deckungsgleich darunter.
+ */
+function raiseFor(focus: WindowId | null, participants: WindowId[]): WindowId | null {
+	if (focus !== null && participants.indexOf(focus) >= 0) {
+		return focus;
+	}
+	return participants[0] ?? null;
+}
+
 function byId(windows: WindowInfo[]): Map<WindowId, WindowInfo> {
 	const map = new Map<WindowId, WindowInfo>();
 	for (const info of windows) {
@@ -112,7 +125,6 @@ export function planArrangement(
 			placements.push({ id, rect: fitToCell(cell, info, view.area) });
 		}
 
-		const focus = state.focus;
 		surfaces.push({
 			key: view.key,
 			layoutId: layout.id,
@@ -121,7 +133,7 @@ export function planArrangement(
 			members: state.order.slice(),
 			participants,
 			placements,
-			raise: layout.id === "full" && focus !== null ? focus : null,
+			raise: layout.id === "full" ? raiseFor(state.focus, participants) : null,
 		});
 	}
 
