@@ -142,6 +142,7 @@ export interface FakePort extends GeometryPort {
 	/** Handle entfernen: `read` liefert danach `null`, `write` `false`. */
 	drop(id: string): void;
 	setDragging(id: string, value: boolean): void;
+	setBlocked(id: string, value: boolean): void;
 	/**
 	 * Was das Fenster aus einem Zielwert macht. Vorgabe ist die Übernahme;
 	 * ein Größenraster wird hier nachgestellt.
@@ -157,6 +158,7 @@ export interface FakePort extends GeometryPort {
 export function fakePort(): FakePort {
 	const geometry = new Map<string, Rect>();
 	const dragging = new Set<string>();
+	const blocked = new Set<string>();
 	const accept = new Map<string, (rect: Rect) => Rect>();
 	const writeCount = new Map<string, number>();
 	let onWrite: ((id: string, rect: Rect) => void) | null = null;
@@ -177,6 +179,13 @@ export function fakePort(): FakePort {
 				dragging.add(id);
 			} else {
 				dragging.delete(id);
+			}
+		},
+		setBlocked(id: string, value: boolean): void {
+			if (value) {
+				blocked.add(id);
+			} else {
+				blocked.delete(id);
 			}
 		},
 		setAccept(id: string, fn: (rect: Rect) => Rect): void {
@@ -207,5 +216,6 @@ export function fakePort(): FakePort {
 			return true;
 		},
 		dragging: (id: string) => dragging.has(id),
+		blocked: (id: string) => !geometry.has(id) || blocked.has(id),
 	};
 }

@@ -52,12 +52,18 @@
         let
           package = packageFor system;
           mainJs = "${package}/share/kwin/scripts/kwin-xmonad-lite/contents/code/main.js";
+          devMenuJs = "${package}/share/kwin-xmonad-lite-dev/dev.js";
+          pkgs = pkgsFor system;
+          sizeWindowPython = pkgs.python3.withPackages (pythonPackages: [ pythonPackages.tkinter ]);
         in
         {
           dev-load = mkTool system {
             name = "dev-load";
             file = ./scripts/dev-load.sh;
-            env = ''XML_MAIN_JS="${mainJs}"'';
+            env = ''
+              XML_MAIN_JS="${mainJs}"
+              XML_DEV_MENU_JS="${devMenuJs}"
+            '';
           };
           reload = mkTool system {
             name = "reload";
@@ -77,6 +83,17 @@
             name = "probe-signals";
             file = ./scripts/probe-signals.sh;
             env = ''XML_SIGNALS_JS="${./dev/probe/signals.js}"'';
+          };
+          unload = mkTool system {
+            name = "unload";
+            file = ./scripts/unload.sh;
+          };
+          size-window = pkgs.writeShellApplication {
+            name = "kwin-xmonad-lite-size-window";
+            runtimeInputs = [ sizeWindowPython ];
+            text = ''
+              exec python3 ${./dev/size-window.py} "$@"
+            '';
           };
         };
 
@@ -105,6 +122,8 @@
           logs = appFor system tools.logs;
           probe = appFor system tools.probe;
           probe-signals = appFor system tools.probe-signals;
+          unload = appFor system tools.unload;
+          size-window = appFor system tools.size-window;
         }
       );
 

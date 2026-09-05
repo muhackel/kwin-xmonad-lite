@@ -26,18 +26,23 @@ Enthält TypeScript, Node, esbuild, Biome, shellcheck, git sowie
 nix build
 find result/ -type f
 # result/share/kwin/scripts/kwin-xmonad-lite/{metadata.json,LICENSE,README.md,contents/code/main.js}
+# result/share/kwin-xmonad-lite-dev/dev.js
 ```
 
 ### In die laufende Sitzung laden
 
 ```bash
 nix run              # = nix run .#dev-load
+nix run . -- --menu   # Dev-Bundle mit Float-Toggle im Fenstermenü
 nix run .#reload     # nach einer Änderung
+nix run .#unload     # Entwicklungsinstanz entladen
 nix run .#logs       # Journal verfolgen, -a für ungefiltert
 ```
 
 `dev-load` bricht ab, wenn die deklarativ aktivierte Produktionsinstanz geladen
-ist — zwei Layout-Controller gleichzeitig wären fatal.
+ist — zwei Layout-Controller gleichzeitig wären fatal. `--menu` lädt das
+getrennte Dev-Bundle unter demselben Namen wie die normale
+Entwicklungsinstanz; beide können daher ebenfalls nicht nebeneinander laufen.
 
 ### Feature-Probe
 
@@ -105,10 +110,10 @@ biome check .                # Lint und Format
 
 Getestet werden `src/core/`, `src/state/` und der überwiegende Teil von
 `src/kwin/`. Der Adapter ist an der **Snapshot-Grenze** geteilt: er liest die
-KWin-Objekte einmal je Durchlauf in schlichte Datensätze aus, und alles, was
-danach kommt — Fensterfilter, Surface-Zuordnung, die vollständige Anordnung,
-die Geometrieklemmung und der Nachbesserungswächter —, ist reine Rechnung und
-läuft unter `node --test`.
+KWin-Objekte einmal je Durchlauf in schlichte Datensätze aus. Fensterfilter,
+Surface-Zuordnung, Anordnung, Geometrieklemmung, Nachbesserungswächter,
+Float-Toggle und die vollständige Epoche sind reine Rechnung unter
+`node --test`.
 
 Auch die **Signalfolge** ist geprüft: `src/kwin/apply.ts` bekommt den
 Fensterzugriff als `GeometryPort` und den Timer als Fabrik herein, und
@@ -133,13 +138,16 @@ diese beiden werden auf der Maschine geprüft, nicht im Unit-Test. Die Grenze
 ist nachprüfbar:
 
 ```bash
-grep -n 'workspace\.\|KWin\.\|new QTimer\|options\.' src/kwin/*.ts \
-  | grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)'
-# darf nur Zeilen aus read.ts und adapter.ts zeigen
+grep -n 'workspace\.\|KWin\.\|new QTimer\|options\.\|registerUserActionsMenu' \
+  src/*.ts src/kwin/*.ts \
+  | grep -vE '(globals\.d\.ts|:[0-9]+:[[:space:]]*(\*|//|/\*))'
+# darf nur Zeilen aus boot.ts, dev.ts, read.ts und adapter.ts zeigen
 ```
 
 Der zweite `grep` wirft Kommentarzeilen weg — `types.ts` und `timer.ts`
-erwähnen die Globals in ihren Erklärungen, ohne sie zu benutzen.
+erwähnen die Globals in ihren Erklärungen, ohne sie zu benutzen. `boot.ts` und
+`dev.ts` sind die beiden KWin-Einstiege; hinter der Snapshot-Grenze bleiben
+weiterhin nur `read.ts` und `adapter.ts`.
 
 `node --test tests/` funktioniert **nicht**: Node deutet das Verzeichnis als
 Modulpfad. Immer die Dateien angeben. Aus demselben Grund liegen die
@@ -296,6 +304,92 @@ zugehörigen `apply`-Zeilen. Anders als beim Hotplug ist `clientArea` hier
 schon im entprellten Lauf aktuell; die Nachläufe finden nichts mehr zu tun. Während des Ziehens am
 Höhenregler kommt je Zwischenschritt ein Lauf — das ist die laufende
 Nutzeraktion, kein Flattern. Nach dem Loslassen muss es still sein.
+
+### Abnahme Matrix 11–15
+
+Die KWin-Aktionen lassen sich ohne neue Tastenbelegung über kglobalaccel
+auslösen:
+
+```bash
+kxl_action() {
+  busctl --user call org.kde.kglobalaccel /component/kwin \
+    org.kde.kglobalaccel.Component invokeShortcut s "$1"
+}
+kxl_action "Window Fullscreen"            # Matrix 12
+kxl_action "Window Maximize"              # Matrix 12a, Modus 3
+kxl_action "Window Maximize Horizontal"   # Matrix 12a, Modus 2
+kxl_action "Window Maximize Vertical"     # Matrix 12a, Modus 1
+kxl_action "Window Minimize"              # Matrix 13
+```
+
+Die reproduzierbaren Testfenster starten so:
+
+```bash
+nix run .#size-window -- --min 1200x900 --title kxl-min
+nix run .#size-window -- --max 800x500 --title kxl-max
+nix run .#size-window -- --grid 20x10 --title kxl-raster
+nix shell nixpkgs#foot -c foot -T kxl-stubborn
+nix shell nixpkgs#kdePackages.kdialog -c kdialog --msgbox Hallo
+# Transient: in kwrite Strg+O
+```
+
+**Testmatrix 11** — Dialog oder Transient über einem gekachelten Elternfenster
+öffnen. Die Dialog-ID darf in keiner `apply`-Zeile stehen. Das Elternfenster
+bleibt gekachelt, die Mitgliederzahl unverändert.
+
+**Testmatrix 12** — bei mindestens drei Fenstern eines in echtes Vollbild und
+zurück schalten. Im Vollbild stehen zwei Layout-Teilnehmer im Journal; der
+Controller schreibt das Vollbildfenster nicht. Nach der Rückkehr erhält es
+dieselbe Zelle wie vorher.
+
+**Testmatrix 12a** — vollständige, horizontale und vertikale Maximierung
+getrennt prüfen. Die Modi 3, 2 und 1 verlassen das Layout. Währenddessen gibt
+es für die Fenster-ID weder `apply` noch `nachbessern`; nach Restore kehrt sie
+an dieselbe Stelle zurück. Der Controller enthält keinen Aufruf von
+`setFullScreen` oder `setMaximize`.
+
+**Testmatrix 13** — das mittlere von mindestens drei Fenstern minimieren und
+über die Taskleiste wiederherstellen. Die Surface meldet erst zwei, dann drei
+Teilnehmer. Die Position in der Reihenfolge bleibt gleich; beim
+Wiederherstellen schreibt der Controller nur, wenn KWin die Geometrie geändert
+hat.
+
+**Testmatrix 14** — mit `nix run . -- --menu` laden. Am Testfenster Alt+F3 →
+Extensions → „Float umschalten (kxl-dev)" wählen, das Fenster verschieben,
+wieder einkacheln und erneut floaten. Erwartete Folge: `gefloatet` ohne
+`apply` an dieser ID, `gekachelt` mit einem `apply` auf die alte Zelle,
+`wiederhergestellt` mit `float … soll=<gezogene Geometrie>` und ohne `apply`.
+Der Menüeintrag ist im Float-Zustand angehakt. Danach `nix run .#unload`:
+`isScriptLoaded` meldet `false`, „Extensions" ist fort und
+`kglobalshortcutsrc` unverändert.
+
+**Testmatrix 15** — `kxl-min` und `kxl-max` in Stapelzellen legen. Soll und Ist
+müssen die geklemmte, in der Arbeitsfläche verankerte Geometrie zeigen. Nach
+dem Einschwingen fünf Minuten lang kein `apply`, kein `aufgegeben` und keine
+Ausnahme. `kxl-raster` belegt die X11-Größenhinweise, erzwingt unter KWin 6.7.4
+aber keine Ablehnung: `frameGeometry` darf außerhalb des Rasters ankommen.
+Den Give-up-Pfad deshalb mit dem nativen Wayland-Client `kxl-stubborn` prüfen:
+höchstens drei Writes und genau ein `aufgegeben`. Ein anschließender
+Fokuswechsel erzeugt eine neue Epoche, aber keinen weiteren Write auf dieselbe
+ID. Ein neues Layoutziel oder eine fremde Verschiebung darf wieder einen
+Versuch auslösen.
+
+Zum Abschluss Reload und Grenzen prüfen:
+
+```bash
+nix run .#reload
+sleep 2
+journalctl --user -u plasma-kwin_wayland --since "-10 s" -o cat \
+  | grep -c 'kwin-xmonad-lite: apply'   # erwartet: 0
+nix run .#unload
+busctl --user call org.kde.KWin /Scripting \
+  org.kde.kwin.Scripting isScriptLoaded s kwin-xmonad-lite-dev
+```
+
+Nach dem Entladen darf innerhalb von 30 Sekunden keine neue Zeile mit
+`kwin-xmonad-lite:` erscheinen. IDs von minimierten, maximierten,
+Vollbild- und Float-Fenstern dürfen im jeweiligen Zustand keine `apply`-Zeile
+haben.
 
 ### Eigenschaftsprüfung des Layoutkerns
 

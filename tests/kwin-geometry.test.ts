@@ -4,6 +4,7 @@ import { test } from "node:test";
 import type { Rect } from "../src/core/rect.ts";
 import { UNLIMITED_SIZE } from "../src/kwin/filter.ts";
 import {
+	anchorInto,
 	fitToCell,
 	judgeRecheck,
 	judgeSignal,
@@ -15,6 +16,7 @@ import { createWindowState } from "../src/state/registry.ts";
 import { AREA, windowInfo } from "./support/kwinfake.ts";
 
 const CELL: Rect = { x: 0, y: 0, width: 1664, height: 1410 };
+const AREA_B: Rect = { x: 2560, y: 0, width: 2560, height: 1410 };
 
 function expecting(rect: Rect, generation: number, attempts: number): WindowState {
 	const state = createWindowState();
@@ -50,10 +52,31 @@ test("fitToCell hält die Mindesthöhe ein", () => {
 	assert.equal(fit.y, 610);
 });
 
+test("fitToCell lässt eine Mindesthöhe über die Arbeitsfläche hinausragen", () => {
+	const info = windowInfo("a");
+	info.minHeight = 2000;
+	const fit = fitToCell(CELL, info, AREA);
+	assert.equal(fit.height, 2000, "die Mindesthöhe gewinnt");
+	assert.equal(fit.y, AREA.y, "die obere Kante bleibt in der Fläche");
+});
+
 test("fitToCell achtet die Höchstgröße", () => {
 	const info = windowInfo("a");
 	info.maxWidth = 1000;
-	assert.equal(fitToCell(CELL, info, AREA).width, 1000);
+	assert.deepEqual(fitToCell(CELL, info, AREA), { x: 0, y: 0, width: 1000, height: 1410 });
+});
+
+test("fitToCell klemmt beide Achsen an die Höchstgröße", () => {
+	const info = windowInfo("a");
+	info.maxWidth = 700;
+	info.maxHeight = 400;
+	assert.deepEqual(fitToCell(CELL, info, AREA), { x: 0, y: 0, width: 700, height: 400 });
+});
+
+test("fitToCell beschränkt nur die Höhe, wenn die Breite unbegrenzt ist", () => {
+	const info = windowInfo("a");
+	info.maxHeight = 400;
+	assert.deepEqual(fitToCell(CELL, info, AREA), { x: 0, y: 0, width: 1664, height: 400 });
 });
 
 test("fitToCell ignoriert die Höchstgröße 2147483647", () => {
@@ -71,10 +94,36 @@ test("fitToCell verankert lieber links als unter die Mindestgröße zu gehen", (
 	assert.equal(fit.x, AREA.x, "die linke obere Ecke bleibt in der Fläche");
 });
 
+test("fitToCell ist idempotent", () => {
+	const info = windowInfo("a");
+	info.minWidth = 1000;
+	info.maxHeight = 400;
+	const cell: Rect = { x: 1664, y: 705, width: 896, height: 705 };
+	const einmal = fitToCell(cell, info, AREA);
+	assert.deepEqual(fitToCell(einmal, info, AREA), einmal);
+});
+
+test("anchorInto verankert an einer versetzten Arbeitsfläche", () => {
+	const rechtsUnten: Rect = { x: 5000, y: 1300, width: 400, height: 300 };
+	assert.deepEqual(anchorInto(rechtsUnten, AREA_B), {
+		x: 4720,
+		y: 1110,
+		width: 400,
+		height: 300,
+	});
+	const linksOben: Rect = { x: 2000, y: -100, width: 400, height: 300 };
+	assert.deepEqual(anchorInto(linksOben, AREA_B), { x: 2560, y: 0, width: 400, height: 300 });
+});
+
+test("anchorInto lässt Größe und ein passendes Rechteck unverändert", () => {
+	const rect: Rect = { x: 3000, y: 100, width: 800, height: 600 };
+	assert.deepEqual(anchorInto(rect, AREA_B), rect);
+});
+
 // --- judgeWrite -------------------------------------------------------------
 
 test("judgeWrite meldet write bei einer Abweichung", () => {
-	assert.equal(judgeWrite(windowInfo("a"), CELL), "write");
+	assert.equal(judgeWrite(windowInfo("a"), CELL, createWindowState()), "write");
 });
 
 test("judgeWrite meldet unchanged bei genauer Übereinstimmung", () => {
@@ -82,30 +131,40 @@ test("judgeWrite meldet unchanged bei genauer Übereinstimmung", () => {
 	// also auch kein frameGeometryChanged und keine Rückkopplung.
 	const info = windowInfo("a");
 	info.frameGeometry = { x: 0, y: 0, width: 1664, height: 1410 };
-	assert.equal(judgeWrite(info, CELL), "unchanged");
+	assert.equal(judgeWrite(info, CELL, createWindowState()), "unchanged");
+});
+
+test("judgeWrite lässt ein unverändertes aufgegebenes Ziel in Ruhe", () => {
+	const info = windowInfo("a");
+	info.frameGeometry = { x: 0, y: 0, width: 1660, height: 1400 };
+	const state = createWindowState();
+	state.tiledRect = CELL;
+	state.lastObservedRect = info.frameGeometry;
+	state.applyAttempts = MAX_CORRECTIONS;
+	assert.equal(judgeWrite(info, CELL, state), "abandoned");
 });
 
 test("judgeWrite meldet drag während move oder resize", () => {
 	const zieht = windowInfo("a");
 	zieht.move = true;
-	assert.equal(judgeWrite(zieht, CELL), "drag");
+	assert.equal(judgeWrite(zieht, CELL, createWindowState()), "drag");
 
 	const größt = windowInfo("b");
 	größt.resize = true;
-	assert.equal(judgeWrite(größt, CELL), "drag");
+	assert.equal(judgeWrite(größt, CELL, createWindowState()), "drag");
 });
 
 test("judgeWrite meldet maximized bei maximizeMode ungleich null", () => {
 	const info = windowInfo("a");
 	info.maximizeMode = 3;
-	assert.equal(judgeWrite(info, CELL), "maximized");
+	assert.equal(judgeWrite(info, CELL, createWindowState()), "maximized");
 });
 
 test("der Ziehzustand gewinnt gegen die Maximierung", () => {
 	const info = windowInfo("a");
 	info.move = true;
 	info.maximizeMode = 3;
-	assert.equal(judgeWrite(info, CELL), "drag");
+	assert.equal(judgeWrite(info, CELL, createWindowState()), "drag");
 });
 
 // --- judgeSignal ------------------------------------------------------------

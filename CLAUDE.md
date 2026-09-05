@@ -5,16 +5,14 @@ einen Teil des alten XMonad-Arbeitsgefühls zurück: Tall- und Full-Layout,
 Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
-und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 4
-abgeschlossen, samt den Nachschlägen 4.1, 4.1.1 und dem Audit 4.2** — Gerüst, Build- und
-Testkette, beide Proben (die Signalprobe nimmt jeden Eingriff auch bei Abbruch
-zurück, wertet ihren Abschlusssatz aus und meldet einen Exit-Code), Layoutkern
-(`rect`, `tall`, `full`), Fensterstapel, Registry und Reconcile, der
-KWin-Adapter mit geprüfter Signalfolge, dazu Multi-Output, Desktopwechsel,
-Hotplug, Registry-GC, Dock-Beobachtung und die verzögerten Nachläufe. Das
-geladene Skript kachelt auf allen Ausgaben mit `Tall`. Die Zustandsübergänge
-folgen in Meilenstein 5, die Tastenkürzel in 6 — bis dahin ist `Full` nicht
-erreichbar, weil der Layoutwechsel an `Meta+Space` hängt.
+und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 5
+ist abgeschlossen; Matrix 11–15 sind live geprüft.** Meilenstein 4 samt 4.1,
+4.1.1 und Audit 4.2 ist abgeschlossen. Der
+Controller kachelt auf allen Ausgaben mit `Tall`; Zustandsübergänge, Float,
+Dialogfilter und Größenschranken liegen hinter der Snapshot-Grenze. Die
+Tastenkürzel folgen in Meilenstein 6. Bis dahin ist `Full` nicht erreichbar,
+weil der Layoutwechsel an `Meta+Space` hängt; der Float-Toggle ist nur im
+getrennten Dev-Bundle verfügbar.
 
 ## Ursprung & Zweck
 
@@ -56,13 +54,16 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - `src/kwin/` → Adapter. Geteilt an der **Snapshot-Grenze**: `types` (die
   Datensätze), `filter` (Mitgliedschaft, Layout-Teilnahme, Surface-Zuordnung),
   `plan` (die ganze Anordnung), `geometry` (Klemmung und die beiden Urteile),
-  `apply` (Geometrieerwartung, Nachprüfung, Nachbesserung) und `timer`
-  (Entprellung samt der verzögerten Nachläufe) und `purge` (Registry-GC auf
-  dem Snapshot) sind reine Rechnung und mit `node --test` prüfbar. Nur `read`
-  und `adapter` fassen eine KWin-Global an. `apply` bekommt seinen
-  Fensterzugriff als `GeometryPort` und seinen Timer als Fabrik — damit läuft
-  die ganze Signalfolge aus Write, Rücklesen und Nachbesserung im Test.
+  `apply` (Geometrieerwartung und Nachbesserung), `epoch` (Anordnungslauf),
+  `float` (Float-Toggle), `timer` (Entprellung und Nachläufe) und `purge`
+  (Registry-GC) sind reine Rechnung und mit `node --test` prüfbar. Nur `read`
+  und `adapter` fassen dort eine KWin-Global an. `apply` bekommt seinen
+  Fensterzugriff als `GeometryPort` und seinen Timer als Fabrik.
+- `boot.ts` trägt den gemeinsamen Init-Retry. `main.ts` startet das
+  Produktions-Bundle; `dev.ts` ergänzt nur dort den Float-Toggle im
+  Fenstermenü.
 - `package/` → KPackage-Wurzel; der Build legt `contents/code/main.js` hinein.
+  Das Dev-Bundle liegt getrennt unter `share/kwin-xmonad-lite-dev/dev.js`.
 - `dev/probe/` → zwei Proben: `probe.js` misst die Skriptumgebung,
   `signals.js` misst, welche Signale im Betrieb ankommen und was sie tragen
   (siehe unten).
@@ -120,6 +121,8 @@ Activities und verwaltet nicht die Zahl der Desktops.
   `screensChanged` ist das einzige Signal über die Menge der Ausgaben und kommt
   in der Hotplug-Folge **zuletzt** — wer darauf entprellt anordnet, sieht eine
   vollständige Liste. Die Flächen sind dann trotzdem noch nicht fertig.
+- **`maximizedChanged` feuert bei jedem Moduswechsel**, auch bei den teilweisen
+  Modi 1 und 2 (`xdgshellwindow.cpp:1484-1492`).
 
 ### Layoutkern
 
@@ -170,6 +173,9 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Kommentarzeilen müssen herausgefiltert werden, sonst melden `types.ts` und
   `timer.ts` falsch positiv). Wer Logik in den Adapter zieht, verliert sie aus
   den Tests.
+- **`runEpoch` ist die Anordnungsepoche.** `adapter.runArrange` liest den
+  Snapshot, bereinigt Registry und Verbindungen und ruft sie. Änderungen am
+  Ablauf aus Plan, Teilnehmerwechsel, Writes und Raise gehören in `epoch.ts`.
 - **`moveable`/`resizeable` gehören in die Layout-Teilnahme, nicht in die
   Mitgliedschaft.** Ein Vollbildfenster meldet beide als `false`, ebenso das
   Panel — als Mitgliedschaftskriterium taugen sie für nichts. Entschieden in
@@ -188,6 +194,16 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Sich auf ein späteres `frameGeometryChanged` zu verlassen, läuft ins Leere:
   das Signal kann während des eigenen Schreibens gefeuert und dabei verworfen
   worden sein. Ein Fenster mit Größenraster bekäme sonst nie eine Nachbesserung.
+- **`place` schreibt Float-Rechtecke.** Die Schreibart setzt keine Erwartung,
+  plant keinen Recheck, lässt `tiledRect` unverändert und übernimmt das
+  Rücklesen als `lastObservedRect`. Im Journal heißt der Vorgang `float`, nie
+  `apply`.
+- **Der Recheck prüft `port.blocked` vor jedem Write.** `judgeWrite` schützt nur
+  die Epoche; ein bereits geplanter Recheck könnte sonst ein inzwischen
+  maximiertes, minimiertes, vollbildiges oder floatendes Fenster beschreiben.
+- **`raise` ist eine geordnete Liste.** Der letzte Eintrag liegt oben. Nur das
+  Full-Layout hebt Float-Fenster, und zwar in jeder Epoche nach dem gekachelten
+  Fenster.
 - **Die Schreibgeneration gehört zum Fenster, nicht zur Anordnungsepoche.** In
   Meilenstein 3 hing sie an der globalen Epoche; damit machte schon der nächste
   Lauf eines beliebigen anderen Fensters die offene Erwartung `stale`, und sie
@@ -195,14 +211,13 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - **Nach dem Aufgeben gilt der beobachtete Istwert als akzeptiert**
   (`lastObservedRect`). Ohne ihn liefe eine verspätete Meldung derselben
   Geometrie als fremde Änderung in einen neuen Anordnungs- und
-  Nachbesserungszyklus — genau das Flattern, das der Zähler verhindern soll.
-  Das Feld ist bewusst von `tiledRect` getrennt: nach einem Giveup fallen Soll
-  und Ist auseinander, und `tiledRect` trägt ab Meilenstein 5 die Rückkehr aus
-  dem Float. Deshalb entscheidet über den Nachhall **allein**
-  `lastObservedRect`: nähme `tiledRect` mit teil, würde eine fremde
-  Verschiebung genau auf das nie erreichte Soll als eigenes Echo verschluckt.
-  Im Gutfall sind beide ohnehin gleich, der zweite Vergleich brächte also
-  nichts und schadete nur im Giveup-Fall.
+  Nachbesserungszyklus. Das nicht erreichte Soll bleibt in `tiledRect`, der
+  Zähler auf `MAX_CORRECTIONS`. `judgeWrite` meldet `abandoned`, solange eine
+  spätere Epoche genau dasselbe Soll und denselben Istwert sieht. Ein anderes
+  Ziel oder ein anderer Istwert öffnet einen neuen Versuch; `forget` räumt das
+  Sperrmerkmal bei einem Zustandswechsel ab. Der Signalnachhall hängt trotzdem
+  allein an `lastObservedRect`, damit eine fremde Verschiebung auf das Soll
+  nicht verschluckt wird.
 - **Eine fremde Geometrieänderung löst genau einen Lauf aus**, und nur für ein
   Fenster, das zuletzt Layout-Teilnehmer war. Wer das Layout verlässt, verliert
   Erwartung **und** eingeplante Nachprüfung — `clearExpectation` allein räumt
@@ -226,7 +241,7 @@ Activities und verwaltet nicht die Zahl der Desktops.
   ganzzahlig ist nur `clientArea`. Ohne die Rundung meldete `equals` bei
   gebrochener Skalierung in jeder Epoche eine Abweichung, und jeder Lauf
   schriebe erneut.
-- **Auch der Init-Retry in `main.ts` baut nicht auf `singleShot`.** `tryStart`
+- **Auch der Init-Retry in `boot.ts` baut nicht auf `singleShot`.** `tryStart`
   stoppt den Timer zuerst und sperrt einen zweiten Start des Adapters — der
   verdrahtete sonst jedes Signal doppelt.
 - **Nicht bei jedem Auslöser den Timer neu starten.** Das erste Ereignis
@@ -307,6 +322,10 @@ Activities und verwaltet nicht die Zahl der Desktops.
   reservieren Tasten weiter (dort stehen 35 `Krohnkite*`- und 20
   `Polonium*`-Leichen). `objectName`s sind ab dem ersten Release stabil zu
   halten.
+- `registerUserActionsMenu` ruft den Callback bei jedem Öffnen mit dem
+  betroffenen Fenster auf. `triggered` bekommt die QAction, deshalb kommt das
+  Fenster aus der äußeren Closure (`scripting.cpp:461-530`). Das Projekt nutzt
+  die Funktion nur im Dev-Bundle.
 
 ### Werkzeugkette
 
@@ -339,6 +358,9 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Konfiguration heißt es `rules.preset`, nicht `rules.recommended`.
 - Biome formatiert auch `biome.json` selbst; nach einer Änderung von Hand
   einmal `biome check --write biome.json` laufen lassen.
+- `nix run .#size-window` startet den Xwayland-Testclient für Mindest-, Höchst-
+  und Rastergrößen. Der nackte `pkgs.python3` enthält im Pin kein `_tkinter`;
+  der App-Wrapper braucht `python3Packages.tkinter`.
 
 ## Git & Arbeitsweise
 

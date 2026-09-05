@@ -8,13 +8,36 @@ import type { WindowInfo } from "./types.ts";
 export const MAX_CORRECTIONS = 2;
 
 /** Warum eine Geometrie geschrieben wird — oder eben nicht. */
-export type WriteVerdict = "write" | "unchanged" | "drag" | "maximized";
+export type WriteVerdict = "write" | "unchanged" | "abandoned" | "drag" | "maximized";
 
 /** Was eine Meldung von `frameGeometryChanged` bedeutet. */
 export type SignalVerdict = "ignore" | "settled" | "diverged";
 
 /** Was eine eingeplante Nachprüfung ergibt. */
 export type RecheckVerdict = "ignore" | "stale" | "settled" | "retry" | "giveup";
+
+/**
+ * Schiebt ein Rechteck in die Arbeitsfläche, ohne seine Größe zu ändern. Ist
+ * das Rechteck größer als die Fläche, gewinnt deren linke obere Ecke.
+ */
+export function anchorInto(rect: Rect, area: Rect): Rect {
+	let x = rect.x;
+	let y = rect.y;
+	if (x + rect.width > area.x + area.width) {
+		x = area.x + area.width - rect.width;
+	}
+	if (y + rect.height > area.y + area.height) {
+		y = area.y + area.height - rect.height;
+	}
+	if (x < area.x) {
+		x = area.x;
+	}
+	if (y < area.y) {
+		y = area.y;
+	}
+
+	return { x, y, width: rect.width, height: rect.height };
+}
 
 /**
  * Klemmt die Layoutzelle an die Größenschranken des Fensters. Der
@@ -46,32 +69,15 @@ export function fitToCell(cell: Rect, info: WindowInfo, area: Rect): Rect {
 		height = info.maxHeight;
 	}
 
-	let x = cell.x;
-	let y = cell.y;
-	if (x + width > area.x + area.width) {
-		x = area.x + area.width - width;
-	}
-	if (y + height > area.y + area.height) {
-		y = area.y + area.height - height;
-	}
-	// Die linke obere Ecke gewinnt: lieber rechts überstehen als das Fenster
-	// unter seine Mindestgröße drücken.
-	if (x < area.x) {
-		x = area.x;
-	}
-	if (y < area.y) {
-		y = area.y;
-	}
-
-	return { x, y, width, height };
+	return anchorInto({ x: cell.x, y: cell.y, width, height }, area);
 }
 
 /**
- * Vor dem Schreiben. `"unchanged"` ist die eigentliche Flatterbremse: eine
- * Epoche ohne Änderung schreibt gar nichts, also feuert auch kein
- * `frameGeometryChanged`, also entsteht keine Rückkopplung.
+ * Vor dem Schreiben. `"unchanged"` deckt ein erreichtes Ziel ab;
+ * `"abandoned"` ein bereits aufgegebenes, unverändertes Soll/Ist-Paar. Beide
+ * verhindern einen Write und damit eine neue Rückkopplung.
  */
-export function judgeWrite(info: WindowInfo, target: Rect): WriteVerdict {
+export function judgeWrite(info: WindowInfo, target: Rect, state: WindowState): WriteVerdict {
 	if (info.move || info.resize) {
 		return "drag";
 	}
@@ -80,6 +86,16 @@ export function judgeWrite(info: WindowInfo, target: Rect): WriteVerdict {
 	}
 	if (equals(info.frameGeometry, target)) {
 		return "unchanged";
+	}
+	if (
+		state.expectedRect === null &&
+		state.applyAttempts >= MAX_CORRECTIONS &&
+		state.tiledRect !== null &&
+		state.lastObservedRect !== null &&
+		equals(target, state.tiledRect) &&
+		equals(info.frameGeometry, state.lastObservedRect)
+	) {
+		return "abandoned";
 	}
 	return "write";
 }

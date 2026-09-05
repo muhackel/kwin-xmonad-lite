@@ -322,3 +322,89 @@ zählt, muss deshalb zwei Fälle unterscheiden: das tote QObject (gilt als
 getrennt, rein informativ) und jeden anderen Wurf (die Verbindung bleibt offen
 und ist eine Beanstandung). `runCut` in `dev/probe/signals.js` tut genau das
 und meldet beide Zahlen im `end`-Satz als `cut_tot` und `cut_fehler`.
+
+## 4. Quelltextbefunde, Meilenstein 5
+
+Geprüft am 2026-09-05 im Quelltext von KWin 6.7.4 aus dem nixpkgs-Pin
+(`/nix/store/hi0chbrrdrl3wbixs262qjw5snjyn51n-kwin-6.7.4.tar.xz`).
+
+### 4.1 Fenstermenü für den Entwicklungs-Toggle
+
+`registerUserActionsMenu(callback)` ruft den Callback bei jedem Öffnen des
+Fenstermenüs mit dem betroffenen `Window` auf (`scripting.cpp:461-497`). Der
+Callback liefert einen Eintrag `{text, triggered}` oder ein Untermenü über
+`items`; `checkable` und `checked` werden ebenfalls gelesen. `triggered`
+erhält die `QAction`, nicht das Fenster. Der Callback muss das Fenster daher in
+seiner Closure halten.
+
+KWin baut das Untermenü „Extensions" bei jedem Öffnen aus den gerade geladenen
+Skripten neu (`useractions.cpp:350-363`, `scripting.cpp:893-902`). Nach
+`unloadScript` bleibt kein Menüeintrag zurück.
+
+### 4.2 Teilweise Maximierung
+
+`XdgToplevelWindow::updateMaximizeMode` emittiert `maximizedChanged()` bei
+jedem Wechsel des Modus (`xdgshellwindow.cpp:1484-1492`). Das umfasst die
+numerischen Modi 1 (vertikal), 2 (horizontal) und 3 (vollständig).
+
+### 4.3 Geometrieschreiben kennt keinen Zustandswächter
+
+`Window::moveResize` prüft vor dem Schreiben nur `isDeleted()`
+(`window.cpp:3412-3420`). Die Methode schützt nicht vor einem Write in ein
+maximiertes oder Vollbildfenster. Deshalb prüfen sowohl die Epoche als auch der
+Nachprüfungspfad die Layout-Teilnahme vor dem Schreiben.
+
+### 4.4 Reproduzierbare Fensteraktionen
+
+In `~/.config/kglobalshortcutsrc` unter `[kwin]` existieren die Aktionen
+`Window Fullscreen`, `Window Maximize`, `Window Maximize Horizontal`,
+`Window Maximize Vertical` und `Window Minimize`. Die D-Bus-Introspektion von
+`org.kde.kglobalaccel /component/kwin` weist dafür `invokeShortcut s` aus. Die
+Live-Abnahme kann diese Zustände damit ohne neue Tastenbelegung auslösen.
+
+## 5. Livebefunde, Meilenstein 5
+
+Gemessen am 2026-09-06 auf SPIELKISTE mit KWin 6.7.4.
+
+Der Tk-Testclient mit `wm_grid(0, 0, 20, 10)` veröffentlichte laut `xprop`
+einen Rasterabstand von `20x10` und eine Basisgröße von `111x69`. KWin nahm
+die direkte `frameGeometry`-Zuweisung trotzdem exakt an; die X11-Clientgröße
+`896x254` liegt in beiden Achsen fünf Pixel neben diesem Raster. Das Raster
+eignet sich daher nicht als reproduzierbarer Give-up-Auslöser.
+
+Der native Wayland-Client foot quittierte dagegen ein Soll von `896x235` als
+`894x223`. Der Controller schrieb einmal und besserte zweimal nach, danach
+folgte genau ein `aufgegeben`. Vor dem MS-5-Nachschlag startete jede spätere
+Epoche denselben Zyklus neu. Mit dem Sperrmerkmal aus Soll, Ist und
+`MAX_CORRECTIONS` blieb ein anschließender Fokuslauf ohne weiteren Write.
+
+### 5.1 Zustandsübergänge und Float
+
+Ein kontrollierter transienter Dialog blieb außerhalb von Mitgliedschaft und
+Placements; sein gekacheltes Elternfenster wurde beim Öffnen nicht erneut
+geschrieben (Matrix 11). Vollbild sowie die Maximierungsmodi 3, 2 und 1 nahmen
+das Testfenster jeweils aus den Layout-Teilnehmern. Nach dem Zurückschalten kam
+es in dieselbe Stapelzelle zurück; während des Sonderzustands gab es für seine
+ID weder `apply` noch `nachbessern` (Matrix 12 und 12a). Dasselbe galt für
+Minimieren und Wiederherstellen (Matrix 13).
+
+Matrix 14 wurde mit dem Dev-Fenstermenü und einem manuellen Ziehvorgang
+abgenommen. Das Testfenster `{72a350c5-08b0-4bdb-956a-d52eabad2d35}` kehrte
+beim Einkacheln nach `896x705+4224+705` zurück. Das nächste Umschalten meldete
+`float … soll=896x705+3649+368` und `→ wiederhergestellt`, ohne `apply` auf
+diese ID. Der Menüeintrag war im Float-Zustand angehakt.
+
+### 5.2 Größenschranken und Werkzeugrückbau
+
+Die Clients `kxl-min` und `kxl-max` wurden mit `1200x900+3920+353` und
+`800x353+4224+0` innerhalb der Arbeitsfläche verankert; Mindestgrößen durften
+die Zelle überdecken, Höchstgrößen ließen die dokumentierte Freifläche. In
+einem Lauf von fünf Minuten gab es bei sieben
+echten Anordnungsepochen keinen weiteren Write, kein `aufgegeben` und keine
+Ausnahme (Matrix 15). Der anschließende Reload ordnete sechs Mitglieder und
+vier Teilnehmer an, ohne eine Geometrie zu schreiben.
+
+Nach `nix run .#unload` meldete `isScriptLoaded` `false`. In den folgenden
+30 Sekunden erschien keine weitere Controller-Zeile. Der SHA-256-Wert von
+`~/.config/kglobalshortcutsrc` blieb vor und nach dem Dev-Menü
+`f4d9cdb30108d892d3272778667841b5bb7d0475a4e4dccc8af6755a052c20f5`.

@@ -1,27 +1,31 @@
 import type { Rect } from "../core/rect.ts";
 import type { WindowId } from "../core/stack.ts";
 import type { Registry } from "../state/registry.ts";
-import { createRegistry } from "../state/registry.ts";
+import { createRegistry, getWindow } from "../state/registry.ts";
 import type { GeometryHooks, GeometryPort } from "./apply.ts";
 import { createGeometryController } from "./apply.ts";
-import { DEFAULT_EXCLUDES, makeExcludes } from "./filter.ts";
-import { judgeWrite } from "./geometry.ts";
+import { runEpoch } from "./epoch.ts";
+import { DEFAULT_EXCLUDES, makeExcludes, participates } from "./filter.ts";
+import type { FloatOutcome } from "./float.ts";
+import { toggleFloat as toggleFloating } from "./float.ts";
 import { log } from "./log.ts";
-import type { ArrangePlan, Placement } from "./plan.ts";
-import { NO_GAPS, planArrangement } from "./plan.ts";
+import { NO_GAPS } from "./plan.ts";
 import { purgeFromSnapshot } from "./purge.ts";
-import type { Reading } from "./read.ts";
-import { readFrameGeometry, readSnapshot, windowId, writeFrameGeometry } from "./read.ts";
+import {
+	readFrameGeometry,
+	readSnapshot,
+	readViews,
+	readWindow,
+	windowId,
+	writeFrameGeometry,
+} from "./read.ts";
 import { createDebouncer, createFollowUps, DEBOUNCE_MS, FOLLOW_UP_MS } from "./timer.ts";
-import type { WindowInfo } from "./types.ts";
 
 export interface Adapter {
 	start(): void;
 	schedule(reason: string): void;
-}
-
-function fmt(rect: Rect): string {
-	return `${rect.width}x${rect.height}+${rect.x}+${rect.y}`;
+	toggleFloat(window: KwinWindow): FloatOutcome;
+	isFloating(window: KwinWindow): boolean;
 }
 
 /**
@@ -84,6 +88,13 @@ export function createAdapter(): Adapter {
 		dragging(id: WindowId): boolean {
 			const window = handles.get(id);
 			return window !== undefined && (window.move || window.resize);
+		},
+		blocked(id: WindowId): boolean {
+			const window = handles.get(id);
+			if (window === undefined) {
+				return true;
+			}
+			return !participates(readWindow(window), getWindow(registry, id).floating);
 		},
 	};
 
@@ -227,79 +238,6 @@ export function createAdapter(): Adapter {
 		}
 	}
 
-	function participantsOf(plan: ArrangePlan): Set<WindowId> {
-		const set = new Set<WindowId>();
-		for (const surface of plan.surfaces) {
-			for (const id of surface.participants) {
-				set.add(id);
-			}
-		}
-		return set;
-	}
-
-	/**
-	 * Wer das Layout verlässt, verliert Erwartung **und** eingeplante
-	 * Nachprüfung. `clearExpectation` in `plan.ts` räumt nur die Registry;
-	 * ohne diesen Schritt liefe ein späterer Timerlauf noch an einem Fenster,
-	 * das inzwischen minimiert, maximiert, im Vollbild oder floatend ist.
-	 */
-	function forgetDeparted(current: Set<WindowId>): void {
-		for (const id of Array.from(lastParticipants)) {
-			if (!current.has(id)) {
-				geometry.forget(id);
-			}
-		}
-		lastParticipants = current;
-	}
-
-	function applyPlan(plan: ArrangePlan, reading: Reading): void {
-		const infos = new Map<WindowId, WindowInfo>();
-		for (const info of reading.snapshot.windows) {
-			infos.set(info.id, info);
-		}
-
-		for (const surface of plan.surfaces) {
-			if (surface.members.length === 0) {
-				continue;
-			}
-			log(
-				`surface ${surface.key} layout=${surface.layoutId} ` +
-					`n=${surface.participants.length} ratio=${surface.ratio} ` +
-					`fläche=${fmt(surface.area)}`,
-			);
-
-			for (const placement of surface.placements) {
-				applyPlacement(placement, infos);
-			}
-
-			if (surface.raise !== null) {
-				const window = handles.get(surface.raise);
-				if (window !== undefined) {
-					workspace.raiseWindow(window);
-				}
-			}
-		}
-	}
-
-	function applyPlacement(placement: Placement, infos: Map<WindowId, WindowInfo>): void {
-		const info = infos.get(placement.id);
-		if (info === undefined || !handles.has(placement.id)) {
-			return;
-		}
-		const verdict = judgeWrite(info, placement.rect);
-		if (verdict === "unchanged") {
-			// Steht das Fenster schon am Soll, ist auch eine noch offene
-			// Erwartung eines älteren Zielwerts erledigt (PLAN.md Abschnitt 4,
-			// Punkt 3). Ohne das schöbe der Nachprüfungslauf es zurück.
-			geometry.accept(placement.id, info.frameGeometry);
-			return;
-		}
-		if (verdict !== "write") {
-			return;
-		}
-		geometry.apply(placement.id, placement.rect);
-	}
-
 	function runArrange(reasons: string[]): void {
 		epoch += 1;
 		const reading = readSnapshot();
@@ -332,21 +270,46 @@ export function createAdapter(): Adapter {
 			}
 		}
 
-		const plan = planArrangement(reading.snapshot, registry, NO_GAPS, excludes);
-		forgetDeparted(participantsOf(plan));
-
-		let members = 0;
-		let participants = 0;
-		for (const surface of plan.surfaces) {
-			members += surface.members.length;
-			participants += surface.participants.length;
-		}
-		log(
-			`arrange #${epoch} grund=${reasons.join(",")} surfaces=${plan.surfaces.length} ` +
-				`mitglieder=${members} teilnehmer=${participants}`,
+		const result = runEpoch(
+			epoch,
+			reasons,
+			reading.snapshot,
+			registry,
+			geometry,
+			NO_GAPS,
+			excludes,
+			lastParticipants,
+			{
+				raise(id: WindowId): void {
+					const window = handles.get(id);
+					if (window !== undefined) {
+						workspace.raiseWindow(window);
+					}
+				},
+				log,
+			},
 		);
+		lastParticipants = result.participants;
+	}
 
-		applyPlan(plan, reading);
+	function toggleFloat(window: KwinWindow): FloatOutcome {
+		const info = readWindow(window);
+		const views = readViews();
+		let area: Rect | null = null;
+		for (const view of views) {
+			if (view.ref.output === info.outputName) {
+				area = view.area;
+				break;
+			}
+		}
+		const outcome = toggleFloating(registry, geometry, info, area, excludes);
+		log(`floatToggle ${info.id} → ${outcome}`);
+		debouncer.schedule("floatToggle");
+		return outcome;
+	}
+
+	function isFloating(window: KwinWindow): boolean {
+		return registry.windows.get(windowId(window))?.floating === true;
 	}
 
 	function start(): void {
@@ -415,5 +378,5 @@ export function createAdapter(): Adapter {
 		runArrange(["start"]);
 	}
 
-	return { start, schedule: debouncer.schedule };
+	return { start, schedule: debouncer.schedule, toggleFloat, isFloating };
 }

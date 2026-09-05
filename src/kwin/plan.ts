@@ -1,5 +1,5 @@
 import type { Rect } from "../core/rect.ts";
-import type { WindowId } from "../core/stack.ts";
+import type { SurfaceState, WindowId } from "../core/stack.ts";
 import { currentLayout } from "../core/stack.ts";
 import type { SurfaceKey } from "../core/surface.ts";
 import { reconcile } from "../state/reconcile.ts";
@@ -31,8 +31,8 @@ export interface SurfacePlan {
 	members: WindowId[];
 	participants: WindowId[];
 	placements: Placement[];
-	/** Im Layout `full` das fokussierte Fenster, sonst `null`. */
-	raise: WindowId | null;
+	/** Im Layout `full` die Reihenfolge der Hebevorgänge, letzter Eintrag oben. */
+	raise: WindowId[];
 }
 
 export interface ArrangePlan {
@@ -40,16 +40,58 @@ export interface ArrangePlan {
 }
 
 /**
- * Wen `full` obenauf legt. Der fokussierte Eintrag kann minimiert, floatend
- * oder im Vollbild sein — dann ist er kein Layout-Teilnehmer und darf nicht
- * über die gekachelten gehoben werden. Ersatz ist der Master: im Monocle
- * liegen die übrigen ohnehin deckungsgleich darunter.
+ * Wählt das gekachelte Fenster für `full`. Ist der Fokus kein Teilnehmer,
+ * übernimmt der Master; Float-Fenster ergänzt anschließend `raiseOrder`.
  */
 function raiseFor(focus: WindowId | null, participants: WindowId[]): WindowId | null {
 	if (focus !== null && participants.indexOf(focus) >= 0) {
 		return focus;
 	}
 	return participants[0] ?? null;
+}
+
+function visibleFloat(id: WindowId, infos: Map<WindowId, WindowInfo>, registry: Registry): boolean {
+	const info = infos.get(id);
+	const state = registry.windows.get(id);
+	return (
+		info !== undefined &&
+		state?.floating === true &&
+		!info.minimized &&
+		!info.fullScreen &&
+		info.maximizeMode === 0
+	);
+}
+
+/**
+ * Hebereihenfolge für `full`: zuerst das gekachelte Fenster, danach sichtbare
+ * Floats in Surface-Reihenfolge. Ein fokussiertes Float-Fenster kommt zuletzt.
+ */
+export function raiseOrder(
+	layoutId: string,
+	state: SurfaceState,
+	participants: WindowId[],
+	infos: Map<WindowId, WindowInfo>,
+	registry: Registry,
+): WindowId[] {
+	if (layoutId !== "full") {
+		return [];
+	}
+
+	const order: WindowId[] = [];
+	const tiled = raiseFor(state.focus, participants);
+	if (tiled !== null) {
+		order.push(tiled);
+	}
+
+	for (const id of state.order) {
+		if (id !== state.focus && visibleFloat(id, infos, registry)) {
+			order.push(id);
+		}
+	}
+	if (state.focus !== null && visibleFloat(state.focus, infos, registry)) {
+		order.push(state.focus);
+	}
+	return order;
 }
 
 function byId(windows: WindowInfo[]): Map<WindowId, WindowInfo> {
@@ -133,7 +175,7 @@ export function planArrangement(
 			members: state.order.slice(),
 			participants,
 			placements,
-			raise: layout.id === "full" ? raiseFor(state.focus, participants) : null,
+			raise: raiseOrder(layout.id, state, participants, infos, registry),
 		});
 	}
 
