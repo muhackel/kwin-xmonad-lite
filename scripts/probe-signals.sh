@@ -123,6 +123,47 @@ probe_fail() {
 	log_err "$*"
 }
 
+# Vergleicht Soll und Ist zeichengleich. Steht hier oben, weil schon die
+# Auswertung des Abschlusssatzes damit prüft -- Bash kennt eine Funktion erst
+# ab ihrer Definition.
+check_same() {
+	local was="$1" soll="$2" ist="$3"
+	if [ "$soll" = "$ist" ]; then
+		log_ok "$was unveraendert."
+	else
+		probe_fail "$was weicht ab: erwartet [$(printf '%s' "$soll" | tr '\n' ' ')], vorgefunden [$(printf '%s' "$ist" | tr '\n' ' ')]."
+	fi
+}
+
+# Ein Feld aus einem JSON-Satz. Fehlt es, kommt eine leere Zeichenkette --
+# `check_same` schlägt dann sauber fehl, statt eine Abweichung als "0 gleich 0"
+# durchzuwinken.
+json_str() { printf '%s' "$1" | grep -o "\"$2\":\"[^\"]*\"" | cut -d'"' -f4 || true; }
+json_num() { printf '%s' "$1" | grep -o "\"$2\":[0-9]*" | cut -d: -f2 || true; }
+
+# Schaltet eine Ausgabe ein und entschärft das Rücknahme-Flag **nur** bei
+# nachgewiesenem Erfolg: `kscreen-doctor` meldet 0, bevor die Ausgabe steht,
+# deshalb wird der Zustand nachgelesen. Bleibt das Flag scharf, versucht es
+# `cleanup` am Ende erneut. Der Rückgabewert ist immer 0 -- unter `errexit`
+# beendete ein anderer das Skript an einem Aufrufort ohne Bedingung, und
+# gezählt ist der Fehlschlag über `probe_fail` ohnehin.
+einschalten() {
+	local name="$1"
+	if kscreen-doctor "output.$name.enable"; then
+		for _ in $(seq 1 5); do
+			if [ "$(output_state "$name")" = "enabled" ]; then
+				hotplug_disabled=""
+				return 0
+			fi
+			sleep 1
+		done
+		probe_fail "$name meldet nach dem Einschalten nicht 'enabled'."
+	else
+		probe_fail "Einschalten von $name fehlgeschlagen."
+	fi
+	return 0
+}
+
 probe_owned=0
 desktop_armed=0
 activity_armed=0
@@ -180,9 +221,7 @@ remove_probe_activities() {
 cleanup() {
 	if [ -n "$hotplug_disabled" ]; then
 		log_warn "Schalte $hotplug_disabled wieder an."
-		kscreen-doctor "output.$hotplug_disabled.enable" \
-			|| probe_fail "Wiedereinschalten von $hotplug_disabled fehlgeschlagen."
-		hotplug_disabled=""
+		einschalten "$hotplug_disabled"
 	fi
 
 	if [ "$activity_armed" -eq 1 ]; then
@@ -324,8 +363,7 @@ if [ -n "$hotplug_output" ]; then
 	hotplug_disabled="$hotplug_output"
 	kscreen-doctor "output.$hotplug_output.disable" || probe_fail "disable fehlgeschlagen."
 	sleep 15
-	kscreen-doctor "output.$hotplug_output.enable" || probe_fail "enable fehlgeschlagen."
-	hotplug_disabled=""
+	einschalten "$hotplug_output"
 	sleep 25
 else
 	log_info "Phase 6 (40 s): Stecke jetzt einen Bildschirm ab und wieder an,"
@@ -353,7 +391,7 @@ done
 if [ "$ende_gesehen" -eq 1 ]; then
 	log_ok "Abschlusssatz erhalten."
 else
-	log_warn "Kein Abschlusssatz -- die Probe raeumt dann nicht selbst ab."
+	log_warn "Kein Abschlusssatz nach 60 s -- die Auswertung unten entscheidet."
 fi
 
 # --- Auswerten --------------------------------------------------------------
@@ -388,8 +426,26 @@ else
 	log_info "Arbeitsflaeche rund um Dock-Ereignisse:"
 	grep '"k":"area"' "$result" | sed 's/^/    /' | cut -c1-200 || log_ok "keine Dock-Ereignisse"
 
-	log_info "Abschlusssatz:"
-	grep '"k":"end"' "$result" | sed 's/^/    /' || log_warn "fehlt"
+	# Der Abschlusssatz wird bewertet, nicht nur gedruckt: ohne ihn hat die
+	# Probe ihre Verbindungen nicht selbst getrennt, und `offen`, `timer_aktiv`
+	# oder ein echter Trennfehler sind Beanstandungen. Nur hier wird gezählt,
+	# nicht schon in der Wartschleife -- sonst stünden für eine Ursache zwei.
+	ende="$(grep '"k":"end"' "$result" | tail -1 || true)"
+	if [ -z "$ende" ]; then
+		probe_fail "Kein Abschlusssatz -- die Probe hat sich nicht selbst abgeräumt."
+	else
+		log_info "Abschlusssatz:"
+		printf '    %s\n' "$ende"
+		check_same "Abschlussurteil" "ok" "$(json_str "$ende" st)"
+		check_same "offene Verbindungen" "0" "$(json_num "$ende" offen)"
+		check_same "laufende Timer" "0" "$(json_num "$ende" timer_aktiv)"
+		check_same "Trennfehler" "0" "$(json_num "$ende" cut_fehler)"
+		# Nur berichtet: wie viele Panels während der drei Minuten sterben,
+		# hängt am Bedienablauf. Ein fester Erwartungswert wäre keine
+		# Invariante, sondern der Messwert einer einzelnen Sitzung.
+		tot="$(json_num "$ende" cut_tot)"
+		log_info "Trennungen an gelöschten QObjects: ${tot:-unbekannt} (informativ)"
+	fi
 fi
 
 # --- Rueckbau und Nachweis --------------------------------------------------
@@ -425,15 +481,6 @@ fi
 #
 # Exakte Mengen und Zustaende, keine Zaehlwerte: eine gleich gebliebene Anzahl
 # bei getauschten Ids waere kein sauberer Rueckbau.
-
-check_same() {
-	local was="$1" soll="$2" ist="$3"
-	if [ "$soll" = "$ist" ]; then
-		log_ok "$was unveraendert."
-	else
-		probe_fail "$was weicht ab: erwartet [$(printf '%s' "$soll" | tr '\n' ' ')], vorgefunden [$(printf '%s' "$ist" | tr '\n' ' ')]."
-	fi
-}
 
 log_info "Endpruefung:"
 check_same "Desktopmenge" "$desktops_before" "$(desktop_ids)"

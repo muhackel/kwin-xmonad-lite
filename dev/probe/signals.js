@@ -48,6 +48,10 @@
 	/** Je aufgebauter Verbindung eine Trennfunktion in einer Box. */
 	var CUTS = [];
 	var DONE = false;
+	/** Trennungen an einem bereits gelöschten QObject -- erwartet, informativ. */
+	var CUT_TOT = 0;
+	/** Jeder andere Fehler beim Trennen -- die Verbindung bleibt offen. */
+	var CUT_FEHLER = 0;
 
 	function emit(rec) {
 		rec.r = RUN;
@@ -212,11 +216,23 @@
 			return;
 		}
 		var fn = box.fn;
-		box.fn = null;
 		try {
 			fn();
+			box.fn = null;
 		} catch (e) {
-			emit({ k: "cut", st: "error", d: String(e) });
+			var text = String(e);
+			// Ein gelöschtes QObject nimmt seine Verbindungen mit ins Grab: das
+			// gilt als getrennt, wird aber gezählt. In jedem sauberen Lauf
+			// sterben Panels weg, ihre `disconnect`-Aufrufe werfen also
+			// zwangsläufig. Jeder andere Fehler lässt die Verbindung offen und
+			// schlägt damit auf `offen` durch.
+			if (text.indexOf("deleted QObject") >= 0) {
+				CUT_TOT++;
+				box.fn = null;
+			} else {
+				CUT_FEHLER++;
+			}
+			emit({ k: "cut", st: "error", d: text });
 		}
 	}
 
@@ -425,11 +441,13 @@
 
 		emit({
 			k: "end",
-			st: open === 0 && running === 0 ? "ok" : "value",
+			st: open === 0 && running === 0 && CUT_FEHLER === 0 ? "ok" : "value",
 			total: SEQ,
 			verbindungen: CUTS.length,
 			offen: open,
 			timer_aktiv: running,
+			cut_tot: CUT_TOT,
+			cut_fehler: CUT_FEHLER,
 		});
 	}
 
