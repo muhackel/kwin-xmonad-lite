@@ -77,8 +77,10 @@ Fensterzugriff als `GeometryPort` und den Timer als Fabrik herein, und
 `tests/kwin-apply.test.ts` stellt damit den ganzen Ablauf nach — synchroner
 Rückstoß während des Schreibens, abweichendes Rücklesen, verspätete
 Bestätigung, zwei Nachbesserungen, Aufgeben, der Nachhall danach, das Signal
-eines zweiten Fensters mitten im Schreibvorgang und das zwischendurch
-geschlossene Fenster.
+eines zweiten Fensters mitten im Schreibvorgang, das zwischendurch geschlossene
+Fenster und die Nachprüfung, die das Fenster im Ziehen antrifft. Auch der
+Nachprüfungstimer selbst steht unter Test: einer, dessen `singleShot` nicht
+durchschlägt, muss trotzdem zur Ruhe kommen.
 
 Nur `src/kwin/read.ts` und `src/kwin/adapter.ts` fassen eine KWin-Global an;
 diese beiden werden auf der Maschine geprüft, nicht im Unit-Test. Die Grenze

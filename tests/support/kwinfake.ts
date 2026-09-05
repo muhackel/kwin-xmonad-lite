@@ -71,12 +71,20 @@ export interface FakeTimer extends Timer {
 	fire(): void;
 	/** Wie oft `start()` gerufen wurde — zeigt einen unnoetigen Neustart. */
 	starts(): number;
+	/**
+	 * Stellt einen Timer nach, dessen `singleShot`-Zuweisung **nicht**
+	 * durchschlaegt: `fire()` laesst ihn dann laufen. Gemessen ist nur, dass die
+	 * Eigenschaft existiert und `false` meldet — wer sich auf ihre Wirkung
+	 * verlaesst, faellt hier auf.
+	 */
+	setRepeating(value: boolean): void;
 }
 
 export function fakeTimer(): FakeTimer {
 	let handler: (() => void) | null = null;
 	let running = false;
 	let started = 0;
+	let repeating = false;
 
 	return {
 		interval: 0,
@@ -97,13 +105,16 @@ export function fakeTimer(): FakeTimer {
 			running = false;
 		},
 		fire(): void {
-			running = false;
+			running = repeating;
 			if (handler !== null) {
 				handler();
 			}
 		},
 		starts(): number {
 			return started;
+		},
+		setRepeating(value: boolean): void {
+			repeating = value;
 		},
 	};
 }
