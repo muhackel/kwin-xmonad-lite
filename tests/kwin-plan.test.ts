@@ -185,6 +185,70 @@ test("ausgeschlossene Fenster erscheinen weder als Mitglied noch als Platzierung
 	assert.deepEqual(surface.members, ["a"]);
 });
 
+const planExclusions: Array<[string, (info: WindowInfo) => void]> = [
+	[
+		"Dialog",
+		(info) => {
+			info.dialog = true;
+		},
+	],
+	[
+		"Transient",
+		(info) => {
+			info.transient = true;
+		},
+	],
+	[
+		"Modal",
+		(info) => {
+			info.modal = true;
+		},
+	],
+	[
+		"Splash",
+		(info) => {
+			info.splash = true;
+		},
+	],
+	[
+		"Utility",
+		(info) => {
+			info.utility = true;
+		},
+	],
+	[
+		"Popup",
+		(info) => {
+			info.popupWindow = true;
+		},
+	],
+	[
+		"Festfenster",
+		(info) => {
+			info.minWidth = 640;
+			info.minHeight = 480;
+			info.maxWidth = 640;
+			info.maxHeight = 480;
+		},
+	],
+];
+
+for (const [name, markExcluded] of planExclusions) {
+	test(`${name} bleibt im Full-Plan vollständig unberührt`, () => {
+		const registry = createRegistry();
+		const parent = windowInfo("elternfenster");
+		const excluded = windowInfo("ausgeschlossen");
+		markExcluded(excluded);
+		getSurface(registry, KEY).layoutIndex = 1;
+
+		const surface = only(registry, [parent, excluded], "elternfenster");
+		assert.deepEqual(surface.members, ["elternfenster"]);
+		assert.deepEqual(surface.participants, ["elternfenster"]);
+		assert.deepEqual(surface.placements, [{ id: "elternfenster", rect: AREA }]);
+		assert.deepEqual(surface.raise, ["elternfenster"]);
+	});
+}
+
 test("planArrangement verändert keinen bestehenden SurfaceState", () => {
 	// Der Adapter darf `order` niemals an Ort und Stelle fortschreiben; das
 	// würde die Registry lautlos vergiften.
