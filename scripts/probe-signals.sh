@@ -129,7 +129,7 @@ probe_fail() {
 check_same() {
 	local was="$1" soll="$2" ist="$3"
 	if [ "$soll" = "$ist" ]; then
-		log_ok "$was unverändert."
+		log_ok "$was wie erwartet."
 	else
 		probe_fail "$was weicht ab: erwartet [$(printf '%s' "$soll" | tr '\n' ' ')], vorgefunden [$(printf '%s' "$ist" | tr '\n' ' ')]."
 	fi
