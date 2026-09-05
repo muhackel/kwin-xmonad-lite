@@ -229,6 +229,13 @@ Activities und verwaltet nicht die Zahl der Desktops.
   berechnet und in der Closure gehalten; `windowRemoved` löst nur einen
   Durchlauf aus. `disconnect` braucht dieselbe Funktionsreferenz wie
   `connect`, deshalb liegt je Fenster eine Trennfunktion in der Tabelle.
+  **Auch das Trennen selbst wirft an einem toten Fenster** — gemessen
+  `Function.prototype.disconnect: cannot disconnect from deleted QObject`.
+  Das ist kein Fehler, sondern der Normalfall für ein Fenster, das während
+  der Laufzeit verschwand: die Verbindung stirbt mit dem Objekt. Wer
+  Trennungen zählt, muss diesen Fall von einem echten Fehler unterscheiden,
+  sonst ist der Zähler entweder dauerhaft rot oder wertlos
+  (`dev/probe/signals.js`, `runCut`).
 - **`clientArea` zieht nach einer Ausgabenänderung nach.** Im Signal ist sie
   noch die alte, nach 500 ms teils noch ein Zwischenstand; erst nach 1500 ms
   stimmte sie (zweimal gemessen). Deshalb **zwei** Nachläufe, nicht einer. Nach

@@ -53,9 +53,10 @@ export function createAdapter(): Adapter {
 	 * nur ab. Er meldet immer nur beim Entpreller an -- nie `runArrange`
 	 * direkt, sonst liefe er an der Koaleszierung vorbei.
 	 *
-	 * Der Grund traegt die Quellen mit: vier verschiedene Ausloeser starten
-	 * dieselben zwei Timer, und ohne sie waere im Journal nicht zu sehen,
-	 * welcher es war.
+	 * Der Grund trägt die Quellen mit: fünf verschiedene Auslöser starten
+	 * dieselben zwei Timer (dockGeometrie, dockEntfernt, dockHinzugefügt,
+	 * screensChanged, screenGeometry), und ohne sie wäre im Journal nicht zu
+	 * sehen, welcher es war.
 	 */
 	const followUps = createFollowUps(
 		() => new QTimer(),
