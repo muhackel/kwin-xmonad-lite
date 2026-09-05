@@ -4,8 +4,10 @@
 
 MAIN_JS="${XML_MAIN_JS:?XML_MAIN_JS ist nicht gesetzt}"
 DEV_NAME="${XML_DEV_NAME:-kwin-xmonad-lite-dev}"
+PROD_NAME="${XML_PROD_NAME:-kwin-xmonad-lite}"
 
 require_kwin
+require_no_production "$PROD_NAME"
 
 if [ "$(script_loaded "$DEV_NAME")" = "true" ]; then
 	log_info "Entlade '$DEV_NAME'."
