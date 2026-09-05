@@ -322,3 +322,42 @@ zählt, muss deshalb zwei Fälle unterscheiden: das tote QObject (gilt als
 getrennt, rein informativ) und jeden anderen Wurf (die Verbindung bleibt offen
 und ist eine Beanstandung). `runCut` in `dev/probe/signals.js` tut genau das
 und meldet beide Zahlen im `end`-Satz als `cut_tot` und `cut_fehler`.
+
+## 4. Quelltextbefunde, Meilenstein 5
+
+Geprüft am 2026-09-05 im Quelltext von KWin 6.7.4 aus dem nixpkgs-Pin
+(`/nix/store/hi0chbrrdrl3wbixs262qjw5snjyn51n-kwin-6.7.4.tar.xz`).
+
+### 4.1 Fenstermenü für den Entwicklungs-Toggle
+
+`registerUserActionsMenu(callback)` ruft den Callback bei jedem Öffnen des
+Fenstermenüs mit dem betroffenen `Window` auf (`scripting.cpp:461-497`). Der
+Callback liefert einen Eintrag `{text, triggered}` oder ein Untermenü über
+`items`; `checkable` und `checked` werden ebenfalls gelesen. `triggered`
+erhält die `QAction`, nicht das Fenster. Der Callback muss das Fenster daher in
+seiner Closure halten.
+
+KWin baut das Untermenü „Extensions" bei jedem Öffnen aus den gerade geladenen
+Skripten neu (`useractions.cpp:350-363`, `scripting.cpp:893-902`). Nach
+`unloadScript` bleibt kein Menüeintrag zurück.
+
+### 4.2 Teilweise Maximierung
+
+`XdgToplevelWindow::updateMaximizeMode` emittiert `maximizedChanged()` bei
+jedem Wechsel des Modus (`xdgshellwindow.cpp:1484-1492`). Das umfasst die
+numerischen Modi 1 (vertikal), 2 (horizontal) und 3 (vollständig).
+
+### 4.3 Geometrieschreiben kennt keinen Zustandswächter
+
+`Window::moveResize` prüft vor dem Schreiben nur `isDeleted()`
+(`window.cpp:3412-3420`). Die Methode schützt nicht vor einem Write in ein
+maximiertes oder Vollbildfenster. Deshalb prüfen sowohl die Epoche als auch der
+Nachprüfungspfad die Layout-Teilnahme vor dem Schreiben.
+
+### 4.4 Reproduzierbare Fensteraktionen
+
+In `~/.config/kglobalshortcutsrc` unter `[kwin]` existieren die Aktionen
+`Window Fullscreen`, `Window Maximize`, `Window Maximize Horizontal`,
+`Window Maximize Vertical` und `Window Minimize`. Die D-Bus-Introspektion von
+`org.kde.kglobalaccel /component/kwin` weist dafür `invokeShortcut s` aus. Die
+Live-Abnahme kann diese Zustände damit ohne neue Tastenbelegung auslösen.

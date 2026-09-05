@@ -1,6 +1,6 @@
 # Implementierungsplan `kwin-xmonad-lite`
 
-Stand: 2026-09-05. Der Entwurf mit allen Nutzerentscheidungen (Abschnitt 12). Umgesetzt sind die Meilensteine 0 bis 4 samt den Stabilisierungsschritten 3.1, 3.1.1, 4.1, 4.1.1 und dem Audit 4.2; das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
+Stand: 2026-09-06. Der Entwurf mit allen Nutzerentscheidungen steht in Abschnitt 12. Abgeschlossen sind die Meilensteine 0 bis 4 samt den Stabilisierungsschritten 3.1, 3.1.1, 4.1, 4.1.1 und dem Audit 4.2. Meilenstein 5 ist implementiert; die Live-Abnahme steht aus. Das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein läuft als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
 
 ## 0. Position
 
@@ -131,7 +131,7 @@ sequenceDiagram
 ```
 
 1. Auslöser → `schedule(reason)` → Koaleszierung über einen `QTimer`-Single-Shot (ca. 20 ms; Idee Polonium `src/controller/event.ts:200-269`, MIT). Events werden **nicht** verworfen, sondern als „dirty" nachgezogen (Anti-Pattern Polonium `index.ts:69-70`, Krohnkite `kwindriver.ts:342`).
-2. `arrange()`: pro sichtbarer Surface die Surface-Mitglieder aus `windowList()` bilden. Der dauerhafte Mitgliedschaftsfilter prüft Fenstertyp, Ausschlussliste, Output, Desktop und Activity, aber nicht Floating, Minimierung, Fullscreen oder Maximierung. `reconcile` gleicht ausschließlich diese Mitgliedermenge gegen die gespeicherte Reihenfolge ab: neue Fenster oberhalb des fokussierten wie XMonads `insertUp`, verschwundene entfernen; Ghost-Purge nur über die Workspace-Liste, nie Eigenschaften toter Objekte lesen (Tessera `driver.ts:239-258`). Danach die Layout-Teilnehmer bestimmen, Layout rechnen und Geometrien anwenden.
+2. `arrange()`: Der Adapter liest KWin, bereinigt Registry und Verbindungen und ruft `runEpoch`. Die reine Epoche bildet pro sichtbarer Surface die Mitglieder aus `windowList()`. Der dauerhafte Mitgliedschaftsfilter prüft Fenstertyp, Ausschlussliste, Output, Desktop und Activity, aber nicht Floating, Minimierung, Fullscreen oder Maximierung. `reconcile` gleicht ausschließlich diese Mitgliedermenge gegen die gespeicherte Reihenfolge ab: neue Fenster oberhalb des fokussierten wie XMonads `insertUp`, verschwundene entfernen; Ghost-Purge nur über die Workspace-Liste, nie Eigenschaften toter Objekte lesen (Tessera `driver.ts:239-258`). Danach bestimmt die Epoche die Layout-Teilnehmer, verwirft Erwartung und Nachprüfung ausgeschiedener Teilnehmer, rechnet das Layout und wendet den Plan an.
 3. Anwenden nur auf Layout-Teilnehmer mit `maximizeMode == 0`: Zielrect gegen `frameGeometry` gerundet vergleichen — die Rundung sitzt an der Snapshot-Grenze (`kwin/read.ts` rundet jedes gelesene Rechteck mit `core/rect.rounded`), damit Anordnung, Rücklesen und Signalpfad dieselben ganzen Pixel sehen; gemessen ganzzahlig ist nur `clientArea`, nicht `frameGeometry`. Bei Gleichheit nichts schreiben; eine noch offene Erwartung eines **älteren** Zielwerts gilt damit als erledigt (`accept` schließt sie samt Nachprüfung, sonst schöbe der Nachprüfungslauf das Fenster auf das veraltete Soll zurück). Sonst `expectedRect`, `writeGeneration` und Versuchszähler setzen und das **ganze** Rect als Plain-Object `{x,y,width,height}` zuweisen (Teilzuweisung wirkt nicht, Tessera `driver.ts:447-450`). Der Controller hebt eine Maximierung niemals selbst auf. Verlässt ein Fenster die Layout-Teilnahme, werden `expectedRect` und `applyAttempts` sofort gelöscht.
 4. `frameGeometryChanged`: ignorieren während eines eigenen Schreibvorgangs an **diesem** Fenster und während `window.move || window.resize`. Der Signalpfad **schreibt nie** — er liest, beruhigt bei Übereinstimmung die Erwartung und plant sonst eine Nachprüfung ein; ein Write innerhalb des Signals wäre ein verschachtelter Write. Die Schreibgeneration gehört zum Fenster und wird nur bei einem neuen Zielwert erhöht: eine Anordnungsepoche ohne eigenen Write darf eine offene Erwartung nicht altern lassen. Weicht schon das unmittelbare Rücklesen nach einem Write ab, wird die Nachprüfung **garantiert** eingeplant, statt auf ein Signal zu warten, das synchron bereits verworfen worden sein kann. Nachgebessert wird ausschließlich im Timerlauf, höchstens einmal je Fenster und Durchlauf und höchstens zweimal je Schreibgeneration; danach Aufgabe bis zum nächsten externen Ereignis (Flatter-Schutz), wobei der zuletzt beobachtete Istwert als akzeptiert festgehalten wird, damit eine verspätete Meldung desselben Werts keinen neuen Zyklus startet. **Allein** dieser Istwert entscheidet über den Nachhall; das zuletzt gewünschte Soll zählt nicht mit, sonst verschluckte der Controller eine fremde Verschiebung genau dorthin. Trifft eine Nachprüfung das Fenster im Ziehen an, fällt die Erwartung ganz weg — bliebe sie offen, schöbe das erste Signal nach dem Loslassen das Fenster ohne Anordnungslauf zurück. Ändert sich die Geometrie eines zuletzt bekannten Layout-Teilnehmers ohne eigenen Write, löst das genau einen entprellten Anordnungslauf aus. `interactiveMoveResizeFinished` → neu anordnen.
 5. Auslöser: `windowAdded/Removed`, `windowActivated` (Fokus in der Surface nachführen; in `Full` das aktive Fenster mit `raiseWindow` heben), `currentDesktopChanged` (feuert gemessen einmal je Ausgabe; die Entprellung fasst das zu einem vollen Lauf zusammen), `currentActivityChanged`, `screensChanged` (Outputliste neu, Zustände überleben am `output.name`), `virtualScreenGeometryChanged`, je Fenster `outputChanged`, `desktopsChanged`, `activitiesChanged`, `minimizedChanged`, `fullScreenChanged`, `maximizedChanged`, `closed`. Auch ausgeschlossene Dock-Fenster werden beobachtet: `frameGeometryChanged` und `outputChanged` lösen ein erneutes Abfragen der `clientArea` aus. Dock-`windowAdded` und Dock-`closed` sowie Paneländerungen erhalten zusätzliche Durchläufe nach 500 ms und 1500 ms; der Grund dieser Läufe nennt die auslösende Quelle.
@@ -142,7 +142,17 @@ sequenceDiagram
 
 ### Zustandsübergänge
 
-Fullscreen, maximiert, minimiert und floating: Das Fenster bleibt Surface-Mitglied und in der Reihenfolge, nimmt aber nicht am Layout teil; die übrigen fließen nach. Beim Verlassen des Zustands wird es wieder eingekachelt. Der Controller hebt Maximierung und Fullscreen nie selbst auf. Vor dem Zustandswechsel aus der Layout-Teilnahme löscht er ausstehende Geometrieerwartungen, damit eine verspätete Wayland-Bestätigung das Fenster nicht zurückkachelt.
+Vollbild, Maximierung, Minimierung und Floating ändern nur die Layout-Teilnahme. Das Fenster bleibt Surface-Mitglied und an seiner Stelle der Reihenfolge; die übrigen fließen nach. Die Rückkehr erfolgt erst, wenn alle Ausschlussgründe fort sind. Der Controller hebt Vollbild oder Maximierung nie selbst auf. `runEpoch` löscht beim Austritt Erwartung und eingeplante Nachprüfung. Feuert der Nachprüfungstimer früher, verwirft der `blocked`-Guard den Auftrag ohne Geometriezugriff.
+
+| Übergang | Wirkung in der Epoche |
+|---|---|
+| tiled → Vollbild | Fenster bleibt Mitglied, scheidet als Teilnehmer aus; der Rest fließt nach |
+| Vollbild → tiled | Fenster kehrt an seine alte Stelle zurück und erhält wieder seine Zelle |
+| tiled → minimiert → wiederhergestellt | wie Vollbild; ohne aktives Fenster bleibt der bisherige Surface-Fokus erhalten |
+| tiled → `maximizeMode` 1, 2 oder 3 → Restore | jede teilweise oder vollständige Maximierung schließt die Teilnahme aus |
+| mehrere Ausschlussgründe | Rückkehr erst, wenn keiner mehr gilt |
+| tiled → float | Erwartung und Nachprüfung fallen; beim ersten Toggle bleibt die Geometrie stehen |
+| float → tiled → float | aktuelle Float-Geometrie speichern, an alter Stelle einkacheln, später verankert wiederherstellen |
 
 ## 5. Projektstruktur
 
@@ -155,14 +165,18 @@ kwin-xmonad-lite/
 ├── src/
 │   ├── core/{rect,stack,surface}.ts, core/layout/{index,types,tall,full}.ts
 │   ├── state/{registry,reconcile}.ts
-│   ├── kwin/{globals.d,types,filter,plan,geometry,apply,timer,purge,read,adapter,log}.ts
-│   └── main.ts                   # Einstieg: Init-Retry, verdrahtet Adapter und Kern
+│   ├── kwin/{globals.d,types,filter,plan,geometry,apply,epoch,float,timer,purge,read,adapter,log}.ts
+│   ├── boot.ts                   # gemeinsamer Init-Retry für Produktions- und Dev-Bundle
+│   ├── main.ts                   # Produktionseinstieg
+│   └── dev.ts                    # Dev-Einstieg mit Fenstermenü-Toggle
 ├── tests/                        # node --test, core/, state/ und kwin/ bis zur Snapshot-Grenze
 │   ├── *.test.ts, node-globals.d.ts
-│   └── support/{gen,props,kwinfake}.ts   # Fuzzer, Prüfhilfen, KWin-Attrappen (kein Testglob)
-├── dev/probe/{probe,signals}.js  # Feature-Probe (MS 0) und Signalprobe (MS 4), nicht Teil des KPackage
+│   └── support/{gen,props,kwinfake,epochrig}.ts   # Fuzzer, Prüfhilfen, Attrappen
+├── dev/
+│   ├── probe/{probe,signals}.js  # Feature- und Signalprobe, nicht Teil des KPackage
+│   └── size-window.py            # Xwayland-Testclient für Größenhinweise und Raster
 ├── nix/{package,devshell}.nix    # home-module.nix folgt in MS 6, vm-test.nix in MS 7
-├── scripts/{lib,dev-load,reload,logs,probe,probe-signals}.sh
+├── scripts/{lib,dev-load,reload,unload,logs,probe,probe-signals}.sh
 └── docs/research.md, docs/*.ndjson   # Quellen und Messwerte samt Rohdaten; keys.md folgt in MS 6
 ```
 
@@ -181,7 +195,7 @@ Kein `contents/ui/config.ui` und kein `contents/config/main.xml` im MVP: `readCo
 
 ### Full / Monocle
 
-Jedes gekachelte Fenster erhält das ganze Rect (nur Außenabstand). Das fokussierte Fenster wird per `raiseWindow` gehoben; Floating-Fenster der Surface werden danach ebenfalls gehoben, damit sie sichtbar bleiben. Fokus vor/zurück wechselt das sichtbare Fenster.
+Jedes gekachelte Fenster erhält das ganze Rect (nur Außenabstand). Die Raise-Liste hebt zuerst den fokussierten Layout-Teilnehmer, ersatzweise den ersten Teilnehmer. Danach folgen sichtbare Float-Fenster in Surface-Reihenfolge; ist ein Float-Fenster fokussiert, steht es zuletzt und damit oben. Minimierte, maximierte und echte Vollbildfenster werden nicht gehoben. `Tall` liefert keine Raise-Aufträge. Fokus vor/zurück wechselt das sichtbare Fenster.
 
 ### Layoutwechsel
 
@@ -199,7 +213,7 @@ Dialoge und Transienten bleiben unberührt; KWin platziert sie über dem Elternf
 
 ### Floating
 
-Interne Markierung je Fenster, keine KWin-Eigenschaft. Tiled → Float löscht `expectedRect` und behält beim ersten Umschalten die aktuelle Geometrie; existiert bereits eine gespeicherte `floatRect`, wird sie wiederhergestellt. Float → Tiled speichert die aktuelle Float-Geometrie und kachelt das Fenster wieder ein (Idee Tessera `captureState`/`restoreWindow`, MIT). Floating-Fenster bleiben in der Surface-Reihenfolge und im Fokuszyklus, fehlen aber in der Layoutmenge.
+Interne Markierung je Fenster, keine KWin-Eigenschaft. Tiled → Float löscht Erwartung und Nachprüfung und behält beim ersten Umschalten die aktuelle Geometrie. Existiert bereits eine `floatRect`, stellt die eigene Schreibart `place` sie wieder her: unter der fensterbezogenen Schreibsperre, ohne Erwartung oder Recheck und ohne `tiledRect` zu ändern. Liegt das Rechteck außerhalb der aktuellen Arbeitsfläche, verschiebt `anchorInto` nur seine Position; Größe und linke obere Ecke haben Vorrang. Float → Tiled speichert die aktuelle Float-Geometrie und kachelt das Fenster wieder an seiner alten Stelle ein (Idee Tessera `captureState`/`restoreWindow`, MIT). Floating-Fenster bleiben in der Surface-Reihenfolge und im Fokuszyklus, fehlen aber in der Layoutmenge. Vor den Shortcuts aus Meilenstein 6 ist der Toggle ausschließlich im Dev-Bundle über Alt+F3 → Extensions → „Float umschalten (kxl-dev)" erreichbar.
 
 ### Tastatur (Entscheidung 1: XMonad-Tasten behalten, KDE umlegen)
 
@@ -223,13 +237,13 @@ Unangetastet bleiben `Meta+1..4`, `Meta+!@#$`, `Meta+Gravis` (Yakuake), `Meta+Ta
 ## 8. Nix-Build- und Testkonzept
 
 - **Werkzeuge nur aus dem nixpkgs-Pin** (verifiziert): `typescript` 5.9.3 (Typprüfung `tsc --noEmit --strict`), `esbuild` 0.27.2 (Bundle `--bundle --format=iife --target=es2016 --outfile=package/contents/code/main.js`; Target in Meilenstein 0 gemessen), `nodejs` 24.19 (`node --test` mit nativem Type-Stripping für `tests/*.test.ts`; nur löschbare TS-Syntax, keine `enum`/`namespace`), `biome` 2.5.11 (Lint/Format ohne npm; Unterkommando `check`, ein `ci` gibt es nicht). Kein `package-lock.json`, kein `npmDepsHash`. Muster: nixpkgs-Karousel-Derivation, nur mit esbuild statt `tsc --outFile`.
-- **Paket:** `stdenvNoCC.mkDerivation` (kein C-Compiler nötig), Build = Typcheck + Tests + Bundle, Install = `cp -r package $out/share/kwin/scripts/kwin-xmonad-lite` (Polonium-Muster in nixpkgs `pkgs/by-name/po/polonium/package.nix:40-41`; `kpackagetool6 --packageroot` als Alternative). Der Store-Pfad landet über `XDG_DATA_DIRS` (`/etc/profiles/per-user/muhackel/share`) in KWins Suchpfad `kwin/scripts/` (`scripting.cpp:757-760`).
+- **Paket:** `stdenvNoCC.mkDerivation` (kein C-Compiler nötig), Build = Typcheck + Tests + zwei Bundles. Das Produktions-Bundle landet im KPackage unter `share/kwin/scripts/kwin-xmonad-lite`; das Dev-Bundle mit Fenstermenü liegt getrennt unter `share/kwin-xmonad-lite-dev/dev.js` und kann deshalb nie über den KPackage-Autostart geladen werden. Der Store-Pfad landet über `XDG_DATA_DIRS` (`/etc/profiles/per-user/muhackel/share`) in KWins Suchpfad `kwin/scripts/` (`scripting.cpp:757-760`).
 - **Flake-Outputs:**
   - `packages.default`: Skriptpaket.
-  - `apps.default` (`nix run`): baut das Paket und lädt das gebaute `main.js` über KWins Scripting-D-Bus direkt aus dem Store. Vorher wird eine laufende Entwicklungsinstanz beendet; ist die deklarativ aktivierte Produktionsinstanz geladen, bricht der Wrapper mit einer verständlichen Meldung ab. Es entsteht keine Kopie unter `~/.local/share`, die später das Nix-Profil überschattet.
+  - `apps.default` (`nix run`): baut das Paket und lädt das gebaute `main.js` über KWins Scripting-D-Bus direkt aus dem Store. `nix run -- --menu` lädt stattdessen das getrennte Dev-Bundle mit Float-Toggle im Fenstermenü. Vorher wird eine laufende Entwicklungsinstanz beendet; ist die deklarativ aktivierte Produktionsinstanz geladen, bricht der Wrapper mit einer verständlichen Meldung ab. Es entsteht keine Kopie unter `~/.local/share`, die später das Nix-Profil überschattet.
   - `apps.reload`: lädt ausschließlich die Entwicklungsinstanz aus dem aktuellen Store-Pfad neu: `unloadScript <dev-id>` → `loadScript <store-pfad>/contents/code/main.js <dev-id>` → `/Scripting/Script<N> org.kde.kwin.Script.run`. Der von `loadScript` gelieferte numerische Bezeichner wird ausgewertet, nicht geraten.
   - `apps.logs`: `journalctl --user -u plasma-kwin_wayland -f`, standardmäßig auf die Zeilen des Controllers und der beiden Proben gefiltert; `-a` zeigt alles.
-  - `apps.dev-load` (Alias von `apps.default`), `apps.probe` (Feature-Probe, MS 0) und `apps.probe-signals` (Signalprobe, MS 4) — Entwicklungswerkzeuge aus `scripts/`, jeweils über `writeShellApplication` mit shellcheck gebaut.
+  - `apps.dev-load` (Alias von `apps.default`), `apps.unload`, `apps.size-window`, `apps.probe` (Feature-Probe, MS 0) und `apps.probe-signals` (Signalprobe, MS 4). Die Shellwerkzeuge entstehen mit `writeShellApplication` und laufen durch shellcheck; `size-window` startet den Tkinter-Testclient mit `python3Packages.tkinter`.
   - `devShells.default`: alle Tools plus `kdePackages.kpackage`, `kdePackages.qttools` (liefert `qdbus`), `kdePackages.kconfig` (`kwriteconfig6`).
   - `checks`: `package` (Typcheck, Tests und Bundle in der buildPhase), `lint` (Biome), `scripts` (alle Werkzeuge samt shellcheck); `nix flake check` grün.
   - `homeManagerModules.default`.
@@ -251,7 +265,7 @@ Unangetastet bleiben `Meta+1..4`, `Meta+!@#$`, `Meta+Gravis` (Yakuake), `Meta+Ta
 | 4.1 | **erledigt 2026-09-05.** Nachschlag an Meilenstein 4: ein erscheinendes Dock startet die Nachläufe (`windowAdded`), der Nachlaufgrund trägt seine gesammelten Quellen, die Signalprobe nimmt jeden Eingriff auch bei Abbruch zurück und meldet einen Exit-Code | Tests grün (190), drei Abbruchproben mit Exit 130 und unveränderten Zuständen, Dock-Aufbau bei gestopptem plasmashell nachgewiesen |
 | 4.1.1 | **erledigt 2026-09-05.** Fehlerpfade der Abnahmeprobe: ein misslungenes Wiedereinschalten bleibt scharf und wird im Rückbau nachgeholt, der Abschlusssatz wird ausgewertet statt gedruckt, `runCut` trennt Trennfehler von toten QObjects, der Nachweis nach dem Entladen grenzt an der Satznummer statt an der Uhr ab | Vollauf mit `--hotplug` und Exit 0 über zehn Prüfungen (vier am Abschlusssatz: `st`, `offen`, `timer_aktiv`, `cut_fehler`; sechs Zustände: Desktopmenge, aktueller Desktop, Activitymenge, aktuelle Activity, Hotplug-Ausgabe, `isScriptLoaded` — ohne `--hotplug` sind es neun), Rohdaten `docs/signals-2026-09-05-spielkiste-3.ndjson`; drei Einspeisungen (Einschaltfehler, schlechter und fehlender Abschlusssatz) mit den erwarteten Beanstandungen |
 | 4.2 | Audit gegen diesen Plan (2026-09-05, vier parallele Prüfagenten über Layoutkern, Adapter, Werkzeugkette, Git). Behoben: Geometrievergleich gerundet (Abschnitt 4, Punkt 3), Init-Retry ohne `singleShot`-Annahme und mit Zweitstart-Sperre (Punkt 7), `accept` schließt eine offene Erwartung bei „unchanged" (Punkt 3), Feature-Probe pollt statt `journalctl -f \| grep -q -m1`, `gnused` in den Werkzeugen, Trailing-Kommas aus dem ES5-Rahmen der Signalprobe, Rohdaten des 4.1.1-Vollaufs eingecheckt, Quellenverzeichnis vollständig, Umlaut-Ersatzschreibweisen in allen Quelltexten, Skripten und Nix-Dateien ersetzt; Abschnitte 3–10 auf den Ist-Stand nachgezogen | Tests grün (193), `nix flake check` grün, Snapshot-Grenze hält, keine Ersatzschreibweise mehr im Baum |
-| 5 | Zustandsübergänge Fullscreen/Maximiert/Minimiert, Float-Toggle, Dialoge, Mindestgrößen | Matrix 11–15 |
+| 5 | **implementiert, Live-Abnahme offen.** Zustandsübergänge Vollbild/Maximiert/Minimiert über die reine Epoche, Float-Toggle samt Wiederherstellung, geordnete Raise-Liste, Dialog- und Festfensterfilter, Mindest-/Höchstgrößen, Dev-Fenstermenü und Größen-Testclient | Tests grün (234), Matrix 11–15 noch auf SPIELKISTE abzunehmen |
 | 6 | Eigene Shortcuts, `readConfig`, plasma-manager-basiertes Home-Manager-Modul, `nix run` ohne lokale Schattenkopie; KDE-Konflikte explizit in `nixosconfig` | Einbindung in `nixosconfig` als Feature-Branch |
 | 7 | Wayland-Smoke-VM mit Geometrie-Probe, Reload-/Neustart-Verhalten, dokumentierter Multi-Output-Lauftest, MVP-Abnahme | Matrix 1–5 und 16–17 |
 | 8 (Stufe 2) | `grid`, Activities-Tests, Zwei-Output-VM-Experiment, optionale Persistenz, KCM-Dialog nur bei Bedarf | Matrix 6–8, Grid-Abnahme |
@@ -291,7 +305,8 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
 | 9 | Bildschirm an-/abstecken | Zustand überlebt am Namen; Fenster folgen KWins Zuordnung; der **letzte** Lauf mit Schreibvorgängen rechnet auf der eingeschwungenen Arbeitsfläche, nach dem 1500-ms-Nachlauf ist Ruhe | **eingeschränkt** (die Arbeitsfläche zieht bis 1,5 s nach, Zwischenstände werden mitgeschrieben) |
 | 10 | Panel ändert nutzbare Fläche | Reflow nach dem Dock-Geometriesignal, mit der bereits neuen Arbeitsfläche | ja (über den Dock-Proxy; ein direktes `clientArea`-Signal gibt es nicht) |
 | 11 | Dialog/Popup über gekacheltem Fenster | unberührt | ja |
-| 12 | echtes Fullscreen | verlässt Tiling, Rest fließt nach, Rückkehr kachelt | ja |
+| 12 | echtes Vollbild | verlässt Tiling, Rest fließt nach, Rückkehr kachelt an derselben Stelle | ja |
+| 12a | Maximierung 1, 2 und 3, jeweils getrennt | verlässt Tiling ohne Eingriff des Controllers, Rückkehr kachelt an derselben Stelle | ja |
 | 13 | minimiert und wiederhergestellt | dito | ja |
 | 14 | Float-Toggle und Wiedereinkacheln | Geometrie gemerkt, Reihenfolge erhalten | ja |
 | 15 | Fenster mit Mindest-/Höchstgröße | Beschränkung respektiert, dokumentierte Überlappung/Freifläche, kein Flattern | **eingeschränkt** (Client entscheidet) |
@@ -315,6 +330,9 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
 | Wo der Registry-GC sitzt (Meilenstein 4) | in `kwin/purge.ts` als reine Funktion auf dem Snapshot, nicht im Adapter. Der Adapter ruft nur `purgeFromSnapshot`; damit steht der ganze Ghost-Purge unter `node --test`. Eine leere Activity- oder Desktopliste gilt als misslungener Lesedurchgang und löscht **keine Surfaces**; die Fensterzustände werden davor regulär bereinigt. |
 | Dock-Beobachtung (Meilenstein 4) | eigener schmaler Signalsatz (`frameGeometryChanged`, `outputChanged`, `closed`), und ein Dock steht **nicht** in `handles` — der Geometrieport soll es gar nicht erreichen können. Die Id für `closed` kommt aus der Closure. |
 | Nachläufe (Meilenstein 4) | 500 **und** 1500 ms, gemessen begründet, und immer über `debouncer.schedule` statt direkt `runArrange` — sonst liefen sie an der Koaleszierung vorbei. |
+| Float-Bedienung vor Meilenstein 6 | nur im getrennten Dev-Bundle über das bei jedem Öffnen neu gebaute Fenstermenü; kein Shortcut und kein Eintrag in `kglobalshortcutsrc` |
+| `floatRect` nach einem Ausgabenwechsel | Größe behalten und die Position mit `anchorInto` in die aktuelle Arbeitsfläche verschieben; die linke obere Ecke gewinnt |
+| Float-Schreibpfad und Nachprüfung | `place` schreibt ohne Erwartung oder Recheck und lässt `tiledRect` stehen; der Recheck prüft vor jedem Write über den Port, ob das Fenster noch teilnehmen darf |
 
 Vom Planer entschieden und oben begründet: JS-Modus statt QML, keine Tile-API, keine dauerhaften Fenster-Eigenschaften, Maximiert verlässt das Tiling wie Fullscreen und wird vom Controller nicht aufgehoben, neue Fenster oberhalb des Fokus wie XMonad, Master-Anzahl fest 1, kein KCM-Dialog im MVP.
 
