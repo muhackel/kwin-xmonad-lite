@@ -2,7 +2,7 @@
 #
 # Wird von den Nix-Wrappern (writeShellApplication) vor das jeweilige Skript
 # gesetzt, deshalb ohne Shebang und ohne eigenes `set` -- der Wrapper setzt
-# bereits `set -o errexit -o nounset -o pipefail` und laesst shellcheck laufen.
+# bereits `set -o errexit -o nounset -o pipefail` und lässt shellcheck laufen.
 
 KWIN_SERVICE="org.kde.KWin"
 KWIN_SCRIPTING_IFACE="org.kde.kwin.Scripting"
@@ -29,19 +29,19 @@ log_err() { printf '%s  xx%s %s\n' "$C_ERR" "$C_RESET" "$*" >&2; }
 
 require_kwin() {
 	if ! busctl --user status "$KWIN_SERVICE" >/dev/null 2>&1; then
-		log_err "KWin ist ueber D-Bus nicht erreichbar ($KWIN_SERVICE)."
-		log_err "Laeuft eine Plasma-Sitzung in dieser Umgebung?"
+		log_err "KWin ist über D-Bus nicht erreichbar ($KWIN_SERVICE)."
+		log_err "Läuft eine Plasma-Sitzung in dieser Umgebung?"
 		exit 1
 	fi
 }
 
-# Zwei Layout-Controller gleichzeitig waeren fatal: beide schrieben in
-# derselben Sitzung Geometrien und ueberschrieben sich gegenseitig.
+# Zwei Layout-Controller gleichzeitig wären fatal: beide schrieben in
+# derselben Sitzung Geometrien und überschrieben sich gegenseitig.
 require_no_production() {
 	local name="${1:-kwin-xmonad-lite}"
 	if [ "$(script_loaded "$name")" = "true" ]; then
 		log_err "Die Produktionsinstanz '$name' ist geladen."
-		log_err "Erst ueber kwinrc [Plugins] ${name}Enabled=false deaktivieren,"
+		log_err "Erst über kwinrc [Plugins] ${name}Enabled=false deaktivieren,"
 		log_err "sonst laufen zwei Layout-Controller gleichzeitig."
 		exit 1
 	fi
@@ -68,7 +68,7 @@ script_unload() {
 		unloadScript s "$1" >/dev/null
 }
 
-# unloadScript ruft deleteLater(); der Eintrag verschwindet erst im naechsten
+# unloadScript ruft deleteLater(); der Eintrag verschwindet erst im nächsten
 # Ereignisschleifendurchlauf (KWin 6.7.4, scripting.cpp:835-845). Ein sofort
 # folgendes loadScript mit demselben Plugin-Namen liefert deshalb -1.
 wait_unloaded() {
@@ -83,7 +83,7 @@ wait_unloaded() {
 	return 1
 }
 
-# Laedt eine .js-Datei und startet sie. Gibt die Script-ID auf stdout aus.
+# Lädt eine .js-Datei und startet sie. Gibt die Script-ID auf stdout aus.
 script_load_and_run() {
 	local path="$1" name="$2" id
 	id="$(script_load "$path" "$name")"

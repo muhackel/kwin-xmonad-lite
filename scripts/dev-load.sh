@@ -1,7 +1,7 @@
-# nix run -- laedt das gebaute Skript direkt aus dem Nix-Store in die laufende
+# nix run -- lädt das gebaute Skript direkt aus dem Nix-Store in die laufende
 # KWin-Sitzung. Legt bewusst KEINE Kopie unter ~/.local/share/kwin/scripts an:
-# eine solche Schattenkopie wuerde spaeter das deklarativ installierte
-# Store-Paket ueberlagern (PLAN.md Risiko 11).
+# eine solche Schattenkopie würde später das deklarativ installierte
+# Store-Paket überlagern (PLAN.md Risiko 11).
 
 MAIN_JS="${XML_MAIN_JS:?XML_MAIN_JS ist nicht gesetzt}"
 DEV_NAME="${XML_DEV_NAME:-kwin-xmonad-lite-dev}"
@@ -11,7 +11,7 @@ require_kwin
 require_no_production "$PROD_NAME"
 
 if [ "$(script_loaded "$DEV_NAME")" = "true" ]; then
-	log_info "Entwicklungsinstanz laeuft bereits, wird entladen."
+	log_info "Entwicklungsinstanz läuft bereits, wird entladen."
 	script_unload "$DEV_NAME"
 	wait_unloaded "$DEV_NAME"
 fi

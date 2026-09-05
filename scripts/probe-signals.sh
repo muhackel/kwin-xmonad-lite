@@ -109,7 +109,7 @@ output_state() {
 
 # Mengenprüfung über eine Hier-Zeichenkette statt über eine Pipe -- aus
 # demselben Grund: `grep -q` steigt beim ersten Treffer aus.
-enthaelt() {
+in_menge() {
 	grep -qFx "$1" <<<"$2"
 }
 
@@ -187,7 +187,7 @@ remove_probe_desktops() {
 		id="$(printf '%s' "$pair" | cut -d'"' -f2)"
 		name="$(printf '%s' "$pair" | cut -d'"' -f4)"
 		[ "$name" = "$PROBE_LABEL" ] || continue
-		if enthaelt "$id" "$desktops_before"; then
+		if in_menge "$id" "$desktops_before"; then
 			continue
 		fi
 		log_info "Entferne Probe-Desktop $id."
@@ -203,7 +203,7 @@ remove_probe_activities() {
 	ids="$(activity_ids)"
 	while IFS= read -r id; do
 		[ -n "$id" ] || continue
-		if enthaelt "$id" "$activities_before"; then
+		if in_menge "$id" "$activities_before"; then
 			continue
 		fi
 		name="$(activity_name "$id")"
@@ -460,7 +460,7 @@ probe_owned=0
 # schloss in einem Lauf die eigenen Abschlusszeilen mit ein, weil sie in
 # dieselbe Sekunde fielen wie das Entladen -- ein falscher Alarm mit dem
 # denkbar unangenehmsten Wortlaut ("eine Verbindung hat überlebt").
-# `|| true`: eine leere Ergebnisdatei laesst `grep` fehlschlagen, und mit
+# `|| true`: eine leere Ergebnisdatei lässt `grep` fehlschlagen, und mit
 # `pipefail` risse das unter `errexit` das Skript ab.
 n_vor="$(grep -o '"n":[0-9]*' "$result" | cut -d: -f2 | sort -n | tail -1 || true)"
 n_vor="${n_vor:--1}"
