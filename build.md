@@ -65,9 +65,25 @@ node --test tests/*.test.ts  # Unit-Tests, nativ mit Type-Stripping
 biome check .                # Lint und Format
 ```
 
-Die Tests decken ausschließlich `src/core/` und `src/state/` ab — die Schichten
-ohne KWin-Abhängigkeit. Der Adapter wird auf der Maschine geprüft, nicht im
-Unit-Test.
+Getestet werden `src/core/`, `src/state/` und der überwiegende Teil von
+`src/kwin/`. Der Adapter ist an der **Snapshot-Grenze** geteilt: er liest die
+KWin-Objekte einmal je Durchlauf in schlichte Datensätze aus, und alles, was
+danach kommt — Fensterfilter, Surface-Zuordnung, die vollständige Anordnung,
+die Geometrieklemmung und der Nachbesserungswächter —, ist reine Rechnung und
+läuft unter `node --test`.
+
+Nur `src/kwin/read.ts` und `src/kwin/adapter.ts` fassen eine KWin-Global an;
+diese beiden werden auf der Maschine geprüft, nicht im Unit-Test. Die Grenze
+ist nachprüfbar:
+
+```bash
+grep -n 'workspace\.\|KWin\.\|new QTimer' src/kwin/*.ts \
+  | grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)'
+# darf nur Zeilen aus read.ts und adapter.ts zeigen
+```
+
+Der zweite `grep` wirft Kommentarzeilen weg — `types.ts` und `timer.ts`
+erwähnen die Globals in ihren Erklärungen, ohne sie zu benutzen.
 
 `node --test tests/` funktioniert **nicht**: Node deutet das Verzeichnis als
 Modulpfad. Immer die Dateien angeben. Aus demselben Grund liegen die

@@ -5,11 +5,13 @@ einen Teil des alten XMonad-Arbeitsgefühls zurück: Tall- und Full-Layout,
 Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
-und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 2
+und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 3
 abgeschlossen** — Gerüst, Build- und Testkette, Feature-Probe, Layoutkern
-(`rect`, `tall`, `full`) sowie Fensterstapel, Registry und Reconcile. Der
-KWin-Adapter folgt ab Meilenstein 3; das geladene Skript ordnet bis dahin
-nichts an.
+(`rect`, `tall`, `full`), Fensterstapel, Registry und Reconcile sowie der
+KWin-Adapter. Das geladene Skript kachelt mit `Tall`. Multi-Output und Hotplug
+folgen in Meilenstein 4, die Zustandsübergänge in 5, die Tastenkürzel in 6 —
+bis dahin ist `Full` nicht erreichbar, weil der Layoutwechsel an `Meta+Space`
+hängt.
 
 ## Ursprung & Zweck
 
@@ -47,8 +49,11 @@ Activities und verwaltet nicht die Zahl der Desktops.
   deren Reihenfolge der Zyklus von `Meta+Space` ist.
 - `src/state/` → Registry je Surface, Abgleich der Ist-Fenstermenge gegen die
   gespeicherte Reihenfolge.
-- `src/kwin/` → Adapter: Fensterfilter, Signalverdrahtung, Entprellung über
-  `QTimer`, Geometrieanwendung mit Wächtern.
+- `src/kwin/` → Adapter. Geteilt an der **Snapshot-Grenze**: `types` (die
+  Datensätze), `filter` (Mitgliedschaft, Layout-Teilnahme, Surface-Zuordnung),
+  `plan` (die ganze Anordnung), `geometry` (Klemmung und die beiden Urteile)
+  und `timer` (Entprellung) sind reine Rechnung und mit `node --test` prüfbar.
+  Nur `read` und `adapter` fassen eine KWin-Global an.
 - `package/` → KPackage-Wurzel; der Build legt `contents/code/main.js` hinein.
 - `dev/probe/` → Feature-Probe, misst die Skriptumgebung (siehe unten).
 - `nix/`, `scripts/` → Paket, Entwicklungsumgebung, Lade- und Reload-Werkzeuge.
@@ -67,7 +72,11 @@ Activities und verwaltet nicht die Zahl der Desktops.
   `Promise.allSettled`/`any` und `globalThis` fehlen zur Laufzeit und dürfen
   im Quelltext nicht vorkommen.
 - Kein `setTimeout`. Jede Verzögerung läuft über `new QTimer()`. Ein Einmal-
-  Timer mit 20 ms feuerte nach 21 ms — das Entprellfenster trägt.
+  Timer mit 20 ms feuerte nach 21 ms — das Entprellfenster trägt. **`restart()`
+  gibt es nicht** (gemessen abwesend); zum Neustarten `stop()` und `start()`.
+  Vorhanden ist dafür `remainingTime`.
+- **Benannte Regex-Gruppen parsen, funktionieren aber nicht.** `match.groups`
+  bleibt `undefined`. Kein `.groups` im Quelltext.
 - **Vorhanden und gemessen**, damit nicht aus Vorsicht darauf verzichtet wird:
   `Map`, `Set`, `WeakMap`, `Symbol`, `Proxy`, `Reflect`, `Promise`, `for…of`,
   Destrukturierung, Array-Spread, `class` (ohne Felder), `Array.from`,
@@ -130,14 +139,46 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Zustand eines abgesteckten Bildschirms überlebt am Namen bis zum
   Sitzungsende.
 
-### Offene Konflikte im Entwurf
+### Adapter
 
-- **`moveable`/`resizeable` taugen nicht als Mitgliedschaftskriterium.** Ein
-  Fenster im Vollbild meldet beides als `false`. `PLAN.md` Abschnitt 7 führt
-  sie im dauerhaften Filter, Abschnitt 4 verlangt aber, dass ein Vollbild-
-  fenster Surface-Mitglied bleibt. Beides zusammen geht nicht. Vor Meilenstein
-  3 entscheiden: entweder aus dem Mitgliedschaftsfilter herausnehmen oder nur
-  bei der Layout-Teilnahme prüfen.
+- **Die Snapshot-Grenze ist die Testgrenze.** Nur `kwin/read.ts` und
+  `kwin/adapter.ts` dürfen eine KWin-Global (`workspace`, `KWin`, `QTimer`)
+  anfassen; alles andere in `kwin/` rechnet auf `WindowInfo` und läuft unter
+  `node --test`. Die Regel ist prüfbar (das Kommando steht in `build.md`;
+  Kommentarzeilen müssen herausgefiltert werden, sonst melden `types.ts` und
+  `timer.ts` falsch positiv). Wer Logik in den Adapter zieht, verliert sie aus
+  den Tests.
+- **`moveable`/`resizeable` gehören in die Layout-Teilnahme, nicht in die
+  Mitgliedschaft.** Ein Vollbildfenster meldet beide als `false`, ebenso das
+  Panel — als Mitgliedschaftskriterium taugen sie für nichts. Entschieden in
+  Meilenstein 3, begründet in `PLAN.md` Abschnitt 7.
+- **`frameGeometryChanged` darf niemals `schedule()` auslösen.** Das wäre die
+  direkte Rückkopplung: schreiben, Signal, anordnen, schreiben. Das Signal
+  führt ausschließlich in den Prüfpfad.
+- **Der eigene Schreibvorgang feuert das Signal synchron.** Auf Wayland ist
+  eine reine Verschiebung sofort wirksam, `frameGeometryChanged` kommt also
+  mitten im Schreiben zurück. Ohne das `applying`-Flag liefe der Prüfpfad
+  rekursiv an; die Bestätigung holt sich der Adapter deshalb eine Zeile später
+  selbst durch Rücklesen. Nur der asynchrone Fall — eine Größenänderung per
+  xdg-configure — landet später im Signal.
+- **Die eigentliche Flatterbremse ist `judgeWrite` mit `"unchanged"`.** Eine
+  Epoche ohne Änderung schreibt gar nichts, also feuert auch kein Signal. Der
+  Versuchszähler ist nur das Netz darunter.
+- **Nicht bei jedem Auslöser den Timer neu starten.** Das erste Ereignis
+  öffnet das 20-ms-Fenster, alle weiteren steigen zu; ein Neustart je Ereignis
+  würde die Anordnung während eines Ereignisstroms beliebig lange verschieben.
+- **Zwei verschiedene Id-Normalisierungen.** `window.internalId` ist ein
+  Objekt, dessen Zeichenkettenform geschweifte Klammern trägt; `desktop.id`
+  ist ein echter String **ohne** Klammern. Nicht dieselbe Behandlung anwenden.
+- **`insertUp` dreht bei Mehrfacheinfügung die Reihenfolge um.** Kommen beim
+  ersten Abgleich drei Fenster auf einmal, steht das zuletzt eingefügte vorn.
+  Im laufenden Betrieb kommt immer nur eines hinzu, dort ist es genau richtig.
+- **Nichts an einem toten Fenster lesen.** Die Id wird beim Verbinden einmal
+  berechnet und in der Closure gehalten; `windowRemoved` löst nur einen
+  Durchlauf aus. `disconnect` braucht dieselbe Funktionsreferenz wie
+  `connect`, deshalb liegt je Fenster eine Trennfunktion in der Tabelle.
+- **Jede Ausgabe läuft durch `log()`**, sonst greift der Journalfilter in
+  `scripts/logs.sh` nicht und die Zeile ist bei `nix run .#logs` unsichtbar.
 
 ### D-Bus und Konfiguration
 
