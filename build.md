@@ -78,6 +78,17 @@ Verbindungen, stoppt alle eigenen Timer und meldet beides (`"offen":0`,
 Zeile mehr kommt. Es gibt keinen Unload-Hook — eine überlebende Verbindung
 würde später in eine zerstörte Engine feuern.
 
+Das Skript **wertet diesen Abschlusssatz aus**: fehlt er, oder weicht `st`,
+`offen`, `timer_aktiv` oder `cut_fehler` ab, geht das in den Exit-Code. Nur
+`cut_tot` wird bloß berichtet — Trennungen an einem bereits gelöschten QObject
+sind der Normalfall für Panels, die während des Laufs verschwinden, und ihre
+Zahl hängt am Bedienablauf (`docs/research.md` Abschnitt 3.5). Am Ende prüft
+das Skript sechs Zustände gegen die Ausgangslage (Desktopmenge, aktueller
+Desktop, Activitymenge, aktuelle Activity, Zustand der Hotplug-Ausgabe,
+`isScriptLoaded`). Jeder Eingriff wird zurückgenommen, auch bei einem Abbruch
+mit Strg-C: der EXIT-Trap räumt genau einmal auf, und eine Ausgabe, die sich
+nicht wieder einschalten ließ, wird dort erneut versucht.
+
 ## Testen / Checks
 
 ```bash

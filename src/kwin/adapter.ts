@@ -26,7 +26,7 @@ function fmt(rect: Rect): string {
 
 /**
  * Verdrahtet KWin mit dem Kern. Zusammen mit `read.ts` die einzige Datei, die
- * eine KWin-Global anfassen darf — alles Uebrige ist reine Rechnung und laeuft
+ * eine KWin-Global anfassen darf — alles Übrige ist reine Rechnung und läuft
  * unter `node --test`. Die Geometrieerwartung samt Nachbesserung liegt in
  * `apply.ts` und bekommt ihren Fensterzugriff von hier als Port.
  */
@@ -35,9 +35,9 @@ export function createAdapter(): Adapter {
 	const excludes = makeExcludes(DEFAULT_EXCLUDES);
 	const connections = new Map<WindowId, () => void>();
 	/**
-	 * Die einzige Stelle, an der ein KWin-Fensterobjekt ueber den Lesedurchgang
+	 * Die einzige Stelle, an der ein KWin-Fensterobjekt über den Lesedurchgang
 	 * hinaus aufbewahrt wird. Ein Eintrag verschwindet mit `closed` und mit dem
-	 * naechsten Abgleich; danach meldet der Port das Fenster als fort, statt an
+	 * nächsten Abgleich; danach meldet der Port das Fenster als fort, statt an
 	 * einem toten Objekt zu lesen.
 	 */
 	const handles = new Map<WindowId, KwinWindow>();
@@ -47,8 +47,8 @@ export function createAdapter(): Adapter {
 
 	const debouncer = createDebouncer(() => new QTimer(), DEBOUNCE_MS, runArrange);
 	/**
-	 * Nach einer Ausgabenaenderung ist `clientArea` noch nicht fertig
-	 * (docs/research.md Abschnitt 3.3); nach einer reinen Panelhoehenaenderung
+	 * Nach einer Ausgabenänderung ist `clientArea` noch nicht fertig
+	 * (docs/research.md Abschnitt 3.3); nach einer reinen Panelhöhenänderung
 	 * war sie dagegen schon im entprellten Lauf neu, dort sichert der Nachlauf
 	 * nur ab. Er meldet immer nur beim Entpreller an -- nie `runArrange`
 	 * direkt, sonst liefe er an der Koaleszierung vorbei.
@@ -90,7 +90,7 @@ export function createAdapter(): Adapter {
 			// Nur ein zuletzt bekannter Layout-Teilnehmer ist einen Lauf wert.
 			// Ausgeschlossene und nicht teilnehmende Fenster fallen still durch.
 			// Ein Dock kommt hier ohnehin nie an: es steht weder in `handles`
-			// noch in der Registry und haengt an einem eigenen Signalsatz.
+			// noch in der Registry und hängt an einem eigenen Signalsatz.
 			if (!lastParticipants.has(id)) {
 				return;
 			}
@@ -115,7 +115,7 @@ export function createAdapter(): Adapter {
 		} catch (error) {
 			// Das Objekt kann Qt-seitig schon fort sein. Der Eintrag ist raus,
 			// mehr ist hier nicht zu retten.
-			log(`Trennen fehlgeschlagen fuer ${id}: ${String(error)}`);
+			log(`Trennen fehlgeschlagen für ${id}: ${String(error)}`);
 		}
 	}
 
@@ -124,8 +124,8 @@ export function createAdapter(): Adapter {
 	 * `managed` und liefe sonst durch `connectWindow` in den vollen Satz --
 	 * sein `frameGeometryChanged` landete in `geometry.notifyChanged` und
 	 * versandete dort mangels Registry-Eintrag, statt eine Anordnung
-	 * auszuloesen. Es kommt auch **nicht** in `handles`: der Geometrieport soll
-	 * es gar nicht erreichen koennen.
+	 * auszulösen. Es kommt auch **nicht** in `handles`: der Geometrieport soll
+	 * es gar nicht erreichen können.
 	 */
 	function connectDock(window: KwinWindow, id: WindowId): void {
 		const onDockChanged = (): void => {
@@ -136,7 +136,7 @@ export function createAdapter(): Adapter {
 		const onDockClosed = (): void => {
 			// Wie bei den verwalteten Fenstern: die Id kommt aus dieser
 			// Closure, das sterbende Objekt wird nicht angefasst. Ein Panel
-			// kehrt nach einem Hotplug als **neues** Fenster zurueck
+			// kehrt nach einem Hotplug als **neues** Fenster zurück
 			// (docs/research.md Abschnitt 3.4), `windowAdded` verbindet es.
 			log(`dockEntfernt ${id}`);
 			disconnectWindow(id);
@@ -236,9 +236,9 @@ export function createAdapter(): Adapter {
 	}
 
 	/**
-	 * Wer das Layout verlaesst, verliert Erwartung **und** eingeplante
-	 * Nachpruefung. `clearExpectation` in `plan.ts` raeumt nur die Registry;
-	 * ohne diesen Schritt liefe ein spaeterer Timerlauf noch an einem Fenster,
+	 * Wer das Layout verlässt, verliert Erwartung **und** eingeplante
+	 * Nachprüfung. `clearExpectation` in `plan.ts` räumt nur die Registry;
+	 * ohne diesen Schritt liefe ein späterer Timerlauf noch an einem Fenster,
 	 * das inzwischen minimiert, maximiert, im Vollbild oder floatend ist.
 	 */
 	function forgetDeparted(current: Set<WindowId>): void {
@@ -298,12 +298,12 @@ export function createAdapter(): Adapter {
 		for (const info of reading.snapshot.windows) {
 			live.add(info.id);
 		}
-		// Die Epoche steht mit in der Zeile: der GC laeuft vor der
-		// `arrange`-Zeile, sonst waere im Journal nicht zu sehen, zu welchem
-		// Lauf er gehoert.
+		// Die Epoche steht mit in der Zeile: der GC läuft vor der
+		// `arrange`-Zeile, sonst wäre im Journal nicht zu sehen, zu welchem
+		// Lauf er gehört.
 		const purged = purgeFromSnapshot(registry, reading.snapshot);
 		if (purged.skippedSurfaces) {
-			log(`gc #${epoch} uebersprungen: Snapshot ohne gueltige Activities oder Desktops`);
+			log(`gc #${epoch} übersprungen: Snapshot ohne gültige Activities oder Desktops`);
 		}
 		if (purged.windows.length > 0 || purged.surfaces.length > 0) {
 			log(`gc #${epoch} fenster=${purged.windows.length} surfaces=${purged.surfaces.length}`);
@@ -357,7 +357,7 @@ export function createAdapter(): Adapter {
 		});
 		workspace.windowRemoved.connect(() => {
 			// Nichts am toten Objekt lesen; das Trennen erledigen `closed` und
-			// `pruneConnections` im naechsten Durchlauf.
+			// `pruneConnections` im nächsten Durchlauf.
 			debouncer.schedule("windowRemoved");
 		});
 		workspace.windowActivated.connect(() => {
@@ -370,7 +370,7 @@ export function createAdapter(): Adapter {
 			debouncer.schedule("activityChanged");
 		});
 		// Anlegen und Entfernen, nicht der Wechsel (docs/research.md 3.1).
-		// Ohne diese beiden liefe der Registry-GC erst beim naechsten
+		// Ohne diese beiden liefe der Registry-GC erst beim nächsten
 		// Fensterereignis.
 		workspace.activitiesChanged.connect(() => {
 			debouncer.schedule("activitiesChanged");
@@ -378,9 +378,9 @@ export function createAdapter(): Adapter {
 		workspace.desktopsChanged.connect(() => {
 			debouncer.schedule("desktopsChanged");
 		});
-		// `screensChanged` kommt in der Hotplug-Folge zuletzt, die Flaechen
+		// `screensChanged` kommt in der Hotplug-Folge zuletzt, die Flächen
 		// sind zu dem Zeitpunkt aber noch nicht fertig -- deshalb die
-		// Nachlaeufe.
+		// Nachläufe.
 		workspace.screensChanged.connect(() => {
 			debouncer.schedule("screensChanged");
 			followUps.trigger("screensChanged");
@@ -399,7 +399,7 @@ export function createAdapter(): Adapter {
 		}
 
 		// Steuert kein Verhalten -- `currentDesktopForScreen` mit Fallback deckt
-		// beide Faelle ab --, aber ohne die Zeile ist ein Journalauszug spaeter
+		// beide Fälle ab --, aber ohne die Zeile ist ein Journalauszug später
 		// nicht deutbar.
 		log(`bereit perOutputDesktops=${String(options.perOutputVirtualDesktops)}`);
 		runArrange(["start"]);
