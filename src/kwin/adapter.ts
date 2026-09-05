@@ -285,8 +285,8 @@ export function createAdapter(): Adapter {
 				applyPlacement(placement, infos);
 			}
 
-			if (surface.raise !== null) {
-				const window = handles.get(surface.raise);
+			for (const id of surface.raise) {
+				const window = handles.get(id);
 				if (window !== undefined) {
 					workspace.raiseWindow(window);
 				}

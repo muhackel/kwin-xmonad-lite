@@ -214,10 +214,10 @@ test("Tall bleibt das Layout, solange niemand wechselt", () => {
 	// also darf auch nichts gehoben werden.
 	const surface = only(createRegistry(), [windowInfo("a")], "a");
 	assert.equal(surface.layoutId, "tall");
-	assert.equal(surface.raise, null);
+	assert.deepEqual(surface.raise, []);
 });
 
-test("full hebt den fokussierten Teilnehmer", () => {
+test("full hebt den fokussierten Teilnehmer zuerst", () => {
 	const registry = createRegistry();
 	const a = windowInfo("a");
 	const b = windowInfo("b");
@@ -226,7 +226,7 @@ test("full hebt den fokussierten Teilnehmer", () => {
 
 	const surface = only(registry, [a, b], "b");
 	assert.equal(surface.layoutId, "full");
-	assert.equal(surface.raise, "b");
+	assert.deepEqual(surface.raise, ["b"]);
 });
 
 test("full hebt keinen Nichtteilnehmer, sondern den Master", () => {
@@ -242,19 +242,90 @@ test("full hebt keinen Nichtteilnehmer, sondern den Master", () => {
 	const surface = only(registry, [a, b], null);
 	assert.equal(surface.layoutId, "full");
 	assert.deepEqual(surface.participants, ["a"]);
-	assert.equal(surface.raise, "a", "der Master ersetzt den fehlenden Teilnehmer");
+	assert.deepEqual(surface.raise, ["a"], "der Master ersetzt den fehlenden Teilnehmer");
 });
 
-test("full hebt nichts, wenn niemand teilnimmt", () => {
+test("full hebt Float-Fenster nach dem gekachelten in Surface-Reihenfolge", () => {
 	const registry = createRegistry();
 	const a = windowInfo("a");
-	only(registry, [a], "a");
+	const b = windowInfo("b");
+	const c = windowInfo("c");
+	const d = windowInfo("d");
+	only(registry, [a, b, c, d], "b");
 	getSurface(registry, KEY).layoutIndex = 1;
-	a.minimized = true;
+	setFloating(registry, "c", true, null);
+	setFloating(registry, "d", true, null);
 
-	const surface = only(registry, [a], null);
+	const surface = only(registry, [a, b, c, d], "b");
 	assert.equal(surface.layoutId, "full");
-	assert.equal(surface.raise, null);
+	assert.deepEqual(surface.raise, ["b", "d", "c"]);
+});
+
+test("full hebt ein fokussiertes Float-Fenster zuletzt", () => {
+	const registry = createRegistry();
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	const c = windowInfo("c");
+	only(registry, [a, b, c], "b");
+	getSurface(registry, KEY).layoutIndex = 1;
+	setFloating(registry, "b", true, null);
+	setFloating(registry, "c", true, null);
+
+	const surface = only(registry, [a, b, c], "b");
+	assert.deepEqual(surface.raise, ["a", "c", "b"]);
+});
+
+test("full hebt keine unsichtbaren Float-Fenster", () => {
+	const registry = createRegistry();
+	const a = windowInfo("a");
+	const sichtbar = windowInfo("sichtbar");
+	const minimiert = windowInfo("minimiert");
+	const vollbild = windowInfo("vollbild");
+	const maxEins = windowInfo("max-eins");
+	const maxZwei = windowInfo("max-zwei");
+	const maxDrei = windowInfo("max-drei");
+	only(registry, [a, sichtbar, minimiert, vollbild, maxEins, maxZwei, maxDrei], null);
+	getSurface(registry, KEY).layoutIndex = 1;
+	for (const id of ["sichtbar", "minimiert", "vollbild", "max-eins", "max-zwei", "max-drei"]) {
+		setFloating(registry, id, true, null);
+	}
+	minimiert.minimized = true;
+	vollbild.fullScreen = true;
+	maxEins.maximizeMode = 1;
+	maxZwei.maximizeMode = 2;
+	maxDrei.maximizeMode = 3;
+
+	const surface = only(
+		registry,
+		[a, sichtbar, minimiert, vollbild, maxEins, maxZwei, maxDrei],
+		null,
+	);
+	assert.deepEqual(surface.raise, ["a", "sichtbar"]);
+});
+
+test("Tall hebt auch mit Float-Fenstern nichts", () => {
+	const registry = createRegistry();
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	setFloating(registry, "b", true, null);
+
+	const surface = only(registry, [a, b], "b");
+	assert.equal(surface.layoutId, "tall");
+	assert.deepEqual(surface.raise, []);
+});
+
+test("full hebt ohne Teilnehmer nur die Float-Fenster", () => {
+	const registry = createRegistry();
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	only(registry, [a, b], "b");
+	getSurface(registry, KEY).layoutIndex = 1;
+	setFloating(registry, "a", true, null);
+	setFloating(registry, "b", true, null);
+
+	const surface = only(registry, [a, b], "b");
+	assert.deepEqual(surface.participants, []);
+	assert.deepEqual(surface.raise, ["a", "b"]);
 });
 
 // --- Mehrere Ausgaben und Desktops (Meilenstein 4) -----------------------
