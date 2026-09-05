@@ -65,13 +65,86 @@ node --test tests/*.test.ts  # Unit-Tests, nativ mit Type-Stripping
 biome check .                # Lint und Format
 ```
 
-Die Tests decken ausschließlich `src/core/` und `src/state/` ab — die Schichten
-ohne KWin-Abhängigkeit. Der Adapter wird auf der Maschine geprüft, nicht im
-Unit-Test.
+Getestet werden `src/core/`, `src/state/` und der überwiegende Teil von
+`src/kwin/`. Der Adapter ist an der **Snapshot-Grenze** geteilt: er liest die
+KWin-Objekte einmal je Durchlauf in schlichte Datensätze aus, und alles, was
+danach kommt — Fensterfilter, Surface-Zuordnung, die vollständige Anordnung,
+die Geometrieklemmung und der Nachbesserungswächter —, ist reine Rechnung und
+läuft unter `node --test`.
+
+Nur `src/kwin/read.ts` und `src/kwin/adapter.ts` fassen eine KWin-Global an;
+diese beiden werden auf der Maschine geprüft, nicht im Unit-Test. Die Grenze
+ist nachprüfbar:
+
+```bash
+grep -n 'workspace\.\|KWin\.\|new QTimer' src/kwin/*.ts \
+  | grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)'
+# darf nur Zeilen aus read.ts und adapter.ts zeigen
+```
+
+Der zweite `grep` wirft Kommentarzeilen weg — `types.ts` und `timer.ts`
+erwähnen die Globals in ihren Erklärungen, ohne sie zu benutzen.
 
 `node --test tests/` funktioniert **nicht**: Node deutet das Verzeichnis als
 Modulpfad. Immer die Dateien angeben. Aus demselben Grund liegen die
 Testhilfen unter `tests/support/` — dort sammelt das Glob sie nicht ein.
+
+### Abnahme auf der Maschine
+
+Was der Unit-Test nicht abdeckt — Signalverdrahtung, Auslesen, das Verhalten
+von KWin selbst —, wird in der laufenden Sitzung geprüft. Erst laden, dann in
+einem zweiten Terminal das Journal verfolgen:
+
+```bash
+nix run
+nix run .#logs
+```
+
+Der Adapter schreibt eine Zeile je Anordnungsepoche, eine je Surface und eine
+je tatsächlich geschriebener Geometrie:
+
+```
+kwin-xmonad-lite: arrange #2 grund=windowActivated,windowAdded surfaces=3 mitglieder=8 teilnehmer=5
+kwin-xmonad-lite: surface <activity>|<desktop>|DP-10 layout=tall n=3 ratio=0.65 flaeche=2560x1410+0+0
+kwin-xmonad-lite: apply {0fb083bd-…} soll=1664x1410+0+0
+```
+
+**Testmatrix 1** — ein Fenster allein auf einem Bildschirm bekommt die ganze
+Arbeitsfläche. Auf SPIELKISTE ist das `2560x1410`, nicht `2560x1440`: der
+Panelabzug muss sichtbar sein, sonst hat der Leser `FullScreenArea` statt
+`MaximizeArea` erwischt.
+
+**Testmatrix 2** — bei drei Fenstern und Verhältnis 0,65 muss der Master
+`1664x1410` breit sein und die beiden Stapelzeilen je `896x705`. Dieselben
+Zahlen stehen in `tests/kwin-plan.test.ts`; stimmen Journal und Test überein,
+sind Adapter und Kern in Deckung. Weicht eine Stapelbreite nach oben ab, ist
+das keine Abweichung, sondern die Klemmung an der Mindestbreite des Fensters —
+solche Zellen bleiben am rechten Rand der Arbeitsfläche verankert.
+
+**Kein Flattern.** Die schärfste Probe ist ein Reload: nach `nix run .#reload`
+darf **keine einzige** `apply`-Zeile mehr erscheinen. Der neue Durchlauf baut
+den Zustand aus der Ist-Menge neu auf und findet jedes Fenster bereits am
+richtigen Platz — das beweist zugleich, dass die Geometrien angekommen sind
+und keine Signalverbindung doppelt hängt.
+
+Im Leerlauf darf ohne Nutzeraktion gar nichts geschrieben werden:
+
+```bash
+journalctl --user -u plasma-kwin_wayland --since "-5 min" -o cat \
+  | grep -c 'kwin-xmonad-lite: apply'      # erwartet: 0
+```
+
+Über eine Stunde normaler Arbeit gilt das Kriterium aus `PLAN.md`
+Abschnitt 11 — kein Fenster mehr als dreimal ohne Nutzeraktion:
+
+```bash
+journalctl --user -u plasma-kwin_wayland --since "-60 min" -o cat \
+  | grep 'kwin-xmonad-lite: apply' | awk '{print $3}' | sort | uniq -c | sort -rn | head
+```
+
+Zeilen mit `nachbessern` oder `aufgegeben` weisen auf ein Fenster hin, das die
+geschriebene Größe nicht annimmt; bis zu zwei Nachbesserungen je Epoche sind
+vorgesehen, danach ruht der Fall bis zum nächsten äußeren Ereignis.
 
 ### Eigenschaftsprüfung des Layoutkerns
 

@@ -106,7 +106,7 @@ Der Adapter erzeugt aus KWin-Signalen nur Intents (`windowAppeared`, `windowVani
 - Ein Fenster auf allen Desktops oder mehreren Activities steht in jeder betroffenen Surface-Reihenfolge und wird dort mitgekachelt (Entscheidung 2).
 - **Sichtbare Surfaces:** je `output` aus `workspace.screens`: `desktop = currentDesktopForScreen(output)` (Fallback `currentDesktop`), `activity = workspace.currentActivity`. Ohne Per-Output-Option liefert das für alle Outputs denselben Desktop, das Modell bleibt gleich.
 - **Surface-Mitglieder:** alle grundsätzlich verwaltbaren Fenster, die Activity, Desktop und Output der Surface zugeordnet sind. Floating-, minimierte, maximierte und Fullscreen-Fenster bleiben Mitglieder und damit in Reihenfolge und Fokuszyklus.
-- **Layout-Teilnehmer:** die Teilmenge der Surface-Mitglieder, die weder floating noch minimiert, maximiert oder Fullscreen sind. Nur sie erhalten Layout-Rechtecke.
+- **Layout-Teilnehmer:** die Teilmenge der Surface-Mitglieder, die weder floating noch minimiert, maximiert oder Fullscreen sind und die `moveable` **und** `resizeable` melden. Nur sie erhalten Layout-Rechtecke.
 - Bei `activitiesChanged` und `desktopsChanged` entfernt die Registry Zustände nicht mehr vorhandener Activities und Desktops. Output-Zustände bleiben nach dem Abstecken bis zum Sitzungsende anhand des Outputnamens erhalten, damit ein erneutes Anstecken den vorherigen Zustand wiederherstellt.
 
 ### Ereignisfluss
@@ -154,7 +154,7 @@ kwin-xmonad-lite/
 ├── src/
 │   ├── core/{rect,stack,surface}.ts, core/layout/{index,types,tall,full}.ts
 │   ├── state/{registry,reconcile}.ts
-│   ├── kwin/{types.d,filter,adapter,geometry,shortcuts,config,log}.ts
+│   ├── kwin/{globals.d,types,filter,plan,geometry,timer,read,adapter,log}.ts
 │   └── main.ts                   # Einstieg, verdrahtet Adapter und Kern
 ├── tests/                        # node --test, nur core/ und state/; Hilfen in tests/support/
 ├── dev/probe/probe.js            # Feature-Probe, ES5, nicht Teil des KPackage
@@ -188,9 +188,9 @@ Liste `[tall, full]` je Surface, `Meta+Space` zyklisch, Reset setzt Index 0 und 
 
 ### Filterkette
 
-Der dauerhafte Mitgliedschaftsfilter lautet `managed && !deleted && normalWindow && !specialWindow && !popupWindow && !dialog && !utility && !splash && !transient && !modal && resizeable && moveable`, danach folgt die Ausschlussliste auf normalisiertem `resourceClass` mit **Vollmatch** (nicht Substring, Anti-Pattern Tessera/Aerogel). Defaults: `krunner`, `yakuake`, `kded6`, `polkit-kde-authentication-agent-1`, `plasmashell`, `xwaylandvideobridge` (Polonium `config.ts:110`), `steam_app_default` (aus der lokalen Krohnkite-Konfiguration). Fenster mit `minSize == maxSize` gelten als fest und werden nicht verwaltet (`maxSize` meldet für „unbegrenzt" `2147483647`).
+Der dauerhafte Mitgliedschaftsfilter lautet `managed && !deleted && normalWindow && !specialWindow && !popupWindow && !dialog && !utility && !splash && !dock && !transient && !modal`, danach folgt die Ausschlussliste auf normalisiertem `resourceClass` mit **Vollmatch** (nicht Substring, Anti-Pattern Tessera/Aerogel). Defaults: `krunner`, `yakuake`, `kded6`, `polkit-kde-authentication-agent-1`, `plasmashell`, `xwaylandvideobridge` (Polonium `config.ts:110`), `steam_app_default` (aus der lokalen Krohnkite-Konfiguration). Fenster mit `minSize == maxSize` gelten als fest und werden nicht verwaltet (`maxSize` meldet für „unbegrenzt" `2147483647`).
 
-> **Offener Konflikt aus der Feature-Probe:** Ein Fenster im Vollbild meldet `moveable === false` und `resizeable === false`. Als dauerhaftes Mitgliedschaftskriterium widersprechen die beiden damit Abschnitt 4, wonach ein Vollbildfenster Surface-Mitglied bleiben soll. Vor Meilenstein 3 zu entscheiden: entweder aus dem Mitgliedschaftsfilter streichen oder nur bei der Layout-Teilnahme prüfen.
+> **In Meilenstein 3 entschieden:** `moveable` und `resizeable` stehen **nicht** im Mitgliedschaftsfilter, sondern ausschließlich in der Layout-Teilnahme. Ein Fenster im Vollbild meldet beide als `false` (gemessen, `docs/research.md` Abschnitt 2.5); im Mitgliedschaftsfilter hätte es die Surface verlassen und wäre nach dem Vollbild oberhalb des Fokus als neues Fenster zurückgekommen, statt an seinen Platz. Abschnitt 4 und Matrix 12 verlangen das Gegenteil. Auch das gemessene Dock meldet beides als `false` — die Flags taugen empirisch für keine Mitgliedschaftsentscheidung.
 
 Dialoge und Transienten bleiben unberührt; KWin platziert sie über dem Elternfenster. Floating, Minimierung, Maximierung und Fullscreen sind keine Mitgliedschaftskriterien, sondern schalten nur die Layout-Teilnahme ab.
 
@@ -240,7 +240,7 @@ Unangetastet bleiben `Meta+1..4`, `Meta+!@#$`, `Meta+Gravis` (Yakuake), `Meta+Ta
 | 0 | **erledigt 2026-09-05.** Repo-Gerüst mit CLAUDE.md, README.md und build.md, Flake, `docs/research.md` mit URLs/Commits, `nix flake check`, Feature-Probe auf SPIELKISTE gelaufen (682 Sätze, Rohdaten im Repo) | Journal zeigte die Probe-Ausgabe, Check grün |
 | 1 | **erledigt 2026-09-05.** `core/rect`, `core/layout/tall`, `core/layout/full`, Unit-Tests mit Eigenschaftsprüfung (2025 Gitter- und 500 Fuzz-Fälle) | `node --test` grün (27 Tests) |
 | 2 | **erledigt 2026-09-05.** `core/stack`, `core/surface`, `state/registry`, `state/reconcile`, Tests für Fokus/Swap/Promote/Insert/Purge/Sticky | Tests grün (73 Tests) |
-| 3 | Adapter: Mitgliedschaft und Layout-Teilnahme getrennt, Surface-Auflösung, Debounce, Geometrie-Anwendung mit Generation/Guards; ein Output, ein Desktop | Matrix 1–2, kein Flattern im Journal |
+| 3 | **erledigt 2026-09-05.** Adapter: Mitgliedschaft und Layout-Teilnahme getrennt, Surface-Auflösung, Debounce, Geometrie-Anwendung mit Generation/Guards. Die Surface-Auflösung beherrscht bereits mehrere Ausgaben und Sticky-Fenster; die Abnahme lief auf einer Ausgabe | Tests grün (138), Matrix 1–2, kein Flattern im Journal |
 | 4 | Multi-Output, Desktopwechsel, Hotplug, Registry-GC, Dock-Geometriesignale, Panel-Proxy, Per-Output-Desktops feature-detected | Matrix 3–5, 9–10 auf SPIELKISTE (3 Outputs) |
 | 5 | Zustandsübergänge Fullscreen/Maximiert/Minimiert, Float-Toggle, Dialoge, Mindestgrößen | Matrix 11–15 |
 | 6 | Eigene Shortcuts, `readConfig`, plasma-manager-basiertes Home-Manager-Modul, `nix run` ohne lokale Schattenkopie; KDE-Konflikte explizit in `nixosconfig` | Einbindung in `nixosconfig` als Feature-Branch |
@@ -253,7 +253,7 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
 
 1. **Wayland-Größe unverbindlich:** Clients mit eigenem Größenraster (Terminals, GTK-Dialoge) liefern abweichende Größen. Gegenmaßnahme: Toleranz plus begrenzte Nachbesserung. Rest bleibt sichtbar.
 2. **Panel-Timing:** Beim Login erscheint das Panel nach dem Skript; ohne direktes `clientArea`-Signal bleiben Dock-`frameGeometryChanged`, `outputChanged`, Verzögerung und `windowAdded` nur Proxys. Nicht garantiert.
-3. ~~ES-Level und `print()` der QJSEngine~~ **erledigt in MS 0**: Target `es2016`, `print()` existiert, `setTimeout` nicht. Neu aufgetaucht: `windowList()`, `desktops` und `activities` sind array-artig, aber keine echten Arrays — `map`/`filter` sind darauf nicht verwendbar.
+3. ~~ES-Level und `print()` der QJSEngine~~ **erledigt in MS 0**: Target `es2016`, `print()` existiert, `setTimeout` nicht. Neu aufgetaucht: `windowList()`, `desktops` und `activities` sind array-artig, aber keine echten Arrays — `map`/`filter` sind darauf nicht verwendbar. Beim erneuten Durchsehen der Rohdaten in MS 3 fielen zwei Fehler in `docs/research.md` auf: `QTimer.restart` existiert **nicht**, und benannte Regex-Gruppen parsen zwar, füllen aber `match.groups` nicht. Beides dort korrigiert.
 4. **`registerShortcut` bei belegter Taste:** nur Debug-Log. Deshalb konfliktfreie Belegung durch eine explizite, vom Projekt getrennte Host-Konfiguration.
 5. **Output-Identität:** `name` ist portstabil; beim Umstecken auf einen anderen Port wandert der Zustand nicht mit. Akzeptiert.
 6. **Kein Unload-Hook:** durch die Regel „keine dauerhaften Eigenschaften" entschärft; beim Deaktivieren bleiben Fenster dort, wo sie sind.
@@ -296,6 +296,8 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
 | Shortcut-Konflikte `Meta+L` / `Meta+T` | XMonad-Tasten behalten; Projektmodul verändert fremde Shortcuts standardmäßig nicht. `nixosconfig` setzt „Lock Session" auf `Screensaver` und `Ctrl+Alt+L` und leert KWin „Edit Tiles" explizit. |
 | Fenster auf allen Desktops / mehreren Activities | in jeder Surface mitkacheln (XMonad `copyToAll`-Verhalten) |
 | Test-VM im MVP | Wayland-Smoke-Test mit einem Output; Zwei-Output-VM als Stufe-2-Experiment |
+| `moveable`/`resizeable` im Filter (Meilenstein 3) | nur bei der Layout-Teilnahme prüfen, nicht bei der Mitgliedschaft (Begründung in Abschnitt 7) |
+| Testschnitt des Adapters (Meilenstein 3) | Snapshot-Grenze: der Adapter liest KWin einmal in schlichte Datensätze aus, Filter, Zuordnung, Anordnung und Geometriewächter sind reine Funktionen darauf und laufen unter `node --test` |
 
 Vom Planer entschieden und oben begründet: JS-Modus statt QML, keine Tile-API, keine dauerhaften Fenster-Eigenschaften, Maximiert verlässt das Tiling wie Fullscreen und wird vom Controller nicht aufgehoben, neue Fenster oberhalb des Fokus wie XMonad, Master-Anzahl fest 1, kein KCM-Dialog im MVP.
 

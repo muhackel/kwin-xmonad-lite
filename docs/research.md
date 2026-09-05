@@ -51,8 +51,15 @@ Vorhanden und nutzbar: `let`/`const`, Pfeilfunktionen, Template Literals,
 Destrukturierung samt Vorgaben, Rest- und Spread-Parameter, Array-Spread,
 Kurzschreibweise, berechnete Schlüssel, `for...of`, Klassen mit Methoden,
 Gettern, Settern, statischen Methoden und `extends`, Generatoren,
-`Symbol.iterator`, `**`, `Object.entries`/`values`, benannte Regex-Gruppen,
+`Symbol.iterator`, `**`, `Object.entries`/`values`,
 Optional Chaining `?.`, Nullish Coalescing `??`, numerische Trennzeichen.
+
+**Nachtrag Meilenstein 3, korrigiert:** *Benannte Regex-Gruppen* standen hier
+zunächst unter „vorhanden". Die Messung sagt etwas anderes — Satz `n=68` meldet
+`st: "runtime"` mit `TypeError: Cannot read property 'y' of undefined`. Der
+Ausdruck `/(?<y>\d+)/` **parst**, aber `match.groups` bleibt `undefined`.
+Konsequent führt der `es-summary`-Satz `regex-named-groups` in seiner
+`failed`-Liste. `.groups` darf im Quelltext nicht vorkommen.
 
 Bemerkenswert: `?.` und `??` funktionieren, die zugehörigen
 Zuweisungsoperatoren `??=` und `||=` nicht.
@@ -152,8 +159,12 @@ Signale sind Funktionen mit `.connect`/`.disconnect`, keine eigenen Objekte.
 ### 2.6 `QTimer`
 
 Konstruierbar mit `new QTimer()`. `singleShot`, `interval`, `start`, `stop`,
-`active`, `timeout` und `restart` sind vorhanden; `QTimer.singleShot` als
-statische Funktion gibt es nicht.
+`active`, `timeout` und `remainingTime` (anfangs `-1`) sind vorhanden.
+
+**Nicht vorhanden:** `restart` (Satz `n=674`, `st: "absent"`) und
+`QTimer.singleShot` als statische Funktion. Diese Zeile führte `restart`
+zunächst fälschlich unter den vorhandenen Methoden; in Meilenstein 3 an den
+Rohdaten korrigiert. Zum Neustarten also `stop()` und `start()`.
 
 Gemessen: ein Einmal-Timer mit `interval = 20` feuerte nach **21 ms** — das im
 Plan vorgesehene Koaleszierungsfenster ist tragfähig. Ein Wiederholtimer mit
