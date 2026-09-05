@@ -6,12 +6,15 @@ import type { GeometryHooks, GeometryPort } from "./apply.ts";
 import { createGeometryController } from "./apply.ts";
 import { runEpoch } from "./epoch.ts";
 import { DEFAULT_EXCLUDES, makeExcludes, participates } from "./filter.ts";
+import type { FloatOutcome } from "./float.ts";
+import { toggleFloat as toggleFloating } from "./float.ts";
 import { log } from "./log.ts";
 import { NO_GAPS } from "./plan.ts";
 import { purgeFromSnapshot } from "./purge.ts";
 import {
 	readFrameGeometry,
 	readSnapshot,
+	readViews,
 	readWindow,
 	windowId,
 	writeFrameGeometry,
@@ -21,6 +24,8 @@ import { createDebouncer, createFollowUps, DEBOUNCE_MS, FOLLOW_UP_MS } from "./t
 export interface Adapter {
 	start(): void;
 	schedule(reason: string): void;
+	toggleFloat(window: KwinWindow): FloatOutcome;
+	isFloating(window: KwinWindow): boolean;
 }
 
 /**
@@ -287,6 +292,26 @@ export function createAdapter(): Adapter {
 		lastParticipants = result.participants;
 	}
 
+	function toggleFloat(window: KwinWindow): FloatOutcome {
+		const info = readWindow(window);
+		const views = readViews();
+		let area: Rect | null = null;
+		for (const view of views) {
+			if (view.ref.output === info.outputName) {
+				area = view.area;
+				break;
+			}
+		}
+		const outcome = toggleFloating(registry, geometry, info, area, excludes);
+		log(`floatToggle ${info.id} → ${outcome}`);
+		debouncer.schedule("floatToggle");
+		return outcome;
+	}
+
+	function isFloating(window: KwinWindow): boolean {
+		return registry.windows.get(windowId(window))?.floating === true;
+	}
+
 	function start(): void {
 		workspace.windowAdded.connect((window) => {
 			if (window !== null) {
@@ -353,5 +378,5 @@ export function createAdapter(): Adapter {
 		runArrange(["start"]);
 	}
 
-	return { start, schedule: debouncer.schedule };
+	return { start, schedule: debouncer.schedule, toggleFloat, isFloating };
 }

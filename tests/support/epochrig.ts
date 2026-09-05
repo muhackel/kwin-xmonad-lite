@@ -45,7 +45,9 @@ export function epochRig(): EpochRig {
 	let epoch = 0;
 	const geometry = createGeometryController(registry, port, () => timer, {
 		external(id: WindowId): void {
-			externals.push(id);
+			if (previous.has(id)) {
+				externals.push(id);
+			}
 		},
 		log(message: string): void {
 			logs.push(message);
