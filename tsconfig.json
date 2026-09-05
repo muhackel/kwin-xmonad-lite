@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"target": "ES2016",
+		"lib": ["ES2016"],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"noEmit": true,
+		"strict": true,
+		"noUncheckedIndexedAccess": true,
+		"noImplicitOverride": true,
+		"noFallthroughCasesInSwitch": true,
+		"isolatedModules": true,
+		"verbatimModuleSyntax": true,
+		"skipLibCheck": true,
+		"types": []
+	},
+	"include": ["src", "tests"]
+}

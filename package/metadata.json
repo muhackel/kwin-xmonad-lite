@@ -1,0 +1,17 @@
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Email": "muhackel@gmail.com",
+                "Name": "Sebastian Rädle"
+            }
+        ],
+        "Description": "Schlanker Layout-Controller im Stil von XMonads Tall- und Full-Layout",
+        "Icon": "preferences-system-windows-script-test",
+        "Id": "kwin-xmonad-lite",
+        "License": "MIT",
+        "Name": "KWin XMonad Lite"
+    },
+    "X-Plasma-API": "javascript"
+}
