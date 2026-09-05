@@ -6,7 +6,7 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 4
-abgeschlossen, samt den Nachschlägen 4.1 und 4.1.1** — Gerüst, Build- und
+abgeschlossen, samt den Nachschlägen 4.1, 4.1.1 und dem Audit 4.2** — Gerüst, Build- und
 Testkette, beide Proben (die Signalprobe nimmt jeden Eingriff auch bei Abbruch
 zurück, wertet ihren Abschlusssatz aus und meldet einen Exit-Code), Layoutkern
 (`rect`, `tall`, `full`), Fensterstapel, Registry und Reconcile, der
@@ -217,7 +217,18 @@ Activities und verwaltet nicht die Zahl der Desktops.
   ihn nur der Test mit einem Timer, dessen `singleShot` nicht durchschlägt.
 - **Die eigentliche Flatterbremse ist `judgeWrite` mit `"unchanged"`.** Eine
   Epoche ohne Änderung schreibt gar nichts, also feuert auch kein Signal. Der
-  Versuchszähler ist nur das Netz darunter.
+  Versuchszähler ist nur das Netz darunter. Bei `"unchanged"` ruft der Adapter
+  `geometry.accept`: eine noch offene Erwartung eines **älteren** Zielwerts ist
+  damit erledigt, sonst schöbe der Nachprüfungslauf das Fenster auf das
+  veraltete Soll zurück.
+- **Jedes gelesene Rechteck ist gerundet.** `kwin/read.ts` schickt
+  `frameGeometry` und `clientArea` durch `core/rect.rounded`; gemessen
+  ganzzahlig ist nur `clientArea`. Ohne die Rundung meldete `equals` bei
+  gebrochener Skalierung in jeder Epoche eine Abweichung, und jeder Lauf
+  schriebe erneut.
+- **Auch der Init-Retry in `main.ts` baut nicht auf `singleShot`.** `tryStart`
+  stoppt den Timer zuerst und sperrt einen zweiten Start des Adapters — der
+  verdrahtete sonst jedes Signal doppelt.
 - **Nicht bei jedem Auslöser den Timer neu starten.** Das erste Ereignis
   öffnet das 20-ms-Fenster, alle weiteren steigen zu; ein Neustart je Ereignis
   würde die Anordnung während eines Ereignisstroms beliebig lange verschieben.

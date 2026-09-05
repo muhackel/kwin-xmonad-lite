@@ -9,7 +9,8 @@ Er ist **kein** Fenstermanager und **kein** XMonad-Nachbau. Fenster-, Desktop-,
 Activity- und Bildschirmzuordnung bleiben vollständig bei KWin und seinen
 Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 
-> **Status: in Entwicklung, Meilenstein 4.** Das Skript kachelt auf allen
+> **Status: in Entwicklung, Meilenstein 4 samt den Nachschlägen 4.1, 4.1.1 und
+> dem Audit 4.2.** Das Skript kachelt auf allen
 > Bildschirmen: es liest die Fenster aus KWin, ordnet sie den Bildschirmen zu
 > und legt sie im Tall-Layout aus. Jeder Bildschirm und jeder virtuelle Desktop
 > führt seinen eigenen Stapel; das An- und Abstecken eines Bildschirms und eine
@@ -60,10 +61,12 @@ src/core/     Layoutberechnung und Fensterstapel, ohne KWin-Abhängigkeit
 src/core/layout/  Tall und Full, gemeinsame Typen und Layoutliste
 src/state/    Zustand je Activity × Desktop × Bildschirm, Abgleich gegen KWin
 src/kwin/     Adapter: Filter, Anordnung, Geometrie, Nachbesserung, Signale
+tests/        node --test bis zur Snapshot-Grenze, Hilfen unter support/
 package/      KPackage-Wurzel (metadata.json, gebündeltes main.js)
-dev/probe/    Feature-Probe: misst die KWin-Skript-Umgebung
+dev/probe/    Zwei Proben: Skriptumgebung (probe.js) und Signale (signals.js)
+scripts/      Lade-, Reload-, Journal- und Probe-Werkzeuge für `nix run`
 nix/          Paket- und Entwicklungsumgebung
-docs/         Entwurfsnotizen und Quellenverzeichnis
+docs/         Quellenverzeichnis, Messwerte und Rohdaten der Proben
 ```
 
 ## Lizenz
