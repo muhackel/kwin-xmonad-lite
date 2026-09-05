@@ -199,3 +199,97 @@ der Rückruf aufrufbar ist, und ruft `KGlobalAccel::setShortcut` **ohne**
 `NoAutoloading` auf — ein vorhandener Eintrag in `kglobalshortcutsrc`
 überschreibt damit die im Code angegebene Taste. Empirisch offen bleibt die
 Reihenfolge bei zwei Aktionen auf derselben Taste. Zu klären in Meilenstein 6.
+
+## 3. Signalprobe, Meilenstein 4
+
+Gemessen am 2026-09-05 auf SPIELKISTE (KWin 6.7.4, drei Ausgaben DP-1, DP-9,
+DP-10, vier virtuelle Desktops, eine Activity) mit `nix run .#probe-signals`.
+Rohdaten: `docs/signals-2026-09-05-spielkiste-1.ndjson` (Handgriffe an der
+Panelhöhe, Hotplug) und `-2.ndjson` (Desktop und Activity anlegen und
+entfernen, Hotplug). Die Probe verbindet echte KWin-Signale und weist im
+`end`-Satz nach, dass sie vor dem Ende **jede** Verbindung getrennt und jeden
+eigenen Timer gestoppt hat (`offen: 0`, `timer_aktiv: 0`); das Skript prüft
+zusätzlich, dass nach dem Entladen keine Zeile mehr kommt.
+
+### 3.1 Signaturen der Workspace-Signale
+
+| Signal | Argumente | Bemerkung |
+|---|---|---|
+| `currentDesktopChanged` | **3**: `(prev, cur, output)` | `prev`/`cur` sind `VirtualDesktop`, `output` ein `LogicalOutput` |
+| `currentActivityChanged` | **1**: die neue Activity-UUID als String | |
+| `activitiesChanged` | **1**: die hinzugefügte bzw. entfernte UUID | feuert **nicht** beim Wechseln |
+| `desktopsChanged` | **0** | feuert **nicht** beim Wechseln |
+| `screensChanged` | 0 | |
+| `screenOrderChanged` | 0 | |
+| `virtualScreenGeometryChanged` | 0 | |
+| `windowAdded` / `windowRemoved` | 1: das Fenster | bei `windowRemoved` nicht anfassen |
+
+Zwei Befunde, die den Bau bestimmen:
+
+- **`currentDesktopChanged` feuert einmal je Ausgabe**, auch bei
+  `options.perOutputVirtualDesktops = false`. Ein einziger Desktopwechsel
+  erzeugte auf drei Ausgaben drei Signale (48 Signale bei 16 Wechseln). Die
+  Entprellung fasst sie zu einem Lauf zusammen.
+- **Während der Signalfolge ist `workspace.currentDesktop` noch nicht
+  umgestellt.** Beim ersten der drei Signale meldete `currentDesktopForScreen`
+  bereits den neuen Desktop für die betroffene Ausgabe, `currentDesktop` aber
+  noch den alten. Wer im Signal-Callback liest, liest einen Zwischenstand —
+  ein weiterer Grund, dort nur zu entprellen und erst im Lauf zu lesen.
+
+`activitiesChanged` und `desktopsChanged` sind **nur** Anlege- und
+Entfernensignale. Für den Registry-GC ist genau das der richtige Auslöser; ein
+Wechsel ändert die Menge gültiger Activities und Desktops nicht.
+
+### 3.2 `workspace.desktops`
+
+Vorhanden und array-artig, vier Einträge mit `id` (UUID **ohne** Klammern) und
+`x11DesktopNumber`. Damit lässt sich die Ist-Menge für `purgeSurfaces` bauen.
+
+### 3.3 Panel und `clientArea`
+
+Ein Dock **feuert** `frameGeometryChanged`, wenn die Panelhöhe geändert wird:
+beim Ziehen des Höhenreglers kamen acht Signale (30 → 32 → 34 → 32 → 30 px).
+
+Entscheidend ist der zweite Teil: **`clientArea` ist im Moment des Signals noch
+die alte.** Beim Wiederanstecken von DP-10 (in beiden Läufen gleich) meldete
+sie
+
+| Zeitpunkt | Messung |
+|---|---|
+| sofort im Signal | `DP-1=2560x1410+0+0 DP-9=…+2560+0 DP-10=2560x1440+0+0` — alte Versätze, kein Panelabzug auf DP-10 |
+| nach 500 ms | Versätze richtig, aber `DP-9=2560x1440` — noch ein Zwischenstand |
+| nach 1500 ms | alles richtig: dreimal `2560x1410` mit den neuen Versätzen |
+
+Ein Lauf allein auf das Signal hin rechnet also mit falschen Flächen. Die
+verzögerten Nachläufe bei 500 **und** 1500 ms sind beide nötig — 500 ms allein
+traf einen Zwischenstand. Sie hängen deshalb nicht nur an `screensChanged`,
+sondern auch an den Dock-Signalen.
+
+**Nicht belegt:** dass `clientArea` auch beim reinen Panelhöhenwechsel ohne
+Bildschirmänderung nachzieht. Im Lauf mit den Panel-Handgriffen wurde die Höhe
+wieder auf den Ausgangswert gestellt, bevor sich ein Unterschied zeigen konnte.
+Das gehört in die Abnahme von Testmatrix 10.
+
+### 3.4 Reihenfolge beim Hotplug
+
+Beobachtet beim Abschalten und Wiederanschalten von DP-10 über
+`kscreen-doctor`, in beiden Läufen identisch. Alles innerhalb weniger
+Millisekunden:
+
+1. `screenOrderChanged`
+2. `windowRemoved` der Docks der verschwindenden Ausgabe, dazu deren `closed`
+3. `frameGeometryChanged` der verbleibenden Docks
+4. `outputChanged` der einzelnen Fenster
+5. `virtualScreenGeometryChanged`
+6. **`screensChanged` zuletzt**
+
+Ein `outputAdded` oder `outputRemoved` gibt es auf `workspace` nicht;
+`screensChanged` ist das einzige Signal über die Menge der Ausgaben. Es kommt
+am Ende der Folge — wer darauf entprellt anordnet, sieht eine vollständige
+Ausgabenliste. Die Flächen sind zu diesem Zeitpunkt trotzdem noch nicht fertig,
+siehe 3.3.
+
+Nach dem Wiederanschalten kamen die Panels als **neue** Fenster
+(`windowAdded`), die alten wurden mit `closed` beendet. Ein Dock ist also kein
+langlebiges Objekt; seine Beobachtung muss über `windowAdded` mitwachsen und
+über `closed` mit der Id aus der Closure abbauen.

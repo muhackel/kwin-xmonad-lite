@@ -1,0 +1,163 @@
+{"k":"meta","id":"start","st":"ok","d":"kwin-xmonad-lite Signalprobe","r":1788631736741,"n":0,"ms":0}
+{"k":"state","id":"desktops","d":"89539ae6-e06b-4c76-a057-95df959578a9#1,b7798180-564c-4f75-ad4a-284026ac7a68#2,30c27d93-fa7d-452a-ad6a-53201edcdca1#3,eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","r":1788631736741,"n":1,"ms":0}
+{"k":"state","id":"activities","d":"a89f5ec2-ab8e-4108-8088-7118500a3aab","r":1788631736741,"n":2,"ms":0}
+{"k":"state","id":"screens","d":"DP-1,DP-9,DP-10","r":1788631736741,"n":3,"ms":0}
+{"k":"state","id":"areas","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788631736741,"n":4,"ms":0}
+{"k":"state","id":"perOutputVirtualDesktops","d":"false","r":1788631736741,"n":5,"ms":0}
+{"k":"wire","id":"workspace.currentDesktopChanged","st":"ok","r":1788631736741,"n":6,"ms":0}
+{"k":"wire","id":"workspace.currentActivityChanged","st":"ok","r":1788631736741,"n":7,"ms":0}
+{"k":"wire","id":"workspace.desktopsChanged","st":"ok","r":1788631736741,"n":8,"ms":0}
+{"k":"wire","id":"workspace.activitiesChanged","st":"ok","r":1788631736741,"n":9,"ms":0}
+{"k":"wire","id":"workspace.screensChanged","st":"ok","r":1788631736741,"n":10,"ms":0}
+{"k":"wire","id":"workspace.screenOrderChanged","st":"ok","r":1788631736741,"n":11,"ms":0}
+{"k":"wire","id":"workspace.virtualScreenGeometryChanged","st":"ok","r":1788631736741,"n":12,"ms":0}
+{"k":"wire","id":"workspace.windowAdded","st":"ok","r":1788631736741,"n":13,"ms":0}
+{"k":"wire","id":"workspace.windowRemoved","st":"ok","r":1788631736741,"n":14,"ms":0}
+{"k":"wire","id":"win:d2e829.outputChanged","st":"ok","r":1788631736741,"n":15,"ms":0}
+{"k":"dock","id":"e65637","st":"verbunden","d":"class=plasmashell","r":1788631736741,"n":16,"ms":0}
+{"k":"wire","id":"dock:e65637.frameGeometryChanged","st":"ok","r":1788631736741,"n":17,"ms":1}
+{"k":"wire","id":"dock:e65637.outputChanged","st":"ok","r":1788631736741,"n":18,"ms":1}
+{"k":"wire","id":"dock:e65637.closed","st":"ok","r":1788631736741,"n":19,"ms":1}
+{"k":"wire","id":"win:35b185.outputChanged","st":"ok","r":1788631736741,"n":20,"ms":1}
+{"k":"wire","id":"win:51a1ba.outputChanged","st":"ok","r":1788631736741,"n":21,"ms":1}
+{"k":"wire","id":"win:152c13.outputChanged","st":"ok","r":1788631736741,"n":22,"ms":1}
+{"k":"wire","id":"win:7b1176.outputChanged","st":"ok","r":1788631736741,"n":23,"ms":1}
+{"k":"wire","id":"win:76099e.outputChanged","st":"ok","r":1788631736741,"n":24,"ms":1}
+{"k":"wire","id":"win:84b582.outputChanged","st":"ok","r":1788631736741,"n":25,"ms":1}
+{"k":"wire","id":"win:3f94c5.outputChanged","st":"ok","r":1788631736741,"n":26,"ms":1}
+{"k":"wire","id":"win:1ff09c.outputChanged","st":"ok","r":1788631736741,"n":27,"ms":1}
+{"k":"dock","id":"c3191f","st":"verbunden","d":"class=plasmashell","r":1788631736741,"n":28,"ms":1}
+{"k":"wire","id":"dock:c3191f.frameGeometryChanged","st":"ok","r":1788631736741,"n":29,"ms":1}
+{"k":"wire","id":"dock:c3191f.outputChanged","st":"ok","r":1788631736741,"n":30,"ms":1}
+{"k":"wire","id":"dock:c3191f.closed","st":"ok","r":1788631736741,"n":31,"ms":1}
+{"k":"dock","id":"81ff48","st":"verbunden","d":"class=plasmashell","r":1788631736741,"n":32,"ms":1}
+{"k":"wire","id":"dock:81ff48.frameGeometryChanged","st":"ok","r":1788631736741,"n":33,"ms":1}
+{"k":"wire","id":"dock:81ff48.outputChanged","st":"ok","r":1788631736741,"n":34,"ms":1}
+{"k":"wire","id":"dock:81ff48.closed","st":"ok","r":1788631736741,"n":35,"ms":1}
+{"k":"wire","id":"win:768ab9.outputChanged","st":"ok","r":1788631736741,"n":36,"ms":1}
+{"k":"state","id":"verbunden","d":"docks=3 fenster=10","r":1788631736741,"n":37,"ms":1}
+{"k":"meta","id":"laufzeit","st":"ok","d":"ms=175000","r":1788631736741,"n":38,"ms":1}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-10"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=1,DP-10=2","r":1788631736741,"n":39,"ms":7718}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-9"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=2,DP-10=2","r":1788631736741,"n":40,"ms":7718}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-1"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=2,DP-10=2","r":1788631736741,"n":41,"ms":7718}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","output:DP-10"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=2,DP-10=3","r":1788631736741,"n":42,"ms":8245}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","output:DP-9"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=3,DP-10=3","r":1788631736741,"n":43,"ms":8246}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","output:DP-1"],"d":"current=30c27d93-fa7d-452a-ad6a-53201edcdca1 proScreen=DP-1=3,DP-9=3,DP-10=3","r":1788631736741,"n":44,"ms":8246}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","output:DP-10"],"d":"current=30c27d93-fa7d-452a-ad6a-53201edcdca1 proScreen=DP-1=3,DP-9=3,DP-10=4","r":1788631736741,"n":45,"ms":8779}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","output:DP-9"],"d":"current=30c27d93-fa7d-452a-ad6a-53201edcdca1 proScreen=DP-1=3,DP-9=4,DP-10=4","r":1788631736741,"n":46,"ms":8779}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","output:DP-1"],"d":"current=eb859906-5dd5-4314-92bc-4f3cc1582e4f proScreen=DP-1=4,DP-9=4,DP-10=4","r":1788631736741,"n":47,"ms":8779}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-10"],"d":"current=eb859906-5dd5-4314-92bc-4f3cc1582e4f proScreen=DP-1=4,DP-9=4,DP-10=1","r":1788631736741,"n":48,"ms":9406}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-9"],"d":"current=eb859906-5dd5-4314-92bc-4f3cc1582e4f proScreen=DP-1=4,DP-9=1,DP-10=1","r":1788631736741,"n":49,"ms":9406}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-1"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=1,DP-10=1","r":1788631736741,"n":50,"ms":9407}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-10"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=1,DP-10=2","r":1788631736741,"n":51,"ms":9919}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-9"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=2,DP-10=2","r":1788631736741,"n":52,"ms":9919}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-1"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=2,DP-10=2","r":1788631736741,"n":53,"ms":9920}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","output:DP-10"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=2,DP-10=3","r":1788631736741,"n":54,"ms":10446}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","output:DP-9"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=3,DP-10=3","r":1788631736741,"n":55,"ms":10446}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","output:DP-1"],"d":"current=30c27d93-fa7d-452a-ad6a-53201edcdca1 proScreen=DP-1=3,DP-9=3,DP-10=3","r":1788631736741,"n":56,"ms":10446}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","output:DP-10"],"d":"current=30c27d93-fa7d-452a-ad6a-53201edcdca1 proScreen=DP-1=3,DP-9=3,DP-10=4","r":1788631736741,"n":57,"ms":10908}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","output:DP-9"],"d":"current=30c27d93-fa7d-452a-ad6a-53201edcdca1 proScreen=DP-1=3,DP-9=4,DP-10=4","r":1788631736741,"n":58,"ms":10908}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","output:DP-1"],"d":"current=eb859906-5dd5-4314-92bc-4f3cc1582e4f proScreen=DP-1=4,DP-9=4,DP-10=4","r":1788631736741,"n":59,"ms":10908}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-10"],"d":"current=eb859906-5dd5-4314-92bc-4f3cc1582e4f proScreen=DP-1=4,DP-9=4,DP-10=1","r":1788631736741,"n":60,"ms":11530}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-9"],"d":"current=eb859906-5dd5-4314-92bc-4f3cc1582e4f proScreen=DP-1=4,DP-9=1,DP-10=1","r":1788631736741,"n":61,"ms":11530}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-1"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=1,DP-10=1","r":1788631736741,"n":62,"ms":11531}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-10"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=1,DP-10=2","r":1788631736741,"n":63,"ms":12010}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-9"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=2,DP-10=2","r":1788631736741,"n":64,"ms":12010}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-1"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=2,DP-10=2","r":1788631736741,"n":65,"ms":12010}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","output:DP-10"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=2,DP-10=3","r":1788631736741,"n":66,"ms":12514}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","output:DP-9"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=3,DP-10=3","r":1788631736741,"n":67,"ms":12514}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","output:DP-1"],"d":"current=30c27d93-fa7d-452a-ad6a-53201edcdca1 proScreen=DP-1=3,DP-9=3,DP-10=3","r":1788631736741,"n":68,"ms":12515}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","output:DP-10"],"d":"current=30c27d93-fa7d-452a-ad6a-53201edcdca1 proScreen=DP-1=3,DP-9=3,DP-10=4","r":1788631736741,"n":69,"ms":12964}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","output:DP-9"],"d":"current=30c27d93-fa7d-452a-ad6a-53201edcdca1 proScreen=DP-1=3,DP-9=4,DP-10=4","r":1788631736741,"n":70,"ms":12964}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:30c27d93-fa7d-452a-ad6a-53201edcdca1#3","desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","output:DP-1"],"d":"current=eb859906-5dd5-4314-92bc-4f3cc1582e4f proScreen=DP-1=4,DP-9=4,DP-10=4","r":1788631736741,"n":71,"ms":12964}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-10"],"d":"current=eb859906-5dd5-4314-92bc-4f3cc1582e4f proScreen=DP-1=4,DP-9=4,DP-10=1","r":1788631736741,"n":72,"ms":13469}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-9"],"d":"current=eb859906-5dd5-4314-92bc-4f3cc1582e4f proScreen=DP-1=4,DP-9=1,DP-10=1","r":1788631736741,"n":73,"ms":13469}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-1"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=1,DP-10=1","r":1788631736741,"n":74,"ms":13470}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-10"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=1,DP-10=2","r":1788631736741,"n":75,"ms":13876}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-9"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=2,DP-10=2","r":1788631736741,"n":76,"ms":13876}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-1"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=2,DP-10=2","r":1788631736741,"n":77,"ms":13877}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-10"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=2,DP-10=1","r":1788631736741,"n":78,"ms":14676}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-9"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=1,DP-10=1","r":1788631736741,"n":79,"ms":14676}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-1"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=1,DP-10=1","r":1788631736741,"n":80,"ms":14677}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-10"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=1,DP-10=2","r":1788631736741,"n":81,"ms":15114}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-9"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=2,DP-10=2","r":1788631736741,"n":82,"ms":15114}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","output:DP-1"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=2,DP-10=2","r":1788631736741,"n":83,"ms":15115}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-10"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=2,DP-10=1","r":1788631736741,"n":84,"ms":15556}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-9"],"d":"current=b7798180-564c-4f75-ad4a-284026ac7a68 proScreen=DP-1=2,DP-9=1,DP-10=1","r":1788631736741,"n":85,"ms":15557}
+{"k":"sig","id":"workspace.currentDesktopChanged","argc":3,"a":["desktop:b7798180-564c-4f75-ad4a-284026ac7a68#2","desktop:89539ae6-e06b-4c76-a057-95df959578a9#1","output:DP-1"],"d":"current=89539ae6-e06b-4c76-a057-95df959578a9 proScreen=DP-1=1,DP-9=1,DP-10=1","r":1788631736741,"n":86,"ms":15557}
+{"k":"sig","id":"workspace.desktopsChanged","argc":0,"a":[],"d":"89539ae6-e06b-4c76-a057-95df959578a9#1,b7798180-564c-4f75-ad4a-284026ac7a68#2,30c27d93-fa7d-452a-ad6a-53201edcdca1#3,eb859906-5dd5-4314-92bc-4f3cc1582e4f#4,afe0cc65-d60d-453e-8bb6-67863198c7c4#5","r":1788631736741,"n":87,"ms":60037}
+{"k":"sig","id":"workspace.desktopsChanged","argc":0,"a":[],"d":"89539ae6-e06b-4c76-a057-95df959578a9#1,b7798180-564c-4f75-ad4a-284026ac7a68#2,30c27d93-fa7d-452a-ad6a-53201edcdca1#3,eb859906-5dd5-4314-92bc-4f3cc1582e4f#4","r":1788631736741,"n":88,"ms":68051}
+{"k":"sig","id":"workspace.activitiesChanged","argc":1,"a":["string:663465c3-c25a-4a15-a359-ada866c07460"],"d":"a89f5ec2-ab8e-4108-8088-7118500a3aab,663465c3-c25a-4a15-a359-ada866c07460","r":1788631736741,"n":89,"ms":76064}
+{"k":"sig","id":"workspace.currentActivityChanged","argc":1,"a":["string:663465c3-c25a-4a15-a359-ada866c07460"],"d":"current=663465c3-c25a-4a15-a359-ada866c07460","r":1788631736741,"n":90,"ms":82070}
+{"k":"sig","id":"workspace.currentActivityChanged","argc":1,"a":["string:a89f5ec2-ab8e-4108-8088-7118500a3aab"],"d":"current=a89f5ec2-ab8e-4108-8088-7118500a3aab","r":1788631736741,"n":91,"ms":88077}
+{"k":"sig","id":"workspace.activitiesChanged","argc":1,"a":["string:663465c3-c25a-4a15-a359-ada866c07460"],"d":"a89f5ec2-ab8e-4108-8088-7118500a3aab","r":1788631736741,"n":92,"ms":94081}
+{"k":"sig","id":"workspace.windowAdded","argc":1,"a":["window:e432a9"],"r":1788631736741,"n":93,"ms":98190}
+{"k":"dock","id":"e432a9","st":"verbunden","d":"class=org.kde.plasmashell","r":1788631736741,"n":94,"ms":98190}
+{"k":"wire","id":"dock:e432a9.frameGeometryChanged","st":"ok","r":1788631736741,"n":95,"ms":98190}
+{"k":"wire","id":"dock:e432a9.outputChanged","st":"ok","r":1788631736741,"n":96,"ms":98190}
+{"k":"wire","id":"dock:e432a9.closed","st":"ok","r":1788631736741,"n":97,"ms":98190}
+{"k":"dock","id":"e432a9","st":"closed","r":1788631736741,"n":98,"ms":98955}
+{"k":"area","id":"dock.closed e432a9","phase":"sofort","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788631736741,"n":99,"ms":98955}
+{"k":"sig","id":"workspace.windowRemoved","argc":1,"a":["(nicht gelesen)"],"r":1788631736741,"n":100,"ms":98956}
+{"k":"area","id":"dock.closed e432a9","phase":"500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788631736741,"n":101,"ms":99480}
+{"k":"area","id":"dock.closed e432a9","phase":"1500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788631736741,"n":102,"ms":100530}
+{"k":"sig","id":"workspace.screenOrderChanged","argc":0,"a":[],"d":"DP-1,DP-9","r":1788631736741,"n":103,"ms":101131}
+{"k":"sig","id":"workspace.windowRemoved","argc":1,"a":["(nicht gelesen)"],"r":1788631736741,"n":104,"ms":101131}
+{"k":"dock","id":"81ff48","st":"closed","r":1788631736741,"n":105,"ms":101132}
+{"k":"area","id":"dock.closed 81ff48","phase":"sofort","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0","r":1788631736741,"n":106,"ms":101132}
+{"k":"sig","id":"workspace.windowRemoved","argc":1,"a":["(nicht gelesen)"],"r":1788631736741,"n":107,"ms":101132}
+{"k":"sig","id":"dock.frameGeometryChanged","dock":"e65637","d":"2560x30+0+1410","r":1788631736741,"n":108,"ms":101132}
+{"k":"area","id":"dock.frameGeometryChanged e65637","phase":"sofort","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0","r":1788631736741,"n":109,"ms":101132}
+{"k":"sig","id":"dock.frameGeometryChanged","dock":"c3191f","d":"2560x30+2560+1410","r":1788631736741,"n":110,"ms":101132}
+{"k":"area","id":"dock.frameGeometryChanged c3191f","phase":"sofort","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0","r":1788631736741,"n":111,"ms":101132}
+{"k":"sig","id":"window.outputChanged","win":"84b582","d":"DP-1","r":1788631736741,"n":112,"ms":101132}
+{"k":"sig","id":"window.outputChanged","win":"51a1ba","d":"DP-1","r":1788631736741,"n":113,"ms":101132}
+{"k":"sig","id":"window.outputChanged","win":"152c13","d":"DP-1","r":1788631736741,"n":114,"ms":101132}
+{"k":"sig","id":"workspace.virtualScreenGeometryChanged","argc":0,"a":[],"d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788631736741,"n":115,"ms":101133}
+{"k":"sig","id":"workspace.screensChanged","argc":0,"a":[],"d":"DP-1,DP-9 | DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788631736741,"n":116,"ms":101133}
+{"k":"area","id":"dock.closed 81ff48","phase":"500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788631736741,"n":117,"ms":101607}
+{"k":"area","id":"dock.frameGeometryChanged e65637","phase":"500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788631736741,"n":118,"ms":101607}
+{"k":"area","id":"dock.frameGeometryChanged c3191f","phase":"500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788631736741,"n":119,"ms":101607}
+{"k":"area","id":"dock.closed 81ff48","phase":"1500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788631736741,"n":120,"ms":102557}
+{"k":"area","id":"dock.frameGeometryChanged e65637","phase":"1500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788631736741,"n":121,"ms":102557}
+{"k":"area","id":"dock.frameGeometryChanged c3191f","phase":"1500ms","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0","r":1788631736741,"n":122,"ms":102558}
+{"k":"sig","id":"workspace.screenOrderChanged","argc":0,"a":[],"d":"DP-1,DP-9,DP-10","r":1788631736741,"n":123,"ms":116265}
+{"k":"sig","id":"dock.frameGeometryChanged","dock":"e65637","d":"2560x30+2560+1410","r":1788631736741,"n":124,"ms":116266}
+{"k":"area","id":"dock.frameGeometryChanged e65637","phase":"sofort","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0 DP-10=2560x1440+0+0","r":1788631736741,"n":125,"ms":116266}
+{"k":"sig","id":"dock.frameGeometryChanged","dock":"c3191f","d":"2560x30+5120+1410","r":1788631736741,"n":126,"ms":116266}
+{"k":"area","id":"dock.frameGeometryChanged c3191f","phase":"sofort","d":"DP-1=2560x1410+0+0 DP-9=2560x1410+2560+0 DP-10=2560x1440+0+0","r":1788631736741,"n":127,"ms":116266}
+{"k":"sig","id":"window.outputChanged","win":"84b582","d":"DP-10","r":1788631736741,"n":128,"ms":116267}
+{"k":"sig","id":"window.outputChanged","win":"51a1ba","d":"DP-10","r":1788631736741,"n":129,"ms":116267}
+{"k":"sig","id":"window.outputChanged","win":"152c13","d":"DP-10","r":1788631736741,"n":130,"ms":116267}
+{"k":"sig","id":"workspace.virtualScreenGeometryChanged","argc":0,"a":[],"d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1440+0+0","r":1788631736741,"n":131,"ms":116267}
+{"k":"sig","id":"workspace.screensChanged","argc":0,"a":[],"d":"DP-1,DP-9,DP-10 | DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1440+0+0","r":1788631736741,"n":132,"ms":116267}
+{"k":"dock","id":"c3191f","st":"closed","r":1788631736741,"n":133,"ms":116613}
+{"k":"area","id":"dock.closed c3191f","phase":"sofort","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1440+0+0","r":1788631736741,"n":134,"ms":116613}
+{"k":"sig","id":"workspace.windowRemoved","argc":1,"a":["(nicht gelesen)"],"r":1788631736741,"n":135,"ms":116613}
+{"k":"sig","id":"workspace.windowRemoved","argc":1,"a":["(nicht gelesen)"],"r":1788631736741,"n":136,"ms":116613}
+{"k":"sig","id":"workspace.windowAdded","argc":1,"a":["window:d4442b"],"r":1788631736741,"n":137,"ms":116663}
+{"k":"wire","id":"win:d4442b.outputChanged","st":"ok","r":1788631736741,"n":138,"ms":116663}
+{"k":"sig","id":"workspace.windowAdded","argc":1,"a":["window:3c89d2"],"r":1788631736741,"n":139,"ms":116676}
+{"k":"wire","id":"win:3c89d2.outputChanged","st":"ok","r":1788631736741,"n":140,"ms":116676}
+{"k":"area","id":"dock.frameGeometryChanged e65637","phase":"500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1440+5120+0 DP-10=2560x1440+0+0","r":1788631736741,"n":141,"ms":116742}
+{"k":"area","id":"dock.frameGeometryChanged c3191f","phase":"500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1440+5120+0 DP-10=2560x1440+0+0","r":1788631736741,"n":142,"ms":116742}
+{"k":"sig","id":"workspace.windowAdded","argc":1,"a":["window:176dff"],"r":1788631736741,"n":143,"ms":117012}
+{"k":"dock","id":"176dff","st":"verbunden","d":"class=plasmashell","r":1788631736741,"n":144,"ms":117012}
+{"k":"wire","id":"dock:176dff.frameGeometryChanged","st":"ok","r":1788631736741,"n":145,"ms":117012}
+{"k":"wire","id":"dock:176dff.outputChanged","st":"ok","r":1788631736741,"n":146,"ms":117012}
+{"k":"wire","id":"dock:176dff.closed","st":"ok","r":1788631736741,"n":147,"ms":117012}
+{"k":"sig","id":"workspace.windowAdded","argc":1,"a":["window:dec1a2"],"r":1788631736741,"n":148,"ms":117035}
+{"k":"dock","id":"dec1a2","st":"verbunden","d":"class=plasmashell","r":1788631736741,"n":149,"ms":117035}
+{"k":"wire","id":"dock:dec1a2.frameGeometryChanged","st":"ok","r":1788631736741,"n":150,"ms":117035}
+{"k":"wire","id":"dock:dec1a2.outputChanged","st":"ok","r":1788631736741,"n":151,"ms":117035}
+{"k":"wire","id":"dock:dec1a2.closed","st":"ok","r":1788631736741,"n":152,"ms":117035}
+{"k":"area","id":"dock.closed c3191f","phase":"500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788631736741,"n":153,"ms":117088}
+{"k":"area","id":"dock.frameGeometryChanged e65637","phase":"1500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788631736741,"n":154,"ms":117692}
+{"k":"area","id":"dock.frameGeometryChanged c3191f","phase":"1500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788631736741,"n":155,"ms":117692}
+{"k":"area","id":"dock.closed c3191f","phase":"1500ms","d":"DP-1=2560x1410+2560+0 DP-9=2560x1410+5120+0 DP-10=2560x1410+0+0","r":1788631736741,"n":156,"ms":118039}
+{"k":"cut","st":"error","d":"Error: Function.prototype.disconnect: cannot disconnect from deleted QObject","r":1788631736741,"n":157,"ms":175037}
+{"k":"cut","st":"error","d":"Error: Function.prototype.disconnect: cannot disconnect from deleted QObject","r":1788631736741,"n":158,"ms":175037}
+{"k":"cut","st":"error","d":"Error: Function.prototype.disconnect: cannot disconnect from deleted QObject","r":1788631736741,"n":159,"ms":175037}
+{"k":"cut","st":"error","d":"Error: Function.prototype.disconnect: cannot disconnect from deleted QObject","r":1788631736741,"n":160,"ms":175037}
+{"k":"cut","st":"error","d":"Error: Function.prototype.disconnect: cannot disconnect from deleted QObject","r":1788631736741,"n":161,"ms":175038}
+{"k":"end","st":"ok","total":162,"verbindungen":39,"offen":0,"timer_aktiv":0,"r":1788631736741,"n":162,"ms":175038}
