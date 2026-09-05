@@ -152,11 +152,11 @@ kwin-xmonad-lite/
 │   ├── metadata.json             # KPlugin.Id "kwin-xmonad-lite", X-Plasma-API javascript
 │   └── contents/config/main.xml  # KConfigXT, Gruppe [Script-kwin-xmonad-lite]
 ├── src/
-│   ├── core/{rect,layout/tall,layout/full,stack,surface}.ts
+│   ├── core/{rect,stack,surface}.ts, core/layout/{index,types,tall,full}.ts
 │   ├── state/{registry,reconcile}.ts
 │   ├── kwin/{types.d,filter,adapter,geometry,shortcuts,config,log}.ts
 │   └── main.ts                   # Einstieg, verdrahtet Adapter und Kern
-├── tests/                        # node --test, nur core/ und state/
+├── tests/                        # node --test, nur core/ und state/; Hilfen in tests/support/
 ├── dev/probe/probe.js            # Feature-Probe, ES5, nicht Teil des KPackage
 ├── nix/{package,home-module,devshell,vm-test}.nix
 ├── scripts/{lib,dev-load,reload,logs,probe}.sh
@@ -171,9 +171,10 @@ Kein `contents/ui/config.ui` im MVP; Konfiguration läuft über `kwinrc` und das
 
 - Eingabe: Arbeitsfläche `clientArea(MaximizeArea, output, desktop)`, `n`, `ratio` (Default 0,65, Bereich 0,1–0,9, Schritt 0,05), `gapOuter`, `gapInner`. Das Desktop-Argument ist in KWin 6.7.4 intern wirkungslos, gehört aber zur API-Signatur.
 - `n = 0` → leer. Außenabstand einmal vom Rect abziehen. `n = 1` → ganzes Rect.
-- Sonst zuerst `availableWidth = w - gapInner`, dann `masterWidth = round(availableWidth × ratio)` und `stackWidth = availableWidth - masterWidth`. So bleibt genau ein Innenabstand und die Gesamtbreite erhalten. Stapelhöhen entstehen per gewichtetem Split mit Floor und Restverteilung, damit keine Lücken entstehen (Idee Krohnkite `src/layouts/layoututils.ts:29-56`, MIT). Alle Werte sind ganzzahlig.
+- Sonst zuerst `availableWidth = w - gapInner`, dann `masterWidth = round(availableWidth × ratio)` und `stackWidth = availableWidth - masterWidth`. So bleibt genau ein Innenabstand zwischen den Spalten und die Gesamtbreite erhalten. Stapelhöhen entstehen per gewichtetem Split mit Floor und Restverteilung (Idee Krohnkite `src/layouts/layoututils.ts:29-56`, MIT); `gapInner` wirkt dabei **einheitlich**, also auch senkrecht zwischen den Stapelzeilen. Zellen und Abstände zerlegen die Fläche zusammen exakt, es entstehen keine Restpixel. Alle Werte sind ganzzahlig.
+- **Klemmpolitik für Abstände** (in Meilenstein 1 festgelegt): ein Abstand wird so weit verkleinert, dass jede Zelle mindestens 1 px behält — der Außenabstand auf höchstens `floor((Kante - 1) / 2)`, der Innenabstand auf höchstens `floor((Gesamtlänge - n) / (n - 1))`. Ist die Fläche zu schmal für zwei Spalten, entfällt die Masterspalte und es bleibt ein reiner senkrechter Stapel.
 - Der reine Layoutkern kennt keine Fensterbeschränkungen und erzeugt lückenlose, überlappungsfreie Zellen innerhalb der Arbeitsfläche. Der Adapter berücksichtigt anschließend `minSize` und `maxSize`. Passt ein Fenster nicht in seine Zelle, darf die angewandte Geometrie überlappen oder einen Teil der Zelle frei lassen, muss aber innerhalb der `clientArea` verankert bleiben. Dieser Zustand gilt als beschränkungsbedingt und löst keine wiederholten Korrekturversuche aus. Umverteilung an Nachbarn ist Stufe 2.
-- Unit-Tests des Layoutkerns prüfen: Rects lückenlos und überlappungsfrei innerhalb der Fläche, Summe der Stapelhöhen exakt, Master links, Reihenfolge stabil, Idempotenz bei gleicher Eingabe. Adaptertests prüfen Mindest-/Höchstgrößen getrennt und erlauben dabei die dokumentierten Überlappungen oder Freiflächen.
+- Unit-Tests des Layoutkerns prüfen: Zellen und Abstände zerlegen die Fläche exakt, überlappungsfrei und ganzzahlig innerhalb der Fläche, Summe der Stapelhöhen exakt, Master links, Reihenfolge stabil, Idempotenz bei gleicher Eingabe, größeres Verhältnis nie schmalerer Master. Geprüft wird das als Eigenschaftsprüfung über einen erschöpfenden Gittersweep und einen Fuzzer mit festem Seed, ohne Testbibliothek. Adaptertests prüfen Mindest-/Höchstgrößen getrennt und erlauben dabei die dokumentierten Überlappungen oder Freiflächen.
 
 ### Full / Monocle
 
@@ -237,7 +238,7 @@ Unangetastet bleiben `Meta+1..4`, `Meta+!@#$`, `Meta+Gravis` (Yakuake), `Meta+Ta
 | MS | Inhalt | Prüfbar durch |
 |---|---|---|
 | 0 | **erledigt 2026-09-05.** Repo-Gerüst mit CLAUDE.md, README.md und build.md, Flake, `docs/research.md` mit URLs/Commits, `nix flake check`, Feature-Probe auf SPIELKISTE gelaufen (682 Sätze, Rohdaten im Repo) | Journal zeigte die Probe-Ausgabe, Check grün |
-| 1 | `core/rect`, `core/layout/tall`, `core/layout/full`, Unit-Tests mit Eigenschaftsprüfung | `node --test` grün |
+| 1 | **erledigt 2026-09-05.** `core/rect`, `core/layout/tall`, `core/layout/full`, Unit-Tests mit Eigenschaftsprüfung (2025 Gitter- und 500 Fuzz-Fälle) | `node --test` grün (27 Tests) |
 | 2 | `core/stack`, `state/registry`, `reconcile`, Tests für Fokus/Swap/Promote/Insert/Purge/Sticky | Tests grün |
 | 3 | Adapter: Mitgliedschaft und Layout-Teilnahme getrennt, Surface-Auflösung, Debounce, Geometrie-Anwendung mit Generation/Guards; ein Output, ein Desktop | Matrix 1–2, kein Flattern im Journal |
 | 4 | Multi-Output, Desktopwechsel, Hotplug, Registry-GC, Dock-Geometriesignale, Panel-Proxy, Per-Output-Desktops feature-detected | Matrix 3–5, 9–10 auf SPIELKISTE (3 Outputs) |
