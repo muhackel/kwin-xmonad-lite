@@ -1,4 +1,4 @@
-// Signalprobe fuer kwin-xmonad-lite, Meilenstein 4.
+// Signalprobe für kwin-xmonad-lite, Meilenstein 4.
 //
 // Zweck: die vier Punkte messen, auf denen der Umbau zu Multi-Output,
 // Desktopwechsel, Hotplug und Panelbeobachtung aufsitzt und die aus dem
@@ -8,21 +8,21 @@
 //      `desktopsChanged`, `currentActivityChanged` und `screensChanged` im
 //      Skriptkontext? Der Quelltext kennt `(prev, cur)`; ob der Wrapper das
 //      weiterreicht, ist offen.
-//   2. Was steht in `workspace.desktops`, und laesst sich daraus die Liste
-//      gueltiger Desktop-Ids fuer `purgeSurfaces` bauen?
-//   3. Feuert ein Dock `frameGeometryChanged`, wenn sich die Panelhoehe
-//      aendert -- und ist `clientArea` in diesem Moment schon neu? Davon
-//      haengt ab, ob die verzoegerten Nachlaeufe am Dock-Signal haengen
-//      muessen oder nur an `screensChanged`.
+//   2. Was steht in `workspace.desktops`, und lässt sich daraus die Liste
+//      gültiger Desktop-Ids für `purgeSurfaces` bauen?
+//   3. Feuert ein Dock `frameGeometryChanged`, wenn sich die Panelhöhe
+//      ändert -- und ist `clientArea` in diesem Moment schon neu? Davon
+//      hängt ab, ob die verzögerten Nachläufe am Dock-Signal hängen
+//      müssen oder nur an `screensChanged`.
 //   4. In welcher Reihenfolge kommen beim Hotplug `screensChanged`,
 //      `screenOrderChanged` und die `outputChanged` der einzelnen Fenster an?
 //
 // Anders als die Feature-Probe aus Meilenstein 0 **verbindet** diese Probe
-// KWin-Signale -- ohne das laesst sich keine der vier Fragen beantworten.
-// Deshalb die harte Gegenregel: sie fuehrt ueber jede Verbindung Buch und
-// trennt vor ihrem Abschlusssatz **saemtliche** Verbindungen und stoppt alle
-// eigenen Timer. Es gibt keinen Unload-Hook; eine ueberlebende Verbindung
-// wuerde spaeter in eine zerstoerte Engine feuern.
+// KWin-Signale -- ohne das lässt sich keine der vier Fragen beantworten.
+// Deshalb die harte Gegenregel: sie führt über jede Verbindung Buch und
+// trennt vor ihrem Abschlusssatz **sämtliche** Verbindungen und stoppt alle
+// eigenen Timer. Es gibt keinen Unload-Hook; eine überlebende Verbindung
+// würde später in eine zerstörte Engine feuern.
 //
 // Strikt lesend: keine Geometrie-Writes, kein raiseWindow, kein Setzen von
 // options.*, kein Zugriff auf rootTile.
@@ -39,8 +39,8 @@
 	var MAXLEN = 900;
 
 	// Gesamtlaufzeit. **Muss zur Phasentabelle in scripts/probe-signals.sh
-	// passen**: das Skript fuehrt in dieser Zeit durch die Handgriffe, danach
-	// raeumt die Probe ab. Summe der Phasen dort < DURATION_MS hier.
+	// passen**: das Skript führt in dieser Zeit durch die Handgriffe, danach
+	// räumt die Probe ab. Summe der Phasen dort < DURATION_MS hier.
 	var DURATION_MS = 175000;
 
 	/** Eigene QTimer. Referenzen halten, sonst holt sie die GC. */
@@ -48,6 +48,10 @@
 	/** Je aufgebauter Verbindung eine Trennfunktion in einer Box. */
 	var CUTS = [];
 	var DONE = false;
+	/** Trennungen an einem bereits gelöschten QObject -- erwartet, informativ. */
+	var CUT_TOT = 0;
+	/** Jeder andere Fehler beim Trennen -- die Verbindung bleibt offen. */
+	var CUT_FEHLER = 0;
 
 	function emit(rec) {
 		rec.r = RUN;
@@ -128,9 +132,9 @@
 	}
 
 	/**
-	 * Die Arbeitsflaeche aller Ausgaben, so wie `read.ts` sie liest. Genau
+	 * Die Arbeitsfläche aller Ausgaben, so wie `read.ts` sie liest. Genau
 	 * dieser Wert entscheidet Frage 3: steht hier direkt nach dem Dock-Signal
-	 * schon die neue Hoehe, brauchen die Nachlaeufe das Dock nicht.
+	 * schon die neue Höhe, brauchen die Nachläufe das Dock nicht.
 	 */
 	function areas() {
 		var out = [];
@@ -212,11 +216,23 @@
 			return;
 		}
 		var fn = box.fn;
-		box.fn = null;
 		try {
 			fn();
+			box.fn = null;
 		} catch (e) {
-			emit({ k: "cut", st: "error", d: String(e) });
+			var text = String(e);
+			// Ein gelöschtes QObject nimmt seine Verbindungen mit ins Grab: das
+			// gilt als getrennt, wird aber gezählt. In jedem sauberen Lauf
+			// sterben Panels weg, ihre `disconnect`-Aufrufe werfen also
+			// zwangsläufig. Jeder andere Fehler lässt die Verbindung offen und
+			// schlägt damit auf `offen` durch.
+			if (text.indexOf("deleted QObject") >= 0) {
+				CUT_TOT++;
+				box.fn = null;
+			} else {
+				CUT_FEHLER++;
+			}
+			emit({ k: "cut", st: "error", d: text });
 		}
 	}
 
@@ -285,9 +301,9 @@
 	}
 
 	/**
-	 * Frage 3: die Arbeitsflaeche dreimal messen -- sofort, nach 500 und nach
+	 * Frage 3: die Arbeitsfläche dreimal messen -- sofort, nach 500 und nach
 	 * 1500 ms. Nur so ist zu sehen, ob `clientArea` beim Signal schon neu ist
-	 * oder erst spaeter nachzieht.
+	 * oder erst später nachzieht.
 	 */
 	function sampleAreas(id) {
 		emit({ k: "area", id: id, phase: "sofort", d: areas() });
@@ -341,14 +357,14 @@
 				sampleAreas("dock.closed " + id);
 			}
 		};
-		// Die `closed`-Verbindung selbst raeumt der Abschluss ueber CUTS ab;
-		// ein Trennen im eigenen Handler ist nicht noetig.
+		// Die `closed`-Verbindung selbst räumt der Abschluss über CUTS ab;
+		// ein Trennen im eigenen Handler ist nicht nötig.
 		watch(window, "closed", "dock:" + id + ".closed", onClosed);
 	}
 
 	/**
-	 * Gewoehnliche Fenster nur an `outputChanged`: fuer Frage 4 zaehlt die
-	 * Reihenfolge gegenueber `screensChanged`, nicht der Fensterzustand.
+	 * Gewöhnliche Fenster nur an `outputChanged`: für Frage 4 zählt die
+	 * Reihenfolge gegenüber `screensChanged`, nicht der Fensterzustand.
 	 */
 	function connectPlain(window) {
 		var id = shortId(window);
@@ -401,8 +417,8 @@
 			try {
 				TIMERS[i].stop();
 			} catch (e) {
-				// Wir gehen ohnehin; ein nicht stoppbarer Timer waere im
-				// naechsten Satz ohnehin nicht mehr zu retten.
+				// Wir gehen ohnehin; ein nicht stoppbarer Timer wäre im
+				// nächsten Satz ohnehin nicht mehr zu retten.
 			}
 		}
 		var open = 0;
@@ -425,11 +441,13 @@
 
 		emit({
 			k: "end",
-			st: open === 0 && running === 0 ? "ok" : "value",
+			st: open === 0 && running === 0 && CUT_FEHLER === 0 ? "ok" : "value",
 			total: SEQ,
 			verbindungen: CUTS.length,
 			offen: open,
 			timer_aktiv: running,
+			cut_tot: CUT_TOT,
+			cut_fehler: CUT_FEHLER,
 		});
 	}
 
@@ -530,7 +548,7 @@
 	// --- Frage 3: Docks -----------------------------------------------------
 
 	// `windowAdded` braucht einen eigenen Handler statt `record`: ein neu
-	// erscheinendes Dock muss noch waehrend des Laufs verbunden werden.
+	// erscheinendes Dock muss noch während des Laufs verbunden werden.
 	var onAdded = function (window) {
 		if (DONE) {
 			return;
@@ -539,8 +557,8 @@
 		connectWindow(window);
 	};
 	watch(workspace, "windowAdded", "workspace.windowAdded", onAdded);
-	// Eigener Handler statt `record`: das uebergebene Fenster darf **nicht**
-	// gelesen werden, es kann bereits tot sein. Nur die Argumentzahl zaehlt.
+	// Eigener Handler statt `record`: das übergebene Fenster darf **nicht**
+	// gelesen werden, es kann bereits tot sein. Nur die Argumentzahl zählt.
 	var onRemoved = function () {
 		if (DONE) {
 			return;

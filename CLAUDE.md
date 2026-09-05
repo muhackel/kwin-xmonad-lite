@@ -6,7 +6,9 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 4
-abgeschlossen** — Gerüst, Build- und Testkette, beide Proben, Layoutkern
+abgeschlossen, samt den Nachschlägen 4.1 und 4.1.1** — Gerüst, Build- und
+Testkette, beide Proben (die Signalprobe nimmt jeden Eingriff auch bei Abbruch
+zurück, wertet ihren Abschlusssatz aus und meldet einen Exit-Code), Layoutkern
 (`rect`, `tall`, `full`), Fensterstapel, Registry und Reconcile, der
 KWin-Adapter mit geprüfter Signalfolge, dazu Multi-Output, Desktopwechsel,
 Hotplug, Registry-GC, Dock-Beobachtung und die verzögerten Nachläufe. Das
@@ -229,6 +231,13 @@ Activities und verwaltet nicht die Zahl der Desktops.
   berechnet und in der Closure gehalten; `windowRemoved` löst nur einen
   Durchlauf aus. `disconnect` braucht dieselbe Funktionsreferenz wie
   `connect`, deshalb liegt je Fenster eine Trennfunktion in der Tabelle.
+  **Auch das Trennen selbst wirft an einem toten Fenster** — gemessen
+  `Function.prototype.disconnect: cannot disconnect from deleted QObject`.
+  Das ist kein Fehler, sondern der Normalfall für ein Fenster, das während
+  der Laufzeit verschwand: die Verbindung stirbt mit dem Objekt. Wer
+  Trennungen zählt, muss diesen Fall von einem echten Fehler unterscheiden,
+  sonst ist der Zähler entweder dauerhaft rot oder wertlos
+  (`dev/probe/signals.js`, `runCut`).
 - **`clientArea` zieht nach einer Ausgabenänderung nach.** Im Signal ist sie
   noch die alte, nach 500 ms teils noch ein Zwischenstand; erst nach 1500 ms
   stimmte sie (zweimal gemessen). Deshalb **zwei** Nachläufe, nicht einer. Nach

@@ -209,7 +209,8 @@ Panelhöhe, Hotplug) und `-2.ndjson` (Desktop und Activity anlegen und
 entfernen, Hotplug). Die Probe verbindet echte KWin-Signale und weist im
 `end`-Satz nach, dass sie vor dem Ende **jede** Verbindung getrennt und jeden
 eigenen Timer gestoppt hat (`offen: 0`, `timer_aktiv: 0`); das Skript prüft
-zusätzlich, dass nach dem Entladen keine Zeile mehr kommt.
+diesen Satz aus und lässt jede Abweichung in seinen Exit-Code laufen, und es
+weist zusätzlich nach, dass nach dem Entladen keine Zeile mehr kommt.
 
 ### 3.1 Signaturen der Workspace-Signale
 
@@ -296,3 +297,20 @@ Nach dem Wiederanschalten kamen die Panels als **neue** Fenster
 (`windowAdded`), die alten wurden mit `closed` beendet. Ein Dock ist also kein
 langlebiges Objekt; seine Beobachtung muss über `windowAdded` mitwachsen und
 über `closed` mit der Id aus der Closure abbauen.
+
+### 3.5 `disconnect` an einem gelöschten QObject
+
+In jedem vollständigen Lauf endeten einige Trennungen im Abschluss der Probe
+mit `Error: Function.prototype.disconnect: cannot disconnect from deleted
+QObject` (vier in `signals-20260905-212609.ndjson` und `-213237.ndjson`, fünf
+und dreizehn in den beiden `spielkiste`-Läufen). Betroffen sind die
+Fensterverbindungen von Panels, die während der Laufzeit verschwanden — beim
+Ändern der Panelhöhe und beim Hotplug.
+
+Das ist kein Fehler: mit dem QObject stirbt auch die Verbindung, es gibt nichts
+mehr zu trennen. Die Zahl ist aber **kein fester Wert** — sie hängt daran, wie
+viele Panels während des Laufs sterben, also am Bedienablauf. Wer Trennungen
+zählt, muss deshalb zwei Fälle unterscheiden: das tote QObject (gilt als
+getrennt, rein informativ) und jeden anderen Wurf (die Verbindung bleibt offen
+und ist eine Beanstandung). `runCut` in `dev/probe/signals.js` tut genau das
+und meldet beide Zahlen im `end`-Satz als `cut_tot` und `cut_fehler`.
