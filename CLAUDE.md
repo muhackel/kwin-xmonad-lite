@@ -6,7 +6,9 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 4
-abgeschlossen** — Gerüst, Build- und Testkette, beide Proben, Layoutkern
+abgeschlossen, samt den Nachschlägen 4.1 und 4.1.1** — Gerüst, Build- und
+Testkette, beide Proben (die Signalprobe nimmt jeden Eingriff auch bei Abbruch
+zurück, wertet ihren Abschlusssatz aus und meldet einen Exit-Code), Layoutkern
 (`rect`, `tall`, `full`), Fensterstapel, Registry und Reconcile, der
 KWin-Adapter mit geprüfter Signalfolge, dazu Multi-Output, Desktopwechsel,
 Hotplug, Registry-GC, Dock-Beobachtung und die verzögerten Nachläufe. Das
