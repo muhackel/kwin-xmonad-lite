@@ -48,6 +48,8 @@
           name,
           file,
           env ? "",
+          # Nur die Werkzeuge, die den NDJSON-Auswerter starten, brauchen Node.
+          extraInputs ? [ ],
         }:
         let
           pkgs = pkgsFor system;
@@ -63,7 +65,8 @@
             pkgs.systemd # busctl, journalctl
             pkgs.kdePackages.kconfig # kwriteconfig6
             pkgs.kdePackages.libkscreen # kscreen-doctor
-          ];
+          ]
+          ++ extraInputs;
           text = ''
             ${env}
             ${builtins.readFile ./scripts/lib.sh}
@@ -108,9 +111,26 @@
             file = ./scripts/probe-signals.sh;
             env = ''XML_SIGNALS_JS="${./dev/probe/signals.js}"'';
           };
+          # Der Auswerter importiert den Layoutkern aus `src`, deshalb zeigt
+          # sein Pfad in den Quellbaum und nicht auf die einzelne Datei.
+          probe-geometry = mkTool system {
+            name = "probe-geometry";
+            file = ./scripts/probe-geometry.sh;
+            extraInputs = [ pkgs.nodejs ];
+            env = ''
+              XML_GEOMETRY_JS="${./dev/probe/geometry.js}"
+              XML_GEOMETRY_EXPECT="${self}/dev/probe/expect-geometry-cli.ts"
+            '';
+          };
           unload = mkTool system {
             name = "unload";
             file = ./scripts/unload.sh;
+          };
+          audit = mkTool system {
+            name = "audit";
+            file = ./scripts/audit.sh;
+            extraInputs = [ pkgs.nodejs ];
+            env = ''XML_AUDIT="${self}/dev/probe/journal-audit-cli.ts"'';
           };
           size-window = pkgs.writeShellApplication {
             name = "kwin-xmonad-lite-size-window";
@@ -149,7 +169,11 @@
           logs = appFor "Journal von KWin, auf die Zeilen des Controllers gefiltert" tools.logs;
           probe = appFor "Feature-Probe der Skriptumgebung ausführen" tools.probe;
           probe-signals = appFor "Signalprobe: welche Signale im Betrieb ankommen" tools.probe-signals;
+          probe-geometry =
+            appFor "Geometrie-Probe: anliegende Fenstergeometrien messen und auswerten"
+              tools.probe-geometry;
           unload = appFor "Geladene Entwicklungsinstanz entladen" tools.unload;
+          audit = appFor "Journal auf Geometrie-Schleifen prüfen (--stunde für Fall 27)" tools.audit;
           size-window =
             appFor "Xwayland-Testclient für Mindest-, Höchst- und Rastergrößen"
               tools.size-window;
@@ -289,6 +313,62 @@
             if [ -s "$TMPDIR/verstoesse" ]; then
               echo "Snapshot-Grenze verletzt: eine KWin-Global außerhalb von src/boot.ts, src/dev.ts, src/kwin/read.ts und src/kwin/adapter.ts" >&2
               cat "$TMPDIR/verstoesse" >&2
+              exit 1
+            fi
+
+            touch "$out"
+          '';
+
+          # Die Geometrie-Probe darf das Prüfergebnis nicht selbst herstellen.
+          # Verboten sind Schreibpfade und jede Verbindung zu einem KWin-,
+          # Fenster- oder Output-Signal; erlaubt ist `timeout.connect` an
+          # eigenen QTimern -- ohne das gäbe es keine zeitversetzten Samples.
+          probe-readonly = pkgs.runCommand "kwin-xmonad-lite-probe-readonly" { } ''
+            cd ${self}
+
+            grep -nE '(frameGeometry[[:space:]]*=|moveResize|activeWindow[[:space:]]*=|raiseWindow|setMaximize|setFullScreen|rootTile)' \
+              dev/probe/geometry.js > "$TMPDIR/schreibt" || true
+            grep -nE '\.connect\(' dev/probe/geometry.js > "$TMPDIR/verbindet.roh" || true
+            grep -vE 'timeout\.connect\(' "$TMPDIR/verbindet.roh" > "$TMPDIR/verbindet" || true
+            grep -nE '(frameGeometryChanged|windowAdded|windowRemoved|windowActivated|outputChanged|screensChanged|screenOrderChanged|virtualScreenGeometryChanged|desktopsChanged|activitiesChanged|currentDesktopChanged|currentActivityChanged|interactiveMoveResize|\bclosed\b)' \
+              dev/probe/geometry.js > "$TMPDIR/signale" || true
+
+            # Kommentarzeilen zaehlen nicht: die Datei begruendet ihre Regeln
+            # im Kopf und nennt die verbotenen Namen dabei.
+            for datei in schreibt verbindet signale; do
+              grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*)' "$TMPDIR/$datei" > "$TMPDIR/$datei.echt" || true
+            done
+
+            if [ -s "$TMPDIR/schreibt.echt" ] || [ -s "$TMPDIR/verbindet.echt" ] || [ -s "$TMPDIR/signale.echt" ]; then
+              echo "dev/probe/geometry.js ist nicht mehr strikt lesend:" >&2
+              cat "$TMPDIR/schreibt.echt" "$TMPDIR/verbindet.echt" "$TMPDIR/signale.echt" >&2
+              exit 1
+            fi
+
+            touch "$out"
+          '';
+
+          # `activate` ist der einzige Schreibpfad auf `workspace.activeWindow`.
+          # Daran haengt die Schleifenfreiheit: Aktivieren loest
+          # `windowActivated` aus, das eine Epoche anmeldet, und die Epoche
+          # aktiviert nie selbst. Ein zweiter Schreibpfad baute die Schleife --
+          # und waere im Journal nicht von einem einzelnen Versuch zu
+          # unterscheiden (Fall 20b).
+          activate-once = pkgs.runCommand "kwin-xmonad-lite-activate-once" { } ''
+            cd ${self}
+
+            grep -rn 'activeWindow[[:space:]]*=' src --include='*.ts' > "$TMPDIR/roh" || true
+            grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)' "$TMPDIR/roh" > "$TMPDIR/treffer" || true
+
+            anzahl="$(wc -l < "$TMPDIR/treffer")"
+            if [ "$anzahl" != "1" ]; then
+              echo "erwartet genau einen Schreibzugriff auf workspace.activeWindow, gefunden $anzahl:" >&2
+              cat "$TMPDIR/treffer" >&2
+              exit 1
+            fi
+            if ! grep -q '^src/kwin/adapter\.ts:' "$TMPDIR/treffer"; then
+              echo "der Schreibzugriff steht nicht in src/kwin/adapter.ts:" >&2
+              cat "$TMPDIR/treffer" >&2
               exit 1
             fi
 

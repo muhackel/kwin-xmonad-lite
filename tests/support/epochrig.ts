@@ -18,6 +18,8 @@ export interface EpochRig {
 	geometry: GeometryController;
 	raises: WindowId[];
 	logs: string[];
+	/** Zeilen des `debug`-Ports: in der Produktion nur bei `debug=true`. */
+	debugLogs: string[];
 	externals: WindowId[];
 	/**
 	 * Die wirksame Konfiguration dieses Laufs. Veränderbar: ein Test setzt
@@ -34,6 +36,7 @@ export function epochRig(): EpochRig {
 	const timer = fakeTimer();
 	const raises: WindowId[] = [];
 	const logs: string[] = [];
+	const debugLogs: string[] = [];
 	const externals: WindowId[] = [];
 	let previous = new Set<WindowId>();
 	let epoch = 0;
@@ -55,6 +58,7 @@ export function epochRig(): EpochRig {
 		geometry,
 		raises,
 		logs,
+		debugLogs,
 		externals,
 		config,
 		run(windows: WindowInfo[], activeId: WindowId | null, views?: SurfaceView[]): EpochResult {
@@ -80,6 +84,9 @@ export function epochRig(): EpochRig {
 					},
 					log(message: string): void {
 						logs.push(message);
+					},
+					debug(message: string): void {
+						debugLogs.push(message);
 					},
 				},
 				config.masterRatio,
