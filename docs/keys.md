@@ -197,11 +197,15 @@ dauerhaft in `kglobalshortcutsrc` stehen bliebe.
 
 ### Abschalten
 
-`enable = false` nimmt zurück, was der Ein-Zweig geschrieben hat:
+`enable = false` nimmt Plugin-Aktivierung und Tasten zurück:
 `kwin-xmonad-liteEnabled` wird `false`, und die zwölf Tasten bekommen `none`.
 Steuern lässt sich das über `cleanupWhenDisabled` (Vorgabe `true`) — auf einer
 Maschine, deren Entwicklungsinstanz dieselben objectNames lädt, nähme der
 Aus-Zweig ihr sonst genau die Tasten, mit denen sie erprobt werden soll.
+
+Die Gruppe `[Script-kwin-xmonad-lite]` bleibt mit ihren zuletzt geschriebenen
+Werten in `kwinrc` stehen. Sie ist bei abgeschaltetem Plugin wirkungslos; beim
+erneuten Aktivieren überschreibt das Modul wieder alle sechs Werte.
 
 **Der Aus-Zweig wirkt nur, wenn plasma-manager unabhängig vom Controller
 läuft.** Sein gesamter Schreibvorgang hängt an `mkIf programs.plasma.enable`;
@@ -274,12 +278,14 @@ angemeldeter Anordnungslauf trägt `shortcut:<name>` in seinem Grund; mehrere
 Tastendrücke innerhalb des 20-ms-Fensters landen in **einem** Lauf, dessen
 Grund dann alle Quellen sammelt.
 
-## 5. Offen
+## 5. Abnahme und offene Punkte
 
-- Die Abnahme der **deklarativen** Aktivierung auf HAL9000 steht aus: Laden aus
-  dem Store, `Meta+L`/`Meta+T` per Tastendruck nach der Umlegung, Ändern und
-  Entfernen von `settings`, Abschalten des Feature-Flags (`build.md`,
-  Fälle 24 bis 24e).
+Die deklarative Aktivierung auf HAL9000 ist mit den Fällen 24 bis 24e
+bestanden: Laden aus dem Store, alle zwölf Tasten per `/dev/uinput`, Ändern
+und Entfernen von `settings` sowie Abschalten des Feature-Flags. Die Reihe lief
+gegen den Pin `8f287d9`; Rohdaten stehen in
+[`hal9000-abnahme-2026-09-06.log`](hal9000-abnahme-2026-09-06.log).
+
 - Das Verhalten bei einem **modalen Dialog** als Fokusziel ist nicht gemessen
   (Fall 20b).
 - Der Fall „Fokusziel zwischen Tastendruck und Lauf geschlossen" (Fall 20c) ist

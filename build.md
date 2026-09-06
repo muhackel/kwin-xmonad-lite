@@ -624,9 +624,10 @@ geprüft; der gehört zu den offenen Fällen 16–17 in Meilenstein 7.
 
 ### Abnahme Matrix 24–24e: deklarative Installation
 
-Auf HAL9000. **Noch nicht abgenommen** — die folgenden Befehle sind die
-Abnahmevorschrift; nach jedem `switch` muss die Sitzung ab- und wieder angemeldet
-werden.
+Auf HAL9000 am 2026-09-06 gegen den Nix-Input `8f287d9` abgenommen. Alle sechs
+Fälle bestanden. Die folgenden Befehle bleiben als wiederholbare
+Abnahmevorschrift stehen; nach jedem `switch` muss die Sitzung ab- und wieder
+angemeldet werden.
 
 | # | Fall | Erwartung |
 |---|---|---|
@@ -636,6 +637,29 @@ werden.
 | 24c | `settings` ändern, `switch`, neu anmelden | die neuen Werte stehen in `kwinrc` und in der `config …`-Zeile |
 | 24d | Schlüssel in Nix **entfernen**, `switch`, neu anmelden | der dokumentierte Vorgabewert steht in `kwinrc`, nicht der alte Wert — der Beleg für „immer alle sechs Schlüssel schreiben" |
 | 24e | `kwinXmonadLite = false` (`plasmaManager` bleibt an), `switch`, neu anmelden | `kwin-xmonad-liteEnabled=false`, Skript nicht geladen, alle zwölf `xml-*`-Zeilen stehen auf `none`, `Lock Session` wieder auf `Screensaver\tMeta+L`, `Edit Tiles` auf `Meta+T`. **`Meta+L` sperrt per Tastendruck wieder**, `Ctrl+Alt+L` nicht mehr. Die zwölf Zeilen selbst bleiben stehen — es gibt kein `unregisterShortcut`; `none` gibt nur die Taste frei |
+
+#### Ergebnis vom 2026-09-06
+
+Die Reihe lief über vier Boots. Das eingecheckte
+[`docs/hal9000-abnahme-2026-09-06.log`](docs/hal9000-abnahme-2026-09-06.log)
+enthält 550 Controllerzeilen aus den drei Boots mit aktiviertem Plugin. Beim
+vierten Boot, Fall 24e, entstand keine Controllerzeile. Das Artefakt enthält
+keine Boot-Trennmarke für diesen leeren Abschnitt und belegt die Abwesenheit
+daher nicht für sich allein.
+
+| # | Ausgeführtes Ergebnis | Belegart |
+|---|---|---|
+| 24 | `isScriptLoaded` meldete `true`, `main.js` kam aus dem Store und `nix run` brach an `require_no_production` ab. | Shell- und Dateiprüfung; das Journal enthält `geladen`, die Vorgabekonfiguration und `shortcuts n=12`. |
+| 24a | Alle zwölf Kürzel wurden als echte Tastendrücke über `/dev/uinput` ausgelöst. `Meta+L` erzeugte `befehl expand … ratio=0.7` und sperrte nicht; `Meta+T` löste `sink` statt des Kachel-Editors aus. | Die `befehl`-Zeilen stehen im Journal. Dass `/dev/uinput` die Quelle war und die unerwünschten Aktionen ausblieben, ist eine Live-Beobachtung. |
+| 24b | `Lock Session=Screensaver\tCtrl+Alt+L`, `Edit Tiles=none` und `LockedHint=no` blieben über die Reihe erhalten. `Ctrl+Alt+L` sperrte im eingeschalteten Zustand. | Konfigurationsauszug und Tastendruck; nicht im Journalartefakt enthalten. |
+| 24c | `gapOuter=8`, `gapInner=4`, `masterRatio=0.5`, `defaultLayout=full` und `debug=true` kamen an. Das Journal meldet `config gaps=8/4 ratio=0.5 layout=1 excludes=7 debug=true`, `layout=full` sowie `soll=1904x1034+8+8`. | Direkt im Journalartefakt belegt; die Werte in `kwinrc` wurden getrennt gelesen. |
+| 24d | Nur `gapOuter` wurde aus Nix entfernt. Danach stand `gapOuter=0` in `kwinrc`, während `gapInner=4` erhalten blieb; das Journal meldet `config gaps=0/4 ratio=0.5 layout=1 excludes=7 debug=true`. | Die wirksame Konfiguration steht im Journal. Das Entfernen aus Nix und der `kwinrc`-Auszug sind getrennte Config-Belege. |
+| 24e | Das Plugin war aus und nicht geladen, alle zwölf `xml-*`-Aktionen standen auf `none`. `Lock Session=Screensaver\tMeta+L` und `Edit Tiles=Meta+T` waren wiederhergestellt. `Meta+L` sperrte per Tastendruck, `Ctrl+Alt+L` nicht mehr. | D-Bus-, Konfigurations- und Tastaturprüfung. Der protokollierte Lauf hatte keine Controllerzeile; das Rohartefakt allein beweist den leeren Abschnitt nicht. |
+
+Der Abschaltzweig entfernt die Gruppe `[Script-kwin-xmonad-lite]` nicht aus
+`kwinrc`. Ihre alten Werte bleiben stehen, sind bei
+`kwin-xmonad-liteEnabled=false` aber wirkungslos. Der Rückstand ist beim
+Bewerten von Vorher-/Nachher-Diffs zu erwarten.
 
 #### Vorbereitung und Fall 24
 
@@ -938,6 +962,21 @@ Danach ab- und anmelden. Das Zurückspielen der beiden Dateien ist **kein**
 Beiwerk: plasma-manager schreibt sie imperativ aus einem Aktivierungsskript,
 und seine Schreibvorgänge überleben den Generationswechsel. Ein Rollback allein
 lässt `kwinrc` und `kglobalshortcutsrc` im Testzustand zurück.
+
+#### Ausgeführter Rückbau
+
+HAL9000 steht wieder auf Generation 584. Die Testgenerationen 585 bis 588
+wurden gelöscht, die Booteinträge nachgezogen und `/run/current-system` zeigt
+wieder auf das Toplevel von Generation 584. Autologin ist damit ebenfalls
+entfernt.
+
+Die gesicherten Fassungen von `kwinrc` und `kglobalshortcutsrc` wurden nach dem
+Neustart und vor der ersten Anmeldung zurückgespielt. Das war für
+`kglobalshortcutsrc` notwendig: `kglobalaccel` schreibt seinen gespeicherten
+Zustand beim Sitzungsende zurück und hätte eine Wiederherstellung in der
+laufenden Sitzung wieder überschrieben. Im Ausgangszustand fehlt der
+Plugin-Eintrag in `kwinrc`; `kglobalshortcutsrc` enthält keine `xml-*`-Zeile,
+`Lock Session=Screensaver` und `Edit Tiles=Meta+T`.
 
 Zur **Feature-Probe:** `nix run .#probe -- --shortcuts` registriert drei
 Aktionen und protokolliert nur die Rückgabewerte. Sie betätigt keine Taste und

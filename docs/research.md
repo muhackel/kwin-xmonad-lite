@@ -565,11 +565,58 @@ und kein `extern`; das Logartefakt selbst trägt keine Zeitstempel. Die
 zwölf Aktionen blieben über den Reload hinweg wirksam, ohne zweite
 Registrierung im Journal und ohne zusätzliche Zeile in `kglobalshortcutsrc`.
 
-### 6.7 Nicht gemessen
+### 6.7 Deklarative Abnahme auf HAL9000
 
-- **Deklarative Aktivierung auf HAL9000** (Fälle 24 bis 24e): Laden aus dem
-  Store, `Meta+L`/`Meta+T` per Tastendruck nach der Umlegung, Ändern und
-  Entfernen von `settings`, Abschalten des Feature-Flags. Steht aus.
+Gemessen am 2026-09-06 auf HAL9000 gegen den Nix-Input `8f287d9`. Die Fälle
+24 bis 24e bestanden. Rohdaten:
+[`hal9000-abnahme-2026-09-06.log`](hal9000-abnahme-2026-09-06.log), 550
+Controllerzeilen aus einer Reihe mit vier Boots. Das Plugin lief in drei
+Boots; im vierten war es für Fall 24e abgeschaltet.
+
+Das Journalartefakt belegt für die aktiven Boots das Laden, die Registrierung
+von zwölf Kürzeln und die wirksamen Konfigurationen. Im Ausgangszustand meldet
+es `config gaps=0/0 ratio=0.65 layout=0 excludes=7 debug=false`. Fall 24c
+meldet `config gaps=8/4 ratio=0.5 layout=1 excludes=7 debug=true`,
+`layout=full` und die Zielgeometrie `1904x1034+8+8`. In Fall 24d wurde nur
+`gapOuter` aus Nix entfernt. Danach meldet das Journal
+`config gaps=0/4 ratio=0.5 layout=1 excludes=7 debug=true`; `gapInner=4` blieb
+also erhalten.
+
+Alle zwölf Kürzel wurden über `/dev/uinput` als echte Tastendrücke geprüft.
+Das Journal enthält die zugehörigen `befehl`-Zeilen, darunter
+`befehl expand … ratio=0.7` für `Meta+L` und `befehl sink` für `Meta+T`. Es
+zeichnet die Herkunft eines Befehls jedoch nicht auf. Die Eingabe über
+`/dev/uinput` und das Ausbleiben der konkurrierenden KDE-Aktion sind daher
+manuelle Live-Beobachtungen. Dasselbe gilt für die Konfigurationsauszüge:
+`Lock Session=Screensaver\tCtrl+Alt+L`, `Edit Tiles=none` und `LockedHint=no`
+blieben im eingeschalteten Zustand erhalten. `Meta+L` vergrößerte den Master,
+statt die Sitzung zu sperren; `Ctrl+Alt+L` sperrte weiterhin.
+
+In Fall 24e meldeten D-Bus und Konfigurationsprüfung ein abgeschaltetes,
+nicht geladenes Plugin. Alle zwölf `xml-*`-Aktionen standen auf `none`,
+`Lock Session=Screensaver\tMeta+L` und `Edit Tiles=Meta+T` waren
+wiederhergestellt. `Meta+L` sperrte per Tastendruck, `Ctrl+Alt+L` nicht mehr.
+Während dieses Boots entstand keine Controllerzeile. Da das Rohartefakt keine
+Trennmarke für den leeren vierten Abschnitt enthält, belegt es diese
+Abwesenheit nicht selbst; sie stammt aus der protokollierten Live-Prüfung.
+
+Beim Abschalten bleibt `[Script-kwin-xmonad-lite]` mit seinen alten Werten in
+`kwinrc` stehen. Der Abschaltzweig setzt das Plugin-Flag und gibt die zwölf
+Tasten mit `none` frei, entfernt aber die Settings-Gruppe nicht. Die Werte
+sind bei `kwin-xmonad-liteEnabled=false` wirkungslos.
+
+Der Rückbau stellte Generation 584 wieder her, löschte die Testgenerationen
+585 bis 588 und zog die Booteinträge nach. Nach dem Neustart und vor der ersten
+Anmeldung wurden die gesicherten Fassungen von `kwinrc` und
+`kglobalshortcutsrc` zurückgespielt. `kglobalaccel` hätte seinen gespeicherten
+Zustand beim Sitzungsende sonst erneut geschrieben. Danach fehlte der
+Plugin-Eintrag in `kwinrc`; `kglobalshortcutsrc` enthielt keine `xml-*`-Zeile,
+`Lock Session=Screensaver` und `Edit Tiles=Meta+T` entsprachen wieder dem
+Ausgangsstand. `/run/current-system` zeigte auf das Toplevel von Generation
+584, Autologin war entfernt.
+
+### 6.8 Nicht gemessen
+
 - **Fokusziel hinter einem modalen Dialog** (Fall 20b). Aus dem Quelltext
   folgt, dass `activateWindow` den Fokus umleiten kann; gemessen ist es nicht.
 - **KWin-/Sitzungsneustart** (Fälle 16–17, Meilenstein 7). Fall 23 belegt nur
