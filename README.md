@@ -9,13 +9,17 @@ Er ist **kein** Fenstermanager und **kein** XMonad-Nachbau. Fenster-, Desktop-,
 Activity- und Bildschirmzuordnung bleiben vollständig bei KWin und seinen
 Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 
-> **Status: MVP abgenommen, Meilenstein 7 abgeschlossen (2026-09-06).**
-> Die Abnahme war zwischenzeitlich ausgesetzt: ein externes Audit fand elf
+> **Status: MVP abgenommen, Meilenstein 7 und Zwischenschritt 7.1
+> abgeschlossen (2026-09-06).**
+> Die Abnahme war zwischenzeitlich ausgesetzt: ein externes Audit fand
 > Defekte in den **Prüfwerkzeugen** — nicht im Controller. Orakel und Auditor
-> ließen auch ungültige Nachweise durch. Nach der Berichtigung wurde jeder
-> archivierte Nachweis neu ausgewertet; alle bestehen auch die verschärften
-> Prüfer, und die Neuauswertung ist als Flake-Check verankert. Die Fälle waren
-> richtig, nur ihre Prüfung war zu lasch.
+> ließen auch ungültige Nachweise durch. Ein zweites Audit (7.1) fand die
+> berichtigten Prüfer noch stumpf: der Auditor konnte in der Alltagsstunde
+> nach Konstruktion keine Schleife finden, das Orakel prüfte Mengen statt
+> Zuordnung. Beide sind geschärft, jeder archivierte Nachweis wurde erneut
+> ausgewertet und besteht; die Neuauswertung ist als Flake-Check verankert und
+> deckt jedes Artefakt ab. Die Fälle waren richtig, nur ihre Prüfung war zu
+> lasch — zweimal.
 >
 > Das Skript kachelt auf allen Bildschirmen; jeder virtuelle Desktop und jede
 > Activity führt je Bildschirm einen eigenen Stapel. Vollbild, Maximierung und

@@ -6,12 +6,16 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
-Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 7 ist
-abgeschlossen und der MVP abgenommen (2026-09-06).** Die Abnahme war
-zwischenzeitlich ausgesetzt: ein externes Audit fand elf Defekte in den
-**Prüfwerkzeugen**, nicht im Controller. Nach der Berichtigung besteht jeder
-archivierte Nachweis auch die verschärften Prüfer; die Neuauswertung hängt als
-`checks.archiv-reauswertung` im Flake. 365 Tests, zehn Checks im Projektflake,
+Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 7 und
+der Zwischenschritt 7.1 sind abgeschlossen, der MVP ist abgenommen
+(2026-09-06).** Die Abnahme war zwischenzeitlich ausgesetzt: ein externes Audit
+fand Defekte in den **Prüfwerkzeugen**, nicht im Controller. Ein zweites Audit
+(7.1) fand die berichtigten Prüfer an drei Stellen noch stumpf: der Auditor
+konnte in Fall 27 nach Konstruktion keine Schleife finden, das Orakel prüfte
+Mengen statt Zuordnung, und die Grep-Checks waren Namenslisten. Alle drei sind
+geschärft, und jeder archivierte Nachweis besteht auch sie; die Neuauswertung
+hängt als `checks.archiv-reauswertung` im Flake und deckt seit 7.1 **jedes**
+Artefakt unter `docs/` ab. 402 Tests, zehn Checks im Projektflake,
 vier im `nixosconfig`-Flake. `src/` ist seit `abdffa2` unverändert. Die Meilensteine 0 bis 6 samt den
 Stabilisierungsschritten und Audits sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
 Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
@@ -27,13 +31,17 @@ Livebefunde in `docs/research.md` Abschnitt 8. Eine Test-VM gibt es nicht — mi
 zwei echten Maschinen beantwortet sie keine Frage besser, und die Ladbarkeit des
 Bundles prüft `checks.bundle-runtime` billiger — **per Grep auf Namen, nicht
 durch einen Ladeversuch** (`PLAN.md` Abschnitt 8). Fall 20c
-ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.7).
+ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.8).
 
-**Zwei Beleggrenzen**, die beim Weiterbauen zählen: der Multi-Output-Nachweis
+**Drei Beleggrenzen**, die beim Weiterbauen zählen: der Multi-Output-Nachweis
 hat **zwei** Ausgaben gleicher Größe geprüft, nicht drei und keine
-unterschiedlichen Auflösungen oder Skalierungen; und die Alltagsstunde lief mit
+unterschiedlichen Auflösungen oder Skalierungen; die Alltagsstunde lief mit
 skriptgesteuerter Last, belegt also Schleifenfreiheit unter dichter
-Ereignislast, nicht unter Alltagsbedingungen.
+Ereignislast, nicht unter Alltagsbedingungen; und diese Last erzeugte keinen
+Hotplug, keine Panelhöhenänderung und kein Ziehen — von 59 Läufen sind nur
+acht rein technisch, und nur in ihnen kann der Wiederholungszähler des
+Auditors überhaupt stehen bleiben (`docs/research.md` 8.7). Eine Wiederholung
+mit technischer Last ist ein eigener Live-Termin.
 
 ## Ursprung & Zweck
 
@@ -510,6 +518,47 @@ Activities und verwaltet nicht die Zahl der Desktops.
   betroffenen Fenster auf. `triggered` bekommt die QAction, deshalb kommt das
   Fenster aus der äußeren Closure (`scripting.cpp:461-530`). Das Projekt nutzt
   die Funktion nur im Dev-Bundle.
+
+### Prüfwerkzeuge (Orakel, Auditor, Grep-Checks)
+
+- **Die Erwartung kommt nie aus dem geprüften System** — und seit 7.1 auch
+  nicht mehr aus der Messung: die Arbeitsfläche ist Vorschriftsparameter
+  (`fläche=WxH+X+Y`), Probe und Journal müssen ihr entsprechen. Vorher kam sie
+  aus `view.area`, und ein falscher Panelabzug hätte sich selbst bestätigt.
+  Alle fünf Schlüssel (`layout`, `n`, `ratio`, `gaps`, `fläche`) sind Pflicht,
+  ein unbekannter Schlüssel ist ein Fehler; vorher fiel `gap=8/4` still auf
+  `0/0`.
+- **Das Orakel prüft die Zuordnung Fenster → Zelle**, nicht nur die Menge der
+  Rechtecke: das erste Fenster in `diagnose … teilnehmer=` muss die
+  Masterzelle belegen. Vorher bestand ein Auszug mit vertauschtem Master und
+  Stapelfenster.
+- **Ein Sammelgrund ist nur dann Nutzeranlass, wenn jeder Teil es ist.** Der
+  Entpreller schreibt `grund=geometrieExtern,fensterzustand`; mit einem ODER
+  darüber neutralisierte ein einziger Nutzerteil alle technischen, und in Fall
+  27 trug keiner von 59 Läufen einen rein technischen Grund. Der Zähler „auf
+  dasselbe Soll" konnte damit nie über die drei Schreibvorgänge einer Epoche
+  hinauskommen.
+- **Ein Nutzerlauf gibt nur die Fenster frei, die er selbst beschreibt.** Die
+  `arrange`-Zeile trägt keine Fenster-Id, deshalb ist das die einzige
+  journaltaugliche Fassung von „je Fenster". Sie trägt, weil der Controller
+  nur bei Abweichung schreibt (`judgeWrite` „unchanged"): wiederholtes
+  Schreiben auf dasselbe Soll heißt, dass etwas das Fenster wegbewegt — ist
+  es der Nutzer, beschreibt der Nutzerlauf das Fenster und gibt es frei.
+  `nachbessern` gibt nie frei. Ein `windowActivated` an einem fremden Fenster
+  setzte vorher jeden Zähler global zurück.
+- **Der Stundenmodus verlangt Mindestaktivität** (zehn Läufe, zehn
+  Schreibvorgänge, ein rein nutzerveranlasster Lauf). Eine leere Stunde
+  belegt Stillstand, keine Schleifenfreiheit. `--seit` mit einer Datei ist
+  ein Fehler, nicht ein stilles Abschalten der Schwelle.
+- **`probe-readonly` und `activate-once` sind Grep-Listen, keine Semantik.**
+  Sie fangen die versehentliche Punkt-, Klammer- und `Object.assign`-Form,
+  nicht jede denkbare Umgehung. Der Beleg für „genau eine Aktivierung je
+  Befehl" ist das Adapter-Rig (`tests/adapter-shortcut.test.ts`), das den
+  echten `createAdapter()` gegen Attrappen fährt und den Setter zählt.
+- **`checks.archiv-reauswertung` ist die Regressionsgrenze der Prüfer.** Jede
+  ndjson- und Journaldatei unter `docs/` läuft dort mit den Parametern aus den
+  Protokollen. Wer Orakel oder Auditor schärft, sieht sofort, welcher
+  archivierte Nachweis kippt; wer ein Artefakt archiviert, trägt es dort ein.
 
 ### Werkzeugkette
 

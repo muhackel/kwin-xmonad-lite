@@ -13,7 +13,7 @@
 #
 # Aufruf:
 #   nix run .#probe-geometry
-#   nix run .#probe-geometry -- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0
+#   nix run .#probe-geometry -- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
 #
 # Ohne --erwarte prüft das Orakel nur Datenqualität und die modellfreien
 # Invarianten; mit --erwarte zusätzlich Journal und Geometrie gegen die
@@ -32,7 +32,7 @@ if [ "${1:-}" = "--erwarte" ]; then
 	expectation=("$@")
 elif [ "$#" -gt 0 ]; then
 	log_err "Unbekanntes Argument: $1"
-	log_err "Aufruf: nix run .#probe-geometry [-- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0]"
+	log_err "Aufruf: nix run .#probe-geometry [-- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0]"
 	exit 2
 fi
 

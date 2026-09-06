@@ -98,7 +98,7 @@ nicht wieder einschalten ließ, wird dort erneut versucht.
 
 ```bash
 nix run .#probe-geometry                # nur Datenqualität und Invarianten
-nix run .#probe-geometry -- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0
+nix run .#probe-geometry -- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
 ```
 
 Misst die anliegenden Fenstergeometrien, die nutzbare Arbeitsfläche je Surface
@@ -107,7 +107,13 @@ und 3000 ms), und schreibt sie als `geometry-<Zeitstempel>.ndjson` samt dem
 zugehörigen Controller-Journalauszug. Danach läuft das Orakel darüber und
 übernimmt dessen Exit-Code. Ohne `--erwarte` prüft es nur Datenqualität und
 Einschwingen, mit `--erwarte` zusätzlich das Journal gegen die vorgegebenen
-Werte und erst danach die Geometrie.
+Werte und erst danach die Geometrie. Alle fünf Schlüssel (`layout`, `n`,
+`ratio`, `gaps`, `fläche`) sind dann Pflicht, ein unbekannter Schlüssel ist
+ein Fehler, und die verwendete Vorschrift steht als erste Ausgabezeile. Die
+Fläche kommt aus der Fallvorschrift, nicht aus der Messung: Probe und Journal
+müssen ihr entsprechen. Seit 7.1 prüft das Orakel auch die Zuordnung Fenster
+zu Zelle (das erste Fenster der Diagnosezeile belegt die Masterzelle) und
+meldet Nichtteilnehmer in der Fläche als Hinweis.
 
 Die Probe ist strikt lesend und verbindet kein KWin-Signal — nur `timeout` an
 eigenen Timern; `checks.probe-readonly` erzwingt das. Ausführlich im Abschnitt
@@ -124,7 +130,12 @@ nix run .#audit -- <datei>               # gesicherter Auszug
 Sucht Geometrie-Schleifen: er zählt alle Schreibarten (`apply`, `float`,
 `nachbessern`), ordnet Nachbesserungen der Schreibgeneration des Fensters zu
 und lässt technische Gründe wie `geometrieExtern` oder `nachlauf*` nicht als
-neuen Anlass gelten.
+neuen Anlass gelten. Ein Sammelgrund gilt nur dann als Nutzeranlass, wenn
+**jeder** Teil nutzerveranlasst ist, und ein Nutzerlauf gibt nur die Fenster
+frei, die er selbst beschreibt. Im Stundenmodus verlangt er Mindestaktivität
+(zehn Läufe, zehn Schreibvorgänge, ein rein nutzerveranlasster Lauf).
+`--seit` gilt nur für das laufende Journal; zusammen mit einer Datei ist es
+ein Fehler, für gesicherte Auszüge ohne Schwelle gibt es `--frei`.
 
 ## Testen / Checks
 
@@ -1188,8 +1199,8 @@ daran, ob die Clients überlebt haben und ob eine Anmeldung dazwischenlag.
 
 ```bash
 nix run .#probe-geometry                                        # nur Datenqualität
-nix run .#probe-geometry -- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0
-nix run .#probe-geometry -- --erwarte layout=full n=3 ratio=0.65 gaps=0/0 "surface=<key>"
+nix run .#probe-geometry -- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
+nix run .#probe-geometry -- --erwarte layout=full n=3 ratio=0.65 gaps=0/0 fläche=1920x1080+1920+0 "surface=<key>"
 nix run .#audit                                                 # letzte 60 min, Fall 27
 nix run .#audit -- --seit "-10 min"                             # kürzerer Blick, ohne Schwelle
 nix run .#audit -- docs/ms7-2026-09-06-hal9000-fall27.log        # gesicherter Auszug, mit Schwelle
@@ -1252,8 +1263,8 @@ kwin-xmonad-lite: diagnose <key> order=<id,id,id> teilnehmer=<id,id> float=<id>
 | # | Fall | Vorbereitung | Aktion | Erwartung | Beleg | Abbruch |
 |---|---|---|---|---|---|---|
 | 25 | Selbsttest der Probe | Controller geladen, keine Testfenster | `nix run .#probe-geometry` | ndjson mit `st:"ok"`, jede `view` hat eine `area`, ein `active`-Satz je Sample, Rückbau nachgewiesen; `getWindowInfo` und Probe stimmen für ein Fenster überein | ndjson, Rückbaublock, D-Bus-Ausgabe | Gegenprobe weicht ab oder `end` fehlt → **Reihe abbrechen** und zurückbauen |
-| 25a | Ein Fenster | `kxl-g1` als einziger Teilnehmer, Vorgabekonfiguration | `nix run .#probe-geometry -- --erwarte layout=tall n=1 ratio=0.65 gaps=0/0` | `fläche=1920x1050+0+0`, Ist gleich der ganzen Arbeitsfläche | ndjson + Journal | Fläche meldet `1920x1080` → `FullScreenArea` statt `MaximizeArea` |
-| 25b | Tall mit drei Fenstern | `kxl-g1..g3` | `… --erwarte layout=tall n=3 ratio=0.65 gaps=0/0` | Master `1248x1050+0+0`, Stapel `672x525+1248+0` und `672x525+1248+525`; überlappungsfrei, exakte Zerlegung; Diagnosezeile zeigt drei Teilnehmer, `float=` leer | ndjson + Journal + Orakelbericht | Soll weicht von der Vorgabe ab (Controller-Fehler); weicht nur das Ist ab, gilt die Client-Regel oben |
+| 25a | Ein Fenster | `kxl-g1` als einziger Teilnehmer, Vorgabekonfiguration | `nix run .#probe-geometry -- --erwarte layout=tall n=1 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0` | `fläche=1920x1050+0+0`, Ist gleich der ganzen Arbeitsfläche | ndjson + Journal | Fläche meldet `1920x1080` → `FullScreenArea` statt `MaximizeArea` |
+| 25b | Tall mit drei Fenstern | `kxl-g1..g3` | `… --erwarte layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0` | Master `1248x1050+0+0`, Stapel `672x525+1248+0` und `672x525+1248+525`; überlappungsfrei, exakte Zerlegung; Diagnosezeile zeigt drei Teilnehmer, `float=` leer | ndjson + Journal + Orakelbericht | Soll weicht von der Vorgabe ab (Controller-Fehler); weicht nur das Ist ab, gilt die Client-Regel oben |
 | 25c | Abstände, Ratio und Full | `settings` auf `gapOuter=8`, `gapInner=4`, `debug=true`; `switch`, neu anmelden | zweimal `Meta+H` (→ `ratio=0.55`), messen; dann `Meta+Space` (→ `full`), messen | erst Tall aus `tall(area, 3, {0.55, 8, 4})`, danach dreimal dasselbe Rechteck `1904x1034+8+8`; `config gaps=8/4` | zwei ndjson + Journal | `ratio` im Journal ungleich 0,55 — dann ist der Tastendruck nicht angekommen, auch wenn die Geometrie zum Journal passt |
 
 Screenshots dürfen ergänzen; der geometrische Nachweis kommt aus der ndjson.
@@ -1462,8 +1473,11 @@ Nachbesserungen der Schreibgeneration des Fensters zu und erkennt technische
 Gründe — `geometrieExtern`, `dock*`, `screensChanged`, `screenGeometry`,
 `nachlauf*`, `closed` — **nicht** als neuen Anlass an. Sonst hielte sich eine
 Rückkopplung `extern → arrange → apply → extern` selbst am Leben und wiese
-formal immer einen frischen Grund vor. Ein zu kurzer Auszug, eine Lücke oder
-ein zweiter Skriptlauf führen zu „nicht ausreichend belegt" — nicht zu
+formal immer einen frischen Grund vor. Seit 7.1 gilt das auch für den
+Sammelgrund des Entprellers: `geometrieExtern,fensterzustand` ist technisch,
+und ein nutzerveranlasster Lauf gibt nur die Fenster frei, die er selbst
+beschreibt. Ein zu kurzer Auszug, eine Lücke, ein zweiter Skriptlauf oder zu
+wenig Aktivität führen zu „nicht ausreichend belegt" — nicht zu
 „bestanden".
 
 #### Rückbau nach der MS7-Reihe auf HAL9000

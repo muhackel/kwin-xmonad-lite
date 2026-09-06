@@ -875,6 +875,19 @@ Ein Randfall, den keine Fallvorschrift vorsah: eine Surface, deren einziges
 Fenster gefloatet ist, meldet `teilnehmer=` leer bei gesetztem `float=` — der
 Controller schreibt dort nichts und läuft nicht leer.
 
+**Beleggrenze, gefunden im Audit 7.1:** Von den 59 Läufen trug keiner einen
+rein technischen Grund. Der Auditor wertete damals einen Sammelgrund wie
+`geometrieExtern,fensterzustand` als Nutzeranlass und setzte bei jedem
+solchen Lauf alle Zähler zurück; „höchstens 2 auf dasselbe Soll" war deshalb
+arithmetisch erzwungen, nicht gemessen. Seit 7.1 zählt ein Sammelgrund nur bei
+durchgehend nutzerveranlassten Teilen, und ein Nutzerlauf gibt nur die Fenster
+frei, die er selbst beschreibt. Unter dieser Regel hat die Stunde 8 technische
+Läufe (3 × `geometrieExtern,fensterzustand`, 5 × `closed,…`), in denen der
+Zähler stehen bleibt, und besteht weiterhin mit höchstens 2. Was die Stunde
+nicht belegt: Schleifenfreiheit unter Hotplug, Panelhöhenänderung oder Ziehen
+— die Last erzeugte keinen dieser Anlässe. Eine Wiederholung mit technischer
+Last steht als eigener Live-Termin aus.
+
 ### 8.8 Shortcut-Registrierungen sind rücknehmbar
 
 Die KWin-Skript-API hat kein `unregisterShortcut`; daraus wurde bisher
