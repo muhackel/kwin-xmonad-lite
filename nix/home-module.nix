@@ -275,7 +275,12 @@ in
       programs.plasma.shortcuts.kwin = lib.genAttrs shortcutNames (_: [ ]);
     })
 
-    (lib.mkIf cfg.relocateKdeShortcuts {
+    # Die Umlegung hängt an `enable`, nicht nur an ihrem eigenen Schalter: sie
+    # ergibt ohne laufenden Controller keinen Sinn, und ein Host, der im
+    # Aus-Zustand die KDE-Vorgaben zurückschreibt, definierte sonst dieselben
+    # beiden Optionen ein zweites Mal -- das ist kein "letzter gewinnt",
+    # sondern ein Merge-Konflikt.
+    (lib.mkIf (cfg.enable && cfg.relocateKdeShortcuts) {
       programs.plasma.shortcuts.ksmserver."Lock Session" = [
         "Screensaver"
         "Ctrl+Alt+L"
