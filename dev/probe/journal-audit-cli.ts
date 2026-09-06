@@ -4,10 +4,14 @@
  * Getrennt von der Logik, damit `tests/journal-audit.test.ts` die Prüfungen
  * importieren kann, ohne dass beim Import etwas ausgeführt wird.
  *
- *   node dev/probe/journal-audit-cli.ts <journal> [--stunde]
+ *   node dev/probe/journal-audit-cli.ts <journal> [--stunde] [--provoziert id,id]
  *
  * Ohne `--stunde` prüft er nur auf Schleifen; mit `--stunde` zusätzlich die
- * Belegschwelle aus Fall 27 (Dauer, ein einziger Skriptlauf).
+ * Belegschwelle aus Fall 27 (Dauer, ein einziger Skriptlauf, kein Give-up).
+ *
+ * `--provoziert` nennt die Fenster, für die die Vorschrift ein `aufgegeben`
+ * ausdrücklich vorsieht. Die Ausnahme steht damit in der Kommandozeile und im
+ * Protokoll -- nicht als stille Milde im Werkzeug.
  */
 
 import { readFileSync } from "node:fs";
@@ -22,7 +26,12 @@ if (pfad === undefined) {
 
 const text = readFileSync(pfad, "utf8");
 const stunde = rest.includes("--stunde");
-const bericht = stunde ? pruefeAlltagsstunde(text) : pruefe(parseEreignisse(text));
+const index = rest.indexOf("--provoziert");
+const provoziert =
+	index >= 0 && rest[index + 1] !== undefined ? (rest[index + 1] as string).split(",") : [];
+const bericht = stunde
+	? pruefeAlltagsstunde(text, { provoziert })
+	: pruefe(parseEreignisse(text), { provoziert });
 
 for (const befund of bericht.befunde) {
 	const marke = befund.level === "fehler" ? "  xx" : befund.level === "manuell" ? "  ??" : "  !!";

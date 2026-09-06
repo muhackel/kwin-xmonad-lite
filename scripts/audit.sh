@@ -13,6 +13,7 @@
 #   nix run .#audit -- --seit "-30 min"      # anderer Zeitraum, ohne Schwelle
 #   nix run .#audit -- datei.log             # gesicherter Auszug, mit Schwelle
 #   nix run .#audit -- --frei datei.log      # gesicherter Auszug, ohne Schwelle
+#   nix run .#audit -- --provoziert '{id}' datei.log   # erwartetes Give-up
 #
 # Die Belegschwelle gehört zu Fall 27 (mindestens 60 Minuten in einem einzigen
 # Skriptlauf). Ein gesicherter Auszug, der einen anderen Fall belegt, ist damit
@@ -28,6 +29,7 @@ OUT_DIR="${XML_PROBE_OUT:-$PWD}"
 seit="-60 min"
 stunde="--stunde"
 datei=""
+provoziert=()
 
 while [ "$#" -gt 0 ]; do
 	case "$1" in
@@ -39,6 +41,10 @@ while [ "$#" -gt 0 ]; do
 		--frei)
 			stunde=""
 			shift
+			;;
+		--provoziert)
+			provoziert=("--provoziert" "${2:?--provoziert braucht eine Id-Liste}")
+			shift 2
 			;;
 		-*)
 			log_err "Unbekanntes Argument: $1"
@@ -62,7 +68,7 @@ if [ -n "$datei" ]; then
 		exit 1
 	fi
 	log_info "Werte $datei aus."
-	node "$AUDIT" "$datei" $stunde
+	node "$AUDIT" "$datei" $stunde ${provoziert[0]+"${provoziert[@]}"}
 	exit $?
 fi
 
@@ -73,4 +79,4 @@ journalctl --user -b -o short-iso --since "$seit" \
 	"_SYSTEMD_USER_UNIT=$UNIT.service" + "SYSLOG_IDENTIFIER=$MARKE" >"$auszug" || true
 log_ok "$(wc -l <"$auszug") Zeilen nach $auszug geschrieben."
 
-node "$AUDIT" "$auszug" $stunde
+node "$AUDIT" "$auszug" $stunde ${provoziert[0]+"${provoziert[@]}"}

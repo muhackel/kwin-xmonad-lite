@@ -2,7 +2,15 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { parseJournal, parseRect, run, ueberlappt } from "../dev/probe/expect-geometry.ts";
-import { journal, KEY, ndjson, TALL3 } from "./support/geofixtures.ts";
+import {
+	journal,
+	KEY,
+	ndjson,
+	TALL2_RATIO50,
+	TALL3,
+	UHR,
+	verketten,
+} from "./support/geofixtures.ts";
 
 const TALL_ERWARTUNG = ["layout=tall", "n=3", "ratio=0.65", "gaps=0/0"];
 
@@ -128,7 +136,7 @@ test("ein vom Journal abweichender Masteranteil fällt vor der Geometrie auf", (
 	);
 });
 
-test("eine Client-Abweichung bei stimmendem Soll ist ein Hinweis, kein Fehler", () => {
+test("eine Client-Abweichung bei stimmendem Soll entlastet den Controller, nimmt den Fall aber nicht ab", () => {
 	const quittiert = [
 		{ x: 0, y: 0, w: 1248, h: 1050 },
 		{ x: 1248, y: 0, w: 670, h: 520 },
@@ -149,10 +157,14 @@ test("eine Client-Abweichung bei stimmendem Soll ist ein Hinweis, kein Fehler", 
 	assert.deepEqual(fehlertexte(report), []);
 	assert.equal(
 		report.findings.some(
-			(finding) => finding.level === "hinweis" && finding.text.includes("nicht angenommen"),
+			(finding) =>
+				finding.level === "nicht-abgenommen" && finding.text.includes("nicht angenommen"),
 		),
 		true,
 	);
+	// Der Controller ist entlastet, der Geometrienachweis ist trotzdem nicht
+	// erbracht -- der Fall wird an einem geeigneten Client wiederholt.
+	assert.equal(report.bestanden, false);
 });
 
 test("ohne Diagnosezeile ist die Layout-Teilnahme nicht belegbar", () => {
@@ -208,4 +220,231 @@ test("ueberlappt meldet für ein Rechteck der Breite 0 keine Überlappung", () =
 	const leer = { x: 10, y: 0, width: 0, height: 100 };
 	const rechts = { x: 5, y: 0, width: 20, height: 100 };
 	assert.equal(ueberlappt(leer, rechts), false);
+});
+
+// ---------------------------------------------------------------------------
+// Nachbesserungen aus dem Audit vom 2026-09-06. Jeder dieser Fälle bestand vor
+// der Korrektur -- das ist der eigentliche Befund: ein Orakel, das ungültige
+// Nachweise durchwinkt, ist von einem funktionierenden nicht zu unterscheiden.
+// ---------------------------------------------------------------------------
+
+test("ein früherer Skriptlauf im selben Auszug trägt den neuen nicht", () => {
+	// Der Vorlauf ist vollständig und in sich stimmig; der eigentliche Lauf
+	// meldet nach seiner `geladen`-Zeile nichts. Vorher erbte er Konfiguration,
+	// Surface- und Diagnosewerte des Vorlaufs und bestand damit ohne eine
+	// einzige eigene Zeile.
+	const report = run(
+		ndjson({ fenster: fenster(TALL3) }),
+		journal({ nurGeladen: true, vorlauf: {} }),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("keine `surface`-Zeile")),
+		true,
+	);
+});
+
+test("ein Give-up an einem unbeteiligten Fenster entlastet nichts", () => {
+	// Drei Fenster, alle drei mit falscher Größe, dazu ein `aufgegeben` für ein
+	// Fenster, das gar nicht im Layout steht. Vorher genügte diese eine fremde
+	// Zeile, um die Abweichung als Client-Eigenheit durchgehen zu lassen.
+	const falsch = [
+		{ x: 0, y: 0, w: 1900, h: 1000 },
+		{ x: 1900, y: 0, w: 20, h: 500 },
+		{ x: 1900, y: 500, w: 20, h: 550 },
+	];
+	const report = run(
+		ndjson({ fenster: fenster(falsch) }),
+		journal({
+			applies: [
+				["a", "1248x1050+0+0"],
+				["b", "672x525+1248+0"],
+				["c", "672x525+1248+525"],
+			],
+			aufgegeben: ["fremd"],
+		}),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("ohne Give-up für dieses Fenster")),
+		true,
+	);
+});
+
+test("tall mit ratio 0.5 besteht, obwohl Master und Stapel gleich breit sind", () => {
+	// Die Masterprüfung über die Breite allein zählte hier zwei Treffer und
+	// lehnte ein völlig korrektes Layout ab.
+	const report = run(
+		ndjson({ fenster: fenster(TALL2_RATIO50) }),
+		journal({ teilnehmer: ["a", "b"], n: 2, ratio: 0.5 }),
+		["layout=tall", "n=2", "ratio=0.5", "gaps=0/0"],
+	);
+	assert.deepEqual(fehlertexte(report), []);
+	assert.equal(report.bestanden, true);
+});
+
+test("Sätze ohne Laufstempel und Satznummer fallen auf", () => {
+	const report = run(
+		ndjson({ fenster: fenster(TALL3), ohneLaufstempel: true, ohneSatznummer: true }),
+		journal(),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("ohne Laufstempel")),
+		true,
+	);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("ohne Satznummer")),
+		true,
+	);
+});
+
+test("eine abgebrochene Samplestaffel fällt auf", () => {
+	// Der `meta`-Satz kündigt vier Samples an, geschrieben sind zwei: so sieht
+	// ein Lauf aus, der vor dem Einschwingen endete.
+	const report = run(
+		ndjson({
+			fenster: fenster(TALL3),
+			samples: [0, 500],
+			angekuendigteSamples: [0, 500, 1500, 3000],
+		}),
+		journal(),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("Staffel ist unvollständig")),
+		true,
+	);
+});
+
+test("ein Fenster einer fremden Surface zählt nicht als Teilnehmer", () => {
+	// Die Diagnosezeile nennt die drei Ids, die Messung legt sie auf eine
+	// andere Ausgabe. Vorher wurden sie trotzdem in dieses Layout gerechnet.
+	const fremde = fenster(TALL3).map((eintrag) => ({
+		...eintrag,
+		extra: { output: "OTHER" },
+	}));
+	const report = run(ndjson({ fenster: fremde }), journal(), TALL_ERWARTUNG);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("liegt laut Probe aber auf einer anderen")),
+		true,
+	);
+});
+
+test("eine widersprüchliche Arbeitsfläche fällt auf", () => {
+	// Die Probe misst 1920x1080, das Journal meldet 1920x1050. Eine der beiden
+	// Quellen irrt, und gerechnet wird gegen eine Fläche, die so nie anlag.
+	const report = run(
+		ndjson({ fenster: fenster(TALL3), flaeche: { x: 0, y: 0, w: 1920, h: 1080 } }),
+		journal(),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("Arbeitsfläche widersprüchlich")),
+		true,
+	);
+});
+
+test("zwei KWin-Prozesse im Auszug verlangen eine ausdrückliche PID", () => {
+	// Nach einem `replace` schreiben zwei Prozesse in dieselbe Unit. Welcher
+	// gemeint ist, kann der Auszug nicht selbst entscheiden.
+	const report = run(
+		ndjson({ fenster: fenster(TALL3) }),
+		verketten(journal({ pid: "1000", beginnMs: UHR - 120_000 }), journal({ pid: "2000" })),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("KWin-Prozessen")),
+		true,
+	);
+});
+
+test("mit ausdrücklicher PID zählt nur der genannte Prozess", () => {
+	const report = run(
+		ndjson({ fenster: fenster(TALL3) }),
+		verketten(journal({ pid: "1000", beginnMs: UHR - 120_000 }), journal({ pid: "2000" })),
+		TALL_ERWARTUNG,
+		{ pid: "2000" },
+	);
+	assert.deepEqual(fehlertexte(report), []);
+	assert.equal(report.bestanden, true);
+});
+
+test("ein Give-up vor dem letzten Schreibversuch entlastet nicht", () => {
+	// Reihenfolge im Journal: erst `aufgegeben`, dann ein neuer `apply`. Was
+	// nach diesem `apply` geschah, ist unbelegt -- das alte Give-up deckt es
+	// nicht ab.
+	const quittiert = [
+		{ x: 0, y: 0, w: 1248, h: 1050 },
+		{ x: 1248, y: 0, w: 670, h: 520 },
+		{ x: 1248, y: 525, w: 672, h: 525 },
+	];
+	const report = run(
+		ndjson({ fenster: fenster(quittiert) }),
+		verketten(
+			journal({
+				beginnMs: UHR - 120_000,
+				epoche: 1,
+				applies: [["b", "672x525+1248+0"]],
+				aufgegeben: [["b", "670x520+1248+0"]],
+				nurGeladen: false,
+			}),
+			journal({
+				beginnMs: UHR - 60_000,
+				epoche: 2,
+				applies: [
+					["a", "1248x1050+0+0"],
+					["b", "672x525+1248+0"],
+					["c", "672x525+1248+525"],
+				],
+			}),
+		),
+		TALL_ERWARTUNG,
+		{ pid: "2397" },
+	);
+	assert.equal(report.bestanden, false);
+});
+
+test("ein Anordnungslauf während der Messung macht den Auszug unbrauchbar", () => {
+	// Die Samples zeigen dann einen Übergang, keinen Zustand -- und das Orakel
+	// verglich ihn stillschweigend mit dem Soll.
+	const report = run(
+		ndjson({ fenster: fenster(TALL3) }),
+		journal({ arrangeWaehrendMessung: true }),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("während der Messung")),
+		true,
+	);
+});
+
+test("zwei gemessene Surfaces verlangen die Angabe, welche gemeint ist", () => {
+	// Genau die Lage aus Fall 26. Vorher fiel die Wahl still auf die erste
+	// `view` im Auszug.
+	const report = run(
+		ndjson({ fenster: fenster(TALL3), zweiteView: true }),
+		journal(),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("Surfaces gemessen")),
+		true,
+	);
+});
+
+test("mit surface= besteht derselbe Auszug", () => {
+	const report = run(ndjson({ fenster: fenster(TALL3), zweiteView: true }), journal(), [
+		...TALL_ERWARTUNG,
+		`surface=${KEY}`,
+	]);
+	assert.deepEqual(fehlertexte(report), []);
+	assert.equal(report.bestanden, true);
 });

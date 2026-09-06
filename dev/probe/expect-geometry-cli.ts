@@ -23,13 +23,18 @@ if (ndjsonPfad === undefined || journalPfad === undefined) {
 const report = run(readFileSync(ndjsonPfad, "utf8"), readFileSync(journalPfad, "utf8"), erwartung);
 
 for (const finding of report.findings) {
-	const marke = finding.level === "fehler" ? "  xx" : "  !!";
+	const marke =
+		finding.level === "fehler" ? "  xx" : finding.level === "nicht-abgenommen" ? "  ~~" : "  !!";
 	console.log(`${marke} ${finding.text}`);
 }
 
 if (report.bestanden) {
 	console.log("  ok Geometrie-Orakel: bestanden");
 	process.exit(0);
+}
+if (report.findings.some((finding) => finding.level === "nicht-abgenommen")) {
+	console.error("  ~~ Geometrie-Orakel: Controller entlastet, Fall nicht abgenommen");
+	process.exit(1);
 }
 console.error("  xx Geometrie-Orakel: nicht bestanden");
 process.exit(1);

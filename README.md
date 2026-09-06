@@ -9,7 +9,14 @@ Er ist **kein** Fenstermanager und **kein** XMonad-Nachbau. Fenster-, Desktop-,
 Activity- und Bildschirmzuordnung bleiben vollständig bei KWin und seinen
 Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 
-> **Status: MVP abgenommen, Meilenstein 7 abgeschlossen (2026-09-06).**
+> **Status: Meilenstein 7 live gelaufen, MVP-Abnahme in Nachprüfung
+> (Stand 2026-09-06).** Ein externes Audit hat elf Defekte in den
+> **Prüfwerkzeugen** gefunden — nicht im Controller. Orakel und Auditor melden
+> auch ungültige Nachweise als bestanden; damit ist nicht gesagt, dass die
+> Fälle falsch sind, wohl aber, dass ihr Bestehen wenig beweist. Die Abnahme
+> ruht, bis die berichtigten Prüfer die vorhandenen Artefakte neu bewertet
+> haben.
+>
 > Das Skript kachelt auf allen Bildschirmen; jeder virtuelle Desktop und jede
 > Activity führt je Bildschirm einen eigenen Stapel. Vollbild, Maximierung und
 > Minimierung verlassen das Layout, ohne ihre Stapelposition zu verlieren.
@@ -30,14 +37,15 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > und von 59 Anordnungsläufen in der Laststunde schrieben nur 16 überhaupt
 > etwas — die übrigen stellten fest, dass alles am Platz ist.
 >
-> Zwei Einschränkungen gehören zur Abnahme: der Multi-Output-Lauf lief mit
-> zwei Ausgaben statt drei, und die Laststunde mit skriptgesteuerter Last statt
-> normaler Arbeit. Beides steht in den Protokollen unter
-> [`docs/`](docs/) und in [`PLAN.md`](PLAN.md) Abschnitt 11. Eine Test-VM ist
-> nicht vorgesehen: gegen zwei echte Maschinen gewinnt sie nichts, und die
-> Frage, ob das gebaute Bundle in QJSEngine überhaupt lädt, beantwortet
-> `checks.bundle-runtime`. Nicht herstellbar und deshalb unbelegt bleibt
-> Fall 20c.
+> Drei Einschränkungen gehören dazu: der Multi-Output-Lauf lief mit zwei
+> Ausgaben statt drei, die Laststunde mit skriptgesteuerter Last statt
+> normaler Arbeit, und Fall 26a prüfte die vier Desktopzustände nur auf einer
+> der beiden Ausgaben. Alles steht in den Protokollen unter [`docs/`](docs/)
+> und in [`PLAN.md`](PLAN.md) Abschnitt 11. Eine Test-VM ist nicht vorgesehen:
+> gegen zwei echte Maschinen gewinnt sie nichts. `checks.bundle-runtime` prüft
+> das gebaute Bundle per Grep auf Funktionen, die QJSEngine nicht hat, und die
+> esbuild-Zielstufe — ein **Ladeversuch ist er nicht**. Nicht herstellbar und
+> deshalb unbelegt bleibt Fall 20c.
 
 ## Schnellstart
 
