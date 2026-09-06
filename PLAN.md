@@ -1,6 +1,6 @@
 # Implementierungsplan `kwin-xmonad-lite`
 
-Stand: 2026-09-06. Der Entwurf mit allen Nutzerentscheidungen steht in Abschnitt 12. Abgeschlossen sind die Meilensteine 0 bis **7** samt den Stabilisierungsschritten 3.1, 3.1.1, 4.1, 4.1.1, 5.1, den Audits 4.2, 6.1 und 6.2 sowie den Abnahmen 6.3 und 7. **Die MVP-Abnahme ist ausgesetzt** (2026-09-06): ein externes Audit hat elf Defekte in den Prüfwerkzeugen gefunden — Orakel und Auditor melden auch ungültige Nachweise als bestanden. Der Controller ist nicht betroffen. Die Fälle sind live gelaufen und ihre Befunde unabhängig bestätigt; was aussteht, ist ihre Neubewertung mit berichtigten Prüfern (Abschnitt 11). Fall 20c ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.7). Eine Test-VM gibt es nicht mehr, weder im MVP noch auf Stufe 2 (Abschnitt 8). Das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein läuft als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
+Stand: 2026-09-06. Der Entwurf mit allen Nutzerentscheidungen steht in Abschnitt 12. Abgeschlossen sind die Meilensteine 0 bis **7** samt den Stabilisierungsschritten 3.1, 3.1.1, 4.1, 4.1.1, 5.1, den Audits 4.2, 6.1 und 6.2 sowie den Abnahmen 6.3 und 7. **Der MVP ist abgenommen** — ausgesetzt am 2026-09-06 nach einem externen Audit, das elf Defekte in den **Prüfwerkzeugen** fand, und nach deren Berichtigung und einer vollständigen Neuauswertung aller Artefakte wieder ausgesprochen. Der Controller war nie betroffen und ist seit `abdffa2` unverändert; jeder Nachweis besteht auch die verschärften Prüfer (Abschnitt 11). Fall 20c ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.7). Eine Test-VM gibt es nicht mehr, weder im MVP noch auf Stufe 2 (Abschnitt 8). Das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein läuft als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
 
 ## 0. Position
 
@@ -343,18 +343,25 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
    mitten in der Messung ergeben **„nicht ausreichend belegt"**, nicht
    „bestanden" (Fall 27).
 
-**Stand 2026-09-06: die Feststellung ist ausgesetzt.** Die sechs Punkte sind
-live geprüft, aber die Punkte 4 bis 6 hängen an zwei Werkzeugen, denen ein
-externes Audit elf Defekte nachgewiesen hat: das Orakel akzeptiert Daten eines
-fremden Skriptlaufs und lässt eine falsche Geometrie durch, wenn irgendwo ein
-fremdes `aufgegeben` steht; der Auditor wertet ein Give-up nur als Hinweis,
-erkennt einen einzelnen Skriptneustart nicht und prüft weder Epochenlücken noch
-Fallmarken. Damit ist nicht gesagt, dass die Fälle falsch sind — gesagt ist,
-dass ihr Bestehen wenig beweist. Die Abnahme wird nach der Neuauswertung mit
-berichtigten Prüfern erneut ausgesprochen oder eben nicht.
+**Stand 2026-09-06: alle sechs Punkte erfüllt — nach einer Nachprüfung.**
 
-Unabhängig davon gehören drei Einschränkungen zur Feststellung und stehen in
-den Protokollen:
+Ein externes Audit fand elf Defekte in den **Prüfwerkzeugen**: das Orakel
+akzeptierte Daten eines fremden Skriptlaufs, ließ eine falsche Geometrie durch,
+wenn irgendwo ein fremdes `aufgegeben` stand, und lehnte umgekehrt ein
+korrektes `tall` bei `ratio=0.5` ab; der Auditor wertete ein Give-up nur als
+Hinweis, erkannte einen einzelnen Skriptneustart nicht und prüfte weder
+Epochenlücken noch Fallmarken. Die Abnahme wurde daraufhin **ausgesetzt** — mit
+solchen Werkzeugen beweist ein „bestanden" wenig.
+
+Nach der Berichtigung wurde **jeder** archivierte Nachweis neu ausgewertet, an
+die KWin-Instanz gebunden, die ihn erzeugt hat. Alle bestehen; der damals
+abgelehnte Vorlauf von Fall 25 bleibt abgelehnt und bekommt die schärfere
+Diagnose. Die Neuauswertung ist als `checks.archiv-reauswertung` verankert: eine
+spätere Änderung an den Prüfern, die eines dieser Ergebnisse umdreht, bricht den
+Check. Die Fälle waren also richtig, nur ihre Prüfung war zu lasch.
+
+Zwei Einschränkungen gehören weiterhin zur Feststellung und stehen in den
+Protokollen:
 
 - Punkt 5 wurde auf HAL9000 mit **zwei** Ausgaben erbracht, nicht auf
   SPIELKISTE mit dreien. Zwei Ausgaben waren immer das Minimum des Kriteriums;
@@ -366,10 +373,12 @@ den Protokollen:
   getaktet als eine typische Arbeitsstunde, aber ohne Mausziehen und ohne die
   Fenstervielfalt echter Arbeit. Belegt ist Schleifenfreiheit unter dichter
   Ereignislast, nicht unter Alltagsbedingungen.
-- Fall 26a prüfte die vier Desktopzustände nur auf **einer** der beiden
-  Ausgaben; auf den Desktops 2 bis 4 stand kein Fenster auf eDP-1. Die
-  Kombination „vier Desktops mal zwei Ausgaben" ist damit offen und wird
-  ergänzend nachgeholt.
+Nicht mehr auf dieser Liste stehen zwei Punkte, die inzwischen belegt sind:
+Fall 26a prüfte die vier Desktopzustände zunächst nur auf **einer** Ausgabe und
+ist am 2026-09-06 ergänzend nachgeholt worden (sechs Surfaces, je eigener
+Zustand über beide Ausgaben); und für Fall 20b gibt es jetzt den
+Adapter-Rig-Test, der die Aktivierungen je Befehl **zählt**, statt sich auf die
+Journalzeile zu verlassen, mit der der Controller über sich selbst berichtet.
 
 **Grid-Stufe abgenommen, wenn:** `grid` in der Layoutliste zyklisch erreichbar ist, die Unit-Tests dieselben Eigenschaften wie Tall prüfen, und Fälle 6–8 der Matrix bestehen.
 

@@ -6,14 +6,13 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
-Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 7 ist live
-gelaufen, die MVP-Abnahme ist aber in Nachprüfung (2026-09-06).** Ein externes
-Audit hat elf Defekte in den **Prüfwerkzeugen** gefunden — Orakel und Auditor
-winken auch ungültige Nachweise durch. Der Controller ist nicht betroffen und
-seit `abdffa2` unverändert. Bis die berichtigten Prüfer die Artefakte neu
-bewertet haben, gilt kein Fall als förmlich abgenommen; die Befundtabelle steht
-im Arbeitsplan. 337 Tests, neun Checks im Projektflake, vier im
-`nixosconfig`-Flake. Die Meilensteine 0 bis 6 samt den
+Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 7 ist
+abgeschlossen und der MVP abgenommen (2026-09-06).** Die Abnahme war
+zwischenzeitlich ausgesetzt: ein externes Audit fand elf Defekte in den
+**Prüfwerkzeugen**, nicht im Controller. Nach der Berichtigung besteht jeder
+archivierte Nachweis auch die verschärften Prüfer; die Neuauswertung hängt als
+`checks.archiv-reauswertung` im Flake. 365 Tests, zehn Checks im Projektflake,
+vier im `nixosconfig`-Flake. `src/` ist seit `abdffa2` unverändert. Die Meilensteine 0 bis 6 samt den
 Stabilisierungsschritten und Audits sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
 Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
 Snapshot-Grenze, und seit Meilenstein 6 ist er bedienbar: zwölf `xml-*`-Aktionen,
@@ -30,17 +29,11 @@ Bundles prüft `checks.bundle-runtime` billiger — **per Grep auf Namen, nicht
 durch einen Ladeversuch** (`PLAN.md` Abschnitt 8). Fall 20c
 ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.7).
 
-**Vier Beleggrenzen**, die beim Weiterbauen zählen: der Multi-Output-Nachweis
+**Zwei Beleggrenzen**, die beim Weiterbauen zählen: der Multi-Output-Nachweis
 hat **zwei** Ausgaben gleicher Größe geprüft, nicht drei und keine
-unterschiedlichen Auflösungen oder Skalierungen; die Alltagsstunde lief mit
+unterschiedlichen Auflösungen oder Skalierungen; und die Alltagsstunde lief mit
 skriptgesteuerter Last, belegt also Schleifenfreiheit unter dichter
-Ereignislast, nicht unter Alltagsbedingungen; Fall 26a prüfte die vier
-Desktopzustände nur auf **einer** der beiden Ausgaben; und für Fall 20b gibt es
-keinen Unit-Test, der die Aktivierungsversuche je Befehl **zählt** —
-`checks.activate-once` erzwingt nur, dass es genau eine Schreibstelle im Baum
-gibt. Eine Aufrufzählung setzte voraus, den Aktivierungspfad hinter einen Port
-zu ziehen; das bleibt Stufe 2, weil der Controller sonst vom live abgenommenen
-Stand abwiche.
+Ereignislast, nicht unter Alltagsbedingungen.
 
 ## Ursprung & Zweck
 

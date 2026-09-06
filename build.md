@@ -135,9 +135,9 @@ nix flake check      # Paketbau (inkl. Typprüfung und Unit-Tests), Lint,
                      # Home-Manager-Modul ein- und ausgeschaltet
 ```
 
-Neun Checks: `package`, `lint`, `scripts`, `snapshot-boundary`,
-`probe-readonly`, `activate-once`, `bundle-runtime`, `home-module` und
-`home-module-disabled`.
+Zehn Checks: `package`, `lint`, `scripts`, `snapshot-boundary`,
+`probe-readonly`, `activate-once`, `bundle-runtime`, `archiv-reauswertung`,
+`home-module` und `home-module-disabled`.
 
 `checks.snapshot-boundary` erzwingt die weiter unten beschriebene Grenze als
 Derivation. Das Grep-Paar ist dasselbe; der Check wirft zusätzlich die vier
@@ -172,12 +172,26 @@ Blöcke und Objekt-Spread erkennt er nicht, und einen echten Ladeversuch ersetzt
 er nicht. Nach einem KWin-Versionssprung bleibt `nix run .#probe` das Mittel
 der Wahl.
 
+`checks.archiv-reauswertung` wertet die eingecheckten Nachweise der Live-Reihen
+mit den aktuellen Prüfern aus und hält jedes Ergebnis fest — auch das eine, das
+**nicht** bestehen darf (der abgelehnte erste Anlauf von Fall 25). Damit sind
+die Artefakte die Regressionsprobe der Werkzeuge. Der Anlass steht im Audit vom
+2026-09-06: Orakel und Auditor meldeten ungültige Daten als bestanden, und
+niemand hätte es bemerkt, weil kein Test je ein echtes Artefakt anfasste.
+
 `checks.activate-once` erzwingt, dass es genau **einen** Schreibzugriff auf
 `workspace.activeWindow` gibt, und zwar in `src/kwin/adapter.ts`. Daran hängt
 die Schleifenfreiheit: Aktivieren löst `windowActivated` aus, das eine Epoche
 anmeldet, und die Epoche aktiviert nie selbst. Ein zweiter Schreibpfad wäre im
 Journal nicht von einem einzelnen Versuch zu unterscheiden — genau das prüft
-Fall 20b.
+Fall 20b. Was er **nicht** leistet: er zählt Quelltextstellen, nicht Aufrufe.
+Dass diese eine Stelle je Befehl höchstens einmal durchlaufen wird, belegt
+`tests/adapter-shortcut.test.ts` über `tests/support/adapterrig.ts` — ein Rig,
+das die KWin-Globals als Attrappen stellt und `workspace.activeWindow` mit
+einem zählenden Setter versieht. Es bildet dabei die Umleitung nach, die KWin
+bei einem modalen Dialog vornimmt. Belegt per Mutation: `activate` zweimal
+aufrufen, ohne eine zweite Schreibstelle anzulegen — `activate-once` besteht
+das, der Rig-Test fällt durch.
 
 `checks.home-module` wertet das Home-Manager-Modul mit **aktiviertem** Zweig
 aus: es baut ein `activationPackage` mit `programs.kwin-xmonad-lite.enable`,
