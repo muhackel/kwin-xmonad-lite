@@ -174,7 +174,7 @@ und `src/dev.ts` sowie — hinter der Snapshot-Grenze — `src/kwin/read.ts` und
 Unit-Test. Die Grenze ist nachprüfbar:
 
 ```bash
-grep -rn 'workspace\.\|KWin\.\|new QTimer\|options\.\|registerUserActionsMenu\|registerShortcut\|readConfig' src \
+grep -rnE '(^|[^[:alnum:]_$])(workspace|KWin|QTimer|options|registerUserActionsMenu|registerShortcut|readConfig)([^[:alnum:]_$]|$)' src --include='*.ts' \
   | grep -vE '(globals\.d\.ts|:[0-9]+:[[:space:]]*(\*|//|/\*))'
 # darf nur Zeilen aus boot.ts, dev.ts, read.ts und adapter.ts zeigen
 ```
@@ -184,7 +184,9 @@ Dasselbe Musterpaar steckt in `checks.snapshot-boundary` und läuft mit
 
 Der `grep` läuft rekursiv über ganz `src`, nicht nur über `src/*.ts` und
 `src/kwin/*.ts`: `tsc` beanstandet einen `workspace`-Zugriff in `core` oder
-`state` nicht, weil `globals.d.ts` für den ganzen Baum gilt.
+`state` nicht, weil `globals.d.ts` für den ganzen Baum gilt. Die Suche gilt den
+nackten Bezeichnern; damit fallen auch Klammerzugriffe, Aliase und
+`new (QTimer)` auf.
 
 Der zweite `grep` wirft Kommentarzeilen weg — `types.ts` und `timer.ts`
 erwähnen die Globals in ihren Erklärungen, ohne sie zu benutzen. `boot.ts` und
@@ -612,33 +614,280 @@ Einträge in der Datei stehen und der **vorhandene gewinnt** beim Tastendruck
 (gemessen für `Meta+L` und `Meta+T`, `docs/research.md` Abschnitt 6.1). Ein
 Journaleintrag dazu entsteht nicht — `registerShortcut` liefert immer `true`.
 
-**Testmatrix 23** — Reload und Sitzungsneustart. Nach `nix run .#reload` darf
+**Testmatrix 23** — Reload. Nach `nix run .#reload` darf
 **keine einzige** `apply`-Zeile erscheinen, keine doppelte Registrierung im
 Journal, kein zusätzlicher Eintrag in `kglobalshortcutsrc`; die zwölf Aktionen
 bleiben wirksam. Gemessen: über zehn Minuten danach kein `nachbessern`, kein
 `aufgegeben`, kein `extern`. Die Konfiguration fällt erwartungsgemäß auf die
-konfigurierten Startwerte zurück.
+konfigurierten Startwerte zurück. Ein KWin-/Sitzungsneustart ist damit nicht
+geprüft; der gehört zu den offenen Fällen 16–17 in Meilenstein 7.
 
 ### Abnahme Matrix 24–24e: deklarative Installation
 
-Auf HAL9000 nach `nixos-rebuild switch --sudo` und Neuanmeldung.
-**Noch nicht abgenommen** — die Fälle stehen hier als Abnahmevorschrift.
+Auf HAL9000. **Noch nicht abgenommen** — die folgenden Befehle sind die
+Abnahmevorschrift; nach jedem `switch` muss die Sitzung ab- und wieder angemeldet
+werden.
 
 | # | Fall | Erwartung |
 |---|---|---|
-| 24 | Aktivierung | `isScriptLoaded kwin-xmonad-lite` meldet `true`, das Skript läuft aus dem Store, `nix run` bricht dort mit der Meldung aus `require_no_production` ab |
+| 24 | Aktivierung | `isScriptLoaded kwin-xmonad-lite` meldet `true`, das Skript läuft aus dem Store, es gibt keine Schattenkopie unter `~/.local/share`, `nix run` bricht mit der Meldung aus `require_no_production` ab |
 | 24a | `Meta+L` und `Meta+T` per Tastendruck | Master vergrößern bzw. wieder kacheln; die Sitzung sperrt **nicht**, „Kachelung bearbeiten" öffnet **nicht**. `Ctrl+Alt+L` sperrt weiterhin |
 | 24b | Konfliktausgang nach der Umlegung | in `kglobalshortcutsrc` prüfen, dass `Lock Session` auf `Screensaver` und `Ctrl+Alt+L` steht und `Edit Tiles` leer ist; im Journal muss die `befehl expand`- bzw. `befehl sink`-Zeile erscheinen |
 | 24c | `settings` ändern, `switch`, neu anmelden | die neuen Werte stehen in `kwinrc` und in der `config …`-Zeile |
 | 24d | Schlüssel in Nix **entfernen**, `switch`, neu anmelden | der dokumentierte Vorgabewert steht in `kwinrc`, nicht der alte Wert — der Beleg für „immer alle sechs Schlüssel schreiben" |
 | 24e | `kwinXmonadLite = false` (`plasmaManager` bleibt an), `switch`, neu anmelden | `kwin-xmonad-liteEnabled=false`, Skript nicht geladen, alle zwölf `xml-*`-Zeilen stehen auf `none`, `Lock Session` wieder auf `Screensaver\tMeta+L`, `Edit Tiles` auf `Meta+T`. **`Meta+L` sperrt per Tastendruck wieder**, `Ctrl+Alt+L` nicht mehr. Die zwölf Zeilen selbst bleiben stehen — es gibt kein `unregisterShortcut`; `none` gibt nur die Taste frei |
 
+#### Vorbereitung und Fall 24
+
+Vor dem ersten `switch` im unveränderten `nixosconfig`-Branch:
+
 ```bash
-busctl --user call org.kde.KWin /Scripting \
-  org.kde.kwin.Scripting isScriptLoaded s kwin-xmonad-lite
-kreadconfig6 --file kwinrc --group Script-kwin-xmonad-lite --key gapOuter
-grep -E '^(Lock Session|Edit Tiles)=' ~/.config/kglobalshortcutsrc
+cd /home/muhackel/nixosconfig
+test "$(git branch --show-current)" = feature/kwin-xmonad-lite
+test -z "$(git status --porcelain)"
+test ! -e "$HOME/kxl-abnahme-generation"
+test ! -e "$HOME/kxl-abnahme-kwinrc.bak"
+test ! -e "$HOME/kxl-abnahme-kglobalshortcutsrc.bak"
+
+KXL_START_GENERATION="$(readlink /nix/var/nix/profiles/system \
+  | sed -n 's/.*system-\([0-9][0-9]*\)-link$/\1/p')"
+test -n "$KXL_START_GENERATION"
+printf '%s\n' "$KXL_START_GENERATION" > "$HOME/kxl-abnahme-generation"
+cp "$HOME/.config/kwinrc" "$HOME/kxl-abnahme-kwinrc.bak"
+cp "$HOME/.config/kglobalshortcutsrc" \
+  "$HOME/kxl-abnahme-kglobalshortcutsrc.bak"
+
+nix flake check                 # vier Checks: drei Hosts und Aus-Zustand
+nixos-rebuild switch --sudo --flake .#HAL9000
 ```
+
+Nach der Neuanmeldung prüft dieser Block Plugin, Store-Pfad, fehlende
+Schattenkopie, alle sechs Vorgabewerte, genau zwölf eigene Tasten und die beiden
+umgelegten KDE-Kürzel:
+
+```bash
+bash <<'BASH'
+set -euo pipefail
+
+KXL_MAIN=/etc/profiles/per-user/muhackel/share/kwin/scripts/kwin-xmonad-lite/contents/code/main.js
+test -e "$KXL_MAIN"
+case "$(readlink -f "$KXL_MAIN")" in
+  /nix/store/*) ;;
+  *) printf 'kein Store-Pfad: %s\n' "$(readlink -f "$KXL_MAIN")" >&2; exit 1 ;;
+esac
+test ! -e "$HOME/.local/share/kwin/scripts/kwin-xmonad-lite"
+
+KXL_LOADED="$(busctl --user call org.kde.KWin /Scripting \
+  org.kde.kwin.Scripting isScriptLoaded s kwin-xmonad-lite)"
+test "$KXL_LOADED" = 'b true'
+
+kxl_config() {
+  kreadconfig6 --file kwinrc --group Script-kwin-xmonad-lite --key "$1"
+}
+test "$(kreadconfig6 --file kwinrc --group Plugins \
+  --key kwin-xmonad-liteEnabled)" = true
+test "$(kxl_config gapOuter)" = 0
+test "$(kxl_config gapInner)" = 0
+test "$(kxl_config excludes)" = \
+  'krunner,yakuake,kded6,polkit-kde-authentication-agent-1,plasmashell,xwaylandvideobridge,steam_app_default'
+test "$(kxl_config masterRatio)" = 0.65
+test "$(kxl_config defaultLayout)" = tall
+test "$(kxl_config debug)" = false
+
+test "$(grep -c '^xml-' "$HOME/.config/kglobalshortcutsrc")" -eq 12
+kxl_shortcut() {
+  local value
+  value="$(kreadconfig6 --file kglobalshortcutsrc --group kwin --key "$1")"
+  printf '%s\n' "${value%%,*}"
+}
+while read -r name expected; do
+  test "$(kxl_shortcut "$name")" = "$expected"
+done <<'SHORTCUTS'
+xml-focus-next Meta+J
+xml-focus-prev Meta+K
+xml-swap-next Meta+Shift+J
+xml-swap-prev Meta+Shift+K
+xml-focus-master Meta+M
+xml-promote Meta+Return
+xml-shrink Meta+H
+xml-expand Meta+L
+xml-sink Meta+T
+xml-toggle-float Meta+Shift+T
+xml-next-layout Meta+Space
+xml-reset-layout Meta+Shift+Space
+SHORTCUTS
+
+KXL_LOCK="$(kreadconfig6 --file kglobalshortcutsrc --group ksmserver \
+  --key 'Lock Session')"
+KXL_TILES="$(kreadconfig6 --file kglobalshortcutsrc --group kwin \
+  --key 'Edit Tiles')"
+test "${KXL_LOCK%%,*}" = 'Screensaver\tCtrl+Alt+L'
+test "${KXL_TILES%%,*}" = none
+
+cd /home/muhackel/nixosconfig
+KXL_SOURCE="$(nix eval --impure --raw --expr \
+  '(builtins.getFlake (toString ./.)).inputs.kwin-xmonad-lite.outPath')"
+if KXL_RUN_OUTPUT="$(nix run "$KXL_SOURCE" 2>&1)"; then
+  printf 'nix run startete trotz Produktionsinstanz\n' >&2
+  exit 1
+fi
+grep -F "Die Produktionsinstanz 'kwin-xmonad-lite' ist geladen." \
+  <<<"$KXL_RUN_OUTPUT" >/dev/null
+BASH
+```
+
+Für 24a und 24b mindestens drei gewöhnliche Fenster auf derselben Surface
+öffnen. Das aktive Fenster zuerst mit `Meta+Shift+T` floaten, dann `Meta+L`,
+`Meta+T` und `Ctrl+Alt+L` tatsächlich drücken. In einem zweiten Terminal läuft
+der gepinnte Journal-Wrapper:
+
+```bash
+cd /home/muhackel/nixosconfig
+KXL_SOURCE="$(nix eval --impure --raw --expr \
+  '(builtins.getFlake (toString ./.)).inputs.kwin-xmonad-lite.outPath')"
+nix run "${KXL_SOURCE}#logs"
+```
+
+`Meta+L` muss `befehl expand`, `Meta+T` `befehl sink` erzeugen;
+`Ctrl+Alt+L` muss die Sitzung sperren.
+
+#### Fall 24c: geänderte Einstellungen
+
+Die sechs Werte werden gemeinsam geändert, damit jede Zeile nachweisbar vom
+Vorgabewert abweicht:
+
+```bash
+cd /home/muhackel/nixosconfig
+tee /tmp/kxl-settings.patch >/dev/null <<'PATCH'
+diff --git a/modules/user/muhackel/kwin-xmonad-lite.nix b/modules/user/muhackel/kwin-xmonad-lite.nix
+--- a/modules/user/muhackel/kwin-xmonad-lite.nix
++++ b/modules/user/muhackel/kwin-xmonad-lite.nix
+@@ -63,6 +63,12 @@ lib.mkMerge [
+   (lib.mkIf (features.plasma6 && features.plasmaManager && features.kwinXmonadLite) {
+     programs.kwin-xmonad-lite = {
+       enable = true;
+-      # `settings` bleibt bei den Vorgabewerten des Projektmoduls; es schreibt
+-      # ohnehin immer alle sechs Schlüssel nach [Script-kwin-xmonad-lite].
++      settings = {
++        gapOuter = 8;
++        gapInner = 4;
++        excludes = [ "krunner" "yakuake" "plasmashell" ];
++        masterRatio = 0.5;
++        defaultLayout = "full";
++        debug = true;
++      };
+     };
+PATCH
+git apply --check /tmp/kxl-settings.patch
+git apply /tmp/kxl-settings.patch
+nixos-rebuild switch --sudo --flake .#HAL9000
+```
+
+Nach der Neuanmeldung:
+
+```bash
+bash <<'BASH'
+set -euo pipefail
+kxl_config() {
+  kreadconfig6 --file kwinrc --group Script-kwin-xmonad-lite --key "$1"
+}
+test "$(kxl_config gapOuter)" = 8
+test "$(kxl_config gapInner)" = 4
+test "$(kxl_config excludes)" = 'krunner,yakuake,plasmashell'
+test "$(kxl_config masterRatio)" = 0.5
+test "$(kxl_config defaultLayout)" = full
+test "$(kxl_config debug)" = true
+journalctl --user -u plasma-kwin_wayland -b --no-pager \
+  | grep -F 'kwin-xmonad-lite: config gaps=8/4 ratio=0.5 layout=1 excludes=3 debug=true' \
+  >/dev/null
+BASH
+```
+
+#### Fall 24d: entfernte Einstellungen
+
+Der Rückwärtspatch entfernt den gesamten `settings`-Block wieder. Nach dem
+Switch müssen alle sechs Vorgaben geschrieben sein, nicht die alten Werte aus
+24c:
+
+```bash
+cd /home/muhackel/nixosconfig
+git apply --check --reverse /tmp/kxl-settings.patch
+git apply --reverse /tmp/kxl-settings.patch
+nixos-rebuild switch --sudo --flake .#HAL9000
+```
+
+Nach der Neuanmeldung denselben Vorgabenblock wie in Fall 24 ausführen und die
+Startzeile im Journal prüfen:
+
+```bash
+journalctl --user -u plasma-kwin_wayland -b --no-pager \
+  | grep -F 'kwin-xmonad-lite: config gaps=0/0 ratio=0.65 layout=0 excludes=7 debug=false'
+```
+
+#### Fall 24e: Controller aus
+
+```bash
+cd /home/muhackel/nixosconfig
+tee /tmp/kxl-disable.patch >/dev/null <<'PATCH'
+diff --git a/flake.nix b/flake.nix
+--- a/flake.nix
++++ b/flake.nix
+@@ -87,6 +87,6 @@
+           features   = commonFeatures // {
+             thinkpadBattery = true;
+             plasmaManager   = true;
+-            kwinXmonadLite  = true;
++            kwinXmonadLite  = false;
+           };
+         };
+PATCH
+git apply --check /tmp/kxl-disable.patch
+git apply /tmp/kxl-disable.patch
+nixos-rebuild switch --sudo --flake .#HAL9000
+```
+
+Nach der Neuanmeldung:
+
+```bash
+bash <<'BASH'
+set -euo pipefail
+KXL_MAIN=/etc/profiles/per-user/muhackel/share/kwin/scripts/kwin-xmonad-lite/contents/code/main.js
+test ! -e "$KXL_MAIN"
+test "$(busctl --user call org.kde.KWin /Scripting \
+  org.kde.kwin.Scripting isScriptLoaded s kwin-xmonad-lite)" = 'b false'
+test "$(kreadconfig6 --file kwinrc --group Plugins \
+  --key kwin-xmonad-liteEnabled)" = false
+test "$(grep -c '^xml-' "$HOME/.config/kglobalshortcutsrc")" -eq 12
+while read -r name; do
+  value="$(kreadconfig6 --file kglobalshortcutsrc --group kwin --key "$name")"
+  test "${value%%,*}" = none
+done <<'SHORTCUTS'
+xml-focus-next
+xml-focus-prev
+xml-swap-next
+xml-swap-prev
+xml-focus-master
+xml-promote
+xml-shrink
+xml-expand
+xml-sink
+xml-toggle-float
+xml-next-layout
+xml-reset-layout
+SHORTCUTS
+
+KXL_LOCK="$(kreadconfig6 --file kglobalshortcutsrc --group ksmserver \
+  --key 'Lock Session')"
+KXL_TILES="$(kreadconfig6 --file kglobalshortcutsrc --group kwin \
+  --key 'Edit Tiles')"
+test "${KXL_LOCK%%,*}" = 'Screensaver\tMeta+L'
+test "${KXL_TILES%%,*}" = Meta+T
+BASH
+```
+
+Danach `Meta+L` und `Ctrl+Alt+L` drücken: `Meta+L` muss sperren,
+`Ctrl+Alt+L` darf nicht mehr sperren. `Meta+T` muss wieder „Kachelung
+bearbeiten" öffnen.
 
 #### Rückbau nach der Reihe
 
@@ -646,25 +895,43 @@ Die Reihe endet **nicht** im Testzustand. Die nächste Abnahme soll wieder auf
 einem nackten Gerät beginnen, und die Generationsnummer soll nicht mit jedem
 Durchlauf davonlaufen.
 
-**Vor** dem ersten `switch`:
+Nach dem letzten Fall zuerst den Quellbaum auf den unveränderten Branchstand
+zurückbringen. Danach die gespeicherte Ausgangsgeneration gezielt als
+Systemprofil wählen und aktivieren. Ein pauschales `nixos-rebuild
+switch --rollback` reicht nach mehreren Switches nicht; es ginge nur eine
+Generation zurück.
 
 ```bash
-sudo nix-env --list-generations --profile /nix/var/nix/profiles/system | tail -3
-cp ~/.config/kwinrc              ~/kxl-abnahme-kwinrc.bak
-cp ~/.config/kglobalshortcutsrc  ~/kxl-abnahme-kglobalshortcutsrc.bak
-```
+bash <<'BASH'
+set -euo pipefail
+cd /home/muhackel/nixosconfig
+if git apply --check --reverse /tmp/kxl-disable.patch 2>/dev/null; then
+  git apply --reverse /tmp/kxl-disable.patch
+fi
+if git apply --check --reverse /tmp/kxl-settings.patch 2>/dev/null; then
+  git apply --reverse /tmp/kxl-settings.patch
+fi
+test -z "$(git status --porcelain)"
 
-Nach dem letzten Fall — `<N>` ist die notierte Ausgangsgeneration, `<M> …` sind
-die während der Reihe entstandenen:
+KXL_START_GENERATION="$(cat "$HOME/kxl-abnahme-generation")"
+sudo nix-env --profile /nix/var/nix/profiles/system \
+  --switch-generation "$KXL_START_GENERATION"
+sudo "/nix/var/nix/profiles/system-${KXL_START_GENERATION}-link/bin/switch-to-configuration" switch
 
-```bash
-sudo nixos-rebuild switch --rollback          # oder gezielt:
-sudo /nix/var/nix/profiles/system-<N>-link/bin/switch-to-configuration switch
-sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations <M> <M+1>
+mapfile -t KXL_TEST_GENERATIONS < <(
+  sudo nix-env --list-generations --profile /nix/var/nix/profiles/system \
+    | awk -v start="$KXL_START_GENERATION" '$1 > start { print $1 }'
+)
+if ((${#KXL_TEST_GENERATIONS[@]} > 0)); then
+  sudo nix-env --profile /nix/var/nix/profiles/system \
+    --delete-generations "${KXL_TEST_GENERATIONS[@]}"
+fi
 sudo /run/current-system/bin/switch-to-configuration boot
 
-cp ~/kxl-abnahme-kwinrc.bak              ~/.config/kwinrc
-cp ~/kxl-abnahme-kglobalshortcutsrc.bak  ~/.config/kglobalshortcutsrc
+cp "$HOME/kxl-abnahme-kwinrc.bak" "$HOME/.config/kwinrc"
+cp "$HOME/kxl-abnahme-kglobalshortcutsrc.bak" \
+  "$HOME/.config/kglobalshortcutsrc"
+BASH
 ```
 
 Danach ab- und anmelden. Das Zurückspielen der beiden Dateien ist **kein**

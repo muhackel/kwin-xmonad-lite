@@ -578,6 +578,27 @@ test("die objectNames sind ab dem ersten Release unwiderruflich", () => {
 	]);
 });
 
+test("jeder objectName bleibt an seinen Befehl gebunden", () => {
+	const pairs: string[] = [];
+	for (const shortcut of SHORTCUTS) {
+		pairs.push(`${shortcut.name}=${shortcut.objectName}`);
+	}
+	assert.deepEqual(pairs, [
+		"focusNext=xml-focus-next",
+		"focusPrev=xml-focus-prev",
+		"swapNext=xml-swap-next",
+		"swapPrev=xml-swap-prev",
+		"focusMaster=xml-focus-master",
+		"promote=xml-promote",
+		"shrink=xml-shrink",
+		"expand=xml-expand",
+		"sink=xml-sink",
+		"toggleFloat=xml-toggle-float",
+		"nextLayout=xml-next-layout",
+		"resetLayout=xml-reset-layout",
+	]);
+});
+
 /**
  * Wörtlich wie die objectNames, und aus demselben Grund: `registerShortcut`
  * läuft ohne `NoAutoloading`, ein vorhandener Eintrag in
