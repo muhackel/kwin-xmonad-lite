@@ -3,6 +3,7 @@ import { test } from "node:test";
 
 import { parseJournal, parseRect, run, ueberlappt } from "../dev/probe/expect-geometry.ts";
 import {
+	FLAECHE_TEXT,
 	journal,
 	KEY,
 	ndjson,
@@ -11,8 +12,9 @@ import {
 	UHR,
 	verketten,
 } from "./support/geofixtures.ts";
+import { must } from "./support/props.ts";
 
-const TALL_ERWARTUNG = ["layout=tall", "n=3", "ratio=0.65", "gaps=0/0"];
+const TALL_ERWARTUNG = ["layout=tall", "n=3", "ratio=0.65", "gaps=0/0", `fläche=${FLAECHE_TEXT}`];
 
 function fenster(zellen: Array<{ x: number; y: number; w: number; h: number }>): Array<{
 	id: string;
@@ -39,7 +41,7 @@ test("full besteht mit deckungsgleichen Rechtecken", () => {
 	const report = run(
 		ndjson({ fenster: fenster([voll, voll, voll]) }),
 		journal({ layout: "full", ratio: 0.55, gaps: "8/4" }),
-		["layout=full", "n=3", "ratio=0.55", "gaps=8/4"],
+		["layout=full", "n=3", "ratio=0.55", "gaps=8/4", `fläche=${FLAECHE_TEXT}`],
 	);
 	assert.deepEqual(fehlertexte(report), []);
 });
@@ -279,7 +281,7 @@ test("tall mit ratio 0.5 besteht, obwohl Master und Stapel gleich breit sind", (
 	const report = run(
 		ndjson({ fenster: fenster(TALL2_RATIO50) }),
 		journal({ teilnehmer: ["a", "b"], n: 2, ratio: 0.5 }),
-		["layout=tall", "n=2", "ratio=0.5", "gaps=0/0"],
+		["layout=tall", "n=2", "ratio=0.5", "gaps=0/0", `fläche=${FLAECHE_TEXT}`],
 	);
 	assert.deepEqual(fehlertexte(report), []);
 	assert.equal(report.bestanden, true);
@@ -447,4 +449,205 @@ test("mit surface= besteht derselbe Auszug", () => {
 	]);
 	assert.deepEqual(fehlertexte(report), []);
 	assert.equal(report.bestanden, true);
+});
+
+// ---------------------------------------------------------------------------
+// Nachbesserungen aus dem Audit 7.1. Das Orakel prüfte Mengen, nicht Zuordnung:
+// zwei vertauschte Fenster belegen dieselben Rechtecke und bestanden. Die
+// Fläche kam aus der Messung statt aus der Vorschrift, fehlende
+// Vorschriftsschlüssel fielen still auf Vorgaben zurück, und der Messbeginn
+// wurde in Millisekunden gegen ein Journal in Sekunden gehalten.
+// ---------------------------------------------------------------------------
+
+test("vertauschte Master- und Stapelzelle fallen auf", () => {
+	// `a` liegt auf der ersten Stapelzelle, `b` auf der Masterzelle. Die Menge
+	// der belegten Rechtecke ist dieselbe wie im richtigen Layout.
+	const vertauscht = [
+		must(TALL3[1], "Stapelzelle"),
+		must(TALL3[0], "Masterzelle"),
+		must(TALL3[2], "zweite Stapelzelle"),
+	];
+	const report = run(ndjson({ fenster: fenster(vertauscht) }), journal(), TALL_ERWARTUNG);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some(
+			(text) => text.includes("steht an Stelle 1") && text.includes("belegt aber Zelle 2"),
+		),
+		true,
+	);
+});
+
+test("zwei vertauschte Stapelzellen fallen auf", () => {
+	const vertauscht = [
+		must(TALL3[0], "Masterzelle"),
+		must(TALL3[2], "zweite Stapelzelle"),
+		must(TALL3[1], "erste Stapelzelle"),
+	];
+	const report = run(ndjson({ fenster: fenster(vertauscht) }), journal(), TALL_ERWARTUNG);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("steht an Stelle 2")),
+		true,
+	);
+});
+
+test("das Soll des letzten Laufs wird gegen die Messung gehalten", () => {
+	// Die Anordnung stimmt, die `apply`-Zeile des letzten Laufs nennt aber ein
+	// anderes Soll: dann liegt das Fenster nicht dort, wo der Controller es
+	// zuletzt hingeschrieben hat.
+	const report = run(
+		ndjson({ fenster: fenster(TALL3) }),
+		journal({ applies: [["a", "1240x1050+0+0"]] }),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("letzter Lauf schrieb a")),
+		true,
+	);
+});
+
+test("eine falsche fläche= in der Vorschrift fällt auf", () => {
+	const report = run(ndjson({ fenster: fenster(TALL3) }), journal(), [
+		"layout=tall",
+		"n=3",
+		"ratio=0.65",
+		"gaps=0/0",
+		"fläche=1920x1080+0+0",
+	]);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("Journal meldet fläche=1920x1050+0+0")),
+		true,
+	);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("Probe misst fläche=1920x1050+0+0")),
+		true,
+	);
+});
+
+test("auf der vorgegebenen Fläche werden auch die Sollzellen gerechnet", () => {
+	// Journal und Probe melden 1920x1080, die Vorschrift verlangt 1920x1050.
+	// Die Zellen dürfen dann **nicht** auf 1080 gerechnet werden, sonst passte
+	// eine falsch gelesene Arbeitsfläche zu ihren eigenen Zellen.
+	const hoch = [
+		{ x: 0, y: 0, w: 1248, h: 1080 },
+		{ x: 1248, y: 0, w: 672, h: 540 },
+		{ x: 1248, y: 540, w: 672, h: 540 },
+	];
+	const report = run(
+		ndjson({ fenster: fenster(hoch), flaeche: { x: 0, y: 0, w: 1920, h: 1080 } }),
+		journal({ flaeche: "1920x1080+0+0" }),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("Soll") && text.includes("gegen Ist")),
+		true,
+	);
+});
+
+test("ein Fremdfenster in der Fläche ist ein Hinweis, kein Fehler", () => {
+	// Genau die Lage aus Fall 20b: der modale Dialog liegt über dem Layout,
+	// ist aber kein Teilnehmer.
+	const report = run(
+		ndjson({
+			fenster: fenster(TALL3),
+			fremd: [{ id: "dialog", geo: { x: 1294, y: 30, w: 580, h: 466 } }],
+		}),
+		journal(),
+		TALL_ERWARTUNG,
+	);
+	assert.deepEqual(fehlertexte(report), []);
+	assert.equal(report.bestanden, true);
+	assert.equal(
+		report.findings.some(
+			(finding) => finding.level === "hinweis" && finding.text.includes("kein Layout-Teilnehmer"),
+		),
+		true,
+	);
+});
+
+test("eine Vorschrift ohne gaps wird abgewiesen", () => {
+	const report = run(ndjson({ fenster: fenster(TALL3) }), journal(), [
+		"layout=tall",
+		"n=3",
+		"ratio=0.65",
+		`fläche=${FLAECHE_TEXT}`,
+	]);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("Vorschrift ohne `gaps=`")),
+		true,
+	);
+});
+
+test("ein unbekannter Schlüssel in der Vorschrift wird abgewiesen", () => {
+	const report = run(ndjson({ fenster: fenster(TALL3) }), journal(), [
+		...TALL_ERWARTUNG,
+		"gap=0/0",
+	]);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("unbekannter Schlüssel `gap`")),
+		true,
+	);
+});
+
+test("die gelesene Vorschrift steht im Bericht", () => {
+	const report = run(ndjson({ fenster: fenster(TALL3) }), journal(), TALL_ERWARTUNG);
+	assert.equal(
+		report.erwartung,
+		`Vorschrift: layout=tall n=3 ratio=0.65 gaps=0/0 fläche=${FLAECHE_TEXT}`,
+	);
+});
+
+test("ohne Vorschrift gibt es keine Erwartungszeile", () => {
+	const report = run(ndjson({ fenster: fenster(TALL3) }), journal(), []);
+	assert.equal(report.erwartung, null);
+	assert.equal(report.bestanden, true);
+});
+
+test("ein Anordnungslauf in der angebrochenen ersten Sekunde fällt auf", () => {
+	// Die Messung beginnt 900 ms nach der vollen Sekunde, der Anordnungslauf
+	// trägt den Stempel dieser Sekunde. Ohne Abrundung des Messbeginns läge er
+	// scheinbar davor -- dabei hat er die Fenster mitten in die Messung
+	// geschoben.
+	const report = run(
+		ndjson({ fenster: fenster(TALL3), startVersatzMs: 900 }),
+		journal({ arrangeZeit: UHR }),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("während der Messung")),
+		true,
+	);
+});
+
+test("ein aufgegeben mit unlesbarem ist= entlastet nicht", () => {
+	// Ohne lesbares `ist=` ist nicht belegt, worauf der Controller aufgegeben
+	// hat -- die Abweichung bleibt unerklärt.
+	const quittiert = [
+		{ x: 0, y: 0, w: 1248, h: 1050 },
+		{ x: 1248, y: 0, w: 670, h: 520 },
+		{ x: 1248, y: 525, w: 672, h: 525 },
+	];
+	const report = run(
+		ndjson({ fenster: fenster(quittiert) }),
+		journal({
+			applies: [
+				["a", "1248x1050+0+0"],
+				["b", "672x525+1248+0"],
+				["c", "672x525+1248+525"],
+			],
+			aufgegeben: [["b", "unlesbar"]],
+		}),
+		TALL_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("ohne Give-up für dieses Fenster")),
+		true,
+	);
 });

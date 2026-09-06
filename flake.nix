@@ -468,37 +468,73 @@
               fi
             }
 
+            # `fläche=` ist Pflicht, sobald eine Vorschrift angegeben wird. Die
+            # Werte stammen aus den `surface … fläche=`-Zeilen der Journale zum
+            # jeweiligen Fall: DP-3 misst mit Panel 1920x1050+0+0, eDP-1 liegt
+            # rechts daneben auf 1920x1080+1920+0. Ohne den Schlüssel rechnete
+            # das Orakel die Sollzellen auf der gemessenen Fläche -- eine falsch
+            # gelesene Arbeitsfläche passte dann zu ihren eigenen Zellen.
             pruefe bestanden "25 Selbsttest" \
               docs/geometry-2026-09-06-hal9000-25.ndjson "$r1" --kwin-pid 49086
             pruefe bestanden "25a" \
               docs/geometry-2026-09-06-hal9000-25a.ndjson "$r1" --kwin-pid 49086 \
-              layout=tall n=1 ratio=0.65 gaps=0/0
+              layout=tall n=1 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
             pruefe bestanden "25b" \
               docs/geometry-2026-09-06-hal9000-25b.ndjson "$r1" --kwin-pid 49086 \
-              layout=tall n=3 ratio=0.65 gaps=0/0
+              layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
             pruefe bestanden "25c tall" \
               docs/geometry-2026-09-06-hal9000-25c-tall.ndjson "$r1" --kwin-pid 61993 \
-              layout=tall n=3 ratio=0.55 gaps=8/4
+              layout=tall n=3 ratio=0.55 gaps=8/4 fläche=1920x1050+0+0
             pruefe bestanden "25c full" \
               docs/geometry-2026-09-06-hal9000-25c-full.ndjson "$r1" --kwin-pid 61993 \
-              layout=full n=3 ratio=0.55 gaps=8/4
+              layout=full n=3 ratio=0.55 gaps=8/4 fläche=1920x1050+0+0
             pruefe bestanden "26 DP-3" \
               docs/geometry-2026-09-06-hal9000-ap7-26-dp3.ndjson "$r7" --kwin-pid 2468 \
-              layout=tall n=3 ratio=0.55 gaps=0/0 "surface=$erwarte|DP-3"
+              layout=tall n=3 ratio=0.55 gaps=0/0 fläche=1920x1050+0+0 \
+              "surface=$erwarte|DP-3"
             pruefe bestanden "26 eDP-1" \
               docs/geometry-2026-09-06-hal9000-ap7-26-edp1.ndjson "$r7" --kwin-pid 2468 \
-              layout=full n=3 ratio=0.65 gaps=0/0 "surface=$erwarte|eDP-1"
+              layout=full n=3 ratio=0.65 gaps=0/0 fläche=1920x1080+1920+0 \
+              "surface=$erwarte|eDP-1"
+
+            # Fall 20b: drei kwrite-Fenster und der modale Dialog darüber. Der
+            # Dialog ist kein Teilnehmer und liegt trotzdem in der Fläche --
+            # genau der Grund, warum ein Fremdfenster ein Hinweis bleibt und
+            # kein Fehler. Die drei Artefakte lagen bisher unverankert unter
+            # `docs/`; jetzt sind sie Teil der Regressionsprobe.
+            for lauf in d1 d2 modal; do
+              pruefe bestanden "20b $lauf" \
+                "docs/geometry-2026-09-06-hal9000-20b-$lauf.ndjson" "$r1" --kwin-pid 49086 \
+                layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
+            done
+
+            # Der Abschluss der Alltagsstunde, ohne Vorschrift: geprüft werden
+            # Datenqualität, Einschwingen und Journalhygiene. Eine Erwartung
+            # gibt es nicht, weil der Lauf keinen bestimmten Layoutzustand
+            # herstellen sollte.
+            pruefe bestanden "27 Abschluss" \
+              docs/geometry-2026-09-06-hal9000-ap7-27-abschluss.ndjson \
+              docs/ms7-2026-09-06-hal9000-fall27.log --kwin-pid 2468
 
             # Der abgelehnte erste Anlauf von Fall 25 muss abgelehnt bleiben:
-            # waehrend der Messung baute ein Autostart-Fenster neu auf.
+            # während der Messung baute ein Autostart-Fenster neu auf.
             pruefe "nicht bestanden" "25 Vorlauf" \
               docs/geometry-2026-09-06-hal9000-25-vorlauf.ndjson "$r1" --kwin-pid 49086
 
-            # Die Alltagsstunde: ein Skriptlauf ueber eine PID und eine
-            # lueckenlose Epochenfolge, ohne eine einzige `geladen`-Zeile.
+            # Die Alltagsstunde: ein Skriptlauf über eine PID und eine
+            # lückenlose Epochenfolge, ohne eine einzige `geladen`-Zeile.
             if ! node dev/probe/journal-audit-cli.ts \
               docs/ms7-2026-09-06-hal9000-fall27.log --stunde >/dev/null 2>&1; then
               echo "Fall 27 besteht die Belegschwelle nicht mehr" >&2
+              fehler=1
+            fi
+
+            # Der Nachtrag zu Fall 26a: vier Desktops mal zwei Ausgaben. Er ist
+            # kein Geometrienachweis, sondern ein Journal -- geprüft wird er
+            # deshalb mit dem Auditor auf Schleifenfreiheit.
+            if ! node dev/probe/journal-audit-cli.ts \
+              docs/ms7-2026-09-06-hal9000-26a-nachtrag.log --frei >/dev/null 2>&1; then
+              echo "26a-Nachtrag: der Auditor findet eine Rückkopplung" >&2
               fehler=1
             fi
 
