@@ -17,7 +17,7 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > Höchstgrößen werden berücksichtigt. Seit Meilenstein 6 ist der Controller
 > bedienbar: zwölf eigene Tastenkürzel, sechs Konfigurationsschlüssel in
 > `kwinrc` und ein Home-Manager-Modul für die deklarative Installation. Damit
-> ist auch das Full-Layout erreichbar. Der Stand hat 337 Tests und acht
+> ist auch das Full-Layout erreichbar. Der Stand hat 337 Tests und neun
 > Flake-Checks.
 >
 > Meilenstein 7 hat das Verhalten live geprüft, in drei Reihen auf HAL9000 mit
@@ -33,10 +33,11 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > Zwei Einschränkungen gehören zur Abnahme: der Multi-Output-Lauf lief mit
 > zwei Ausgaben statt drei, und die Laststunde mit skriptgesteuerter Last statt
 > normaler Arbeit. Beides steht in den Protokollen unter
-> [`docs/`](docs/) und in [`PLAN.md`](PLAN.md) Abschnitt 11. Der
-> Wayland-Smoke-Test in einer VM ist kein MVP-Bestandteil mehr, sondern als
-> automatisiert wiederholbares Regressionsnetz auf Stufe 2 vorgesehen. Nicht
-> herstellbar und deshalb unbelegt bleibt Fall 20c.
+> [`docs/`](docs/) und in [`PLAN.md`](PLAN.md) Abschnitt 11. Eine Test-VM ist
+> nicht vorgesehen: gegen zwei echte Maschinen gewinnt sie nichts, und die
+> Frage, ob das gebaute Bundle in QJSEngine überhaupt lädt, beantwortet
+> `checks.bundle-runtime`. Nicht herstellbar und deshalb unbelegt bleibt
+> Fall 20c.
 
 ## Schnellstart
 
