@@ -337,7 +337,7 @@
             # wie `w.output === null` fehl; eine lokale Variablenzuweisung wie
             # `var w = ...` bleibt unbeanstandet, weil ihr keine Eigenschafts-
             # oder Klammernutzung vorausgeht.
-            grep -nE '(workspace|w|window|output|desktop)(\.[A-Za-z_$]+|\[[^]]*\])[[:space:]]*=[^=]' \
+            grep -nE '\b(workspace|w|window|output|desktop)(\.[A-Za-z_$]+|\[[^]]*\])[[:space:]]*=[^=]' \
               dev/probe/geometry.js > "$TMPDIR/mutiert" || true
             # Setter-Methoden und die reflektierenden Schreibpfade, die keine
             # `=`-Zuweisung sind und deshalb am Muster oben vorbeikämen.
