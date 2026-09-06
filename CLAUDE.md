@@ -7,16 +7,18 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
 Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 6 ist
-abgeschlossen und zweifach nachauditiert; live geprüft sind die Fälle 18–20a
-und 21–23 (307 Tests, das Projektflake hat sechs Checks, das `nixosconfig`-Flake
-vier).** Die Meilensteine 0 bis 5 samt 5.1 und den Audits
+abgeschlossen, zweifach nachauditiert und auf HAL9000 live geprüft; bestanden
+sind die Fälle 18–20a und 21–24e (307 Tests, das Projektflake hat sechs Checks,
+das `nixosconfig`-Flake vier). Die HAL9000-Reihe 24–24e lief gegen den älteren
+Projekt-Pin `8f287d9`, nicht gegen den Re-Audit-Stand `32f2620`.** Die
+Meilensteine 0 bis 5 samt 5.1 und den Audits
 sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
 Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
 Snapshot-Grenze, und seit Meilenstein 6 ist er bedienbar: zwölf `xml-*`-Aktionen,
 sechs Konfigurationsschlüssel aus `kwinrc` und ein Home-Manager-Modul auf
-plasma-manager-Basis. `Full` ist damit erstmals erreichbar. **Offen:** die
-deklarative Abnahme auf HAL9000 (Fälle 24–24e), der modale Dialog als Fokusziel
-(20b), der KWin-/Sitzungsneustart (Fälle 16–17) und der Wayland-Smoke-Test in
+plasma-manager-Basis. `Full` ist damit erstmals erreichbar. **Offen:** der
+modale Dialog als Fokusziel (20b), der KWin-/Sitzungsneustart (Fälle 16–17) und
+der Wayland-Smoke-Test in
 einer VM (Meilenstein 7). Fall 20c ist
 nicht offen, sondern **nicht herstellbar** (siehe `docs/research.md` 6.7).
 
@@ -450,7 +452,10 @@ Activities und verwaltet nicht die Zahl der Desktops.
   setzt und die zwölf Tasten mit einer leeren Liste auf `none` schreibt — das
   gibt die Taste frei, die die tote Zeile sonst weiter reservierte. Wirksam
   wird er nur, wenn plasma-manager unabhängig vom Controller läuft; in
-  `nixosconfig` ist das das eigene Flag `local.features.plasmaManager`.
+  `nixosconfig` ist das das eigene Flag `local.features.plasmaManager`. Die
+  Gruppe `[Script-kwin-xmonad-lite]` mit den sechs zuletzt geschriebenen
+  Werten bleibt dabei in `kwinrc` stehen. Das ist mit abgeschaltetem Plugin
+  wirkungslos; der Aus-Zweig bereinigt nur Plugin-Flag und Tasten.
 - `registerUserActionsMenu` ruft den Callback bei jedem Öffnen mit dem
   betroffenen Fenster auf. `triggered` bekommt die QAction, deshalb kommt das
   Fenster aus der äußeren Closure (`scripting.cpp:461-530`). Das Projekt nutzt

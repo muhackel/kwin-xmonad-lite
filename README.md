@@ -17,12 +17,14 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > Höchstgrößen werden berücksichtigt. Seit Meilenstein 6 ist der Controller
 > bedienbar: zwölf eigene Tastenkürzel, sechs Konfigurationsschlüssel in
 > `kwinrc` und ein Home-Manager-Modul für die deklarative Installation. Damit
-> ist auch das Full-Layout erreichbar. Abgenommen ist das bisher **nur mit der
-> Entwicklungsinstanz** auf einer Maschine; die deklarative Installation über
-> das Home-Manager-Modul ist gebaut und geprüft, aber auf keinem Host in
-> Betrieb genommen (Testmatrix 24 bis 24e). Ebenfalls offen: der modale Dialog
-> als Fokusziel (20b), der Wayland-Smoke-Test in einer VM und die MVP-Abnahme
-> (Meilenstein 7). Der vollständige Plan steht in [`PLAN.md`](PLAN.md).
+> ist auch das Full-Layout erreichbar. Die deklarative Installation und ihr
+> Aus-Zweig sind auf HAL9000 gegen den Projekt-Pin `8f287d9` abgenommen
+> (Testmatrix 24 bis 24e) und danach vollständig zurückgebaut worden. Der
+> Re-Audit-Stand `32f2620` hat 307 Tests und sechs Flake-Checks.
+> Offen bleiben der modale Dialog als Fokusziel (20b), der
+> KWin-/Sitzungsneustart (16–17), der Wayland-Smoke-Test in einer VM und damit
+> die MVP-Abnahme in Meilenstein 7. Der vollständige Plan steht in
+> [`PLAN.md`](PLAN.md).
 
 ## Schnellstart
 
@@ -70,10 +72,11 @@ Deklarativ über das mitgelieferte Home-Manager-Modul. Konfiguration schreibt
 es ausschließlich über plasma-manager-Optionen, keine Datei selbst; direkt
 gesetzt wird nur `home.packages`, damit das KPackage im Profil liegt.
 
-> **Noch nicht in Betrieb genommen.** `checks.home-module` baut das
-> Aktivierungspaket und prüft den erzeugten plasma-manager-Datensatz, aber der
-> Weg ist auf keinem Host durchlaufen (Testmatrix 24 bis 24e in
-> [`build.md`](build.md)).
+> **Live geprüft auf HAL9000.** Die Reihe 24–24e hat Installation,
+> Konfiguration, Kürzelumlegung und Abschalten gegen den Pin `8f287d9`
+> bestätigt. Danach wurde HAL9000 vollständig auf Generation 584 und die
+> gesicherten Konfigurationsdateien zurückgebaut. Rohdaten:
+> [`docs/hal9000-abnahme-2026-09-06.log`](docs/hal9000-abnahme-2026-09-06.log).
 
 ```nix
 # flake.nix des Hosts
@@ -111,7 +114,9 @@ bleiben stehen, ein `unregisterShortcut` gibt es nicht. Der Aus-Zweig ist über
 Entwicklungsinstanz dieselben objectNames lädt. **Er wirkt nur, wenn
 plasma-manager unabhängig vom Controller läuft** — sonst schreibt nach dem
 Abschalten niemand mehr, und mit `overrideConfig = false` bliebe der alte Stand
-stehen.
+stehen. Die Gruppe `[Script-kwin-xmonad-lite]` bleibt beim Abschalten mit den
+zuletzt geschriebenen Werten in `kwinrc`; sie ist bei ausgeschaltetem Plugin
+wirkungslos. Der Aus-Zweig bereinigt nur Plugin-Flag und Tastenkürzel.
 
 In `nixosconfig` hängt plasma-manager deshalb am eigenen Feature-Flag
 `local.features.plasmaManager` und der Controller an
