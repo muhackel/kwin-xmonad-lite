@@ -131,12 +131,13 @@ neuen Anlass gelten.
 ```bash
 nix flake check      # Paketbau (inkl. Typprüfung und Unit-Tests), Lint,
                      # Skripte, Snapshot-Grenze, Lesbarkeit der Geometrie-Probe,
-                     # einziger Aktivierungspfad, Home-Manager-Modul
-                     # ein- und ausgeschaltet
+                     # einziger Aktivierungspfad, Laufzeitumfang des Bundles,
+                     # Home-Manager-Modul ein- und ausgeschaltet
 ```
 
-Acht Checks: `package`, `lint`, `scripts`, `snapshot-boundary`,
-`probe-readonly`, `activate-once`, `home-module` und `home-module-disabled`.
+Neun Checks: `package`, `lint`, `scripts`, `snapshot-boundary`,
+`probe-readonly`, `activate-once`, `bundle-runtime`, `home-module` und
+`home-module-disabled`.
 
 `checks.snapshot-boundary` erzwingt die weiter unten beschriebene Grenze als
 Derivation. Das Grep-Paar ist dasselbe; der Check wirft zusätzlich die vier
@@ -151,6 +152,25 @@ keine Verbindung zu einem KWin-, Fenster- oder Output-Signal. Erlaubt bleibt
 `timeout.connect` an eigenen QTimern — ohne das gäbe es keine zeitversetzten
 Samples. Eine Probe, die selbst schreibt, könnte das Prüfergebnis herstellen,
 das sie belegen soll.
+
+`checks.bundle-runtime` greift das **gebaute** Bundle an, nicht den Quelltext:
+QJSEngine ist kein Node, esbuild liefert keine Polyfills, und `Object.hasOwn`
+oder `String.prototype.replaceAll` überstehen jeden Typcheck und jeden
+Unit-Test unter Node — sie werfen erst in KWin, zur Laufzeit. Geprüft wird die
+Liste aus `CLAUDE.md`, Abschnitt „Sprachumgebung", dazu `setTimeout`,
+`globalThis`, `.groups` und `QTimer.restart`. Ein übrig gebliebenes `await`
+verrät eine verstellte esbuild-Zielstufe; deshalb prüft derselbe Check, dass
+`--target=es2016` zweimal in `nix/package.nix` steht.
+
+Die Wirksamkeit ist mit zwei Mutationsproben belegt: `lib` in `tsconfig.json`
+auf `ES2022` hochziehen und `Object.fromEntries` benutzen — `tsc` lässt es dann
+durch, der Check meldet die Zeile aus beiden Bundles; und eine der beiden
+esbuild-Zielstufen auf `es2020` stellen — der Check meldet „gefunden 1".
+
+**Seine Grenze:** Grep sieht Namen, keine Syntax. Klassenfelder, statische
+Blöcke und Objekt-Spread erkennt er nicht, und einen echten Ladeversuch ersetzt
+er nicht. Nach einem KWin-Versionssprung bleibt `nix run .#probe` das Mittel
+der Wahl.
 
 `checks.activate-once` erzwingt, dass es genau **einen** Schreibzugriff auf
 `workspace.activeWindow` gibt, und zwar in `src/kwin/adapter.ts`. Daran hängt
@@ -1067,9 +1087,11 @@ Vorschrift stehen, damit sie wiederholbar ist:
 - [`docs/ms7-2026-09-06-hal9000-ap7.md`](docs/ms7-2026-09-06-hal9000-ap7.md) —
   Entwicklungsinstanz gegen `0c903cb`: Fälle 26/26a/26b/26c und 27.
 
-Die Wayland-Smoke-VM ist nicht mehr Teil der MVP-Abnahme. HAL9000 liefert die
-Live-Nachweise in einer echten Sitzung; eine automatisiert wiederholbare
-VM-Prüfung ist auf Stufe 2 verschoben.
+Eine Test-VM gibt es nicht — weder im MVP noch auf Stufe 2. HAL9000 und
+SPIELKISTE liefern die Live-Nachweise in echten Sitzungen, und die Frage, ob
+das gebaute Bundle in QJSEngine überhaupt lädt, beantwortet
+`checks.bundle-runtime` billiger als ein NixOS-Test um eine Wayland-Sitzung
+herum (`PLAN.md` Abschnitt 8).
 
 **Zwei Abweichungen gegenüber dieser Vorschrift sind in den Protokollen
 begründet** und beim Wiederholen zu beachten: der Abschlusslauf 26–27 lief auf

@@ -375,6 +375,69 @@
             touch "$out"
           '';
 
+          # QJSEngine ist kein Node: esbuild liefert **keine Polyfills**, und die
+          # Zielstufe ist `es2016`. Ein Aufruf von `Object.fromEntries` oder
+          # `String.prototype.replaceAll` übersteht jeden Typcheck und jeden
+          # Unit-Test unter Node -- und wirft erst in KWin, zur Laufzeit, wo ihn
+          # niemand sieht außer im Journal. Genau diese Lücke schließt der
+          # Check: er greift das **gebaute** Bundle an, nicht den Quelltext,
+          # denn erst dort steht, was KWin wirklich ausführt (auch das, was aus
+          # einer Abhängigkeit oder einem esbuild-Helfer stammt).
+          #
+          # Die Liste ist die aus `CLAUDE.md`, Abschnitt „Sprachumgebung",
+          # gemessen an KWin 6.7.4 / Qt 6.11.2. `await` steht dabei für etwas
+          # anderes als die übrigen Muster: esbuild wandelt `async`/`await` bei
+          # `--target=es2016` selbst um, ein übrig gebliebenes `await` im Bundle
+          # bedeutet also, dass die Zielstufe verstellt wurde. Deshalb wird sie
+          # zusätzlich direkt in `nix/package.nix` geprüft.
+          #
+          # **Grenze des Checks:** Grep sieht Namen, keine Syntax. Klassenfelder,
+          # statische Blöcke und Objekt-Spread lassen sich damit nicht sicher
+          # erkennen, ohne bei legitimem Code Fehlalarm zu schlagen; sie bleiben
+          # ungeprüft. Der Check ersetzt deshalb keinen Ladeversuch in einer
+          # echten KWin-Instanz, er fängt nur die Klasse von Fehlern, die dort
+          # am teuersten auffällt.
+          bundle-runtime = pkgs.runCommand "kwin-xmonad-lite-bundle-runtime" { } ''
+            paket=${self.packages.${system}.default}
+            haupt="$paket/share/kwin/scripts/kwin-xmonad-lite/contents/code/main.js"
+            dev="$paket/share/kwin-xmonad-lite-dev/dev.js"
+
+            for datei in "$haupt" "$dev"; do
+              if [ ! -f "$datei" ]; then
+                echo "Bundle fehlt: $datei" >&2
+                exit 1
+              fi
+            done
+
+            # Fehlen zur Laufzeit ersatzlos; esbuild polyfillt nichts.
+            fehlend='Object\.fromEntries|Object\.hasOwn|Promise\.allSettled|Promise\.any\(|globalThis'
+            fehlend="$fehlend"'|\.flatMap\(|\.findLast\(|\.findLastIndex\(|\.toSorted\(|\.toReversed\(|\.flat\(|\.at\('
+            fehlend="$fehlend"'|\.replaceAll\(|\.trimStart\(|\.trimEnd\(|\.matchAll\('
+            # Existieren in QJSEngine nicht: kein Timer-Global, kein
+            # QTimer.restart, und `match.groups` bleibt undefined.
+            fehlend="$fehlend"'|[^[:alnum:]_$]setTimeout\(|[^[:alnum:]_$]setInterval\(|\.restart\(|\.groups'
+            # Zeugt von verstellter Zielstufe.
+            fehlend="$fehlend"'|[^[:alnum:]_$]await[[:space:]]'
+
+            grep -nE "$fehlend" "$haupt" > "$TMPDIR/treffer" || true
+            grep -nE "$fehlend" "$dev" >> "$TMPDIR/treffer" || true
+
+            if [ -s "$TMPDIR/treffer" ]; then
+              echo "Das gebaute Bundle benutzt etwas, das QJSEngine nicht hat:" >&2
+              cat "$TMPDIR/treffer" >&2
+              echo "Siehe CLAUDE.md, Abschnitt Sprachumgebung." >&2
+              exit 1
+            fi
+
+            anzahl="$(grep -c -- '--target=es2016' ${self}/nix/package.nix || true)"
+            if [ "$anzahl" != "2" ]; then
+              echo "erwartet zweimal --target=es2016 in nix/package.nix, gefunden $anzahl" >&2
+              exit 1
+            fi
+
+            touch "$out"
+          '';
+
           # Baut die Entwicklungswerkzeuge und lässt damit shellcheck laufen.
           scripts = pkgs.symlinkJoin {
             name = "kwin-xmonad-lite-scripts";
