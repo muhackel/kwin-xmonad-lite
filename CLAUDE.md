@@ -8,18 +8,21 @@ Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
 Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 6 ist
 abgeschlossen, zweifach nachauditiert und auf HAL9000 live geprüft; bestanden
-sind die Fälle 18–20a und 21–24e (307 Tests, das Projektflake hat sechs Checks,
-das `nixosconfig`-Flake vier). Die HAL9000-Reihe 24–24e lief gegen den älteren
-Projekt-Pin `8f287d9`, nicht gegen den Re-Audit-Stand `32f2620`.** Die
+sind die Fälle 18–20a und 21–24e. Die HAL9000-Reihe 24–24e lief gegen den
+älteren Projekt-Pin `8f287d9`, nicht gegen den Re-Audit-Stand `32f2620`.
+Meilenstein 7 hat die Prüfwerkzeuge und die Abnahmevorschrift, aber **noch
+keinen Live-Lauf**: 337 Tests, das Projektflake hat acht Checks, das
+`nixosconfig`-Flake vier.** Die
 Meilensteine 0 bis 5 samt 5.1 und den Audits
 sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
 Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
 Snapshot-Grenze, und seit Meilenstein 6 ist er bedienbar: zwölf `xml-*`-Aktionen,
 sechs Konfigurationsschlüssel aus `kwinrc` und ein Home-Manager-Modul auf
 plasma-manager-Basis. `Full` ist damit erstmals erreichbar. **Offen:** der
-modale Dialog als Fokusziel (20b), der KWin-/Sitzungsneustart (Fälle 16–17) und
-der Wayland-Smoke-Test in
-einer VM (Meilenstein 7). Fall 20c ist
+modale Dialog als Fokusziel (20b), der KWin-/Sitzungsneustart (Fälle 16–17)
+und der ganze Live-Teil von Meilenstein 7 (Fälle 25–27). Die Wayland-Smoke-VM
+ist **nicht mehr** Teil der MVP-Abnahme — HAL9000 liefert die Live-Nachweise,
+die automatisiert wiederholbare VM-Prüfung ist auf Stufe 2 verschoben. Fall 20c ist
 nicht offen, sondern **nicht herstellbar** (siehe `docs/research.md` 6.7).
 
 ## Ursprung & Zweck
@@ -74,9 +77,14 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Fenstermenü.
 - `package/` → KPackage-Wurzel; der Build legt `contents/code/main.js` hinein.
   Das Dev-Bundle liegt getrennt unter `share/kwin-xmonad-lite-dev/dev.js`.
-- `dev/probe/` → zwei Proben: `probe.js` misst die Skriptumgebung,
-  `signals.js` misst, welche Signale im Betrieb ankommen und was sie tragen
-  (siehe unten).
+- `dev/probe/` → drei Proben und zwei Auswerter: `probe.js` misst die
+  Skriptumgebung, `signals.js` misst, welche Signale im Betrieb ankommen und
+  was sie tragen (siehe unten), `geometry.js` misst die anliegenden
+  Fenstergeometrien. `expect-geometry.ts` hält die Messung gegen eine
+  **unabhängig vorgegebene** Erwartung, `journal-audit.ts` sucht
+  Geometrie-Schleifen im Journal; beide haben eine dünne `*-cli.ts`-Hülle und
+  stehen unter `node --test`. Die Proben sind strikt lesend —
+  `checks.probe-readonly` erzwingt das für `geometry.js`.
 - `nix/` → `package.nix`, `devshell.nix` und `home-module.nix`. Das
   Home-Manager-Modul schreibt Konfiguration ausschließlich über
   plasma-manager-Optionen; selbst gesetzt wird nur `home.packages`, denn ohne
@@ -390,6 +398,16 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - `unloadScript` ruft `deleteLater()`. Der Eintrag verschwindet erst im
   nächsten Ereignisschleifendurchlauf — vor einem erneuten `loadScript` mit
   demselben Namen auf `isScriptLoaded == false` warten.
+- **`reconfigure` wertet die Plugin-Flags neu aus.** `Scripting::start()` hängt
+  an `Workspace::configChanged`, das `slotReconfigure()` emittiert; die dortige
+  Abfrage entlädt Skripte mit `<id>Enabled=false` und lädt neu eingeschaltete
+  (`docs/research.md` 7.2). Die Kurzfassung „`reconfigure` lädt Skripte nicht
+  neu" gilt nur für ein **bereits geladenes** Skript — `loadScript` liefert
+  dafür sofort `-1`. Ein Re-Enable ohne Neuanmeldung ist damit vorgesehen;
+  gemessen wird es in Fall 16c. Ein laufender Controller wird dabei **nicht**
+  ein zweites Mal gestartet: `Script::run()` steigt bei `running()` aus. Das
+  ist wichtig, weil jede beliebige Änderung in den Systemeinstellungen ein
+  `reconfigure` auslöst.
 - `readConfig` liest `kwinrc [Script-<pluginName>]`, ohne KPackage und ohne
   `main.xml`. Der Rückgabetyp folgt dem Vorgabewert. **Neu geschriebene Werte
   brauchen ~200 ms**: `Workspace::reconfigure()` startet nur
