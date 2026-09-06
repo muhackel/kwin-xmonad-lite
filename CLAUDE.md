@@ -6,8 +6,8 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 5
-ist abgeschlossen; Matrix 11–15 sind live geprüft.** Meilenstein 4 samt 4.1,
-4.1.1 und Audit 4.2 ist abgeschlossen. Der
+samt Nachschlag 5.1 ist abgeschlossen; Matrix 11–15 sind live geprüft.**
+Meilenstein 4 samt 4.1, 4.1.1 und Audit 4.2 ist abgeschlossen. Der
 Controller kachelt auf allen Ausgaben mit `Tall`; Zustandsübergänge, Float,
 Dialogfilter und Größenschranken liegen hinter der Snapshot-Grenze. Die
 Tastenkürzel folgen in Meilenstein 6. Bis dahin ist `Full` nicht erreichbar,
@@ -166,13 +166,15 @@ Activities und verwaltet nicht die Zahl der Desktops.
 
 ### Adapter
 
-- **Die Snapshot-Grenze ist die Testgrenze.** Nur `kwin/read.ts` und
-  `kwin/adapter.ts` dürfen eine KWin-Global (`workspace`, `KWin`, `QTimer`)
-  anfassen; alles andere in `kwin/` rechnet auf `WindowInfo` und läuft unter
-  `node --test`. Die Regel ist prüfbar (das Kommando steht in `build.md`;
-  Kommentarzeilen müssen herausgefiltert werden, sonst melden `types.ts` und
-  `timer.ts` falsch positiv). Wer Logik in den Adapter zieht, verliert sie aus
-  den Tests.
+- **Die Snapshot-Grenze ist die Testgrenze.** Hinter ihr dürfen nur
+  `kwin/read.ts` und `kwin/adapter.ts` eine KWin-Global (`workspace`, `KWin`,
+  `QTimer`) anfassen; davor tun es die beiden Einstiege `boot.ts` und `dev.ts`.
+  Alles andere in `kwin/` rechnet auf `WindowInfo` und läuft unter
+  `node --test`. Die Regel ist prüfbar (das Kommando steht in `build.md` und
+  läuft rekursiv über ganz `src`, weil `globals.d.ts` auch für `core/` und
+  `state/` gilt; Kommentarzeilen müssen herausgefiltert werden, sonst melden
+  `types.ts` und `timer.ts` falsch positiv). Wer Logik in den Adapter zieht,
+  verliert sie aus den Tests.
 - **`runEpoch` ist die Anordnungsepoche.** `adapter.runArrange` liest den
   Snapshot, bereinigt Registry und Verbindungen und ruft sie. Änderungen am
   Ablauf aus Plan, Teilnehmerwechsel, Writes und Raise gehören in `epoch.ts`.
@@ -198,6 +200,17 @@ Activities und verwaltet nicht die Zahl der Desktops.
   plant keinen Recheck, lässt `tiledRect` unverändert und übernimmt das
   Rücklesen als `lastObservedRect`. Im Journal heißt der Vorgang `float`, nie
   `apply`.
+- **`place` ist der dritte Schreibpfad und braucht `judgePlace`.** `judgeWrite`
+  schützt die Epoche, `port.blocked` den Recheck — der Float-Toggle hängt an
+  keinem von beiden, denn die Float-Markierung folgt der Mitgliedschaft, und
+  die kennt weder Vollbild noch Maximierung. Ohne das Urteil schriebe ein
+  Toggle am maximierten Fenster dessen `frameGeometry` (`moveResize` prüft den
+  Modus nicht). Dasselbe Urteil entscheidet über das **Einfangen**: in einem
+  Sonderzustand trägt `frameGeometry` die Vollbildfläche, und die taugt nicht
+  als `floatRect` — `anchorInto` verschiebt beim Wiederherstellen nur, es
+  verkleinert nicht, das Fenster überdeckte danach das Panel. Der
+  Zustandswechsel selbst gilt trotzdem immer; das Journal meldet ihn dann als
+  `gefloatetOhneWiederherstellung`.
 - **Der Recheck prüft `port.blocked` vor jedem Write.** `judgeWrite` schützt nur
   die Epoche; ein bereits geplanter Recheck könnte sonst ein inzwischen
   maximiertes, minimiertes, vollbildiges oder floatendes Fenster beschreiben.

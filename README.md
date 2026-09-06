@@ -9,7 +9,8 @@ Er ist **kein** Fenstermanager und **kein** XMonad-Nachbau. Fenster-, Desktop-,
 Activity- und Bildschirmzuordnung bleiben vollständig bei KWin und seinen
 Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 
-> **Status: in Entwicklung, Meilenstein 5 abgeschlossen.** Das Skript kachelt
+> **Status: in Entwicklung, Meilenstein 5 samt Nachschlag 5.1 abgeschlossen.**
+> Das Skript kachelt
 > auf allen Bildschirmen; jeder virtuelle Desktop und jede Activity führt je
 > Bildschirm einen eigenen Stapel. Vollbild, Maximierung und Minimierung
 > verlassen das Layout, ohne ihre Stapelposition zu verlieren. Dialoge und

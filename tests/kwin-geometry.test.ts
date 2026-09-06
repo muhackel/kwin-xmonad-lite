@@ -6,6 +6,7 @@ import { UNLIMITED_SIZE } from "../src/kwin/filter.ts";
 import {
 	anchorInto,
 	fitToCell,
+	judgePlace,
 	judgeRecheck,
 	judgeSignal,
 	judgeWrite,
@@ -165,6 +166,36 @@ test("der Ziehzustand gewinnt gegen die Maximierung", () => {
 	info.move = true;
 	info.maximizeMode = 3;
 	assert.equal(judgeWrite(info, CELL, createWindowState()), "drag");
+});
+
+// --- judgePlace -------------------------------------------------------------
+
+test("judgePlace erlaubt den Float-Schreibvorgang im Restore-Zustand", () => {
+	assert.equal(judgePlace(windowInfo("a")), "place");
+});
+
+test("judgePlace sperrt jeden Maximierungsmodus", () => {
+	for (const mode of [1, 2, 3]) {
+		const info = windowInfo("a");
+		info.maximizeMode = mode;
+		assert.equal(judgePlace(info), "blocked", `Modus ${mode}`);
+	}
+});
+
+test("judgePlace sperrt Vollbild und Minimierung", () => {
+	const voll = windowInfo("a");
+	voll.fullScreen = true;
+	assert.equal(judgePlace(voll), "blocked");
+	const klein = windowInfo("b");
+	klein.minimized = true;
+	assert.equal(judgePlace(klein), "blocked");
+});
+
+test("judgePlace meldet den Ziehzustand vor der Sperre", () => {
+	const info = windowInfo("a");
+	info.resize = true;
+	info.fullScreen = true;
+	assert.equal(judgePlace(info), "drag");
 });
 
 // --- judgeSignal ------------------------------------------------------------

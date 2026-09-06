@@ -3,12 +3,27 @@ import type { Registry } from "../state/registry.ts";
 import { getWindow, setFloating } from "../state/registry.ts";
 import type { GeometryController } from "./apply.ts";
 import { isMember } from "./filter.ts";
-import { anchorInto } from "./geometry.ts";
+import { anchorInto, judgePlace } from "./geometry.ts";
 import type { WindowInfo } from "./types.ts";
 
-export type FloatOutcome = "gefloatet" | "wiederhergestellt" | "gekachelt" | "keinMitglied";
+export type FloatOutcome =
+	| "gefloatet"
+	| "gefloatetOhneWiederherstellung"
+	| "wiederhergestellt"
+	| "gekachelt"
+	| "keinMitglied";
 
-/** Schaltet den globalen Float-Zustand eines Fensters ohne KWin-Zugriff um. */
+/**
+ * Schaltet den globalen Float-Zustand eines Fensters ohne KWin-Zugriff um.
+ *
+ * Der Zustandswechsel selbst gilt immer -- Vollbild, Maximierung und
+ * Minimierung sind keine Mitgliedschaftskriterien (Abschnitt 7). Nur das
+ * Schreiben und das Einfangen einer Geometrie hängen an `judgePlace`: in
+ * einem Sonderzustand trägt `frameGeometry` die Vollbild- oder
+ * Maximierungsfläche, und die ist weder als Ziel noch als Erinnerung
+ * brauchbar. Die zuletzt gemerkte `floatRect` bleibt dann stehen und greift,
+ * sobald das Fenster in den Restore-Zustand zurückkehrt.
+ */
 export function toggleFloat(
 	registry: Registry,
 	geometry: GeometryController,
@@ -21,16 +36,21 @@ export function toggleFloat(
 	}
 
 	const state = getWindow(registry, info.id);
+	const placeable = judgePlace(info) === "place";
+	const capture = placeable ? info.frameGeometry : null;
 	geometry.forget(info.id);
 	if (state.floating) {
-		setFloating(registry, info.id, false, info.frameGeometry);
+		setFloating(registry, info.id, false, capture);
 		return "gekachelt";
 	}
 
 	const remembered = state.floatRect;
-	setFloating(registry, info.id, true, info.frameGeometry);
+	setFloating(registry, info.id, true, capture);
 	if (remembered === null) {
 		return "gefloatet";
+	}
+	if (!placeable) {
+		return "gefloatetOhneWiederherstellung";
 	}
 	geometry.place(info.id, area === null ? remembered : anchorInto(remembered, area));
 	return "wiederhergestellt";
