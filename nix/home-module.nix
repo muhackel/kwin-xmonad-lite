@@ -9,8 +9,8 @@
 # Die äußere Funktion nimmt das Flake dieses Projekts (`self`) entgegen, damit
 # der Vorgabewert von `package` auf das mitgelieferte Paket zeigen kann:
 # `flake.nix` bindet sie als
-# `homeManagerModules.default = import ./nix/home-module.nix { inherit self; }`
-# ein. Ein Modul bekommt die Flake-Inputs nicht von selbst durchgereicht, und
+# `homeModules.default = import ./nix/home-module.nix { inherit self; }` ein;
+# `homeManagerModules.default` ist derselbe Wert unter dem älteren Namen. Ein Modul bekommt die Flake-Inputs nicht von selbst durchgereicht, und
 # ein Overlay griffe in die Paketmenge des Nutzers ein — die Teilanwendung ist
 # die in nixpkgs und Home Manager übliche Form für genau diesen Fall.
 { self }:
@@ -150,12 +150,18 @@ in
       '';
     };
 
-    relocateKdeShortcuts = lib.mkEnableOption ''
-      das Umlegen der beiden kollidierenden KDE-Kürzel: „Sitzung sperren" auf
-      `Ctrl+Alt+L` und „Kachelung bearbeiten" auf keine Taste. Standardmäßig aus,
-      weil die Shortcut-Politik in die Host-Konfiguration gehört und nicht in
-      dieses Modul
-    '';
+    # `mkEnableOption` klammert sein Argument in "Whether to enable X." --
+    # deshalb hier nur die Kurzform, der Rest über `description`.
+    relocateKdeShortcuts = lib.mkEnableOption "das Umlegen der kollidierenden KDE-Kürzel" // {
+      description = ''
+        Legt „Sitzung sperren" auf `Ctrl+Alt+L` und nimmt „Kachelung
+        bearbeiten" die Taste, damit `xml-expand` (`Meta+L`) und `xml-sink`
+        (`Meta+T`) ihre Belegung überhaupt bekommen.
+
+        Standardmäßig aus: die Shortcut-Politik gehört in die
+        Host-Konfiguration und nicht in dieses Modul.
+      '';
+    };
   };
 
   config = lib.mkIf cfg.enable (lib.mkMerge [

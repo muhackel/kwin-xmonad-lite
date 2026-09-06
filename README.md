@@ -17,9 +17,12 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > Höchstgrößen werden berücksichtigt. Seit Meilenstein 6 ist der Controller
 > bedienbar: zwölf eigene Tastenkürzel, sechs Konfigurationsschlüssel in
 > `kwinrc` und ein Home-Manager-Modul für die deklarative Installation. Damit
-> ist auch das Full-Layout erreichbar. Offen sind der Wayland-Smoke-Test in
-> einer VM und die MVP-Abnahme (Meilenstein 7); der vollständige Plan steht in
-> [`PLAN.md`](PLAN.md).
+> ist auch das Full-Layout erreichbar. Abgenommen ist das bisher **nur mit der
+> Entwicklungsinstanz** auf einer Maschine; die deklarative Installation über
+> das Home-Manager-Modul ist gebaut und geprüft, aber auf keinem Host in
+> Betrieb genommen (Testmatrix 24 bis 24e). Ebenfalls offen: der modale Dialog
+> als Fokusziel (20b), der Wayland-Smoke-Test in einer VM und die MVP-Abnahme
+> (Meilenstein 7). Der vollständige Plan steht in [`PLAN.md`](PLAN.md).
 
 ## Schnellstart
 
@@ -61,6 +64,11 @@ fremden Tastenkürzel. Einzelheiten in [`docs/keys.md`](docs/keys.md).
 
 Deklarativ über das mitgelieferte Home-Manager-Modul. Es setzt ausschließlich
 plasma-manager-Optionen und schreibt keine Datei selbst.
+
+> **Noch nicht in Betrieb genommen.** `checks.home-module` baut das
+> Aktivierungspaket und prüft den erzeugten plasma-manager-Datensatz, aber der
+> Weg ist auf keinem Host durchlaufen (Testmatrix 24 bis 24e in
+> [`build.md`](build.md)).
 
 ```nix
 # flake.nix des Hosts

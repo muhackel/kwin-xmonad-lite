@@ -113,11 +113,14 @@ function loadGap(reader: ConfigReader, key: string, notes: string[]): number {
 		return 0;
 	}
 	const value = Number(raw);
-	const rounded = withoutNegativeZero(Math.round(value));
-	if (rounded < 0) {
+	// Das Vorzeichen entscheidet **vor** der Nullnormalisierung: `-0.4` rundet
+	// zu `-0`, und danach wäre nicht mehr zu sehen, dass die Eingabe negativ
+	// war -- die Notiz meldete dann "gerundet" statt "unzulässig".
+	if (value < 0) {
 		notes.push(`config ${key}=${raw} unzulässig, verwende 0`);
 		return 0;
 	}
+	const rounded = withoutNegativeZero(Math.round(value));
 	if (rounded > GAP_MAX) {
 		notes.push(`config ${key}=${raw} geklemmt auf ${GAP_MAX}`);
 		return GAP_MAX;

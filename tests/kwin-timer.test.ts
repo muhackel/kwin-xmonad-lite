@@ -259,7 +259,7 @@ test("ein Nachlauf meldet beim Entpreller an, statt selbst anzuordnen", () => {
 	assert.deepEqual(gründe, ["nachlauf500:dockGeometrie", "nachlauf1500:dockGeometrie"]);
 });
 
-test("ein Fehler im Nachlauf reisst den zweiten nicht mit", () => {
+test("ein Fehler im Nachlauf reißt den zweiten nicht mit", () => {
 	const timers = [fakeTimer(), fakeTimer()];
 	let zweiter = 0;
 	const followUps = createFollowUps(reihe(timers), [500, 1500], (delay) => {

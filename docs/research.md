@@ -561,9 +561,13 @@ Registrierung im Journal und ohne zusätzliche Zeile in `kglobalshortcutsrc`.
   Entfernen von `settings`, Abschalten des Feature-Flags. Steht aus.
 - **Fokusziel hinter einem modalen Dialog** (Fall 20b). Aus dem Quelltext
   folgt, dass `activateWindow` den Fokus umleiten kann; gemessen ist es nicht.
-- **Fokusziel zwischen Tastendruck und Lauf geschlossen** (Fall 20c). Nicht
-  reproduzierbar herstellbar; der Pfad `aktivieren fehlgeschlagen für …`
-  existiert im Adapter, ist aber unbelegt.
+- **Fokusziel zwischen Tastendruck und Lauf geschlossen** (Fall 20c). Der Pfad
+  `aktivieren fehlgeschlagen für …` in `src/kwin/adapter.ts` ist genauso
+  **unerreichbar** wie der Zweig unten: `result.focus` ist nur dann
+  nicht-null, wenn das Fenster im Snapshot steht, `readSnapshot` legt für
+  jedes Snapshot-Fenster ein Handle an, und zwischen dem Lesedurchgang und
+  der Zuweisung kehrt der Rückruf nicht in die Ereignisschleife zurück. Die
+  Zeile bleibt defensiv stehen; eine Abnahme darf sie nicht erwarten.
 - Der Zweig „`ziel … nicht mehr im Snapshot`" in `src/kwin/command.ts` ist über
   `runCommand` **unerreichbar**: der Abgleich vor dem Reducer garantiert, dass
   die gespeicherte Reihenfolge eine Teilmenge der Snapshot-Mitglieder ist. Die

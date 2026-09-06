@@ -16,7 +16,7 @@ nix develop
 ```
 
 Enthält TypeScript, Node, esbuild, Biome, shellcheck, git sowie
-`kpackagetool6`, `qdbus` und `kwriteconfig6`.
+`kpackagetool6`, `qdbus` sowie `kwriteconfig6` und `kreadconfig6`.
 
 ## Bauen & Starten
 
@@ -488,8 +488,12 @@ wird kein zweiter Aktivierungsversuch und keine Schleife im Journal.
 **Noch nicht abgenommen.**
 
 **Testmatrix 20c** — Fokusziel zwischen Tastendruck und Lauf **geschlossen**.
-Erwartet: `aktivieren fehlgeschlagen für …`, genau eine Zeile, kein Wurf.
-**Nicht reproduzierbar herstellbar, deshalb unbelegt.**
+Der Fall ist **nicht herstellbar**: `readSnapshot` legt für jedes
+Snapshot-Fenster ein Handle an, und zwischen dem Lesedurchgang und der
+Zuweisung kehrt der Shortcut-Rückruf nicht in die Ereignisschleife zurück. Die
+Zeile `aktivieren fehlgeschlagen für …` bleibt deshalb defensiv im Adapter
+stehen und wird von keiner Abnahme erwartet — wie der Zweig
+`ziel … nicht mehr im Snapshot`.
 
 **Testmatrix 21** — Konfiguration. Die Entwicklungsinstanz liest aus der Gruppe
 `[Script-kwin-xmonad-lite-dev]`, **nicht** aus `[Script-kwin-xmonad-lite]`:

@@ -492,6 +492,35 @@ test("die objectNames sind ab dem ersten Release unwiderruflich", () => {
 	]);
 });
 
+/**
+ * Wörtlich wie die objectNames, und aus demselben Grund: `registerShortcut`
+ * läuft ohne `NoAutoloading`, ein vorhandener Eintrag in
+ * `kglobalshortcutsrc` gewinnt. Eine falsche Erstbelegung ist auf jeder
+ * Maschine, die das Skript einmal geladen hat, per Code nicht mehr zu
+ * korrigieren -- dieselbe Unwiderruflichkeit, die den Test der Namen
+ * rechtfertigt.
+ */
+test("die Erstbelegungen stehen wörtlich fest", () => {
+	const keys: string[] = [];
+	for (const shortcut of SHORTCUTS) {
+		keys.push(`${shortcut.objectName}=${shortcut.keys}`);
+	}
+	assert.deepEqual(keys, [
+		"xml-focus-next=Meta+J",
+		"xml-focus-prev=Meta+K",
+		"xml-swap-next=Meta+Shift+J",
+		"xml-swap-prev=Meta+Shift+K",
+		"xml-focus-master=Meta+M",
+		"xml-promote=Meta+Return",
+		"xml-shrink=Meta+H",
+		"xml-expand=Meta+L",
+		"xml-sink=Meta+T",
+		"xml-toggle-float=Meta+Shift+T",
+		"xml-next-layout=Meta+Space",
+		"xml-reset-layout=Meta+Shift+Space",
+	]);
+});
+
 test("keine Taste ist doppelt vergeben", () => {
 	const keys = new Set<string>();
 	for (const shortcut of SHORTCUTS) {

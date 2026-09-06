@@ -213,7 +213,7 @@
                 inherit pkgs;
                 modules = [
                   plasma-manager.homeModules.plasma-manager
-                  self.homeManagerModules.default
+                  self.homeModules.default
                   {
                     home = {
                       username = "pruefer";

@@ -15,7 +15,7 @@ den Abnahmelauf vom 2026-09-06 auf SPIELKISTE gehalten
 | Fenster nach hinten tauschen | `Meta+Shift+J` | `xml-swap-next` | tauscht das fokussierte Fenster mit dem nächsten |
 | Fenster nach vorn tauschen | `Meta+Shift+K` | `xml-swap-prev` | tauscht mit dem vorigen |
 | Master fokussieren | `Meta+M` | `xml-focus-master` | Fokus auf das erste Fenster der Reihenfolge |
-| Zum Master machen | `Meta+Return` | `xml-promote` | zieht das fokussierte Fenster an Position 1 |
+| Zum Master machen | `Meta+Return` | `xml-promote` | zieht das fokussierte Fenster an den Anfang der Reihenfolge |
 | Master verkleinern | `Meta+H` | `xml-shrink` | Masteranteil um 0,05, untere Grenze 0,1 |
 | Master vergrößern | `Meta+L` | `xml-expand` | Masteranteil um 0,05, obere Grenze 0,9 |
 | Wieder kacheln | `Meta+T` | `xml-sink` | nimmt die Float-Markierung vom aktiven Fenster |

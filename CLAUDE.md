@@ -8,14 +8,15 @@ Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
 Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 6 ist
 abgeschlossen; Matrix 18–23 sind live geprüft (299 Tests, `nix flake check`
-grün über neun Prüfungen).** Die Meilensteine 0 bis 5 samt 5.1 und den Audits
+grün über die vier Checks).** Die Meilensteine 0 bis 5 samt 5.1 und den Audits
 sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
 Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
 Snapshot-Grenze, und seit Meilenstein 6 ist er bedienbar: zwölf `xml-*`-Aktionen,
 sechs Konfigurationsschlüssel aus `kwinrc` und ein Home-Manager-Modul auf
 plasma-manager-Basis. `Full` ist damit erstmals erreichbar. **Offen:** die
 deklarative Abnahme auf HAL9000 (Fälle 24–24e), der modale Dialog als Fokusziel
-(20b) und der Wayland-Smoke-Test in einer VM (Meilenstein 7).
+(20b) und der Wayland-Smoke-Test in einer VM (Meilenstein 7). Fall 20c ist
+nicht offen, sondern **nicht herstellbar** (siehe `docs/research.md` 6.7).
 
 ## Ursprung & Zweck
 
@@ -194,11 +195,14 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - **`runEpoch` ist die Anordnungsepoche.** `adapter.runArrange` liest den
   Snapshot, bereinigt Registry und Verbindungen und ruft sie. Änderungen am
   Ablauf aus Plan, Teilnehmerwechsel, Writes und Raise gehören in `epoch.ts`.
-- **`defaultRatio` und `defaultLayoutIndex` stehen hinter `ports`**, nicht davor. Sie
-  kamen in Meilenstein 6 als Default-Parameter ans Ende der Signaturen von
-  `createSurface`, `resetLayout`, `getSurface`, `planArrangement` und
-  `runEpoch`. Ein eingeschobener Parameter bräche `tests/support/epochrig.ts`
-  und jeden bestehenden Aufruf — deshalb hinten anhängen, nie einsortieren.
+- **Masteranteil und Layoutindex stehen in `runEpoch` hinter `ports`**, nicht
+  davor. Sie kamen in Meilenstein 6 als Default-Parameter ans Ende der
+  Signaturen von `createSurface`, `resetLayout`, `getSurface`,
+  `planArrangement` und `runEpoch`. Ein eingeschobener Parameter bräche
+  `tests/support/epochrig.ts` und jeden bestehenden Aufruf — deshalb hinten
+  anhängen, nie einsortieren. Die Namen unterscheiden sich je Schicht:
+  `ratio`/`layoutIndex` in `core/stack` und `state/registry`,
+  `defaultRatio`/`defaultLayoutIndex` in `kwin/plan` und `kwin/epoch`.
 - **`activate` ist der einzige Schreibpfad auf `workspace.activeWindow`** im
   ganzen Baum, und er läuft ausschließlich aus einem Shortcut-Rückruf. Daran
   hängt die Schleifenfreiheit: Aktivieren löst `windowActivated` aus, das eine
