@@ -44,13 +44,25 @@ export interface ProbeRecord {
 	[key: string]: unknown;
 }
 
+/**
+ * Drei Stufen, nicht zwei. `nicht-abgenommen` ist der Fall, in dem der
+ * **Controller** entlastet ist -- sein Soll stimmt mit der gerechneten Zelle
+ * ueberein --, der Client die Groesse aber nicht angenommen hat. Das ist kein
+ * Fehler des Controllers und trotzdem kein bestandener Geometrienachweis: die
+ * Zelle ist nie so angekommen, wie sie gerechnet wurde. Ein solcher Fall wird
+ * mit einem geeigneten Client wiederholt.
+ */
 export interface Finding {
-	level: "fehler" | "hinweis";
+	level: "fehler" | "nicht-abgenommen" | "hinweis";
 	text: string;
 }
 
 export function fehler(text: string): Finding {
 	return { level: "fehler", text };
+}
+
+export function nichtAbgenommen(text: string): Finding {
+	return { level: "nicht-abgenommen", text };
 }
 
 export function hinweis(text: string): Finding {
@@ -100,7 +112,17 @@ export function fachlich(record: ProbeRecord): string {
 	const kopie: Record<string, unknown> = {};
 	const keys = Object.keys(record).sort();
 	for (const key of keys) {
-		if (key === "n" || key === "ms" || key === "s" || key === "r" || key === "trunc") {
+		// `caption` gehoert nicht zum fachlichen Zustand: kwrite haengt beim
+		// Aendern ein `*` an den Titel, und ein Titelwechsel zwischen zwei
+		// Samples ist keine Unruhe der Geometrie.
+		if (
+			key === "n" ||
+			key === "ms" ||
+			key === "s" ||
+			key === "r" ||
+			key === "trunc" ||
+			key === "caption"
+		) {
 			continue;
 		}
 		kopie[key] = record[key];
@@ -150,8 +172,23 @@ export function checkQuality(records: ProbeRecord[]): Finding[] {
 		}
 	}
 
+	// `r` und `n` sind **Pflicht** auf jedem Satz. Werden sie nur gefiltert,
+	// prueft die Lueckenkontrolle im Extremfall eine leere Liste, und die
+	// Laufstempel-Menge besteht aus dem einen Wert `undefined` -- eine Datei
+	// ohne jedes `r` und `n` bestuende dann klaglos.
+	const ohneLaufstempel = records.filter((record) => typeof record.r !== "number").length;
+	if (ohneLaufstempel > 0) {
+		findings.push(fehler(`${ohneLaufstempel} Sätze ohne Laufstempel \`r\``));
+	}
+	const ohneNummer = records.filter((record) => typeof record.n !== "number").length;
+	if (ohneNummer > 0) {
+		findings.push(fehler(`${ohneNummer} Sätze ohne Satznummer \`n\``));
+	}
+
 	// Ein zweiter Lauf im selben Journalfenster fiele hier auf.
-	const runs = new Set(records.map((record) => record.r));
+	const runs = new Set(
+		records.map((record) => record.r).filter((value): value is number => typeof value === "number"),
+	);
 	if (runs.size > 1) {
 		findings.push(fehler(`${runs.size} verschiedene Laufstempel in einer Datei`));
 	}
@@ -167,6 +204,26 @@ export function checkQuality(records: ProbeRecord[]): Finding[] {
 			);
 			break;
 		}
+	}
+
+	// Die Samplestaffel wird gegen die im `meta`-Satz **angekuendigte** Liste
+	// gehalten. Sonst genuegten die beiden fruehen Samples, und genau die
+	// spaeten belegen das Einschwingen.
+	const meta = records.find((record) => record.k === "meta");
+	const angekuendigt = meta === undefined ? undefined : meta.samples;
+	if (Array.isArray(angekuendigt)) {
+		const vorhanden = new Set(sampleIndices(records));
+		for (let i = 0; i < angekuendigt.length; i++) {
+			if (!vorhanden.has(i)) {
+				findings.push(
+					fehler(
+						`Sample ${i} (${String(angekuendigt[i])} ms) fehlt: die Staffel ist unvollständig`,
+					),
+				);
+			}
+		}
+	} else {
+		findings.push(fehler("`meta`-Satz ohne Samplestaffel: die Vollständigkeit ist nicht prüfbar"));
 	}
 
 	const samples = sampleIndices(records);
@@ -233,6 +290,10 @@ export interface SurfaceLine {
 	n: number;
 	ratio: number;
 	area: Rect;
+	/** Millisekunden seit der Epoche, aus dem ISO-Stempel der Journalzeile. */
+	zeit: number;
+	/** Nummer des Anordnungslaufs, in dem die Zeile entstand. */
+	epoche: number | null;
 }
 
 export interface DiagnoseLine {
@@ -240,6 +301,8 @@ export interface DiagnoseLine {
 	order: string[];
 	participants: string[];
 	floating: string[];
+	zeit: number;
+	epoche: number | null;
 }
 
 export interface WriteLine {
@@ -247,6 +310,8 @@ export interface WriteLine {
 	id: string;
 	soll: Rect | null;
 	ist: Rect | null;
+	zeit: number;
+	epoche: number | null;
 }
 
 export interface ConfigLine {
@@ -264,6 +329,38 @@ export interface Journal {
 	writes: WriteLine[];
 	externals: string[];
 	loads: number;
+	/** Alle Prozesse, die im Auszug Controllerzeilen geschrieben haben. */
+	pids: string[];
+	/** Die Nummern der Anordnungsläufe, in der Reihenfolge des Auszugs. */
+	epochen: Array<{ nummer: number; zeit: number; grund: string }>;
+	/** Zeilen, die vor dem letzten `geladen` lagen und deshalb verworfen wurden. */
+	verworfen: number;
+}
+
+/**
+ * `2026-09-06T18:31:30+02:00 HAL9000 kwin_wayland[49086]: kwin-xmonad-lite: …`
+ *
+ * Ohne Zeit und Prozess ist eine Journalzeile nicht zuzuordnen: der Auszug
+ * reicht absichtlich über die Messung hinaus (die `config`-Zeile steht beim
+ * Skriptstart), und nach einem `replace` schreiben zwei Prozesse in dieselbe
+ * Unit.
+ */
+const KOPF = /^(\S+)\s+\S+\s+([A-Za-z0-9_.-]+)\[(\d+)\]:/;
+
+export function parseKopf(raw: string): { zeit: number; pid: string } | null {
+	const treffer = KOPF.exec(raw);
+	if (treffer === null) {
+		return null;
+	}
+	const zeit = Date.parse(treffer[1] ?? "");
+	return { zeit: Number.isNaN(zeit) ? 0 : zeit, pid: treffer[3] ?? "" };
+}
+
+export interface ParseOptionen {
+	/** Nur Zeilen dieses Prozesses gelten. */
+	pid?: string;
+	/** Zeilen **nach** diesem Zeitpunkt beschreiben die Messung nicht mehr. */
+	bis?: number;
 }
 
 /** `1664x1410+0+0` — dieselbe Form, die `fmt` in epoch.ts und apply.ts schreibt. */
@@ -298,7 +395,7 @@ function liste(value: string | undefined): string[] {
 	return value.split(",");
 }
 
-export function parseJournal(text: string): Journal {
+export function parseJournal(text: string, optionen: ParseOptionen = {}): Journal {
 	const journal: Journal = {
 		config: null,
 		surfaces: [],
@@ -306,17 +403,62 @@ export function parseJournal(text: string): Journal {
 		writes: [],
 		externals: [],
 		loads: 0,
+		pids: [],
+		epochen: [],
+		verworfen: 0,
 	};
+	const pids = new Set<string>();
+	let zeit = 0;
+	let epoche: number | null = null;
+	let gezaehlt = 0;
 
 	for (const raw of text.split("\n")) {
 		const index = raw.indexOf("kwin-xmonad-lite: ");
 		if (index < 0) {
 			continue;
 		}
+		const kopf = parseKopf(raw);
+		if (kopf !== null) {
+			zeit = kopf.zeit;
+			pids.add(kopf.pid);
+			if (optionen.pid !== undefined && kopf.pid !== optionen.pid) {
+				continue;
+			}
+		}
+		// Zeilen **nach** dem Ende der Messung beschreiben einen Zustand, den
+		// die Probe nie gesehen hat. Zeilen davor bleiben: die `config`-Zeile
+		// steht beim Skriptstart, lange vor jedem Probelauf.
+		if (optionen.bis !== undefined && kopf !== null && kopf.zeit > optionen.bis) {
+			continue;
+		}
+		gezaehlt += 1;
 		const zeile = raw.slice(index + "kwin-xmonad-lite: ".length).trim();
 
 		if (zeile.startsWith("geladen")) {
+			// Ein neuer Skriptlauf beginnt. Alles davor gehoert **nicht** dazu:
+			// Konfiguration, Surface- und Diagnosewerte und jeder Schreibvorgang
+			// stammen aus einer Instanz, die es nicht mehr gibt. Ohne diesen
+			// Schnitt genuegte ein alter, gueltiger Lauf im selben Auszug, um
+			// einen neuen ohne jede eigene Zeile bestehen zu lassen.
 			journal.loads += 1;
+			journal.verworfen += gezaehlt - 1;
+			gezaehlt = 1;
+			journal.config = null;
+			journal.surfaces = [];
+			journal.diagnosen = [];
+			journal.writes = [];
+			journal.externals = [];
+			journal.epochen = [];
+			epoche = null;
+			continue;
+		}
+		if (zeile.startsWith("arrange #")) {
+			const nummer = Number(/^arrange #(\d+)/.exec(zeile)?.[1] ?? "");
+			const f = felder(zeile);
+			if (!Number.isNaN(nummer)) {
+				epoche = nummer;
+				journal.epochen.push({ nummer, zeit, grund: f.get("grund") ?? "" });
+			}
 			continue;
 		}
 		if (zeile.startsWith("config gaps=")) {
@@ -343,6 +485,8 @@ export function parseJournal(text: string): Journal {
 					n: Number(f.get("n")),
 					ratio: Number(f.get("ratio")),
 					area,
+					zeit,
+					epoche,
 				});
 			}
 			continue;
@@ -356,6 +500,8 @@ export function parseJournal(text: string): Journal {
 				order: liste(f.get("order")),
 				participants: liste(f.get("teilnehmer")),
 				floating: liste(f.get("float")),
+				zeit,
+				epoche,
 			});
 			continue;
 		}
@@ -367,6 +513,8 @@ export function parseJournal(text: string): Journal {
 				id: teile[1] ?? "",
 				soll: parseRect(f.get("soll") ?? ""),
 				ist: null,
+				zeit,
+				epoche,
 			});
 			continue;
 		}
@@ -378,6 +526,8 @@ export function parseJournal(text: string): Journal {
 				id: teile[1] ?? "",
 				soll: parseRect(f.get("soll") ?? ""),
 				ist: parseRect(f.get("ist") ?? ""),
+				zeit,
+				epoche,
 			});
 			continue;
 		}
@@ -389,6 +539,8 @@ export function parseJournal(text: string): Journal {
 				id: teile[1] ?? "",
 				soll: null,
 				ist: parseRect(f.get("ist") ?? ""),
+				zeit,
+				epoche,
 			});
 			continue;
 		}
@@ -397,6 +549,7 @@ export function parseJournal(text: string): Journal {
 		}
 	}
 
+	journal.pids = Array.from(pids);
 	return journal;
 }
 
@@ -566,23 +719,75 @@ export function checkGeometry(input: GeometryInput): Finding[] {
 	const offen = soll.map(fmtRect).sort();
 	const gemessen = Array.from(ist.values()).map(fmtRect).sort();
 	if (JSON.stringify(offen) !== JSON.stringify(gemessen)) {
+		// Die Entlastung des Controllers wird **je Fenster** geprueft, nicht
+		// ueber den Auszug als Ganzes. Ein `aufgegeben` an einem unbeteiligten
+		// Fenster entlastet nichts -- vorher genuegte irgendeine solche Zeile
+		// im Journal, um eine beliebig falsche Geometrie durchzuwinken.
 		const sollJeId = new Map<string, Rect>();
+		const sollEpoche = new Map<string, number | null>();
+		const aufgegebenJeId = new Map<string, Rect | null>();
+		const aufgegebenEpoche = new Map<string, number | null>();
 		for (const write of journal.writes) {
 			if (write.kind === "apply" && write.soll !== null) {
 				sollJeId.set(write.id, write.soll);
+				sollEpoche.set(write.id, write.epoche);
+			}
+			if (write.kind === "aufgegeben") {
+				aufgegebenJeId.set(write.id, write.ist);
+				aufgegebenEpoche.set(write.id, write.epoche);
 			}
 		}
+
 		const sollMengeAusJournal = Array.from(sollJeId.values()).map(fmtRect).sort();
 		const sollStimmt =
 			sollMengeAusJournal.length === offen.length &&
 			JSON.stringify(sollMengeAusJournal) === JSON.stringify(offen);
-		const aufgegeben = journal.writes.some((write) => write.kind === "aufgegeben");
-		if (sollStimmt && aufgegeben) {
+
+		// Jedes abweichende Fenster braucht seine eigene Entschuldigung: ein
+		// Soll, das zur gerechneten Zelle passt, ein `aufgegeben` fuer genau
+		// diese Id, und ein dort vermerktes Ist, das zur Messung passt.
+		const sollMenge = new Set(offen);
+		const unentschuldigt: string[] = [];
+		for (const [id, rect] of ist) {
+			if (sollMenge.has(fmtRect(rect))) {
+				continue;
+			}
+			const eigenesSoll = sollJeId.get(id);
+			const eigenesAufgeben = aufgegebenJeId.get(id);
+			const sollPasst = eigenesSoll !== undefined && sollMenge.has(fmtRect(eigenesSoll));
+			const istPasst =
+				eigenesAufgeben !== undefined &&
+				(eigenesAufgeben === null || fmtRect(eigenesAufgeben) === fmtRect(rect));
+			// Das Give-up muss **nach** dem letzten Schreibversuch stehen. Ein
+			// aelteres entlastet nicht: danach kam ein neuer `apply`, und dessen
+			// Ergebnis ist unbelegt.
+			const eSoll = sollEpoche.get(id);
+			const eAufgeben = aufgegebenEpoche.get(id);
+			const reihenfolgePasst =
+				eSoll === undefined ||
+				eSoll === null ||
+				eAufgeben === undefined ||
+				eAufgeben === null ||
+				eAufgeben >= eSoll;
+			if (!(sollPasst && aufgegebenJeId.has(id) && istPasst && reihenfolgePasst)) {
+				unentschuldigt.push(`${id} misst ${fmtRect(rect)}`);
+			}
+		}
+
+		if (sollStimmt && unentschuldigt.length === 0) {
 			findings.push(
-				hinweis(
-					"Ist weicht ab, das Soll stimmt und der Controller hat aufgegeben: " +
-						"der Client hat die Größe nicht angenommen. Fall an einem Client wiederholen, " +
-						"der exakt annimmt (Eignung protokollieren).",
+				nichtAbgenommen(
+					"Ist weicht ab, das Soll stimmt und der Controller hat für jedes betroffene " +
+						"Fenster aufgegeben: der Client hat die Größe nicht angenommen. Der Controller " +
+						"ist entlastet, der Fall ist geometrisch **nicht abgenommen** — an einem Client " +
+						"wiederholen, der exakt annimmt (Eignung protokollieren).",
+				),
+			);
+		} else if (sollStimmt) {
+			findings.push(
+				fehler(
+					`Soll ${offen.join(" ")} gegen Ist ${gemessen.join(" ")}; ohne Give-up für ` +
+						`dieses Fenster: ${unentschuldigt.join(", ")}`,
 				),
 			);
 		} else {
@@ -610,16 +815,18 @@ export function checkGeometry(input: GeometryInput): Finding[] {
 			}
 		}
 		if (expect.n > 1) {
+			// Der Master wird an seiner **vollstaendigen Sollzelle** erkannt, nicht
+			// an der Breite allein: bei `ratio=0.5` ist die Stapelspalte genauso
+			// breit wie der Master, und die Breitenzaehlung meldete dann zwei
+			// Treffer fuer ein voellig korrektes Layout.
 			const master = soll[0] as Rect;
-			const passende = werte.filter((eintrag) => eintrag[1].width === master.width);
+			const passende = werte.filter((eintrag) => gleich(eintrag[1], master));
 			if (passende.length !== 1) {
 				findings.push(
 					fehler(
-						`${passende.length} Rechtecke mit Masterbreite ${master.width}, erwartet genau eines`,
+						`${passende.length} Rechtecke mit der Masterzelle ${fmtRect(master)}, erwartet genau eines`,
 					),
 				);
-			} else if ((passende[0] as [string, Rect])[1].x !== master.x) {
-				findings.push(fehler("die Masterzelle liegt nicht links"));
 			}
 		}
 	}
@@ -650,10 +857,107 @@ export interface Report {
 	bestanden: boolean;
 }
 
-export function run(ndjson: string, journalText: string, args: string[]): Report {
+/**
+ * Gehoert das gemessene Fenster zu der Surface, die dieser `view`-Satz
+ * beschreibt? Leere `desktops`/`activities` heissen "alle" -- so wie es
+ * `src/kwin/filter.ts` auch auslegt.
+ */
+export function gehoertZu(win: ProbeRecord, view: ProbeRecord): boolean {
+	if (String(win.output) !== String(view.output)) {
+		return false;
+	}
+	const desktops = win.desktops;
+	if (Array.isArray(desktops) && desktops.length > 0) {
+		if (!desktops.map(String).includes(String(view.desktop))) {
+			return false;
+		}
+	}
+	const activities = win.activities;
+	if (Array.isArray(activities) && activities.length > 0) {
+		if (!activities.map(String).includes(String(view.activity))) {
+			return false;
+		}
+	}
+	return true;
+}
+
+export interface RunOptionen {
+	/** Erwartete KWin-PID. Kommt aus dem Wrapper, nicht aus der Vorschrift. */
+	pid?: string;
+}
+
+/**
+ * Das Zeitfenster der Messung: von `meta.start` bis zum letzten Satz. Zeilen
+ * danach beschreiben einen Zustand, den die Probe nie gesehen hat.
+ */
+export function messfenster(records: ProbeRecord[]): { von: number; bis: number } | null {
+	const meta = records.find((record) => record.k === "meta");
+	const start = meta === undefined ? undefined : meta.start;
+	if (typeof start !== "number") {
+		return null;
+	}
+	let letztes = 0;
+	for (const record of records) {
+		if (typeof record.ms === "number" && record.ms > letztes) {
+			letztes = record.ms;
+		}
+	}
+	return { von: start, bis: start + letztes };
+}
+
+export function run(
+	ndjson: string,
+	journalText: string,
+	args: string[],
+	optionen: RunOptionen = {},
+): Report {
 	const records = parseNdjson(ndjson);
-	const journal = parseJournal(journalText);
+	const fenster = messfenster(records);
+	const journal = parseJournal(journalText, {
+		pid: optionen.pid,
+		bis: fenster === null ? undefined : fenster.bis,
+	});
 	const findings: Finding[] = [...checkQuality(records), ...checkStability(records)];
+
+	// Ein Auszug mit Zeilen mehrerer KWin-Prozesse gehoert zu mehr als einem
+	// Lauf. Ohne ausdrueckliche PID ist dann nicht bestimmt, welcher gemeint
+	// ist -- und `parseJournal` naehme stillschweigend den letzten.
+	if (optionen.pid === undefined && journal.pids.length > 1) {
+		findings.push(
+			fehler(
+				`Auszug enthält Zeilen von ${journal.pids.length} KWin-Prozessen ` +
+					`(${journal.pids.join(", ")}): die Messung braucht \`--kwin-pid\``,
+			),
+		);
+	}
+	if (optionen.pid !== undefined && !journal.pids.includes(optionen.pid)) {
+		findings.push(fehler(`keine Zeile des Prozesses ${optionen.pid} im Auszug`));
+	}
+	if (journal.verworfen > 0) {
+		findings.push(
+			hinweis(
+				`${journal.verworfen} Zeilen vor dem letzten \`geladen\` verworfen: sie gehören zu einer ` +
+					"früheren Instanz",
+			),
+		);
+	}
+	// Ein Anordnungslauf **waehrend** der Messung heisst, dass sich die
+	// Geometrie unter der Probe bewegt hat -- die Samples zeigen dann einen
+	// Uebergang, keinen Zustand.
+	if (fenster !== null) {
+		const waehrend = journal.epochen.filter(
+			(eintrag) => eintrag.zeit >= fenster.von && eintrag.zeit <= fenster.bis,
+		);
+		if (waehrend.length > 0) {
+			const namen = waehrend.map((eintrag) => `#${eintrag.nummer} (${eintrag.grund})`).join(", ");
+			findings.push(
+				fehler(
+					`während der Messung liefen ${waehrend.length} Anordnungsläufe (${namen}): ` +
+						"der Auszug beschreibt einen Übergang, nicht den gemessenen Zustand",
+				),
+			);
+		}
+	}
 
 	const expect = parseExpectation(args);
 	if (expect !== null) {
@@ -671,6 +975,18 @@ export function run(ndjson: string, journalText: string, args: string[]): Report
 				? (views.find((record) => surface === null || record.key === surface.key) ?? views[0])
 				: views.find((record) => record.key === expect.surface);
 
+		// Bei mehreren gemessenen Surfaces muss die Vorschrift sagen, welche
+		// gemeint ist. Vorher fiel die Wahl still auf `views[0]` -- bei zwei
+		// Ausgaben also auf eine Zufallsreihenfolge im Auszug.
+		if (expect.surface === undefined && views.length > 1) {
+			const namen = views.map((record) => String(record.key)).join(", ");
+			findings.push(
+				fehler(
+					`${views.length} Surfaces gemessen (${namen}): die Vorschrift muss \`surface=\` nennen`,
+				),
+			);
+		}
+
 		if (view === undefined || view.area === undefined || view.area === null) {
 			findings.push(fehler("keine passende `view` mit Arbeitsfläche im letzten Sample"));
 		} else if (surface === null) {
@@ -685,6 +1001,20 @@ export function run(ndjson: string, journalText: string, args: string[]): Report
 					),
 				);
 			} else {
+				// Zwei unabhaengige Quellen fuer dieselbe Arbeitsflaeche: die
+				// Probe misst sie, das Journal meldet sie. Laufen sie
+				// auseinander, rechnet das Orakel gegen eine Flaeche, die so nie
+				// anlag.
+				const gemesseneArea = toRect(view.area as ProbeRect);
+				if (!gleich(gemesseneArea, surface.area)) {
+					findings.push(
+						fehler(
+							`Arbeitsfläche widersprüchlich: Probe misst ${fmtRect(gemesseneArea)}, ` +
+								`das Journal meldet ${fmtRect(surface.area)}`,
+						),
+					);
+				}
+
 				const ist = new Map<string, Rect>();
 				for (const record of records) {
 					if (record.k !== "win" || record.s !== letzterSample) {
@@ -692,6 +1022,19 @@ export function run(ndjson: string, journalText: string, args: string[]): Report
 					}
 					const id = String(record.id);
 					if (!diagnose.participants.includes(id)) {
+						continue;
+					}
+					// Die Teilnehmerliste kommt aus der Registry, die Zugehoerigkeit
+					// aus der Messung. Beides muss zusammenpassen -- sonst rechnete
+					// das Orakel Fenster einer fremden Surface in dieses Layout.
+					// Leere Listen heissen "alle" (Polonium-Issue #222).
+					if (!gehoertZu(record, view)) {
+						findings.push(
+							fehler(
+								`Fenster ${id} steht in der Diagnose von ${surface.key}, liegt laut Probe ` +
+									"aber auf einer anderen Surface",
+							),
+						);
 						continue;
 					}
 					const geo = record.geo as ProbeRect | null | undefined;
@@ -718,6 +1061,11 @@ export function run(ndjson: string, journalText: string, args: string[]): Report
 
 	return {
 		findings,
-		bestanden: !findings.some((finding) => finding.level === "fehler"),
+		// `nicht-abgenommen` zaehlt wie ein Fehler gegen das Bestehen: der
+		// Controller mag entlastet sein, die Geometrie ist trotzdem nicht
+		// nachgewiesen. Nur `hinweis` laesst den Lauf bestehen.
+		bestanden: !findings.some(
+			(finding) => finding.level === "fehler" || finding.level === "nicht-abgenommen",
+		),
 	};
 }

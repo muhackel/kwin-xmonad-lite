@@ -10,6 +10,13 @@ Activity- und Bildschirmzuordnung bleiben vollständig bei KWin und seinen
 Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 
 > **Status: MVP abgenommen, Meilenstein 7 abgeschlossen (2026-09-06).**
+> Die Abnahme war zwischenzeitlich ausgesetzt: ein externes Audit fand elf
+> Defekte in den **Prüfwerkzeugen** — nicht im Controller. Orakel und Auditor
+> ließen auch ungültige Nachweise durch. Nach der Berichtigung wurde jeder
+> archivierte Nachweis neu ausgewertet; alle bestehen auch die verschärften
+> Prüfer, und die Neuauswertung ist als Flake-Check verankert. Die Fälle waren
+> richtig, nur ihre Prüfung war zu lasch.
+>
 > Das Skript kachelt auf allen Bildschirmen; jeder virtuelle Desktop und jede
 > Activity führt je Bildschirm einen eigenen Stapel. Vollbild, Maximierung und
 > Minimierung verlassen das Layout, ohne ihre Stapelposition zu verlieren.
@@ -17,7 +24,7 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > Höchstgrößen werden berücksichtigt. Seit Meilenstein 6 ist der Controller
 > bedienbar: zwölf eigene Tastenkürzel, sechs Konfigurationsschlüssel in
 > `kwinrc` und ein Home-Manager-Modul für die deklarative Installation. Damit
-> ist auch das Full-Layout erreichbar. Der Stand hat 337 Tests und neun
+> ist auch das Full-Layout erreichbar. Der Stand hat 365 Tests und zehn
 > Flake-Checks.
 >
 > Meilenstein 7 hat das Verhalten live geprüft, in drei Reihen auf HAL9000 mit
@@ -30,14 +37,14 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > und von 59 Anordnungsläufen in der Laststunde schrieben nur 16 überhaupt
 > etwas — die übrigen stellten fest, dass alles am Platz ist.
 >
-> Zwei Einschränkungen gehören zur Abnahme: der Multi-Output-Lauf lief mit
-> zwei Ausgaben statt drei, und die Laststunde mit skriptgesteuerter Last statt
-> normaler Arbeit. Beides steht in den Protokollen unter
-> [`docs/`](docs/) und in [`PLAN.md`](PLAN.md) Abschnitt 11. Eine Test-VM ist
-> nicht vorgesehen: gegen zwei echte Maschinen gewinnt sie nichts, und die
-> Frage, ob das gebaute Bundle in QJSEngine überhaupt lädt, beantwortet
-> `checks.bundle-runtime`. Nicht herstellbar und deshalb unbelegt bleibt
-> Fall 20c.
+> Zwei Einschränkungen gehören dazu: der Multi-Output-Lauf lief mit zwei
+> Ausgaben statt drei, und die Laststunde mit skriptgesteuerter Last statt
+> normaler Arbeit. Beides steht in den Protokollen unter [`docs/`](docs/)
+> und in [`PLAN.md`](PLAN.md) Abschnitt 11. Eine Test-VM ist nicht vorgesehen:
+> gegen zwei echte Maschinen gewinnt sie nichts. `checks.bundle-runtime` prüft
+> das gebaute Bundle per Grep auf Funktionen, die QJSEngine nicht hat, und die
+> esbuild-Zielstufe — ein **Ladeversuch ist er nicht**. Nicht herstellbar und
+> deshalb unbelegt bleibt Fall 20c.
 
 ## Schnellstart
 

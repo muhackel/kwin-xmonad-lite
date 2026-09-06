@@ -191,3 +191,153 @@ test("eine volle ruhige Stunde besteht", () => {
 	assert.deepEqual(fehler(bericht), []);
 	assert.equal(bericht.bestanden, true);
 });
+
+// ---------------------------------------------------------------------------
+// Nachbesserungen aus dem Audit vom 2026-09-06.
+// ---------------------------------------------------------------------------
+
+/** Eine Marke, wie `systemd-cat -t kxl-abnahme` sie schreibt: eigene PID. */
+function marke(minute: number, sekunde: number, text: string): string {
+	const basis = Date.UTC(2026, 8, 6, 8, minute, sekunde);
+	const iso = new Date(basis).toISOString().slice(0, 19);
+	return `${iso}+00:00 SPIELKISTE kxl-abnahme[9999]: ${text}`;
+}
+
+/** Eine Controllerzeile unter abweichender PID: nach einem `replace`. */
+function fremdeZeile(minute: number, sekunde: number, text: string): string {
+	const basis = Date.UTC(2026, 8, 6, 8, minute, sekunde);
+	const iso = new Date(basis).toISOString().slice(0, 19);
+	return `${iso}+00:00 SPIELKISTE kwin_wayland[9100]: kwin-xmonad-lite: ${text}`;
+}
+
+/** Eine Stunde ruhiger Betrieb, in die sich Einzelfälle einsetzen lassen. */
+function stunde(zeilen: string[]): string {
+	return [
+		marke(0, 0, "== Fall 27 Anfang =="),
+		zeile(0, 1, "arrange #1 grund=start surfaces=1 mitglieder=2 teilnehmer=2"),
+		zeile(0, 1, "apply {a} soll=1248x1050+0+0"),
+		...zeilen,
+		zeile(61, 0, "arrange #2 grund=windowAdded surfaces=1 mitglieder=2 teilnehmer=2"),
+		marke(61, 30, "== Fall 27 Ende =="),
+	].join("\n");
+}
+
+test("ein einzelner Skriptneustart mitten im Auszug fällt auf", () => {
+	// Die alte Schwelle sprang erst bei zwei `geladen`-Zeilen an; genau eine
+	// mitten im Auszug lief durch.
+	const bericht = pruefeAlltagsstunde(stunde([zeile(30, 0, "geladen, Version 0.0.0")]));
+	assert.equal(bericht.bestanden, false);
+	assert.equal(
+		fehler(bericht).some((text) => text.includes("Skriptneustart mitten im Auszug")),
+		true,
+	);
+});
+
+test("ein Auszug ohne geladen-Zeile besteht bei einer PID und lückenloser Folge", () => {
+	// Genau die Lage des echten Fall-27-Artefakts: der Auszug beginnt mitten im
+	// Lauf. Belegt wird die Kontinuität dann über PID und Epochenfolge.
+	const bericht = pruefeAlltagsstunde(stunde([]));
+	assert.deepEqual(fehler(bericht), []);
+	assert.equal(bericht.bestanden, true);
+});
+
+test("eine Lücke in der Folge der Anordnungsläufe fällt auf", () => {
+	const bericht = pruefeAlltagsstunde(
+		stunde([zeile(30, 0, "arrange #100 grund=windowAdded surfaces=1 mitglieder=2 teilnehmer=2")]),
+	);
+	assert.equal(bericht.bestanden, false);
+	assert.equal(
+		fehler(bericht).some((text) => text.includes("Journallücke")),
+		true,
+	);
+});
+
+test("Zeilen zweier KWin-Prozesse belegen keine durchgehende Stunde", () => {
+	const bericht = pruefeAlltagsstunde(
+		stunde([
+			fremdeZeile(30, 0, "arrange #2 grund=windowAdded surfaces=1 mitglieder=2 teilnehmer=2"),
+		]),
+	);
+	assert.equal(bericht.bestanden, false);
+	assert.equal(
+		fehler(bericht).some((text) => text.includes("KWin-Prozessen")),
+		true,
+	);
+});
+
+test("ein unerwartetes Give-up ist im Stundenmodus ein Fehler", () => {
+	const bericht = pruefeAlltagsstunde(
+		stunde([zeile(30, 0, "aufgegeben {b} nach 2 Versuchen, ist=670x520+1248+0")]),
+	);
+	assert.equal(bericht.bestanden, false);
+	assert.equal(
+		fehler(bericht).some((text) => text.includes("außerhalb eines bewusst provozierten Falls")),
+		true,
+	);
+});
+
+test("ein provoziertes Give-up bleibt ein Hinweis", () => {
+	const bericht = pruefeAlltagsstunde(
+		stunde([zeile(30, 0, "aufgegeben {b} nach 2 Versuchen, ist=670x520+1248+0")]),
+		{ provoziert: ["{b}"] },
+	);
+	assert.deepEqual(fehler(bericht), []);
+	assert.equal(bericht.bestanden, true);
+});
+
+test("eine Nachbesserung ohne vorangehenden apply ist nicht zuzuordnen", () => {
+	const text = [
+		zeile(0, 0, "geladen, Version 0.0.0"),
+		zeile(0, 1, "arrange #1 grund=start surfaces=1 mitglieder=1 teilnehmer=1"),
+		zeile(0, 2, "nachbessern {x} versuch=1 ist=100x100+0+0 soll=200x200+0+0"),
+	].join("\n");
+	const bericht = pruefe(parseEreignisse(text));
+	assert.equal(bericht.unklar, 1);
+	assert.equal(
+		bericht.befunde.some(
+			(befund) => befund.level === "manuell" && befund.text.includes("ohne vorangehenden"),
+		),
+		true,
+	);
+});
+
+test("zwei Fenster mit verschränkten extern-Ketten werden beide erkannt", () => {
+	// Die frühere globale Kette wurde von jedem Wechsel zurückgesetzt; zwei
+	// abwechselnd meldende Fenster kamen nie über eins hinaus.
+	const zeilen = [zeile(0, 0, "geladen, Version 0.0.0")];
+	for (let i = 0; i < 5; i++) {
+		zeilen.push(zeile(1, i, "extern {a}"));
+		zeilen.push(zeile(1, i, "extern {b}"));
+		zeilen.push(
+			zeile(1, i, "arrange #1 grund=geometrieExtern surfaces=1 mitglieder=2 teilnehmer=2"),
+		);
+	}
+	const bericht = pruefe(parseEreignisse(zeilen.join("\n")));
+	assert.equal(
+		fehler(bericht).some((text) => text.includes("{a}")),
+		true,
+	);
+	assert.equal(
+		fehler(bericht).some((text) => text.includes("{b}")),
+		true,
+	);
+});
+
+test("die Fallmarken grenzen den Prüfzeitraum ab", () => {
+	// Der Auszug reicht über eine Stunde, der markierte Fall dauert 40 Minuten.
+	// Vorher zählte die Spanne aller Zeilen und der Fall bestand.
+	const text = [
+		zeile(0, 0, "geladen, Version 0.0.0"),
+		zeile(0, 1, "arrange #1 grund=start surfaces=1 mitglieder=1 teilnehmer=1"),
+		marke(10, 0, "== Fall 27 Anfang =="),
+		zeile(30, 0, "arrange #2 grund=windowAdded surfaces=1 mitglieder=1 teilnehmer=1"),
+		marke(50, 0, "== Fall 27 Ende =="),
+		zeile(70, 0, "arrange #3 grund=windowAdded surfaces=1 mitglieder=1 teilnehmer=1"),
+	].join("\n");
+	const bericht = pruefeAlltagsstunde(text);
+	assert.equal(bericht.bestanden, false);
+	assert.equal(
+		fehler(bericht).some((text2) => text2.includes("40.0 min")),
+		true,
+	);
+});

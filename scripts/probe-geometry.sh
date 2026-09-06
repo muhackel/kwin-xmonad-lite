@@ -90,7 +90,13 @@ fi
 # absichtlich weiter zurück als die Probe: die `config`-Zeile steht beim
 # Skriptstart und liegt regelmäßig außerhalb des Probenzeitfensters.
 journal="$OUT_DIR/geometry-$stamp.journal"
-journalctl --user -b -u "$UNIT" -o short-iso \
+# An die KWin-Instanz gebunden: nach einem `replace` schreiben zwei Prozesse in
+# dieselbe Unit, und der Auszug reicht bootweit zurueck. Ohne die Bindung
+# koennte er Zeilen einer Instanz enthalten, die es nicht mehr gibt.
+kwin_pid="$(busctl --user call org.freedesktop.DBus /org/freedesktop/DBus \
+	org.freedesktop.DBus GetConnectionUnixProcessID s org.kde.KWin 2>/dev/null \
+	| awk '{ print $2 }')"
+journalctl --user -b _SYSTEMD_USER_UNIT="$UNIT.service" _PID="$kwin_pid" -o short-iso \
 	| grep 'kwin-xmonad-lite:' >"$journal" || true
 log_ok "$(wc -l <"$journal") Controllerzeilen nach $journal geschrieben."
 
@@ -109,4 +115,4 @@ fi
 # --- Auswerten --------------------------------------------------------------
 
 log_info "Werte aus."
-node "$EXPECT_JS" "$result" "$journal" "${expectation[@]+"${expectation[@]}"}"
+node "$EXPECT_JS" "$result" "$journal" --kwin-pid "$kwin_pid" "${expectation[@]+"${expectation[@]}"}"

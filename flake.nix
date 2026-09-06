@@ -438,6 +438,77 @@
             touch "$out"
           '';
 
+          # Die eingecheckten Nachweise der Live-Reihen, mit den aktuellen Prüfern
+          # ausgewertet. Damit sind die Artefakte selbst die Regressionsprobe
+          # der Werkzeuge: eine spätere Abschwächung, die einen ungültigen
+          # Nachweis wieder durchwinkt, fällt hier auf -- und ebenso eine
+          # Verschärfung, die einen gültigen Nachweis nachträglich verwirft.
+          #
+          # Der Anlass steht im Audit vom 2026-09-06: Orakel und Auditor
+          # meldeten ungültige Daten als bestanden, und niemand hätte es
+          # bemerkt, weil kein Test je ein echtes Artefakt anfasste.
+          archiv-reauswertung = pkgs.runCommand "kwin-xmonad-lite-archiv-reauswertung"
+            { nativeBuildInputs = [ pkgs.nodejs ]; } ''
+            cd ${self}
+            erwarte="a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9"
+            r1=docs/ms7-2026-09-06-hal9000.log
+            r7=docs/ms7-2026-09-06-hal9000-ap7.log
+            fehler=0
+
+            pruefe() {
+              local soll="$1" name="$2"; shift 2
+              if node dev/probe/expect-geometry-cli.ts "$@" >/dev/null 2>&1; then
+                ergebnis=bestanden
+              else
+                ergebnis="nicht bestanden"
+              fi
+              if [ "$ergebnis" != "$soll" ]; then
+                echo "$name: erwartet '$soll', erhalten '$ergebnis'" >&2
+                fehler=1
+              fi
+            }
+
+            pruefe bestanden "25 Selbsttest" \
+              docs/geometry-2026-09-06-hal9000-25.ndjson "$r1" --kwin-pid 49086
+            pruefe bestanden "25a" \
+              docs/geometry-2026-09-06-hal9000-25a.ndjson "$r1" --kwin-pid 49086 \
+              layout=tall n=1 ratio=0.65 gaps=0/0
+            pruefe bestanden "25b" \
+              docs/geometry-2026-09-06-hal9000-25b.ndjson "$r1" --kwin-pid 49086 \
+              layout=tall n=3 ratio=0.65 gaps=0/0
+            pruefe bestanden "25c tall" \
+              docs/geometry-2026-09-06-hal9000-25c-tall.ndjson "$r1" --kwin-pid 61993 \
+              layout=tall n=3 ratio=0.55 gaps=8/4
+            pruefe bestanden "25c full" \
+              docs/geometry-2026-09-06-hal9000-25c-full.ndjson "$r1" --kwin-pid 61993 \
+              layout=full n=3 ratio=0.55 gaps=8/4
+            pruefe bestanden "26 DP-3" \
+              docs/geometry-2026-09-06-hal9000-ap7-26-dp3.ndjson "$r7" --kwin-pid 2468 \
+              layout=tall n=3 ratio=0.55 gaps=0/0 "surface=$erwarte|DP-3"
+            pruefe bestanden "26 eDP-1" \
+              docs/geometry-2026-09-06-hal9000-ap7-26-edp1.ndjson "$r7" --kwin-pid 2468 \
+              layout=full n=3 ratio=0.65 gaps=0/0 "surface=$erwarte|eDP-1"
+
+            # Der abgelehnte erste Anlauf von Fall 25 muss abgelehnt bleiben:
+            # waehrend der Messung baute ein Autostart-Fenster neu auf.
+            pruefe "nicht bestanden" "25 Vorlauf" \
+              docs/geometry-2026-09-06-hal9000-25-vorlauf.ndjson "$r1" --kwin-pid 49086
+
+            # Die Alltagsstunde: ein Skriptlauf ueber eine PID und eine
+            # lueckenlose Epochenfolge, ohne eine einzige `geladen`-Zeile.
+            if ! node dev/probe/journal-audit-cli.ts \
+              docs/ms7-2026-09-06-hal9000-fall27.log --stunde >/dev/null 2>&1; then
+              echo "Fall 27 besteht die Belegschwelle nicht mehr" >&2
+              fehler=1
+            fi
+
+            if [ "$fehler" != "0" ]; then
+              echo "Die eingecheckten Nachweise werden anders bewertet als dokumentiert." >&2
+              exit 1
+            fi
+            touch "$out"
+          '';
+
           # Baut die Entwicklungswerkzeuge und lässt damit shellcheck laufen.
           scripts = pkgs.symlinkJoin {
             name = "kwin-xmonad-lite-scripts";

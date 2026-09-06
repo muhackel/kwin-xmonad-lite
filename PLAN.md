@@ -1,6 +1,6 @@
 # Implementierungsplan `kwin-xmonad-lite`
 
-Stand: 2026-09-06. Der Entwurf mit allen Nutzerentscheidungen steht in Abschnitt 12. Abgeschlossen sind die Meilensteine 0 bis **7** samt den Stabilisierungsschritten 3.1, 3.1.1, 4.1, 4.1.1, 5.1, den Audits 4.2, 6.1 und 6.2 sowie den Abnahmen 6.3 und 7. **Der MVP ist damit abgenommen** — die sechs Kriterien aus Abschnitt 11 sind erfüllt, mit zwei dort benannten Einschränkungen (zwei statt drei Ausgaben im Multi-Output-Lauf, skriptgesteuerte statt normaler Arbeit in der Alltagsstunde). Fall 20c ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.7). Eine Test-VM gibt es nicht mehr, weder im MVP noch auf Stufe 2 (Abschnitt 8). Das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein läuft als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
+Stand: 2026-09-06. Der Entwurf mit allen Nutzerentscheidungen steht in Abschnitt 12. Abgeschlossen sind die Meilensteine 0 bis **7** samt den Stabilisierungsschritten 3.1, 3.1.1, 4.1, 4.1.1, 5.1, den Audits 4.2, 6.1 und 6.2 sowie den Abnahmen 6.3 und 7. **Der MVP ist abgenommen** — ausgesetzt am 2026-09-06 nach einem externen Audit, das elf Defekte in den **Prüfwerkzeugen** fand, und nach deren Berichtigung und einer vollständigen Neuauswertung aller Artefakte wieder ausgesprochen. Der Controller war nie betroffen und ist seit `abdffa2` unverändert; jeder Nachweis besteht auch die verschärften Prüfer (Abschnitt 11). Fall 20c ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.7). Eine Test-VM gibt es nicht mehr, weder im MVP noch auf Stufe 2 (Abschnitt 8). Das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein läuft als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
 
 ## 0. Position
 
@@ -343,18 +343,42 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
    mitten in der Messung ergeben **„nicht ausreichend belegt"**, nicht
    „bestanden" (Fall 27).
 
-**Stand 2026-09-06: alle sechs Punkte erfüllt.** Zwei Einschränkungen gehören
-zur Feststellung dazu und stehen in den Protokollen:
+**Stand 2026-09-06: alle sechs Punkte erfüllt — nach einer Nachprüfung.**
+
+Ein externes Audit fand elf Defekte in den **Prüfwerkzeugen**: das Orakel
+akzeptierte Daten eines fremden Skriptlaufs, ließ eine falsche Geometrie durch,
+wenn irgendwo ein fremdes `aufgegeben` stand, und lehnte umgekehrt ein
+korrektes `tall` bei `ratio=0.5` ab; der Auditor wertete ein Give-up nur als
+Hinweis, erkannte einen einzelnen Skriptneustart nicht und prüfte weder
+Epochenlücken noch Fallmarken. Die Abnahme wurde daraufhin **ausgesetzt** — mit
+solchen Werkzeugen beweist ein „bestanden" wenig.
+
+Nach der Berichtigung wurde **jeder** archivierte Nachweis neu ausgewertet, an
+die KWin-Instanz gebunden, die ihn erzeugt hat. Alle bestehen; der damals
+abgelehnte Vorlauf von Fall 25 bleibt abgelehnt und bekommt die schärfere
+Diagnose. Die Neuauswertung ist als `checks.archiv-reauswertung` verankert: eine
+spätere Änderung an den Prüfern, die eines dieser Ergebnisse umdreht, bricht den
+Check. Die Fälle waren also richtig, nur ihre Prüfung war zu lasch.
+
+Zwei Einschränkungen gehören weiterhin zur Feststellung und stehen in den
+Protokollen:
 
 - Punkt 5 wurde auf HAL9000 mit **zwei** Ausgaben erbracht, nicht auf
   SPIELKISTE mit dreien. Zwei Ausgaben waren immer das Minimum des Kriteriums;
   über drei und mehr Ausgaben, über unterschiedliche Auflösungen und über
   gebrochene Skalierung sagt der Lauf nichts.
 - Punkt 6 wurde mit **skriptgesteuerter** Last erbracht, nicht mit normaler
-  Arbeit: 75 Aktionen in 64,5 Minuten, dichter getaktet als eine typische
-  Arbeitsstunde, aber ohne Mausziehen und ohne die Fenstervielfalt echter
-  Arbeit. Belegt ist Schleifenfreiheit unter dichter Ereignislast, nicht unter
-  Alltagsbedingungen.
+  Arbeit: 75 Schleifendurchläufe des Lastskripts in 64,5 Minuten, aus denen
+  belastbar 43 `befehl`- und 59 `arrange`-Zeilen im Journal stehen. Dichter
+  getaktet als eine typische Arbeitsstunde, aber ohne Mausziehen und ohne die
+  Fenstervielfalt echter Arbeit. Belegt ist Schleifenfreiheit unter dichter
+  Ereignislast, nicht unter Alltagsbedingungen.
+Nicht mehr auf dieser Liste stehen zwei Punkte, die inzwischen belegt sind:
+Fall 26a prüfte die vier Desktopzustände zunächst nur auf **einer** Ausgabe und
+ist am 2026-09-06 ergänzend nachgeholt worden (sechs Surfaces, je eigener
+Zustand über beide Ausgaben); und für Fall 20b gibt es jetzt den
+Adapter-Rig-Test, der die Aktivierungen je Befehl **zählt**, statt sich auf die
+Journalzeile zu verlassen, mit der der Controller über sich selbst berichtet.
 
 **Grid-Stufe abgenommen, wenn:** `grid` in der Layoutliste zyklisch erreichbar ist, die Unit-Tests dieselben Eigenschaften wie Tall prüfen, und Fälle 6–8 der Matrix bestehen.
 
@@ -406,7 +430,7 @@ zur Feststellung dazu und stehen in den Protokollen:
 | 26a | Alle vier Desktops (Neuauflage von Fall 4 gegen den Abnahmestand) | vier Zustandssätze, nach dem Durchschalten unverändert; keine Desktopnamen im Journal, nur UUIDs | **bestanden**: `full` / `tall 0.6` / `tall 0.65` mit gedrehter Reihenfolge / `tall 0.55` |
 | 26b | Desktopwechsel (Neuauflage von Fall 5) | genau **ein** Lauf, obwohl `currentDesktopChanged` je Ausgabe feuert; keine Schreibzeile für Fenster, die auf ihrem Desktop bleiben | **bestanden**: ein `arrange` je Wechsel bei zwei Ausgaben, **null** Schreibzeilen |
 | 26c | Fenster auf allen Desktops (Neuauflage von Fall 7) | in jeder Surface mitgekachelt, keine Fokusübernahme durch eine inaktive Surface | **bestanden**: dieselbe Id in allen vier Surfaces, jeder Desktop behält seinen Ratio, **keine** `aktiviere`-Zeile |
-| 27 | Alltagsstunde | Auditor meldet keine Schleife, keine Rückkopplung, kein unerwartetes `aufgegeben`, Anteil „unklar" ≤ 5 %, Laufzeit ≥ 60 min in **einem** Skriptlauf | **bestanden**, mit Abweichung: 64,5 min, 75 Aktionen **skriptgesteuerter** Last statt normaler Arbeit; 37 Schreibvorgänge, 0 ohne Zuordnung, höchstens 2 auf dasselbe Soll; von 59 Anordnungsläufen schrieben nur 16 überhaupt etwas |
+| 27 | Alltagsstunde | Auditor meldet keine Schleife, keine Rückkopplung, kein unerwartetes `aufgegeben`, Anteil „unklar" ≤ 5 %, Laufzeit ≥ 60 min in **einem** Skriptlauf | **live gelaufen**, Neubewertung ausstehend; mit Abweichung: 64,5 min, 75 Schleifendurchläufe **skriptgesteuerter** Last statt normaler Arbeit (davon 43 `befehl`-Zeilen im Journal); 37 Schreibvorgänge, 0 ohne Zuordnung, höchstens 2 auf dasselbe Soll; von 59 Anordnungsläufen schrieben nur 16 überhaupt etwas |
 
 ### Rückbau nach einer Abnahmereihe
 
@@ -462,7 +486,7 @@ Drei Reihen sind bisher gelaufen:
 | Fenster auf allen Desktops / mehreren Activities | in jeder Surface mitkacheln (XMonad `copyToAll`-Verhalten) |
 | Test-VM im MVP | ~~Wayland-Smoke-Test mit einem Output; Zwei-Output-VM als Stufe-2-Experiment~~ **revidiert 2026-09-06** (Zeile darunter) |
 | Test-VM (2026-09-06, Meilenstein 7) | **entfällt ganz — auch auf Stufe 2.** Die Live-Nachweise kommen aus echten Wayland-Sitzungen; für Multi-Output stehen zwei Maschinen bereit. Die Zwei-Output-VM hätte eine QEMU-Eigenschaft geprüft, keine des Controllers. Das einzige tragfähige Argument der einfachen Smoke-VM — automatisierte Prüfung der Ladbarkeit — ist mit `checks.bundle-runtime` billiger erledigt. Bewusst ungedeckt bleibt der echte Ladeversuch nach einem KWin-Versionssprung; dafür `nix run .#probe` von Hand. |
-| Alltagsstunde ohne Alltag (2026-09-06, Meilenstein 7) | Fall 27 lief mit **skriptgesteuerter** Last statt normaler Arbeit, weil die Reihe auf HAL9000 stattfand und dort niemand arbeitet. Die Alternative wäre eine Leerlaufstunde gewesen, die weniger belegt: 75 Aktionen in 64,5 Minuten sind dichter getaktet als eine Arbeitsstunde, decken aber kein Mausziehen und keine fremde Fenstervielfalt ab. Die Einschränkung steht im MVP-Satz und im Protokoll, nicht nur hier. |
+| Alltagsstunde ohne Alltag (2026-09-06, Meilenstein 7) | Fall 27 lief mit **skriptgesteuerter** Last statt normaler Arbeit, weil die Reihe auf HAL9000 stattfand und dort niemand arbeitet. Die Alternative wäre eine Leerlaufstunde gewesen, die weniger belegt: 75 Schleifendurchläufe in 64,5 Minuten sind dichter getaktet als eine Arbeitsstunde, decken aber kein Mausziehen und keine fremde Fenstervielfalt ab. Die Einschränkung steht im MVP-Satz und im Protokoll, nicht nur hier. |
 | Prüfmittel gegen Zirkelschluss (2026-09-06, Meilenstein 7) | Die Erwartung eines Falls kommt **nie** aus dem geprüften System. Das Orakel bekommt Layout, Fensterzahl, Ratio und beide Abstände als Aufrufparameter aus der Fallvorschrift, prüft das Journal gegen diese Vorgabe **und** die Geometrie gegen die daraus gerechneten Zellen; die Probe ist strikt lesend, erzwungen durch `checks.probe-readonly`. Ohne diese Trennung bestätigte eine Messung nur, dass der Controller mit sich selbst übereinstimmt. Aus demselben Grund trennt der Auditor nutzerveranlasste von technischen Gründen: sonst wiese eine Rückkopplung formal immer einen „neuen Anlass" vor. |
 | `moveable`/`resizeable` im Filter (Meilenstein 3) | nur bei der Layout-Teilnahme prüfen, nicht bei der Mitgliedschaft (Begründung in Abschnitt 7) |
 | Testschnitt des Adapters (Meilenstein 3) | Snapshot-Grenze: der Adapter liest KWin einmal in schlichte Datensätze aus, Filter, Zuordnung, Anordnung und Geometriewächter sind reine Funktionen darauf und laufen unter `node --test` |
