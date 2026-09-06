@@ -91,8 +91,20 @@ export function runEpoch(
 	excludes: Set<string>,
 	previousParticipants: Set<WindowId>,
 	ports: EpochPorts,
+	// Die beiden Vorgabewerte stehen hinter `ports`, nicht davor: ein
+	// eingeschobener Parameter bräche jeden bestehenden Aufruf, auch den im
+	// Testrig.
+	defaultRatio?: number,
+	defaultLayoutIndex?: number,
 ): EpochResult {
-	const plan = planArrangement(snapshot, registry, gaps, excludes);
+	const plan = planArrangement(
+		snapshot,
+		registry,
+		gaps,
+		excludes,
+		defaultRatio,
+		defaultLayoutIndex,
+	);
 	const participants = participantsOf(plan);
 	for (const id of previousParticipants) {
 		if (!participants.has(id)) {
