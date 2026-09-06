@@ -218,7 +218,10 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - **Kommentare gehören auf eigene Zeilen, nie hinter Code.** Der Grenz-Grep
   wirft nur Zeilen weg, die **vollständig** als Kommentar beginnen. Ein
   nachgestelltes `// workspace.activeWindow` in `command.ts` meldete die Datei
-  sofort als Grenzverletzung, obwohl sie keine Global anfasst.
+  sofort als Grenzverletzung, obwohl sie keine Global anfasst. Dieselbe Falle
+  hat `checks.activate-once`: sein Kommentarfilter erkennt nur eine Zeile, die
+  **mit** `//`/`*`/`/*` beginnt, nicht einen nachgestellten Kommentar hinter
+  echtem Code.
 - **`runEpoch` ist die Anordnungsepoche.** `adapter.runArrange` liest den
   Snapshot, bereinigt Registry und Verbindungen und ruft sie. Änderungen am
   Ablauf aus Plan, Teilnehmerwechsel, Writes und Raise gehören in `epoch.ts`.

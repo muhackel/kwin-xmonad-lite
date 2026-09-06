@@ -91,8 +91,8 @@ fi
 # Skriptstart und liegt regelmäßig außerhalb des Probenzeitfensters.
 journal="$OUT_DIR/geometry-$stamp.journal"
 # An die KWin-Instanz gebunden: nach einem `replace` schreiben zwei Prozesse in
-# dieselbe Unit, und der Auszug reicht bootweit zurueck. Ohne die Bindung
-# koennte er Zeilen einer Instanz enthalten, die es nicht mehr gibt.
+# dieselbe Unit, und der Auszug reicht bootweit zurück. Ohne die Bindung
+# könnte er Zeilen einer Instanz enthalten, die es nicht mehr gibt.
 kwin_pid="$(busctl --user call org.freedesktop.DBus /org/freedesktop/DBus \
 	org.freedesktop.DBus GetConnectionUnixProcessID s org.kde.KWin 2>/dev/null \
 	| awk '{ print $2 }')"
