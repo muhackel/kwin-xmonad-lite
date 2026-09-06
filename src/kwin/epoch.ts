@@ -3,8 +3,8 @@ import type { WindowId } from "../core/stack.ts";
 import type { Registry } from "../state/registry.ts";
 import { getWindow } from "../state/registry.ts";
 import type { GeometryController } from "./apply.ts";
-import { judgeWrite } from "./geometry.ts";
-import type { ArrangePlan, Gaps, Placement } from "./plan.ts";
+import { anchorInto, judgePlace, judgeWrite } from "./geometry.ts";
+import type { ArrangePlan, Gaps, Placement, SurfacePlan } from "./plan.ts";
 import { planArrangement } from "./plan.ts";
 import type { Snapshot, WindowInfo } from "./types.ts";
 
@@ -49,6 +49,31 @@ function applyPlacement(
 	}
 	if (verdict === "write") {
 		geometry.apply(placement.id, placement.rect);
+	}
+}
+
+/** Vollzieht eine Float-Wiederherstellung, sobald der Sonderzustand beendet ist. */
+function restorePendingFloats(
+	surface: SurfacePlan,
+	infos: Map<WindowId, WindowInfo>,
+	registry: Registry,
+	geometry: GeometryController,
+): void {
+	for (const id of surface.members) {
+		const info = infos.get(id);
+		const state = registry.windows.get(id);
+		if (
+			info === undefined ||
+			state?.floating !== true ||
+			!state.floatRestorePending ||
+			state.floatRect === null ||
+			judgePlace(info) !== "place"
+		) {
+			continue;
+		}
+		if (geometry.place(id, anchorInto(state.floatRect, surface.area))) {
+			state.floatRestorePending = false;
+		}
 	}
 }
 
@@ -100,6 +125,7 @@ export function runEpoch(
 				`n=${surface.participants.length} ratio=${surface.ratio} ` +
 				`fläche=${fmt(surface.area)}`,
 		);
+		restorePendingFloats(surface, infos, registry, geometry);
 		for (const placement of surface.placements) {
 			applyPlacement(placement, infos, registry, geometry);
 		}

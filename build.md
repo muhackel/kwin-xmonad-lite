@@ -133,16 +133,20 @@ wird nur auf der Maschine abgenommen (Matrix 9 und 10). Der Dock-Filtertest in
 `tests/kwin-filter.test.ts` belegt nur, dass ein Dock kein Layoutrechteck
 bekommt, **nicht**, dass sein Signal ankommt.
 
-Nur `src/kwin/read.ts` und `src/kwin/adapter.ts` fassen eine KWin-Global an;
-diese beiden werden auf der Maschine geprüft, nicht im Unit-Test. Die Grenze
-ist nachprüfbar:
+Vier Dateien fassen eine KWin-Global an: die beiden Einstiege `src/boot.ts`
+und `src/dev.ts` sowie — hinter der Snapshot-Grenze — `src/kwin/read.ts` und
+`src/kwin/adapter.ts`. Alle vier werden auf der Maschine geprüft, nicht im
+Unit-Test. Die Grenze ist nachprüfbar:
 
 ```bash
-grep -n 'workspace\.\|KWin\.\|new QTimer\|options\.\|registerUserActionsMenu' \
-  src/*.ts src/kwin/*.ts \
+grep -rn 'workspace\.\|KWin\.\|new QTimer\|options\.\|registerUserActionsMenu' src \
   | grep -vE '(globals\.d\.ts|:[0-9]+:[[:space:]]*(\*|//|/\*))'
 # darf nur Zeilen aus boot.ts, dev.ts, read.ts und adapter.ts zeigen
 ```
+
+Der `grep` läuft rekursiv über ganz `src`, nicht nur über `src/*.ts` und
+`src/kwin/*.ts`: `tsc` beanstandet einen `workspace`-Zugriff in `core` oder
+`state` nicht, weil `globals.d.ts` für den ganzen Baum gilt.
 
 Der zweite `grep` wirft Kommentarzeilen weg — `types.ts` und `timer.ts`
 erwähnen die Globals in ihren Erklärungen, ohne sie zu benutzen. `boot.ts` und

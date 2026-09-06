@@ -97,9 +97,11 @@
           };
         };
 
-      appFor = system: tool: {
+      # Ohne meta.description beanstandet `nix flake check` jede App.
+      appFor = description: tool: {
         type = "app";
         program = nixpkgs.lib.getExe tool;
+        meta.description = description;
       };
     in
     {
@@ -114,16 +116,19 @@
         system:
         let
           tools = toolsFor system;
+          loadDescription = "Skript über KWins Scripting-D-Bus laden (--menu für das Dev-Bundle)";
         in
         {
-          default = appFor system tools.dev-load;
-          dev-load = appFor system tools.dev-load;
-          reload = appFor system tools.reload;
-          logs = appFor system tools.logs;
-          probe = appFor system tools.probe;
-          probe-signals = appFor system tools.probe-signals;
-          unload = appFor system tools.unload;
-          size-window = appFor system tools.size-window;
+          default = appFor loadDescription tools.dev-load;
+          dev-load = appFor loadDescription tools.dev-load;
+          reload = appFor "Entwicklungsinstanz aus dem aktuellen Store-Pfad neu laden" tools.reload;
+          logs = appFor "Journal von KWin, auf die Zeilen des Controllers gefiltert" tools.logs;
+          probe = appFor "Feature-Probe der Skriptumgebung ausführen" tools.probe;
+          probe-signals = appFor "Signalprobe: welche Signale im Betrieb ankommen" tools.probe-signals;
+          unload = appFor "Geladene Entwicklungsinstanz entladen" tools.unload;
+          size-window =
+            appFor "Xwayland-Testclient für Mindest-, Höchst- und Rastergrößen"
+              tools.size-window;
         }
       );
 

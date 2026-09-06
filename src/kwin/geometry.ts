@@ -10,6 +10,9 @@ export const MAX_CORRECTIONS = 2;
 /** Warum eine Geometrie geschrieben wird — oder eben nicht. */
 export type WriteVerdict = "write" | "unchanged" | "abandoned" | "drag" | "maximized";
 
+/** Ob eine Float-Geometrie geschrieben und eine neue eingefangen werden darf. */
+export type PlaceVerdict = "place" | "drag" | "blocked";
+
 /** Was eine Meldung von `frameGeometryChanged` bedeutet. */
 export type SignalVerdict = "ignore" | "settled" | "diverged";
 
@@ -98,6 +101,30 @@ export function judgeWrite(info: WindowInfo, target: Rect, state: WindowState): 
 		return "abandoned";
 	}
 	return "write";
+}
+
+/**
+ * Vor dem Float-Schreibvorgang und vor dem Einfangen einer Float-Geometrie.
+ * `place` ist der dritte Schreibpfad neben Epoche und Nachprüfung und der
+ * einzige ohne `judgeWrite`: die Float-Markierung hängt an der Mitgliedschaft,
+ * und die kennt weder Vollbild noch Maximierung (Abschnitt 7). Ohne dieses
+ * Urteil schriebe ein Toggle am maximierten Fenster dessen `frameGeometry` --
+ * `moveResize` prüft den Maximierungsmodus nicht (`docs/research.md`
+ * Abschnitt 4.3), PLAN.md Abschnitt 4 Punkt 3 verlangt `maximizeMode == 0`.
+ *
+ * Dasselbe Urteil entscheidet, ob die aktuelle Geometrie als `floatRect`
+ * taugt: die Vollbildfläche ist keine Float-Geometrie, und `anchorInto`
+ * verschiebt beim Wiederherstellen nur, es verkleinert nicht -- das Fenster
+ * überdeckte danach das Panel.
+ */
+export function judgePlace(info: WindowInfo): PlaceVerdict {
+	if (info.move || info.resize) {
+		return "drag";
+	}
+	if (info.minimized || info.fullScreen || info.maximizeMode !== 0) {
+		return "blocked";
+	}
+	return "place";
 }
 
 /**

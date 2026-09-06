@@ -41,8 +41,8 @@ export interface GeometryHooks {
 export interface GeometryController {
 	/** Neuer Zielwert: ersetzt die Erwartung und öffnet eine Schreibgeneration. */
 	apply(id: WindowId, target: Rect): void;
-	/** Float-Rechteck: einmal schreiben, ohne Erwartung oder Nachbesserung. */
-	place(id: WindowId, target: Rect): void;
+	/** Float-Rechteck einmal schreiben; `false` heißt, dass das Fenster fort ist. */
+	place(id: WindowId, target: Rect): boolean;
 	/** Aus `frameGeometryChanged`. Schreibt niemals. */
 	notifyChanged(id: WindowId): void;
 	/**
@@ -174,10 +174,10 @@ export function createGeometryController(
 		writeAndProbe(id, state, target);
 	}
 
-	function place(id: WindowId, target: Rect): void {
+	function place(id: WindowId, target: Rect): boolean {
 		const state = registry.windows.get(id);
 		if (state === undefined) {
-			return;
+			return false;
 		}
 		cancelRecheck(id);
 		state.expectedRect = null;
@@ -193,14 +193,15 @@ export function createGeometryController(
 		}
 		if (!written) {
 			forget(id);
-			return;
+			return false;
 		}
 		const actual = port.read(id);
 		if (actual === null) {
 			forget(id);
-			return;
+			return false;
 		}
 		state.lastObservedRect = actual;
+		return true;
 	}
 
 	function accept(id: WindowId, actual: Rect): void {

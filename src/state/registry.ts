@@ -11,6 +11,8 @@ import { parseSurfaceKey } from "../core/surface.ts";
 export interface WindowState {
 	floating: boolean;
 	floatRect: Rect | null;
+	/** Eine gemerkte Float-Geometrie wartet auf das Ende eines Sonderzustands. */
+	floatRestorePending: boolean;
 	/** Das Rechteck, das das Layout zuletzt **wollte**. */
 	tiledRect: Rect | null;
 	/**
@@ -49,6 +51,7 @@ export function createWindowState(): WindowState {
 	return {
 		floating: false,
 		floatRect: null,
+		floatRestorePending: false,
 		tiledRect: null,
 		lastObservedRect: null,
 		expectedRect: null,
@@ -105,8 +108,11 @@ export function setFloating(
 		}
 		state.expectedRect = null;
 		state.applyAttempts = 0;
-	} else if (current !== null) {
-		state.floatRect = current;
+	} else {
+		state.floatRestorePending = false;
+		if (current !== null) {
+			state.floatRect = current;
+		}
 	}
 	return state;
 }
