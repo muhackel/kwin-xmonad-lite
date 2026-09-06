@@ -618,11 +618,15 @@ Ausgangsstand. `/run/current-system` zeigte auf das Toplevel von Generation
 
 ### 6.8 Nicht gemessen
 
-- **Fokusziel hinter einem modalen Dialog** (Fall 20b). Aus dem Quelltext
-  folgt, dass `activateWindow` den Fokus umleiten kann; gemessen ist es nicht.
-- **KWin-/Sitzungsneustart** (Fälle 16–17, Meilenstein 7). Fall 23 belegt nur
+- ~~**Fokusziel hinter einem modalen Dialog** (Fall 20b).~~ **In Meilenstein 7
+  gemessen**, siehe Abschnitt 8.4: KWin leitet den Fokus tatsächlich auf den
+  Dialog um, und der Controller aktiviert kein zweites Mal.
+- ~~**KWin-/Sitzungsneustart** (Fälle 16–17, Meilenstein 7). Fall 23 belegt nur
   das Neuladen der Entwicklungsinstanz per `nix run .#reload`; eine Ab- und
-  Anmeldung oder ein KWin-Neustart fand in dieser Abnahme nicht statt.
+  Anmeldung oder ein KWin-Neustart fand in dieser Abnahme nicht statt.~~ **In
+  Meilenstein 7 gemessen**, siehe Abschnitte 8.2 und 8.5. Die drei Verfahren
+  bleiben getrennt: Reload (KWin läuft weiter), KWin-Neustart (Sitzung läuft
+  weiter, aber die Clients sterben) und Sitzungsneustart.
 - **Fokusziel zwischen Tastendruck und Lauf geschlossen** (Fall 20c). Der Pfad
   `aktivieren fehlgeschlagen für …` in `src/kwin/adapter.ts` ist genauso
   **unerreichbar** wie der Zweig unten: `result.focus` ist nur dann
@@ -708,7 +712,9 @@ je Paket das Flag `<pluginId>Enabled` aus (`scripting.cpp:746-793`):
 Daraus folgt für die offene Frage aus `PLAN.md` Risiko 8: ein **Re-Enable ohne
 Neuanmeldung** ist im JS-Modus quelltextseitig vorgesehen. Der Weg ist
 `kwriteconfig6` auf `kwinrc [Plugins] kwin-xmonad-liteEnabled` und danach
-`reconfigure` über D-Bus. Fall 16c misst, ob es auch wirklich so eintritt.
+`reconfigure` über D-Bus. **Fall 16c hat es am 2026-09-06 gemessen und
+bestätigt** — die Messung steht in Abschnitt 8.3, `PLAN.md` Risiko 8 ist damit
+geschlossen.
 
 Die bisherige Formulierung „`reconfigure` lädt laufende Skripte nicht neu" ist
 zu schärfen: **ein bereits geladenes Skript** wird nicht neu geladen, weil
@@ -722,3 +728,179 @@ entsteht daraus nicht — `Script::run()` steigt bei `running() || m_starting`
 sofort aus (`scripting.cpp:166-170`). Ein `reconfigure`, wie es jede beliebige
 Änderung in den Systemeinstellungen auslöst, verdrahtet den Controller also
 nicht ein zweites Mal.
+
+## 8. Livebefunde, Meilenstein 7
+
+Zwei Reihen auf HAL9000 am 2026-09-06, beide mit KWin 6.7.4 auf Wayland, eine
+Activity, vier Desktops. Die erste lief in der **Produktionsinstanz** gegen
+Projekt-Commit `abdffa2` (Protokoll `ms7-2026-09-06-hal9000.md`), die zweite in
+der **Entwicklungsinstanz** gegen `0c903cb` (Protokoll
+`ms7-2026-09-06-hal9000-ap7.md`). Aus der einen wird keine Aussage über die
+andere abgeleitet.
+
+### 8.1 Panelabzug und Zellenrechnung
+
+Die Arbeitsfläche kommt aus `clientArea(KWin.MaximizeArea, output, desktop)` und
+zieht das Plasma-Panel ab: bei einer Ausgabe `1920x1080` meldet die
+`surface`-Zeile `fläche=1920x1050+0+0`, das Panel selbst steht mit
+`1920x30+0+1050` daneben. Die Gegenprobe über `getWindowInfo` lieferte für das
+Panel deckungsgleich `0,1050,1920,30`.
+
+Die berechneten Zellen kommen bei kwrite **auf das Pixel** an. Gemessen, jeweils
+Soll aus `apply` und Ist aus der Probe:
+
+| Vorgabe | Master | Stapel |
+|---|---|---|
+| `n=1`, `tall`, 0.65, `gaps=0/0` | `1920x1050+0+0` | — |
+| `n=3`, `tall`, 0.65, `gaps=0/0` | `1248x1050+0+0` | `672x525+1248+0`, `672x525+1248+525` |
+| `n=3`, `tall`, 0.55, `gaps=0/0` | `1056x1050+0+0` | `864x525+1056+0`, `864x525+1056+525` |
+| `n=3`, `tall`, 0.55, `gaps=8/4` | `1045x1034+8+8` | `855x515+1057+8`, `855x515+1057+527` |
+| `n=3`, `full`, `gaps=8/4` | dreimal `1904x1034+8+8` | — |
+
+Die letzte Zeile ist der Beleg für die Sonderregel des Orakels: in `full` sind
+deckungsgleiche Rechtecke das **erwartete** Ergebnis, Überlappungs- und
+Zerlegungsprüfung entfallen dort.
+
+### 8.2 Clients überleben einen KWin-Neustart nicht
+
+`org.kde.KWin.replace` startet KWin neu, ohne die Sitzung zu beenden: neue PID
+im selben Boot (49086 → 53902), derselbe `kwin_wayland_wrapper` mit demselben
+`--wayland-fd 7`, und das Skript startet über den KPackage-Autostart selbst
+(`geladen`, `bereit nach 1 Versuch(en)`).
+
+**Von vier offenen kwrite-Fenstern überlebte keines.** Der Wrapper hält zwar den
+Wayland-Socket, aber die bestehenden Client-Verbindungen sterben mit dem
+Prozess. `mitglieder=0` nach dem Neustart ist deshalb die richtige Beobachtung
+und kein Controllerfehler. Nebenbefund: auch `ksmserver`, `kaccess` und
+`gmenudbusmenuproxy` überlebten nicht, sie endeten mit `status=1/FAILURE` — das
+Abmelden über das Plasma-Menü war danach nicht mehr möglich.
+
+Damit ist die offene Frage aus der Vorbereitung beantwortet, und zwar gemessen,
+nicht geschlossen: der Mechanismus (`DBusInterface::replace()` →
+`QCoreApplication::exit(133)`, Neustartschleife im Wrapper) sagt nichts über die
+Client-Verbindungen aus.
+
+### 8.3 Re-Enable ohne Neuanmeldung funktioniert
+
+Abschnitt 7.2 sagte es aus dem Quelltext voraus, Fall 16c hat es gemessen:
+
+| Schritt | `isScriptLoaded` |
+|---|---|
+| Ausgangslage | `true` |
+| `kwin-xmonad-liteEnabled=false` + `reconfigure` + 1 s | **`false`** |
+| `kwin-xmonad-liteEnabled=true` + `reconfigure` + 1 s | **`true`**, mit vollständiger Startfolge |
+
+`reconfigure` entlädt also **und** lädt. `PLAN.md` Risiko 8 ist damit
+geschlossen. Die Kurzfassung „`reconfigure` lädt Skripte nicht neu" gilt nur für
+ein bereits geladenes Skript.
+
+### 8.4 Fokusumleitung am modalen Dialog
+
+Modalität zuerst belegt, sonst prüft der Fall nichts: kwrite „Speichern unter"
+(`Strg+Umschalt+S`) meldet in der Probe `modal:true` und `transientFor` auf das
+Elternfenster, `getWindowInfo` bestätigt `hasTransientParent=True`.
+
+Beim Fokusbefehl auf das Elternfenster leitet KWin die Aktivierung auf den
+Dialog um. Entscheidend ist, was der Controller **nicht** tut: je Auslösung
+genau **eine** `befehl`- und **eine** `aktiviere`-Zeile, kein zweiter Versuch,
+und danach **null** Anordnungsläufe. Gemessen in beiden Auslösewegen — über
+`invokeShortcut` und über einen echten Tastendruck via `/dev/uinput`. Der
+Dialog selbst bleibt außerhalb der Mitgliedschaft, er wird also nicht gekachelt.
+
+### 8.5 Was ein Reload verliert
+
+Vier Fenster, `full`, `ratio=0.55`, eines gefloatet und verschoben, Reihenfolge
+per `promote` verändert. Nach `unloadScript` + `loadScript` + `run`:
+
+- `mitglieder=4` — die Ist-Menge wird neu aufgebaut;
+- `teilnehmer` steigt von **3 auf 4**, weil die Float-Markierung verloren geht,
+  und `float=` ist leer;
+- Layout und Ratio stehen wieder auf `defaultLayout`/`masterRatio`;
+- die `promote`-Reihenfolge ist weg;
+- vier `apply`-Zeilen, zwölf `xml-*`-Zeilen unverändert, keine Dublette.
+
+Danach **5 min 40 s ohne eine einzige Controllerzeile** (Fall 16b) — der Reload
+hinterlässt keinen Nachlauf.
+
+### 8.6 Getrennte Zustände je Ausgabe
+
+Zwei Ausgaben, je drei Fenster. Sechs Befehle auf der einen (`promote`, zweimal
+`shrink`, `swap-next`) und einer auf der anderen (`next-layout`):
+
+| | DP-3 | eDP-1 |
+|---|---|---|
+| Layout | `tall` | `full` |
+| Ratio | 0.65 → 0.6 → 0.55 | 0.65 |
+| Arbeitsfläche | `1920x1050+0+0` (Panel) | `1920x1080+1920+0` (kein Panel) |
+| Reihenfolge | zweimal umgeordnet | unverändert |
+
+Während der sechs Befehle auf DP-3 entstand **keine** `apply`-Zeile für ein
+eDP-1-Fenster, und dessen `diagnose`-Zeile stand in jedem Lauf unverändert da.
+Die verschiedenen Arbeitsflächen sind dabei ein eigener Beleg: die Auflösung
+rechnet je Ausgabe, nicht global.
+
+Beim Desktopwechsel entsteht **genau ein** Anordnungslauf, obwohl
+`currentDesktopChanged` bei zwei Ausgaben zweimal feuert, und für Fenster, die
+auf ihrem Desktop bleiben, keine einzige Schreibzeile.
+
+### 8.7 Eine Stunde unter Last
+
+64,5 Minuten in **einem** Skriptlauf, 75 skriptgesteuerte Aktionen (Fenster
+öffnen und schließen, Desktopwechsel, alle zwölf Controllerbefehle,
+Maximieren, Minimieren, Verschieben zwischen den Ausgaben), daneben Element,
+Ferdium und Signal:
+
+| Art | Anzahl |
+|---|---|
+| `arrange` | 59 |
+| `apply` | 36 |
+| `aktiviere` | 9 |
+| `extern` | 3 |
+| `gc` | 2 |
+| `nachbessern` | 1 |
+| `aufgegeben` | 0 |
+
+**Von 59 Anordnungsläufen schrieben nur 16 überhaupt etwas.** Das ist die
+Flatterbremse aus `judgeWrite` im Regelbetrieb: die Mehrheit der Läufe stellt
+fest, dass alles am Platz ist, schreibt nichts und feuert deshalb auch kein
+Geometriesignal. Der Versuchszähler ist nur das Netz darunter.
+
+Die eine Nachbesserung ging beim ersten Versuch durch
+(`versuch=1 ist=864x350+1056+350 soll=864x525+1056+0`), ohne Folgeversuch und
+ohne `aufgegeben` — der Pfad war bis dahin nur mit `foot` im Give-up-Fall
+belegt. Die drei `extern`-Zeilen betreffen drei verschiedene Ids, also keine
+Rückkopplungskette.
+
+Ein Randfall, den keine Fallvorschrift vorsah: eine Surface, deren einziges
+Fenster gefloatet ist, meldet `teilnehmer=` leer bei gesetztem `float=` — der
+Controller schreibt dort nichts und läuft nicht leer.
+
+### 8.8 Shortcut-Registrierungen sind rücknehmbar
+
+Die KWin-Skript-API hat kein `unregisterShortcut`; daraus wurde bisher
+geschlossen, eine einmal registrierte `xml-*`-Aktion reserviere ihre Taste
+dauerhaft. Für die Maschine stimmt das nicht:
+
+```bash
+busctl --user call org.kde.kglobalaccel /kglobalaccel \
+  org.kde.KGlobalAccel unregister ss kwin xml-expand
+```
+
+Zwölf Aufrufe, zwölfmal `true`, danach null `xml-*`-Zeilen in
+`kglobalshortcutsrc` und ein leerer `diff` gegen die Sicherung — in laufender
+Sitzung, ohne Neuanmeldung. Das ist der saubere Rückbauweg nach einem Lauf mit
+der Entwicklungsinstanz und wäre auch der Weg, die 35 `Krohnkite*`- und 20
+`Polonium*`-Leichen zu entfernen.
+
+### 8.9 Werkzeugbefunde am Rand
+
+- **`Window to Next Screen` reagiert über `invokeShortcut` nicht**, während
+  `Window One Screen to the Right` sofort greift. Beide stehen in der
+  Shortcut-Liste der Komponente `kwin`. Für den Aufbau eines
+  Multi-Output-Falls ist die zweite Aktion zu nehmen.
+- **`kscreen-doctor` bricht ohne Wayland-Umgebung mit SIGABRT ab.** Für
+  Fernaufrufe müssen `XDG_RUNTIME_DIR`, `DBUS_SESSION_BUS_ADDRESS` und
+  `WAYLAND_DISPLAY` gesetzt sein.
+- **`/VirtualOutputs` existiert in einer regulären KWin-Instanz nicht.** Ein
+  virtueller zweiter Output als Ersatz für Hardware ist damit kein Weg; der
+  Objektpfad kommt nur mit dem virtuellen Backend.

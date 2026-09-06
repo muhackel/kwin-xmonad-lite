@@ -6,24 +6,28 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
-Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 6 ist
-abgeschlossen, zweifach nachauditiert und auf HAL9000 live geprüft; bestanden
-sind die Fälle 18–20a und 21–24e. Die HAL9000-Reihe 24–24e lief gegen den
-älteren Projekt-Pin `8f287d9`, nicht gegen den Re-Audit-Stand `32f2620`.
-Meilenstein 7 hat die Prüfwerkzeuge und die Abnahmevorschrift, aber **noch
-keinen Live-Lauf**: 337 Tests, das Projektflake hat acht Checks, das
-`nixosconfig`-Flake vier.** Die
-Meilensteine 0 bis 5 samt 5.1 und den Audits
-sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
+Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 7 ist
+abgeschlossen und der MVP abgenommen (2026-09-06).** 337 Tests, acht Checks im
+Projektflake, vier im `nixosconfig`-Flake. Die Meilensteine 0 bis 6 samt den
+Stabilisierungsschritten und Audits sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
 Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
 Snapshot-Grenze, und seit Meilenstein 6 ist er bedienbar: zwölf `xml-*`-Aktionen,
 sechs Konfigurationsschlüssel aus `kwinrc` und ein Home-Manager-Modul auf
-plasma-manager-Basis. `Full` ist damit erstmals erreichbar. **Offen:** der
-modale Dialog als Fokusziel (20b), der KWin-/Sitzungsneustart (Fälle 16–17)
-und der ganze Live-Teil von Meilenstein 7 (Fälle 25–27). Die Wayland-Smoke-VM
-ist **nicht mehr** Teil der MVP-Abnahme — HAL9000 liefert die Live-Nachweise,
-die automatisiert wiederholbare VM-Prüfung ist auf Stufe 2 verschoben. Fall 20c ist
-nicht offen, sondern **nicht herstellbar** (siehe `docs/research.md` 6.7).
+plasma-manager-Basis. `Full` ist damit erstmals erreichbar.
+
+**Live geprüft ist alles**, in drei Reihen auf HAL9000 mit vollständigem
+Rückbau: 24–24e (deklarative Installation, Pin `8f287d9`), 25–25c, 20b und
+16–17b (Produktionsinstanz, `abdffa2`), 26–26c und 27 (Entwicklungsinstanz,
+`0c903cb`). Die Protokolle liegen unter `docs/ms7-2026-09-06-hal9000*.md`, die
+Livebefunde in `docs/research.md` Abschnitt 8. Die Wayland-Smoke-VM ist
+**nicht** Teil der MVP-Abnahme, sondern Stufe 2. Fall 20c ist nicht offen,
+sondern **nicht herstellbar** (`docs/research.md` 6.7).
+
+**Zwei Beleggrenzen der Abnahme**, die beim Weiterbauen zählen: der
+Multi-Output-Nachweis hat **zwei** Ausgaben gleicher Größe geprüft, nicht drei
+und keine unterschiedlichen Auflösungen oder Skalierungen; und die
+Alltagsstunde lief mit skriptgesteuerter Last, belegt also Schleifenfreiheit
+unter dichter Ereignislast, nicht unter Alltagsbedingungen.
 
 ## Ursprung & Zweck
 
@@ -398,13 +402,22 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - `unloadScript` ruft `deleteLater()`. Der Eintrag verschwindet erst im
   nächsten Ereignisschleifendurchlauf — vor einem erneuten `loadScript` mit
   demselben Namen auf `isScriptLoaded == false` warten.
+- **Einen KWin-Neustart überlebt kein Wayland-Client** (gemessen in MS 7, Fall
+  17a). `org.kde.KWin.replace` gibt KWin eine neue PID im selben Boot, der
+  `kwin_wayland_wrapper` behält Socket und `--wayland-fd`, und das Skript
+  startet über den KPackage-Autostart selbst — aber von vier offenen Fenstern
+  überlebte keines. `mitglieder=0` danach ist deshalb die richtige
+  Beobachtung, kein Controllerfehler. Auch `ksmserver`, `kaccess` und
+  `gmenudbusmenuproxy` sterben dabei (`status=1/FAILURE`); das Abmelden über
+  das Plasma-Menü geht danach nicht mehr.
 - **`reconfigure` wertet die Plugin-Flags neu aus.** `Scripting::start()` hängt
   an `Workspace::configChanged`, das `slotReconfigure()` emittiert; die dortige
   Abfrage entlädt Skripte mit `<id>Enabled=false` und lädt neu eingeschaltete
   (`docs/research.md` 7.2). Die Kurzfassung „`reconfigure` lädt Skripte nicht
   neu" gilt nur für ein **bereits geladenes** Skript — `loadScript` liefert
   dafür sofort `-1`. Ein Re-Enable ohne Neuanmeldung ist damit vorgesehen;
-  gemessen wird es in Fall 16c. Ein laufender Controller wird dabei **nicht**
+  **gemessen und bestätigt in Fall 16c** (MS 7): `false` + `reconfigure` entlädt,
+  `true` + `reconfigure` lädt und startet vollständig, ohne Neuanmeldung. Ein laufender Controller wird dabei **nicht**
   ein zweites Mal gestartet: `Script::run()` steigt bei `running()` aus. Das
   ist wichtig, weil jede beliebige Änderung in den Systemeinstellungen ein
   `reconfigure` auslöst.
@@ -444,12 +457,22 @@ Activities und verwaltet nicht die Zahl der Desktops.
   — `Meta+L` sperrte die Sitzung, `Meta+T` öffnete den Kachel-Editor. Die
   Umlegung der KDE-Kürzel in der Host-Konfiguration ist damit **Voraussetzung**,
   nicht Absicherung.
-- **`objectName`s sind unwiderruflich.** Es gibt kein `unregisterShortcut`;
-  jede Umbenennung hinterlässt eine Leiche, die die Taste weiter reserviert.
-  Auch nach dem Abschalten des Skripts bleiben die zwölf `xml-*`-Zeilen stehen
-  — das ist erwartet, kein Rückstand. Die im Code stehenden Tasten sind nur die
+- **`objectName`s sind aus dem Skript heraus unwiderruflich.** Die
+  KWin-Skript-API hat kein `unregisterShortcut`; jede Umbenennung hinterlässt
+  eine Leiche, die die Taste weiter reserviert. Auch nach dem Abschalten des
+  Skripts bleiben die zwölf `xml-*`-Zeilen stehen — das ist erwartet, kein
+  Rückstand. Die im Code stehenden Tasten sind nur die
   **Erstinstallations-Vorgabe**; eine spätere Änderung erreicht keine Maschine,
   die das Skript schon geladen hat.
+- **Von außen lässt sich eine Registrierung doch lösen** (gemessen in MS 7):
+  `busctl --user call org.kde.kglobalaccel /kglobalaccel org.kde.KGlobalAccel
+  unregister ss kwin <objectName>` nimmt sie in laufender Sitzung restlos
+  zurück, gibt die Taste frei und entfernt die Zeile aus
+  `kglobalshortcutsrc`. Das ist der Rückbauweg nach einem Lauf mit der
+  Entwicklungsinstanz — spielt man die gesicherte Datei nur zurück, ohne die
+  Registrierungen zu lösen, schreibt `kglobalaccel` seinen Speicherstand beim
+  Sitzungsende wieder hinein. Für das reguläre Abschalten bleibt der
+  deklarative `none`-Weg des Moduls richtig.
 - **Auf einer deklarativ verwalteten Maschine ist die Nix-Tabelle maßgeblich,
   nicht der Quelltext.** Das Home-Manager-Modul schreibt alle zwölf Tasten in
   jeder Generation — genau weil `registerShortcut` eine Maschine mit bereits

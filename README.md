@@ -9,7 +9,7 @@ Er ist **kein** Fenstermanager und **kein** XMonad-Nachbau. Fenster-, Desktop-,
 Activity- und Bildschirmzuordnung bleiben vollständig bei KWin und seinen
 Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 
-> **Status: in Entwicklung, Meilenstein 6 abgeschlossen.**
+> **Status: MVP abgenommen, Meilenstein 7 abgeschlossen (2026-09-06).**
 > Das Skript kachelt auf allen Bildschirmen; jeder virtuelle Desktop und jede
 > Activity führt je Bildschirm einen eigenen Stapel. Vollbild, Maximierung und
 > Minimierung verlassen das Layout, ohne ihre Stapelposition zu verlieren.
@@ -17,14 +17,26 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > Höchstgrößen werden berücksichtigt. Seit Meilenstein 6 ist der Controller
 > bedienbar: zwölf eigene Tastenkürzel, sechs Konfigurationsschlüssel in
 > `kwinrc` und ein Home-Manager-Modul für die deklarative Installation. Damit
-> ist auch das Full-Layout erreichbar. Die deklarative Installation und ihr
-> Aus-Zweig sind auf HAL9000 gegen den Projekt-Pin `8f287d9` abgenommen
-> (Testmatrix 24 bis 24e) und danach vollständig zurückgebaut worden. Der
-> Re-Audit-Stand `32f2620` hat 307 Tests und sechs Flake-Checks.
-> Offen bleiben der modale Dialog als Fokusziel (20b), der
-> KWin-/Sitzungsneustart (16–17), der Wayland-Smoke-Test in einer VM und damit
-> die MVP-Abnahme in Meilenstein 7. Der vollständige Plan steht in
-> [`PLAN.md`](PLAN.md).
+> ist auch das Full-Layout erreichbar. Der Stand hat 337 Tests und acht
+> Flake-Checks.
+>
+> Meilenstein 7 hat das Verhalten live geprüft, in drei Reihen auf HAL9000 mit
+> vollständigem Rückbau: die deklarative Installation samt Aus-Zweig
+> (Testmatrix 24–24e), dann die Geometrie gegen eine unabhängig vorgegebene
+> Erwartung (25–25c), der modale Dialog als Fokusziel (20b), Reload und
+> KWin-/Sitzungsneustart (16–17b) und zuletzt der Multi-Output-Lauf mit einer
+> Stunde unter Last (26–27). Zwei Ergebnisse sind erwähnenswert: einen
+> KWin-Neustart über `org.kde.KWin.replace` überlebt **kein** Wayland-Client,
+> und von 59 Anordnungsläufen in der Laststunde schrieben nur 16 überhaupt
+> etwas — die übrigen stellten fest, dass alles am Platz ist.
+>
+> Zwei Einschränkungen gehören zur Abnahme: der Multi-Output-Lauf lief mit
+> zwei Ausgaben statt drei, und die Laststunde mit skriptgesteuerter Last statt
+> normaler Arbeit. Beides steht in den Protokollen unter
+> [`docs/`](docs/) und in [`PLAN.md`](PLAN.md) Abschnitt 11. Der
+> Wayland-Smoke-Test in einer VM ist kein MVP-Bestandteil mehr, sondern als
+> automatisiert wiederholbares Regressionsnetz auf Stufe 2 vorgesehen. Nicht
+> herstellbar und deshalb unbelegt bleibt Fall 20c.
 
 ## Schnellstart
 

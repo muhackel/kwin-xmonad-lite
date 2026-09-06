@@ -879,9 +879,33 @@ BASH
 
 #### Fall 24d: entfernte Einstellungen
 
-Der Rückwärtspatch entfernt den gesamten `settings`-Block wieder. Nach dem
-Switch müssen alle sechs Vorgaben geschrieben sein, nicht die alten Werte aus
-24c:
+**Ausgeführt wurde ein Einzelschlüssel, nicht der ganze Block.** Die Vorschrift
+sah ursprünglich vor, den gesamten `settings`-Block zurückzunehmen und danach
+alle sechs Vorgaben zu erwarten. Gelaufen und belegt ist am 2026-09-06 nur das
+Entfernen von `gapOuter`. Der Unterschied ist keine Formalie: was damit belegt
+ist, ist der **Rückfall eines entfernten Schlüssels auf seinen Vorgabewert bei
+gleichzeitigem Erhalt der übrigen** — nicht, dass ein leerer `settings`-Block
+alle sechs Schlüssel auf die Vorgaben setzt. Wer Letzteres braucht, führt den
+Fall in der zweiten Fassung unten aus.
+
+Ausgeführte Fassung — nur `gapOuter` aus dem `settings`-Block streichen:
+
+```bash
+cd /home/muhackel/nixosconfig
+$EDITOR modules/user/muhackel/kwin-xmonad-lite.nix   # Zeile settings.gapOuter entfernen
+nixos-rebuild switch --sudo --flake .#HAL9000
+```
+
+Nach der Neuanmeldung die Startzeile im Journal prüfen — `gapOuter` steht auf
+der Vorgabe `0`, `gapInner` behält den gesetzten Wert:
+
+```bash
+journalctl --user -u plasma-kwin_wayland -b --no-pager \
+  | grep -F 'kwin-xmonad-lite: config gaps=0/4 ratio=0.5 layout=1 excludes=7 debug=true'
+```
+
+Vollständige Fassung — den ganzen `settings`-Block zurücknehmen (**nicht
+ausgeführt**, hier nur als Vorschrift):
 
 ```bash
 cd /home/muhackel/nixosconfig
@@ -889,9 +913,6 @@ git apply --check --reverse /tmp/kxl-settings.patch
 git apply --reverse /tmp/kxl-settings.patch
 nixos-rebuild switch --sudo --flake .#HAL9000
 ```
-
-Nach der Neuanmeldung denselben Vorgabenblock wie in Fall 24 ausführen und die
-Startzeile im Journal prüfen:
 
 ```bash
 journalctl --user -u plasma-kwin_wayland -b --no-pager \
@@ -1036,13 +1057,26 @@ Kollisionsfrage — das tut nur der Tastendruck.
 
 ### Abnahme Matrix 16–17, 20b und 25–27: Meilenstein 7
 
-Diese Reihe schließt die Verhaltensprüfungen ab. Sie ist **noch nicht
-ausgeführt**; der Abschnitt ist die Vorschrift, gegen die sie läuft.
+Diese Reihe schließt die Verhaltensprüfungen ab. Sie ist am **2026-09-06
+ausgeführt** und in zwei Protokollen belegt; der Abschnitt bleibt als
+Vorschrift stehen, damit sie wiederholbar ist:
+
+- [`docs/ms7-2026-09-06-hal9000.md`](docs/ms7-2026-09-06-hal9000.md) —
+  Produktionsinstanz gegen Projekt-Commit `abdffa2`: Fälle 25–25c, 20b,
+  16/16b/16c, 17a/17b.
+- [`docs/ms7-2026-09-06-hal9000-ap7.md`](docs/ms7-2026-09-06-hal9000-ap7.md) —
+  Entwicklungsinstanz gegen `0c903cb`: Fälle 26/26a/26b/26c und 27.
 
 Die Wayland-Smoke-VM ist nicht mehr Teil der MVP-Abnahme. HAL9000 liefert die
-Live-Nachweise in einer echten Sitzung, SPIELKISTE den Multi-Output-Lauf und
-die Alltagsstunde; eine automatisiert wiederholbare VM-Prüfung ist auf Stufe 2
-verschoben.
+Live-Nachweise in einer echten Sitzung; eine automatisiert wiederholbare
+VM-Prüfung ist auf Stufe 2 verschoben.
+
+**Zwei Abweichungen gegenüber dieser Vorschrift sind in den Protokollen
+begründet** und beim Wiederholen zu beachten: der Abschlusslauf 26–27 lief auf
+HAL9000 mit zwei Ausgaben statt auf SPIELKISTE mit dreien, und Fall 27 lief mit
+skriptgesteuerter Last
+([`docs/ms7-2026-09-06-fall27-last.sh`](docs/ms7-2026-09-06-fall27-last.sh))
+statt mit normaler Arbeit.
 
 #### Instanztrennung
 
@@ -1119,10 +1153,23 @@ daran, ob die Clients überlebt haben und ob eine Anmeldung dazwischenlag.
 ```bash
 nix run .#probe-geometry                                        # nur Datenqualität
 nix run .#probe-geometry -- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0
+nix run .#probe-geometry -- --erwarte layout=full n=3 ratio=0.65 gaps=0/0 "surface=<key>"
 nix run .#audit                                                 # letzte 60 min, Fall 27
 nix run .#audit -- --seit "-10 min"                             # kürzerer Blick, ohne Schwelle
-nix run .#audit -- docs/ms7-<datum>-spielkiste.log               # gesicherter Auszug
+nix run .#audit -- docs/ms7-2026-09-06-hal9000-fall27.log        # gesicherter Auszug, mit Schwelle
+nix run .#audit -- --frei docs/ms7-2026-09-06-hal9000-ap7.log    # gesicherter Auszug, ohne Schwelle
 ```
+
+**`surface=<key>` ist die Wahl für Fall 26.** Ohne den Filter prüft das Orakel
+die zuletzt gemeldete Surface; bei mehreren Ausgaben mit **verschiedenen**
+Layouts braucht jede ihren eigenen Lauf mit ihrer eigenen Erwartung. Der
+Schlüssel ist `<activity>|<desktop>|<output>`, genau so, wie er in der
+`surface`-Zeile steht.
+
+**`--frei` schaltet die Belegschwelle ab.** Sie gehört zu Fall 27 — mindestens
+60 Minuten in **einem** Skriptlauf — und ist für jeden anderen Auszug die
+falsche Messlatte: ohne den Schalter meldet der Auditor dort „nicht ausreichend
+belegt", obwohl mit dem Auszug alles in Ordnung ist.
 
 Die Geometrie-Probe ist strikt lesend: sie schreibt keine Geometrie, setzt kein
 `activeWindow`, hebt nichts und verbindet kein KWin-Signal — nur `timeout` an
@@ -1314,11 +1361,35 @@ wiederherzustellen und der Fall als nicht durchführbar zu protokollieren.
 Die drei Verfahren bleiben getrennt protokolliert. Keine Aussage über eines
 wird auf ein anderes übertragen.
 
-#### Fälle 26 bis 27: Abschlusslauf auf SPIELKISTE
+#### Fälle 26 bis 27: Abschlusslauf
 
-Entwicklungsinstanz, drei Ausgaben DP-1/DP-9/DP-10 à 2560×1440, Arbeitsfläche
-`2560x1410`, vier Desktops, eine Activity, `perOutputVirtualDesktops=false`.
-`Meta+L` und `Meta+T` laufen dort über `invokeShortcut`.
+Entwicklungsinstanz. Vorgesehen war SPIELKISTE mit drei Ausgaben
+DP-1/DP-9/DP-10 à 2560×1440, Arbeitsfläche `2560x1410`, vier Desktops, eine
+Activity, `perOutputVirtualDesktops=false`; `Meta+L` und `Meta+T` laufen dort
+über `invokeShortcut`.
+
+**Ausgeführt wurde die Reihe auf HAL9000 mit zwei Ausgaben** (DP-3 `1920x1080`
+mit Panel, Arbeitsfläche `1920x1050`; eDP-1 `1920x1080` ohne Panel). Das
+Kriterium verlangt mindestens zwei Ausgaben, insofern ist der Lauf gültig — was
+er **nicht** belegt, ist das Verhalten bei drei und mehr Ausgaben, bei
+unterschiedlichen Auflösungen und bei gebrochener Skalierung.
+
+Zwei Handgriffe waren dafür nötig und gehören in die Vorschrift, wenn die Reihe
+auf einem Notebook läuft:
+
+```bash
+# eDP-1 steht bei zugeklapptem Deckel auf disabled; Deckel öffnen genügt nicht.
+# kscreen-doctor braucht die Wayland-Umgebung, sonst bricht es mit SIGABRT ab.
+export XDG_RUNTIME_DIR=/run/user/1000
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
+export WAYLAND_DISPLAY=wayland-0
+cp -a ~/.local/share/kscreen ~/kxl-ap7-kscreen.bak
+kscreen-doctor output.eDP-1.enable output.eDP-1.position.1920,0
+```
+
+Zum Verteilen der Fenster auf die Ausgaben **`Window One Screen to the Right`**
+verwenden, nicht `Window to Next Screen`: die zweite Aktion reagiert über
+`invokeShortcut` nicht (`docs/research.md` 8.9).
 
 Die Fälle 3 bis 5 wurden in Meilenstein 4 gegen einen Stand **ohne** Befehls-
 und Konfigurationsschicht geprüft. Neu ist, dass je Ausgabe Layout,
@@ -1332,6 +1403,22 @@ Desktopwechsel hinweg getrennt gehalten werden.
 | 26b | Desktopwechsel (Fall 5) | `Meta+2`, zurück `Meta+1` | genau **ein** Lauf, obwohl `desktopChanged` je Ausgabe feuert; neue Surface-Schlüssel; keine Schreibzeile für Fenster, die auf ihrem Desktop bleiben | Journal + Probe vor/nach |
 | 26c | Fenster auf allen Desktops (Fall 7) | ein Fenster per Fensterregel auf alle Desktops | in jeder Surface mitgekachelt; keine Fokusübernahme durch eine inaktive Surface | Journal + Diagnosezeilen |
 | 27 | Alltagsstunde | mindestens 60 Minuten normale Arbeit mit geladener Dev-Instanz | `nix run .#audit` meldet: keine Schleife, keine Rückkopplung, kein unerwartetes `aufgegeben`, Anteil „manuell zu prüfen" höchstens 5 %, Laufzeit mindestens 60 min und **ein** Skriptlauf | Journalartefakt und Auditorbericht, beide eingecheckt |
+
+**Ergebnis vom 2026-09-06** (Protokoll
+[`docs/ms7-2026-09-06-hal9000-ap7.md`](docs/ms7-2026-09-06-hal9000-ap7.md)):
+alle fünf Fälle bestanden. 26 mit zwei Ausgaben (DP-3 `tall`/0.55, eDP-1
+`full`/0.65, null `apply` für die unbeteiligte Ausgabe); 26a mit vier
+Zustandssätzen; 26b mit **einem** `arrange` je Wechsel und null Schreibzeilen;
+26c mit derselben Fenster-Id als Teilnehmer in allen vier Surfaces und **keiner**
+`aktiviere`-Zeile; 27 mit 64,5 min in einem Skriptlauf, 37 Schreibvorgängen,
+0 ohne Zuordnung und höchstens 2 auf dasselbe Soll.
+
+Zwei Abweichungen: Fall 26c setzte das Fenster über den KDE-Shortcut
+`Window On All Desktops` sticky statt über eine Fensterregel — für den
+Controller ist beides derselbe Zustandswechsel. Und Fall 27 lief mit
+skriptgesteuerter Last statt normaler Arbeit, weil auf HAL9000 niemand
+arbeitet; belegt ist damit Schleifenfreiheit unter **dichter Ereignislast**,
+nicht unter Alltagsbedingungen.
 
 Das Kriterium aus `PLAN.md` Abschnitt 11 ist im Auditor operationalisiert: er
 zählt **alle** Schreibarten (`apply`, `float`, `nachbessern`), rechnet
@@ -1367,11 +1454,44 @@ laufenden Sitzung wird deshalb wieder überschrieben.
    gegen die **gesicherte Ausgangslage**, nicht gegen Werte aus früheren
    Protokollen.
 
-Auf SPIELKISTE genügt `nix run .#unload`: `isScriptLoaded` meldet `false`, und
-innerhalb von 30 Sekunden kommt keine Controllerzeile mehr. Die zwölf
-`xml-*`-Zeilen bleiben stehen — es gibt kein `unregisterShortcut`, das ist
-erwartet und kein Rückstand. Die Gruppe `[Script-kwin-xmonad-lite-dev]` wird
-auf den Stand vor dem Lauf zurückgesetzt.
+**Nach einem Lauf mit der Entwicklungsinstanz** (kein `switch`, kein
+Generationswechsel) entfallen die Schritte 1 bis 5, und es braucht keinen
+Neustart:
+
+```bash
+nix run .#unload                     # isScriptLoaded meldet false
+# 30 s lang darf keine Controllerzeile mehr kommen:
+t=$(date +%s); sleep 32
+journalctl --user -b --since "@$t" _SYSTEMD_USER_UNIT=plasma-kwin_wayland.service \
+  | grep -c "kwin-xmonad-lite:"     # muss 0 sein
+
+# Die zwölf Registrierungen einzeln lösen -- sonst schreibt kglobalaccel
+# seinen Speicherstand beim Sitzungsende wieder in die Datei:
+for a in xml-expand xml-focus-master xml-focus-next xml-focus-prev \
+         xml-next-layout xml-promote xml-reset-layout xml-shrink \
+         xml-sink xml-swap-next xml-swap-prev xml-toggle-float; do
+  busctl --user call org.kde.kglobalaccel /kglobalaccel \
+    org.kde.KGlobalAccel unregister ss kwin "$a"
+done
+grep -c '^xml-' ~/.config/kglobalshortcutsrc     # muss 0 sein
+
+cp ~/kxl-ap7-kwinrc.bak ~/.config/kwinrc         # Gruppe [Script-…-dev] mit entfernen
+busctl --user call org.kde.KWin /KWin org.kde.KWin reconfigure
+diff ~/kxl-ap7-kwinrc.bak ~/.config/kwinrc                     # leer
+diff ~/kxl-ap7-kglobalshortcutsrc.bak ~/.config/kglobalshortcutsrc   # leer
+```
+
+Zusätzlich, falls für Fall 26 eine Ausgabe zugeschaltet wurde:
+`kscreen-doctor output.eDP-1.disable` und die gesicherte
+`~/.local/share/kscreen` zurückspielen.
+
+**Der `unregister`-Schritt ist der Unterschied zur früheren Vorschrift.** Dort
+stand, die zwölf `xml-*`-Zeilen blieben zwangsläufig stehen, weil es kein
+`unregisterShortcut` gibt. Das gilt nur für die KWin-Skript-API; kglobalaccel
+selbst nimmt die Registrierung restlos zurück (`docs/research.md` 8.8). Für das
+**deklarative** Abschalten bleibt der `none`-Weg des Home-Manager-Moduls
+richtig — der D-Bus-Aufruf ist ein imperativer Eingriff und gehört in Abnahme
+und Aufräumarbeit.
 
 ### Eigenschaftsprüfung des Layoutkerns
 

@@ -48,13 +48,32 @@ Home-Manager-Modul alle zwölf Tasten in jeder Generation — die nicht in
 Systemeinstellungen umgelegte `xml-*`-Taste ist beim nächsten `switch` wieder
 weg. Wer sie behalten will, schreibt sie ins Modul.
 
-Die **objectNames sind ab dem ersten Release unwiderruflich.** Es gibt kein
-`unregisterShortcut`; jede Umbenennung hinterlässt eine tote Zeile in
-`kglobalshortcutsrc`, die die Taste weiter reserviert. In der Datei auf
-SPIELKISTE stehen aus demselben Grund bereits 35 `Krohnkite*`- und 20
-`Polonium*`-Leichen. Das gilt auch für das Deaktivieren: nach dem Abschalten
-des Skripts bleiben die zwölf `xml-*`-Zeilen stehen. Das Modul setzt sie im
-Aus-Zweig deshalb auf `none` — die Zeile bleibt, aber die Taste ist frei.
+Die **objectNames sind ab dem ersten Release unwiderruflich** — jedenfalls aus
+dem Skript heraus. Die KWin-Skript-API hat kein `unregisterShortcut`; jede
+Umbenennung hinterlässt eine tote Zeile in `kglobalshortcutsrc`, die die Taste
+weiter reserviert. In der Datei auf SPIELKISTE stehen aus demselben Grund
+bereits 35 `Krohnkite*`- und 20 `Polonium*`-Leichen. Das gilt auch für das
+Deaktivieren: nach dem Abschalten des Skripts bleiben die zwölf
+`xml-*`-Zeilen stehen. Das Modul setzt sie im Aus-Zweig deshalb auf `none` —
+die Zeile bleibt, aber die Taste ist frei.
+
+**Von außen geht es doch** (gemessen 2026-09-06, `docs/research.md` 8.8).
+kglobalaccel hat die Methode, die dem Skript fehlt:
+
+```bash
+busctl --user call org.kde.kglobalaccel /kglobalaccel \
+  org.kde.KGlobalAccel unregister ss kwin xml-expand
+```
+
+Der Aufruf nimmt die Registrierung in laufender Sitzung restlos zurück, gibt
+die Taste frei und entfernt die Zeile aus `kglobalshortcutsrc` — ohne
+Neuanmeldung. Für den Rückbau nach einem Lauf mit der Entwicklungsinstanz ist
+das der saubere Weg: spielt man die gesicherte Datei nur zurück, ohne die
+Registrierungen zu lösen, schreibt kglobalaccel seinen Speicherstand beim
+Sitzungsende wieder hinein. Für das reguläre Abschalten bleibt trotzdem der
+`none`-Weg des Moduls richtig, denn er ist deklarativ; der D-Bus-Aufruf ist ein
+imperativer Eingriff und gehört in Abnahme und Aufräumarbeit, nicht in die
+Hostkonfiguration.
 
 ### Konfliktlage `Meta+L` und `Meta+T`
 
@@ -286,12 +305,25 @@ und Entfernen von `settings` sowie Abschalten des Feature-Flags. Die Reihe lief
 gegen den Pin `8f287d9`; Rohdaten stehen in
 [`hal9000-abnahme-2026-09-06.log`](hal9000-abnahme-2026-09-06.log).
 
-- Das Verhalten bei einem **modalen Dialog** als Fokusziel ist nicht gemessen
-  (Fall 20b). Die Vorschrift dafür steht in `build.md`; gezählt wird nicht die
-  `befehl`-Zeile, sondern die Zahl der `aktiviere <id>`-Zeilen. Dass es
-  strukturell nie mehr als eine je Befehl sein kann, hält
+Meilenstein 7 hat die restlichen Fälle abgearbeitet, in zwei weiteren Reihen auf
+HAL9000 gegen `abdffa2` und `0c903cb`
+([`ms7-2026-09-06-hal9000.md`](ms7-2026-09-06-hal9000.md),
+[`ms7-2026-09-06-hal9000-ap7.md`](ms7-2026-09-06-hal9000-ap7.md)):
+
+- Das Verhalten bei einem **modalen Dialog** als Fokusziel ist **gemessen**
+  (Fall 20b). Modalität zuerst belegt (`modal:true`, gesetztes `transientFor`,
+  `hasTransientParent=True`), dann in beiden Auslösewegen je **eine**
+  `befehl`- und **eine** `aktiviere <id>`-Zeile. Gezählt wird die zweite, nicht
+  die erste. KWin leitete den Fokus auf den Dialog um; der Controller
+  aktivierte nicht erneut, und danach lief kein Anordnungslauf mehr. Dass es
+  strukturell nie mehr als eine Aktivierung je Befehl sein kann, hält
   `checks.activate-once` fest: genau ein Schreibzugriff auf
   `workspace.activeWindow` im ganzen Baum, in `src/kwin/adapter.ts`.
+- **Reload und Neustart** sind getrennt belegt (16, 16b, 16c, 17a, 17b): die
+  Tasten bleiben über einen Reload wirksam und ohne Dublette, ein Re-Enable per
+  `reconfigure` funktioniert ohne Neuanmeldung, und nach einem KWin-Neustart
+  registriert die neu gestartete Instanz die zwölf Tasten selbst wieder
+  (`shortcuts n=12`, zwölf `xml-*`-Zeilen).
 - Der Fall „Fokusziel zwischen Tastendruck und Lauf geschlossen" (Fall 20c) ist
   nicht reproduzierbar herstellbar und bleibt unbelegt; der Pfad
   `aktivieren fehlgeschlagen für …` existiert im Adapter.

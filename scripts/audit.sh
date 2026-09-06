@@ -9,9 +9,16 @@
 # nicht mit durch. Das `+` ist die ODER-Verknüpfung.
 #
 # Aufruf:
-#   nix run .#audit                       # letzte 60 min, mit Belegschwelle
-#   nix run .#audit -- --seit "-30 min"   # anderer Zeitraum, ohne Schwelle
-#   nix run .#audit -- datei.log          # gesicherter Auszug, mit Schwelle
+#   nix run .#audit                          # letzte 60 min, mit Belegschwelle
+#   nix run .#audit -- --seit "-30 min"      # anderer Zeitraum, ohne Schwelle
+#   nix run .#audit -- datei.log             # gesicherter Auszug, mit Schwelle
+#   nix run .#audit -- --frei datei.log      # gesicherter Auszug, ohne Schwelle
+#
+# Die Belegschwelle gehört zu Fall 27 (mindestens 60 Minuten in einem einzigen
+# Skriptlauf). Ein gesicherter Auszug, der einen anderen Fall belegt, ist damit
+# regelmäßig kürzer und enthält mehrere Skriptläufe -- für ihn ist
+# `--frei` richtig, sonst meldet der Auditor "nicht ausreichend belegt", obwohl
+# nur die falsche Messlatte angelegt wurde.
 
 AUDIT="${XML_AUDIT:?XML_AUDIT ist nicht gesetzt}"
 UNIT="${XML_KWIN_UNIT:-plasma-kwin_wayland}"
@@ -22,21 +29,32 @@ seit="-60 min"
 stunde="--stunde"
 datei=""
 
-case "${1:-}" in
-	--seit)
-		seit="${2:?--seit braucht einen Zeitraum}"
-		stunde=""
-		;;
-	"")
-		;;
-	-*)
-		log_err "Unbekanntes Argument: $1"
-		exit 2
-		;;
-	*)
-		datei="$1"
-		;;
-esac
+while [ "$#" -gt 0 ]; do
+	case "$1" in
+		--seit)
+			seit="${2:?--seit braucht einen Zeitraum}"
+			stunde=""
+			shift 2
+			;;
+		--frei)
+			stunde=""
+			shift
+			;;
+		-*)
+			log_err "Unbekanntes Argument: $1"
+			log_err "Aufruf: nix run .#audit [-- [--frei] [--seit <zeitraum>] [datei.log]]"
+			exit 2
+			;;
+		*)
+			if [ -n "$datei" ]; then
+				log_err "Mehr als ein Auszug angegeben: $datei und $1"
+				exit 2
+			fi
+			datei="$1"
+			shift
+			;;
+	esac
+done
 
 if [ -n "$datei" ]; then
 	if [ ! -r "$datei" ]; then
