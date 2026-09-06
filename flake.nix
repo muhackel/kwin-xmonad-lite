@@ -328,36 +328,51 @@
 
             grep -nE '(frameGeometry[[:space:]]*=|moveResize|activeWindow[[:space:]]*=|raiseWindow|setMaximize|setFullScreen|rootTile)' \
               dev/probe/geometry.js > "$TMPDIR/schreibt" || true
+            # Eigenschafts- und Klammer-Zuweisung auf die Bezeichner, unter
+            # denen die Probe Fenster-, Workspace- und Ausgabeobjekte hält
+            # (workspace, w, window, output, desktop -- win, out und screen
+            # kommen in dieser Datei an keiner Stelle als Objektreferenz vor,
+            # nur als Stringliteral oder als Name eines Arrays). `[^=]` am
+            # Ende schließt `==`/`===` aus, sonst schlüge schon ein Vergleich
+            # wie `w.output === null` fehl; eine lokale Variablenzuweisung wie
+            # `var w = ...` bleibt unbeanstandet, weil ihr keine Eigenschafts-
+            # oder Klammernutzung vorausgeht.
+            grep -nE '(workspace|w|window|output|desktop)(\.[A-Za-z_$]+|\[[^]]*\])[[:space:]]*=[^=]' \
+              dev/probe/geometry.js > "$TMPDIR/mutiert" || true
+            # Setter-Methoden und die reflektierenden Schreibpfade, die keine
+            # `=`-Zuweisung sind und deshalb am Muster oben vorbeikämen.
+            grep -nE '(minimize\(|closeWindow\(|setDesktops\(|slotWindow|sendClientToScreen\(|setActivities\(|setNoBorder\(|setKeepAbove\(|setKeepBelow\(|setOnAllDesktops\(|Object\.assign\(|Reflect\.set\(|Object\.defineProperty\()' \
+              dev/probe/geometry.js > "$TMPDIR/setter" || true
             grep -nE '\.connect\(' dev/probe/geometry.js > "$TMPDIR/verbindet.roh" || true
             grep -vE 'timeout\.connect\(' "$TMPDIR/verbindet.roh" > "$TMPDIR/verbindet" || true
             grep -nE '(frameGeometryChanged|windowAdded|windowRemoved|windowActivated|outputChanged|screensChanged|screenOrderChanged|virtualScreenGeometryChanged|desktopsChanged|activitiesChanged|currentDesktopChanged|currentActivityChanged|interactiveMoveResize|\bclosed\b)' \
               dev/probe/geometry.js > "$TMPDIR/signale" || true
 
-            # Kommentarzeilen zaehlen nicht: die Datei begruendet ihre Regeln
+            # Kommentarzeilen zählen nicht: die Datei begründet ihre Regeln
             # im Kopf und nennt die verbotenen Namen dabei.
-            for datei in schreibt verbindet signale; do
+            for datei in schreibt mutiert setter verbindet signale; do
               grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*)' "$TMPDIR/$datei" > "$TMPDIR/$datei.echt" || true
             done
 
-            if [ -s "$TMPDIR/schreibt.echt" ] || [ -s "$TMPDIR/verbindet.echt" ] || [ -s "$TMPDIR/signale.echt" ]; then
+            if [ -s "$TMPDIR/schreibt.echt" ] || [ -s "$TMPDIR/mutiert.echt" ] || [ -s "$TMPDIR/setter.echt" ] || [ -s "$TMPDIR/verbindet.echt" ] || [ -s "$TMPDIR/signale.echt" ]; then
               echo "dev/probe/geometry.js ist nicht mehr strikt lesend:" >&2
-              cat "$TMPDIR/schreibt.echt" "$TMPDIR/verbindet.echt" "$TMPDIR/signale.echt" >&2
+              cat "$TMPDIR/schreibt.echt" "$TMPDIR/mutiert.echt" "$TMPDIR/setter.echt" "$TMPDIR/verbindet.echt" "$TMPDIR/signale.echt" >&2
               exit 1
             fi
 
             touch "$out"
           '';
 
-          # `activate` ist der einzige Schreibpfad auf `workspace.activeWindow`.
-          # Daran haengt die Schleifenfreiheit: Aktivieren loest
-          # `windowActivated` aus, das eine Epoche anmeldet, und die Epoche
-          # aktiviert nie selbst. Ein zweiter Schreibpfad baute die Schleife --
-          # und waere im Journal nicht von einem einzelnen Versuch zu
-          # unterscheiden (Fall 20b).
+          # Der Check fängt einen versehentlichen zweiten Schreibpfad auf
+          # `workspace.activeWindow` -- in Punkt-, Klammer- oder
+          # Reflect-/Object.assign-Form. Er belegt nicht „genau eine
+          # Aktivierung je Befehl"; das leistet das Adapter-Rig in
+          # `tests/adapter-shortcut.test.ts`, das den echten Adapter fährt und
+          # die Aktivierungen zählt.
           activate-once = pkgs.runCommand "kwin-xmonad-lite-activate-once" { } ''
             cd ${self}
 
-            grep -rn 'activeWindow[[:space:]]*=' src --include='*.ts' > "$TMPDIR/roh" || true
+            grep -rnE 'activeWindow["'"'"']?\]?[[:space:]]*=[^=]' src --include='*.ts' > "$TMPDIR/roh" || true
             grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)' "$TMPDIR/roh" > "$TMPDIR/treffer" || true
 
             anzahl="$(wc -l < "$TMPDIR/treffer")"
@@ -369,6 +384,16 @@
             if ! grep -q '^src/kwin/adapter\.ts:' "$TMPDIR/treffer"; then
               echo "der Schreibzugriff steht nicht in src/kwin/adapter.ts:" >&2
               cat "$TMPDIR/treffer" >&2
+              exit 1
+            fi
+
+            # Object.assign/Reflect.set auf workspace kämen an der obigen
+            # Zählung vorbei, weil sie kein `=` schreiben.
+            grep -rnE '(Object\.assign\(workspace|Reflect\.set\(workspace)' src --include='*.ts' > "$TMPDIR/reflekt.roh" || true
+            grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)' "$TMPDIR/reflekt.roh" > "$TMPDIR/reflekt" || true
+            if [ -s "$TMPDIR/reflekt" ]; then
+              echo "Object.assign/Reflect.set auf workspace, statt des einen erlaubten Schreibpfads in src/kwin/adapter.ts:" >&2
+              cat "$TMPDIR/reflekt" >&2
               exit 1
             fi
 
