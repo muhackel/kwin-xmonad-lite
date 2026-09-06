@@ -5,12 +5,18 @@
  * Prüfungen importieren kann, ohne dass beim Import etwas ausgeführt wird oder
  * ein `import.meta`-Kunstgriff nötig wäre.
  *
- *   node dev/probe/expect-geometry-cli.ts <ndjson> <journal> [--kwin-pid N] [layout=… n=… …]
+ *   node dev/probe/expect-geometry-cli.ts <ndjson> <journal> [--kwin-pid N] \
+ *       [layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 [surface=…]]
  *
  * `--kwin-pid` bindet den Auszug an eine KWin-Instanz. Ohne die Angabe weist
  * das Orakel einen Auszug mit mehreren Prozessen zurück -- nach einem
  * `replace` schreiben zwei Instanzen in dieselbe Unit, und welche gemeint ist,
  * kann der Auszug nicht selbst entscheiden.
+ *
+ * Wird eine Vorschrift angegeben, sind `layout`, `n`, `ratio`, `gaps` und
+ * `fläche` Pflicht und jeder andere Schlüssel ein Fehler. Ohne Vorschrift
+ * prüft das Orakel nur Datenqualität, Einschwingen und Journalhygiene. Die
+ * gelesene Vorschrift steht als erste Ausgabezeile.
  */
 
 import { readFileSync } from "node:fs";
@@ -26,7 +32,8 @@ const [ndjsonPfad, journalPfad, ...erwartung] = argumente;
 
 if (ndjsonPfad === undefined || journalPfad === undefined) {
 	console.error(
-		"Aufruf: expect-geometry-cli.ts <ndjson> <journal> [layout=tall n=3 ratio=0.65 gaps=0/0]",
+		"Aufruf: expect-geometry-cli.ts <ndjson> <journal> " +
+			"[layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0]",
 	);
 	process.exit(2);
 }
@@ -34,6 +41,10 @@ if (ndjsonPfad === undefined || journalPfad === undefined) {
 const report = run(readFileSync(ndjsonPfad, "utf8"), readFileSync(journalPfad, "utf8"), erwartung, {
 	pid,
 });
+
+if (report.erwartung !== null) {
+	console.log(`  == ${report.erwartung}`);
+}
 
 for (const finding of report.findings) {
 	const marke =
