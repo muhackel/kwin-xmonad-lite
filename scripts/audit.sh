@@ -16,10 +16,16 @@
 #   nix run .#audit -- --provoziert '{id}' datei.log   # erwartetes Give-up
 #
 # Die Belegschwelle gehört zu Fall 27 (mindestens 60 Minuten in einem einzigen
-# Skriptlauf). Ein gesicherter Auszug, der einen anderen Fall belegt, ist damit
-# regelmäßig kürzer und enthält mehrere Skriptläufe -- für ihn ist
-# `--frei` richtig, sonst meldet der Auditor "nicht ausreichend belegt", obwohl
-# nur die falsche Messlatte angelegt wurde.
+# Skriptlauf, dazu die Mindestaktivität). Ein gesicherter Auszug, der einen
+# anderen Fall belegt, ist damit regelmäßig kürzer und enthält mehrere
+# Skriptläufe -- für ihn ist `--frei` richtig, sonst meldet der Auditor "nicht
+# ausreichend belegt", obwohl nur die falsche Messlatte angelegt wurde.
+#
+# `--seit` gilt nur für den laufenden Auszug: dort wählt es den Zeitraum und
+# nimmt zwangsläufig die Stundenschwelle mit weg. Zusammen mit einer Datei wäre
+# es ein stilles Abschalten der Schwelle an einer Stelle, an der niemand danach
+# sucht -- deshalb ein Fehler. Wer eine Datei ohne Schwelle prüfen will, sagt
+# `--frei`.
 
 AUDIT="${XML_AUDIT:?XML_AUDIT ist nicht gesetzt}"
 UNIT="${XML_KWIN_UNIT:-plasma-kwin_wayland}"
@@ -29,6 +35,7 @@ OUT_DIR="${XML_PROBE_OUT:-$PWD}"
 seit="-60 min"
 stunde="--stunde"
 datei=""
+seit_gesetzt=0
 provoziert=()
 
 while [ "$#" -gt 0 ]; do
@@ -36,6 +43,7 @@ while [ "$#" -gt 0 ]; do
 		--seit)
 			seit="${2:?--seit braucht einen Zeitraum}"
 			stunde=""
+			seit_gesetzt=1
 			shift 2
 			;;
 		--frei)
@@ -61,6 +69,12 @@ while [ "$#" -gt 0 ]; do
 			;;
 	esac
 done
+
+if [ -n "$datei" ] && [ "$seit_gesetzt" -eq 1 ]; then
+	log_err "--seit gilt nur für den laufenden Auszug, nicht für eine Datei: $datei"
+	log_err "Für einen gesicherten Auszug ohne Belegschwelle: --frei"
+	exit 2
+fi
 
 if [ -n "$datei" ]; then
 	if [ ! -r "$datei" ]; then

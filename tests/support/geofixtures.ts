@@ -14,6 +14,9 @@ export const KEY = `${AKTIVITAET}|${DESKTOP}|${OUTPUT}`;
 
 export const FLAECHE = { x: 0, y: 0, w: 1920, h: 1050 };
 
+/** Dieselbe Fläche in der Journal- und Vorschriftsform `BxH+X+Y`. */
+export const FLAECHE_TEXT = "1920x1050+0+0";
+
 /**
  * Gemeinsame Uhr für Probe und Journal. Beide Generatoren hingen früher an
  * eigenen, unverbundenen Zeitstempeln; sobald das Orakel sein Messfenster aus
@@ -76,8 +79,20 @@ export interface ProbeVorgabe {
 	ohneLaufstempel?: boolean;
 	/** Lässt `n` auf allen Sätzen weg. */
 	ohneSatznummer?: boolean;
+	/**
+	 * Verschiebt den Messbeginn gegen die volle Sekunde. Nur so ist zu prüfen,
+	 * dass das Orakel den Beginn abrundet: bei einem Start auf der Sekunde
+	 * fällt Rundung und Rohwert zusammen.
+	 */
+	startVersatzMs?: number;
 	/** Eine zweite gemessene Surface auf einer anderen Ausgabe. */
 	zweiteView?: boolean;
+	/**
+	 * Fenster, die gemessen werden, aber in keiner Teilnehmerliste stehen --
+	 * ein modaler Dialog etwa. Sie tragen dieselben Merkmale wie ein Mitglied,
+	 * sonst fielen sie schon aus der Kandidatenprüfung.
+	 */
+	fremd?: FensterVorgabe[];
 }
 
 function rect(value: { x: number; y: number; w: number; h: number }): Record<string, unknown> {
@@ -93,7 +108,7 @@ export function ndjson(vorgabe: ProbeVorgabe): string {
 	const flaeche = vorgabe.flaeche ?? FLAECHE;
 	const zeilen: string[] = [];
 	let n = 0;
-	const lauf = UHR;
+	const lauf = UHR + (vorgabe.startVersatzMs ?? 0);
 
 	function push(record: Record<string, unknown>): void {
 		const rahmen: Record<string, unknown> = { ms: n * 10 };
@@ -143,7 +158,7 @@ export function ndjson(vorgabe: ProbeVorgabe): string {
 			letztes && vorgabe.letztesSampleAbweichend !== undefined
 				? vorgabe.letztesSampleAbweichend
 				: vorgabe.fenster;
-		for (const eintrag of fenster) {
+		for (const eintrag of fenster.concat(vorgabe.fremd ?? [])) {
 			if (letztes && (vorgabe.fehltImLetztenSample ?? []).includes(eintrag.id)) {
 				continue;
 			}
@@ -205,6 +220,12 @@ export interface JournalVorgabe {
 	epoche?: number;
 	/** Setzt den Anordnungslauf **in** das Messfenster statt davor. */
 	arrangeWaehrendMessung?: boolean;
+	/**
+	 * Stempelt **nur** die `arrange`-Zeile auf diesen Zeitpunkt; die Zeilen
+	 * danach laufen weiter wie zuvor. Damit ist ein Lauf zu setzen, der in der
+	 * angebrochenen ersten Sekunde der Messung liegt.
+	 */
+	arrangeZeit?: number;
 	/** Die Arbeitsfläche, die die `surface`-Zeile meldet (`WxH+X+Y`). */
 	flaeche?: string;
 }
@@ -253,7 +274,14 @@ export function journal(vorgabe: JournalVorgabe = {}): string {
 	if (vorgabe.arrangeWaehrendMessung === true) {
 		zeit = UHR + 500;
 	}
+	const zeitVorArrange = zeit;
+	if (vorgabe.arrangeZeit !== undefined) {
+		zeit = vorgabe.arrangeZeit;
+	}
 	schreibe(`arrange #${vorgabe.epoche ?? 1} grund=start surfaces=1 mitglieder=3 teilnehmer=3`);
+	if (vorgabe.arrangeZeit !== undefined) {
+		zeit = zeitVorArrange;
+	}
 	schreibe(
 		`surface ${KEY} layout=${layout} n=${vorgabe.n ?? teilnehmer.length} ` +
 			`ratio=${vorgabe.ratio ?? 0.65} fläche=${vorgabe.flaeche ?? "1920x1050+0+0"}`,

@@ -4,7 +4,7 @@
  * Er beantwortet die Frage der Alltagsstunde: hat der Controller irgendwo
  * geschrieben, ohne dass es dafür einen Anlass gab?
  *
- * Vier Entscheidungen, jede aus einem Fehlschlag eines einfacheren Entwurfs:
+ * Sechs Entscheidungen, jede aus einem Fehlschlag eines einfacheren Entwurfs:
  *
  * 1. **Alle Schreibarten zählen**, nicht nur `apply`. `float` und
  *    `nachbessern` schreiben ebenfalls Geometrie; ein Auditor, der sie
@@ -20,6 +20,27 @@
  * 4. **Unklares wird ausgewiesen, nicht gewertet.** Eine Lücke im Auszug oder
  *    ein Schreibvorgang ohne zuordenbaren Lauf zählt weder als bestanden noch
  *    als Schleife -- er wird zur manuellen Prüfung gemeldet.
+ * 5. **Nur ein *reiner* Nutzeranlass gilt.** Der Grund einer Epoche ist ein
+ *    Sammelgrund: der Entpreller koalesziert alles, was im 20-ms-Fenster
+ *    anfällt, und `epoch.ts` schreibt die Teile mit Komma verbunden. Ein
+ *    einziger Nutzerteil darin machte den ganzen Lauf frei -- und damit jede
+ *    Rückkopplung unsichtbar, denn `geometrieExtern` trifft im laufenden
+ *    Betrieb fast immer mit einem Fensterereignis zusammen. Der Lauf gilt
+ *    deshalb erst als nutzerveranlasst, wenn **jeder** Teil in
+ *    `NUTZER_GRUENDE` steht oder mit `shortcut:` beginnt; ein unbekannter Teil
+ *    zählt technisch.
+ * 6. **Die Freigabe gilt je Fenster, nicht global.** Ein nutzerveranlasster
+ *    Lauf gibt nur die Fenster wieder frei, die er in diesem Lauf auch
+ *    **beschreibt**. Begründung aus dem Controller: `judgeWrite` meldet
+ *    `"unchanged"`, wenn Soll und Ist übereinstimmen -- eine Epoche ohne
+ *    Änderung schreibt gar nichts. Ein wiederholtes Schreiben auf dasselbe
+ *    Soll heißt also, dass etwas das Fenster zwischendurch wegbewegt hat. War
+ *    das der Nutzer (Ziehen, Float-Toggle), dann ist der Lauf nutzerveranlasst
+ *    **und** er beschreibt genau dieses Fenster -- er gibt es frei. Ein Anlass
+ *    an einem fremden Fenster fasst es dagegen nicht an und gibt nichts frei.
+ *    `nachbessern` gibt nie frei: es ist die eigene Wirkung des Controllers,
+ *    kein Anlass. `apply + 2 × nachbessern` bleibt damit genau an der
+ *    Schwelle, die `MAX_CORRECTIONS = 2` erlaubt.
  */
 
 // ---------------------------------------------------------------------------
@@ -58,16 +79,27 @@ export const TECHNISCHE_GRUENDE = [
 	"closed",
 ];
 
+/**
+ * Ein einzelner Teil des Sammelgrunds. Ein `nachlauf500:…` trägt seine Quellen
+ * mit `+` verbunden im eigenen Teil und ist deshalb nie ein Nutzerteil.
+ */
+export function istNutzerTeil(teil: string): boolean {
+	return teil.startsWith("shortcut:") || NUTZER_GRUENDE.includes(teil);
+}
+
+/**
+ * Nur ein **reiner** Nutzeranlass gilt: jeder Teil des Sammelgrunds muss ein
+ * Nutzerteil sein. Ein unbekannter Teil zählt technisch -- ein neuer Grund im
+ * Adapter soll den Auditor stumpfer machen können, nur nicht unbemerkt.
+ */
 export function istNutzerGrund(grund: string): boolean {
-	for (const teil of grund.split(",")) {
-		if (teil.startsWith("shortcut:")) {
-			return true;
-		}
-		if (NUTZER_GRUENDE.includes(teil)) {
-			return true;
+	const teile = grund.split(",");
+	for (const teil of teile) {
+		if (!istNutzerTeil(teil)) {
+			return false;
 		}
 	}
-	return false;
+	return teile.length > 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -208,8 +240,12 @@ export interface Bericht {
 	schreibvorgaenge: number;
 	/** Schreibvorgänge ohne zuordenbaren Anordnungslauf. */
 	unklar: number;
-	/** Höchste Zahl gleicher Schreibvorgänge ohne nutzerveranlassten Grund. */
+	/** Höchste Zahl gleicher Schreibvorgänge ohne freigebenden Lauf dazwischen. */
 	maxWiederholungen: number;
+	/** Zahl der Anordnungsläufe (`arrange`-Zeilen) im Auszug. */
+	laeufe: number;
+	/** Davon die Läufe, deren Sammelgrund **ausschließlich** Nutzerteile trägt. */
+	nutzerlaeufe: number;
 	/** true, wenn kein Fehler und der Anteil "unklar" die Schwelle hält. */
 	bestanden: boolean;
 	/** Fenster, die die Geometrie nicht angenommen haben. */
@@ -220,7 +256,11 @@ export interface Bericht {
 	epochen: number[];
 }
 
-/** Mehr als drei gleiche Schreibvorgänge ohne neuen Anlass gelten als Schleife. */
+/**
+ * Mehr als drei gleiche Schreibvorgänge ohne freigebenden Lauf gelten als
+ * Schleife. Drei sind der vorgesehene Höchstfall: ein `apply` und die beiden
+ * Nachbesserungen aus `MAX_CORRECTIONS = 2`.
+ */
 export const MAX_WIEDERHOLUNGEN = 3;
 
 /** Ab diesem Anteil unklarer Zuordnungen ist der Auszug nicht belastbar. */
@@ -239,6 +279,13 @@ export interface PruefOptionen {
 	 * Stundenmodus ein Fehler.
 	 */
 	provoziert?: string[];
+	/**
+	 * Ein nicht provoziertes `aufgegeben` ist ein Fehler statt eines Hinweises.
+	 * `pruefeAlltagsstunde` setzt das; im freien Modus bleibt es ein Hinweis.
+	 * Die Bewertung steht damit an **einer** Stelle -- vorher meldete die
+	 * Stundenprüfung dasselbe Give-up ein zweites Mal.
+	 */
+	aufgegebenAlsFehler?: boolean;
 }
 
 export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Bericht {
@@ -260,6 +307,18 @@ export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Be
 	const pids = new Set<string>();
 	const epochen: number[] = [];
 	let letztePid = "";
+	let laeufe = 0;
+	let nutzerlaeufe = 0;
+	// Der laufende Anordnungslauf ist rein nutzerveranlasst -- und `freigegeben`
+	// sammelt die Fenster, die er in diesem Lauf schon beschrieben hat. Beides
+	// gilt nur bis zum nächsten `arrange`.
+	let laufFrei = false;
+	const freigegeben = new Set<string>();
+
+	function neuerLauf(): void {
+		laufFrei = false;
+		freigegeben.clear();
+	}
 
 	for (const ereignis of ereignisse) {
 		if (ereignis.art === "marke") {
@@ -275,6 +334,7 @@ export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Be
 			letztesSoll.clear();
 			grundOffen = null;
 			externKetten.clear();
+			neuerLauf();
 		}
 		if (ereignis.pid !== "") {
 			letztePid = ereignis.pid;
@@ -285,6 +345,7 @@ export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Be
 			letztesSoll.clear();
 			grundOffen = null;
 			externKetten.clear();
+			neuerLauf();
 			continue;
 		}
 		if (ereignis.art === "arrange") {
@@ -292,10 +353,13 @@ export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Be
 			if (ereignis.epoche !== null) {
 				epochen.push(ereignis.epoche);
 			}
+			laeufe += 1;
+			neuerLauf();
+			// Ein reiner Nutzeranlass gibt nicht pauschal alles frei, sondern
+			// nur die Fenster, die dieser Lauf auch beschreibt (Kopf, Punkt 6).
 			if (istNutzerGrund(ereignis.grund)) {
-				// Ein echter Anlass macht jedes bisherige Ziel wieder frei.
-				stand.clear();
-				externKetten.clear();
+				laufFrei = true;
+				nutzerlaeufe += 1;
 			}
 			continue;
 		}
@@ -308,7 +372,8 @@ export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Be
 					level: "fehler",
 					text:
 						`Rückkopplung: ${ereignis.id} meldet zum ${jetzt}. Mal ` +
-						`\`extern\`, ohne dass eine Nutzeraktion dazwischenlag (${ereignis.zeit})`,
+						"`extern`, ohne dass ein rein nutzerveranlasster Lauf das Fenster dazwischen " +
+						`beschrieben hat (${ereignis.zeit})`,
 				});
 				externKetten.set(ereignis.id, 0);
 			}
@@ -316,12 +381,24 @@ export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Be
 		}
 		if (ereignis.art === "aufgegeben") {
 			aufgegebene.push(ereignis.id);
-			befunde.push({
-				level: provoziert.has(ereignis.id) ? "hinweis" : "hinweis",
-				text: provoziert.has(ereignis.id)
-					? `${ereignis.id} hat die Geometrie nicht angenommen (aufgegeben, ${ereignis.zeit}) — als provoziert erklärt`
-					: `${ereignis.id} hat die Geometrie nicht angenommen (aufgegeben, ${ereignis.zeit})`,
-			});
+			if (provoziert.has(ereignis.id)) {
+				befunde.push({
+					level: "hinweis",
+					text: `${ereignis.id} hat die Geometrie nicht angenommen (aufgegeben, ${ereignis.zeit}) — als provoziert erklärt`,
+				});
+			} else if (optionen.aufgegebenAlsFehler === true) {
+				befunde.push({
+					level: "fehler",
+					text:
+						`${ereignis.id} hat die Geometrie nicht angenommen (aufgegeben, ${ereignis.zeit}) — außerhalb eines bewusst ` +
+						"provozierten Falls. Wenn der Fall es vorsieht: `--provoziert` nennen.",
+				});
+			} else {
+				befunde.push({
+					level: "hinweis",
+					text: `${ereignis.id} hat die Geometrie nicht angenommen (aufgegeben, ${ereignis.zeit})`,
+				});
+			}
 			continue;
 		}
 
@@ -359,6 +436,15 @@ export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Be
 			continue;
 		}
 
+		// Die Freigabe: ein reiner Nutzeranlass, der dieses Fenster mit `apply`
+		// oder `float` beschreibt, macht sein Ziel wieder frei -- einmal je Lauf.
+		// `nachbessern` ist die eigene Wirkung des Controllers und gibt nie frei.
+		if (laufFrei && ereignis.art !== "nachbessern" && !freigegeben.has(ereignis.id)) {
+			freigegeben.add(ereignis.id);
+			stand.delete(ereignis.id);
+			externKetten.delete(ereignis.id);
+		}
+
 		const vorher = stand.get(ereignis.id);
 		if (vorher !== undefined && vorher.soll === soll) {
 			vorher.zaehler += 1;
@@ -372,14 +458,25 @@ export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Be
 					level: "fehler",
 					text:
 						`${ereignis.id} wurde ${vorher.zaehler}-mal auf dasselbe Soll ${soll} geschrieben, ` +
-						`ohne dass eine Nutzeraktion dazwischenlag (zuletzt ${ereignis.zeit}, ` +
-						`Grund ${grundOffen})`,
+						"ohne dass ein rein nutzerveranlasster Lauf das Fenster dazwischen beschrieben hat " +
+						`(zuletzt ${ereignis.zeit}, Grund ${grundOffen})`,
 				});
 			}
 		} else {
 			stand.set(ereignis.id, { soll, zaehler: 1, gemeldet: false });
 			maxWiederholungen = Math.max(maxWiederholungen, 1);
 		}
+	}
+
+	// Ohne PID ist der Auszug mit `-o cat` oder `-o short` gezogen: die
+	// Kontinuitätsprüfung über den Prozess greift dann ins Leere.
+	if (pids.size === 0 && ereignisse.length > 0) {
+		befunde.push({
+			level: "hinweis",
+			text:
+				"keine PID in den Zeilen erkannt: der Auszug braucht `journalctl -o short-iso`, " +
+				"sonst ist ein Prozesswechsel nicht zu sehen",
+		});
 	}
 
 	const anteilUnklar = schreibvorgaenge === 0 ? 0 : unklar / schreibvorgaenge;
@@ -397,6 +494,8 @@ export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Be
 		schreibvorgaenge,
 		unklar,
 		maxWiederholungen,
+		laeufe,
+		nutzerlaeufe,
 		bestanden: !befunde.some((befund) => befund.level === "fehler"),
 		aufgegebene,
 		pids: Array.from(pids),
@@ -433,6 +532,17 @@ export function epochenluecken(epochen: number[]): { luecken: number[][]; ruecks
 
 export const MIN_MINUTEN = 60;
 
+/**
+ * Mindestaktivität der Alltagsstunde. Eine Stunde, in der nichts passiert,
+ * belegt keine Schleifenfreiheit -- sie belegt nur, dass niemand da war. Der
+ * Nachweis aus Fall 27 liegt mit 59 Läufen und 37 Schreibvorgängen weit
+ * darüber; die Schwelle schließt den leeren Auszug aus, nicht den knappen.
+ */
+export const MIN_LAEUFE = 10;
+
+/** Dasselbe für die Schreibvorgänge: ohne Writes ist nichts zu beobachten. */
+export const MIN_SCHREIBVORGAENGE = 10;
+
 /** Zeitspanne des Auszugs in Minuten, aus den ISO-Zeitstempeln. */
 export function spanneMinuten(ereignisse: Ereignis[]): number | null {
 	const zeiten = ereignisse
@@ -460,8 +570,13 @@ export function spanneMinuten(ereignisse: Ereignis[]): number | null {
  */
 export function pruefeAlltagsstunde(text: string, optionen: PruefOptionen = {}): Bericht {
 	const ereignisse = parseEreignisse(text);
-	const bericht = pruefe(ereignisse, optionen);
-	const provoziert = new Set(optionen.provoziert ?? []);
+	// Ein Give-up ist im Stundenmodus ein Fehler -- PLAN.md Abschnitt 11
+	// verlangt "kein `aufgegeben` außerhalb bewusst provozierter Fälle".
+	// Provozierte Fälle nennt die Vorschrift beim Aufruf, nicht das Werkzeug.
+	const bericht = pruefe(ereignisse, {
+		provoziert: optionen.provoziert,
+		aufgegebenAlsFehler: true,
+	});
 
 	// Der Prüfzeitraum sind die **Fallmarken**, nicht die erste und letzte
 	// Zeile: ein Auszug kann vor und nach dem Fall beliebig weit reichen.
@@ -488,20 +603,6 @@ export function pruefeAlltagsstunde(text: string, optionen: PruefOptionen = {}):
 		});
 	}
 
-	// Ein Give-up ist im Stundenmodus ein Fehler -- PLAN.md Abschnitt 11
-	// verlangt "kein `aufgegeben` außerhalb bewusst provozierter Fälle".
-	// Provozierte Fälle nennt die Vorschrift beim Aufruf, nicht das Werkzeug.
-	for (const id of bericht.aufgegebene) {
-		if (!provoziert.has(id)) {
-			bericht.befunde.push({
-				level: "fehler",
-				text:
-					`${id} hat die Geometrie nicht angenommen (aufgegeben) — außerhalb eines bewusst ` +
-					"provozierten Falls. Wenn der Fall es vorsieht: `--provoziert` nennen.",
-			});
-		}
-	}
-
 	// Skriptlauf: die `geladen`-Zeile ist nur **ein** Indiz, und sie fehlt in
 	// jedem Auszug, der mitten im Lauf beginnt. Belastbar ist die Kombination
 	// aus einer PID und einer lückenlosen Epochenfolge: ein Reload schriebe
@@ -520,6 +621,31 @@ export function pruefeAlltagsstunde(text: string, optionen: PruefOptionen = {}):
 			text:
 				"nicht ausreichend belegt: Skriptneustart mitten im Auszug — die `geladen`-Zeile ist " +
 				"nicht die erste Controllerzeile",
+		});
+	}
+
+	// Mindestaktivität: die Stunde belegt Schleifenfreiheit unter Last, nicht
+	// Abwesenheit. Ein Auszug ohne Läufe, ohne Schreibvorgänge oder ohne einen
+	// einzigen rein nutzerveranlassten Lauf besteht nichts -- er zeigt nur, dass
+	// nichts zu prüfen war.
+	if (bericht.laeufe < MIN_LAEUFE) {
+		bericht.befunde.push({
+			level: "fehler",
+			text: `nicht ausreichend belegt: ${bericht.laeufe} Anordnungsläufe im Auszug, verlangt sind ${MIN_LAEUFE}`,
+		});
+	}
+	if (bericht.schreibvorgaenge < MIN_SCHREIBVORGAENGE) {
+		bericht.befunde.push({
+			level: "fehler",
+			text: `nicht ausreichend belegt: ${bericht.schreibvorgaenge} Schreibvorgänge im Auszug, verlangt sind ${MIN_SCHREIBVORGAENGE}`,
+		});
+	}
+	if (bericht.nutzerlaeufe === 0) {
+		bericht.befunde.push({
+			level: "fehler",
+			text:
+				"nicht ausreichend belegt: kein rein nutzerveranlasster Anordnungslauf im Auszug — " +
+				"ohne ihn ist die Freigabe je Fenster nie geprüft worden",
 		});
 	}
 

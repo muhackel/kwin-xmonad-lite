@@ -15,7 +15,12 @@
  * `workspace.activeWindow`. Fall 20b verlangt „höchstens ein Aktivierungsversuch
  * je Befehl", und live zählbar ist nur die `aktiviere`-Journalzeile -- also das,
  * was der Controller über sich selbst sagt. Hier wird der Schreibzugriff selbst
- * gezählt.
+ * gezählt. `hebungen` zählt ebenso `workspace.raiseWindow`.
+ *
+ * `console.log` und `print` werden nur abgefangen, nicht dauerhaft ersetzt:
+ * `dispose()` stellt beide zurück. Ein Rig, der die Konsole des ganzen
+ * Testlaufs kapert, ließe jede spätere Ausgabe -- auch die eines anderen
+ * Rigs oder von `node --test` selbst -- in `logs` verschwinden.
  */
 
 import type { Rect } from "../../src/core/rect.ts";
@@ -28,6 +33,7 @@ import { ACTIVITY, AREA, DESKTOP, OUTPUT } from "./kwinfake.ts";
 export interface RigFenster {
 	id: string;
 	geometry: Rect;
+	deleted: boolean;
 	minimized: boolean;
 	fullScreen: boolean;
 	maximizeMode: number;
@@ -38,8 +44,13 @@ export interface RigFenster {
 	normalWindow: boolean;
 	managed: boolean;
 	dock: boolean;
+	specialWindow: boolean;
+	popupWindow: boolean;
+	dialog: boolean;
+	utility: boolean;
+	splash: boolean;
+	transient: boolean;
 	modal: boolean;
-	transientFor: unknown;
 	caption: string;
 	resourceClass: string;
 	output: { name: string };
@@ -81,11 +92,13 @@ function signal(): { connect: (h: Rueckruf) => void; disconnect: (h: Rueckruf) =
 export function rigFenster(
 	id: string,
 	geometry: Rect = { x: 0, y: 0, width: 800, height: 600 },
+	overrides: Partial<RigFenster> = {},
 ): RigFenster {
 	const fenster: RigFenster = {
 		id,
 		geometry,
 		frameGeometry: { ...geometry },
+		deleted: false,
 		minimized: false,
 		fullScreen: false,
 		maximizeMode: 0,
@@ -96,8 +109,13 @@ export function rigFenster(
 		normalWindow: true,
 		managed: true,
 		dock: false,
+		specialWindow: false,
+		popupWindow: false,
+		dialog: false,
+		utility: false,
+		splash: false,
+		transient: false,
 		modal: false,
-		transientFor: null,
 		caption: `kxl-${id}`,
 		resourceClass: "kwrite",
 		output: { name: OUTPUT },
@@ -117,7 +135,7 @@ export function rigFenster(
 		fullScreenChanged: signal(),
 		interactiveMoveResizeFinished: signal(),
 	};
-	return fenster;
+	return { ...fenster, ...overrides };
 }
 
 export interface AdapterRig {
@@ -125,6 +143,8 @@ export interface AdapterRig {
 	aktivierungen: string[];
 	/** Jede Journalzeile, die der Controller geschrieben hat. */
 	logs: string[];
+	/** Jeder Aufruf von `workspace.raiseWindow`, in Reihenfolge der Id. */
+	hebungen: string[];
 	/** Löst den Rückruf aus, den `registerShortcut` für diesen Namen bekam. */
 	taste(objectName: string): void;
 	/** Die Namen, unter denen Kürzel registriert wurden. */
@@ -138,6 +158,8 @@ export interface AdapterRig {
 	fenster: RigFenster[];
 	workspace: Record<string, unknown>;
 	start(): void;
+	/** Stellt `console.log` und `print` wieder her. Die Tests rufen das am Ende. */
+	dispose(): void;
 }
 
 export interface RigOptionen {
@@ -155,6 +177,7 @@ export function adapterRig(optionen: RigOptionen = {}): AdapterRig {
 	const fenster = optionen.fenster ?? [];
 	const aktivierungen: string[] = [];
 	const logs: string[] = [];
+	const hebungen: string[] = [];
 	const tastenTabelle = new Map<string, Rueckruf>();
 	let aktiv: RigFenster | null = null;
 	let umleitung: string | null = null;
@@ -187,8 +210,8 @@ export function adapterRig(optionen: RigOptionen = {}): AdapterRig {
 		windowList(): RigFenster[] {
 			return fenster;
 		},
-		raiseWindow(): void {
-			// Der Rig zählt nur Aktivierungen; das Heben ist hier ohne Belang.
+		raiseWindow(window: RigFenster): void {
+			hebungen.push(window.id);
 		},
 	};
 
@@ -238,6 +261,10 @@ export function adapterRig(optionen: RigOptionen = {}): AdapterRig {
 
 	const timerListe: FakeQTimer[] = [];
 	const welt = globalThis as unknown as Record<string, unknown>;
+	// `workspace` bleibt je Rig lokal (oben). Diese Zuweisung zeigt auf den
+	// zuletzt gebauten Rig -- ein zweiter `adapterRig()`-Aufruf überschreibt
+	// sie, ohne dass der erste Rig davon erfährt. Innerhalb eines Tests ist
+	// das unbedenklich, solange keine zwei Rigs gleichzeitig laufen.
 	welt.workspace = workspace;
 	welt.KWin = { MaximizeArea: 2 };
 	welt.options = { perOutputVirtualDesktops: false };
@@ -259,25 +286,23 @@ export function adapterRig(optionen: RigOptionen = {}): AdapterRig {
 		const werte = optionen.config ?? {};
 		return key in werte ? werte[key] : vorgabe;
 	};
-	welt.print = (...args: unknown[]): void => {
+	// Der Controller schreibt nur über `console.log` (siehe `log.ts`); `print`
+	// nutzt er nicht, wird hier aber aus demselben Grund abgefangen, aus dem
+	// `globals.d.ts` es kennt. Beide Originale bleiben erhalten, `dispose()`
+	// setzt sie zurück -- ohne das kaperte jeder Rig die Konsole des ganzen
+	// Testlaufs dauerhaft, und ein späterer `console.log` außerhalb des Rigs
+	// schriebe still in `logs`.
+	const urspruenglichesConsole = welt.console;
+	const urspruenglichesPrint = welt.print;
+	const gefangenesConsole = Object.create(
+		(urspruenglichesConsole as object | undefined) ?? {},
+	) as Record<string, unknown>;
+	gefangenesConsole.log = (...args: unknown[]): void => {
 		logs.push(args.map(String).join(" "));
 	};
-	welt.console = {
-		log(...args: unknown[]): void {
-			logs.push(args.map(String).join(" "));
-		},
-		info(...args: unknown[]): void {
-			logs.push(args.map(String).join(" "));
-		},
-		warn(...args: unknown[]): void {
-			logs.push(args.map(String).join(" "));
-		},
-		error(...args: unknown[]): void {
-			logs.push(args.map(String).join(" "));
-		},
-		assert(): void {
-			// nicht benutzt
-		},
+	welt.console = gefangenesConsole;
+	welt.print = (...args: unknown[]): void => {
+		logs.push(args.map(String).join(" "));
 	};
 
 	// Erst hier, mit gesetzten Globals.
@@ -286,6 +311,7 @@ export function adapterRig(optionen: RigOptionen = {}): AdapterRig {
 	return {
 		aktivierungen,
 		logs,
+		hebungen,
 		fenster,
 		workspace,
 		start(): void {
@@ -311,6 +337,18 @@ export function adapterRig(optionen: RigOptionen = {}): AdapterRig {
 					t.auslösen();
 				}
 			}
+			const nochLaufend = timerListe.filter((t) => t.running);
+			if (nochLaufend.length > 0) {
+				throw new Error(
+					`beruhigen() kam nach 20 Runden nicht zur Ruhe: ${nochLaufend
+						.map((t) => `Intervall ${t.interval}`)
+						.join(", ")}`,
+				);
+			}
+		},
+		dispose(): void {
+			welt.console = urspruenglichesConsole;
+			welt.print = urspruenglichesPrint;
 		},
 		fokus(id: string | null): void {
 			aktiv = id === null ? null : (fenster.find((eintrag) => eintrag.id === id) ?? null);

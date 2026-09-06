@@ -328,36 +328,51 @@
 
             grep -nE '(frameGeometry[[:space:]]*=|moveResize|activeWindow[[:space:]]*=|raiseWindow|setMaximize|setFullScreen|rootTile)' \
               dev/probe/geometry.js > "$TMPDIR/schreibt" || true
+            # Eigenschafts- und Klammer-Zuweisung auf die Bezeichner, unter
+            # denen die Probe Fenster-, Workspace- und Ausgabeobjekte hält
+            # (workspace, w, window, output, desktop -- win, out und screen
+            # kommen in dieser Datei an keiner Stelle als Objektreferenz vor,
+            # nur als Stringliteral oder als Name eines Arrays). `[^=]` am
+            # Ende schließt `==`/`===` aus, sonst schlüge schon ein Vergleich
+            # wie `w.output === null` fehl; eine lokale Variablenzuweisung wie
+            # `var w = ...` bleibt unbeanstandet, weil ihr keine Eigenschafts-
+            # oder Klammernutzung vorausgeht.
+            grep -nE '\b(workspace|w|window|output|desktop)(\.[A-Za-z_$]+|\[[^]]*\])[[:space:]]*=[^=]' \
+              dev/probe/geometry.js > "$TMPDIR/mutiert" || true
+            # Setter-Methoden und die reflektierenden Schreibpfade, die keine
+            # `=`-Zuweisung sind und deshalb am Muster oben vorbeikämen.
+            grep -nE '(minimize\(|closeWindow\(|setDesktops\(|slotWindow|sendClientToScreen\(|setActivities\(|setNoBorder\(|setKeepAbove\(|setKeepBelow\(|setOnAllDesktops\(|Object\.assign\(|Reflect\.set\(|Object\.defineProperty\()' \
+              dev/probe/geometry.js > "$TMPDIR/setter" || true
             grep -nE '\.connect\(' dev/probe/geometry.js > "$TMPDIR/verbindet.roh" || true
             grep -vE 'timeout\.connect\(' "$TMPDIR/verbindet.roh" > "$TMPDIR/verbindet" || true
             grep -nE '(frameGeometryChanged|windowAdded|windowRemoved|windowActivated|outputChanged|screensChanged|screenOrderChanged|virtualScreenGeometryChanged|desktopsChanged|activitiesChanged|currentDesktopChanged|currentActivityChanged|interactiveMoveResize|\bclosed\b)' \
               dev/probe/geometry.js > "$TMPDIR/signale" || true
 
-            # Kommentarzeilen zaehlen nicht: die Datei begruendet ihre Regeln
+            # Kommentarzeilen zählen nicht: die Datei begründet ihre Regeln
             # im Kopf und nennt die verbotenen Namen dabei.
-            for datei in schreibt verbindet signale; do
+            for datei in schreibt mutiert setter verbindet signale; do
               grep -vE '^[0-9]+:[[:space:]]*(//|\*|/\*)' "$TMPDIR/$datei" > "$TMPDIR/$datei.echt" || true
             done
 
-            if [ -s "$TMPDIR/schreibt.echt" ] || [ -s "$TMPDIR/verbindet.echt" ] || [ -s "$TMPDIR/signale.echt" ]; then
+            if [ -s "$TMPDIR/schreibt.echt" ] || [ -s "$TMPDIR/mutiert.echt" ] || [ -s "$TMPDIR/setter.echt" ] || [ -s "$TMPDIR/verbindet.echt" ] || [ -s "$TMPDIR/signale.echt" ]; then
               echo "dev/probe/geometry.js ist nicht mehr strikt lesend:" >&2
-              cat "$TMPDIR/schreibt.echt" "$TMPDIR/verbindet.echt" "$TMPDIR/signale.echt" >&2
+              cat "$TMPDIR/schreibt.echt" "$TMPDIR/mutiert.echt" "$TMPDIR/setter.echt" "$TMPDIR/verbindet.echt" "$TMPDIR/signale.echt" >&2
               exit 1
             fi
 
             touch "$out"
           '';
 
-          # `activate` ist der einzige Schreibpfad auf `workspace.activeWindow`.
-          # Daran haengt die Schleifenfreiheit: Aktivieren loest
-          # `windowActivated` aus, das eine Epoche anmeldet, und die Epoche
-          # aktiviert nie selbst. Ein zweiter Schreibpfad baute die Schleife --
-          # und waere im Journal nicht von einem einzelnen Versuch zu
-          # unterscheiden (Fall 20b).
+          # Der Check fängt einen versehentlichen zweiten Schreibpfad auf
+          # `workspace.activeWindow` -- in Punkt-, Klammer- oder
+          # Reflect-/Object.assign-Form. Er belegt nicht „genau eine
+          # Aktivierung je Befehl"; das leistet das Adapter-Rig in
+          # `tests/adapter-shortcut.test.ts`, das den echten Adapter fährt und
+          # die Aktivierungen zählt.
           activate-once = pkgs.runCommand "kwin-xmonad-lite-activate-once" { } ''
             cd ${self}
 
-            grep -rn 'activeWindow[[:space:]]*=' src --include='*.ts' > "$TMPDIR/roh" || true
+            grep -rnE 'activeWindow["'"'"']?\]?[[:space:]]*=[^=]' src --include='*.ts' > "$TMPDIR/roh" || true
             grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)' "$TMPDIR/roh" > "$TMPDIR/treffer" || true
 
             anzahl="$(wc -l < "$TMPDIR/treffer")"
@@ -369,6 +384,16 @@
             if ! grep -q '^src/kwin/adapter\.ts:' "$TMPDIR/treffer"; then
               echo "der Schreibzugriff steht nicht in src/kwin/adapter.ts:" >&2
               cat "$TMPDIR/treffer" >&2
+              exit 1
+            fi
+
+            # Object.assign/Reflect.set auf workspace kämen an der obigen
+            # Zählung vorbei, weil sie kein `=` schreiben.
+            grep -rnE '(Object\.assign\(workspace|Reflect\.set\(workspace)' src --include='*.ts' > "$TMPDIR/reflekt.roh" || true
+            grep -vE ':[0-9]+:[[:space:]]*(\*|//|/\*)' "$TMPDIR/reflekt.roh" > "$TMPDIR/reflekt" || true
+            if [ -s "$TMPDIR/reflekt" ]; then
+              echo "Object.assign/Reflect.set auf workspace, statt des einen erlaubten Schreibpfads in src/kwin/adapter.ts:" >&2
+              cat "$TMPDIR/reflekt" >&2
               exit 1
             fi
 
@@ -468,37 +493,73 @@
               fi
             }
 
+            # `fläche=` ist Pflicht, sobald eine Vorschrift angegeben wird. Die
+            # Werte stammen aus den `surface … fläche=`-Zeilen der Journale zum
+            # jeweiligen Fall: DP-3 misst mit Panel 1920x1050+0+0, eDP-1 liegt
+            # rechts daneben auf 1920x1080+1920+0. Ohne den Schlüssel rechnete
+            # das Orakel die Sollzellen auf der gemessenen Fläche -- eine falsch
+            # gelesene Arbeitsfläche passte dann zu ihren eigenen Zellen.
             pruefe bestanden "25 Selbsttest" \
               docs/geometry-2026-09-06-hal9000-25.ndjson "$r1" --kwin-pid 49086
             pruefe bestanden "25a" \
               docs/geometry-2026-09-06-hal9000-25a.ndjson "$r1" --kwin-pid 49086 \
-              layout=tall n=1 ratio=0.65 gaps=0/0
+              layout=tall n=1 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
             pruefe bestanden "25b" \
               docs/geometry-2026-09-06-hal9000-25b.ndjson "$r1" --kwin-pid 49086 \
-              layout=tall n=3 ratio=0.65 gaps=0/0
+              layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
             pruefe bestanden "25c tall" \
               docs/geometry-2026-09-06-hal9000-25c-tall.ndjson "$r1" --kwin-pid 61993 \
-              layout=tall n=3 ratio=0.55 gaps=8/4
+              layout=tall n=3 ratio=0.55 gaps=8/4 fläche=1920x1050+0+0
             pruefe bestanden "25c full" \
               docs/geometry-2026-09-06-hal9000-25c-full.ndjson "$r1" --kwin-pid 61993 \
-              layout=full n=3 ratio=0.55 gaps=8/4
+              layout=full n=3 ratio=0.55 gaps=8/4 fläche=1920x1050+0+0
             pruefe bestanden "26 DP-3" \
               docs/geometry-2026-09-06-hal9000-ap7-26-dp3.ndjson "$r7" --kwin-pid 2468 \
-              layout=tall n=3 ratio=0.55 gaps=0/0 "surface=$erwarte|DP-3"
+              layout=tall n=3 ratio=0.55 gaps=0/0 fläche=1920x1050+0+0 \
+              "surface=$erwarte|DP-3"
             pruefe bestanden "26 eDP-1" \
               docs/geometry-2026-09-06-hal9000-ap7-26-edp1.ndjson "$r7" --kwin-pid 2468 \
-              layout=full n=3 ratio=0.65 gaps=0/0 "surface=$erwarte|eDP-1"
+              layout=full n=3 ratio=0.65 gaps=0/0 fläche=1920x1080+1920+0 \
+              "surface=$erwarte|eDP-1"
+
+            # Fall 20b: drei kwrite-Fenster und der modale Dialog darüber. Der
+            # Dialog ist kein Teilnehmer und liegt trotzdem in der Fläche --
+            # genau der Grund, warum ein Fremdfenster ein Hinweis bleibt und
+            # kein Fehler. Die drei Artefakte lagen bisher unverankert unter
+            # `docs/`; jetzt sind sie Teil der Regressionsprobe.
+            for lauf in d1 d2 modal; do
+              pruefe bestanden "20b $lauf" \
+                "docs/geometry-2026-09-06-hal9000-20b-$lauf.ndjson" "$r1" --kwin-pid 49086 \
+                layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
+            done
+
+            # Der Abschluss der Alltagsstunde, ohne Vorschrift: geprüft werden
+            # Datenqualität, Einschwingen und Journalhygiene. Eine Erwartung
+            # gibt es nicht, weil der Lauf keinen bestimmten Layoutzustand
+            # herstellen sollte.
+            pruefe bestanden "27 Abschluss" \
+              docs/geometry-2026-09-06-hal9000-ap7-27-abschluss.ndjson \
+              docs/ms7-2026-09-06-hal9000-fall27.log --kwin-pid 2468
 
             # Der abgelehnte erste Anlauf von Fall 25 muss abgelehnt bleiben:
-            # waehrend der Messung baute ein Autostart-Fenster neu auf.
+            # während der Messung baute ein Autostart-Fenster neu auf.
             pruefe "nicht bestanden" "25 Vorlauf" \
               docs/geometry-2026-09-06-hal9000-25-vorlauf.ndjson "$r1" --kwin-pid 49086
 
-            # Die Alltagsstunde: ein Skriptlauf ueber eine PID und eine
-            # lueckenlose Epochenfolge, ohne eine einzige `geladen`-Zeile.
+            # Die Alltagsstunde: ein Skriptlauf über eine PID und eine
+            # lückenlose Epochenfolge, ohne eine einzige `geladen`-Zeile.
             if ! node dev/probe/journal-audit-cli.ts \
               docs/ms7-2026-09-06-hal9000-fall27.log --stunde >/dev/null 2>&1; then
               echo "Fall 27 besteht die Belegschwelle nicht mehr" >&2
+              fehler=1
+            fi
+
+            # Der Nachtrag zu Fall 26a: vier Desktops mal zwei Ausgaben. Er ist
+            # kein Geometrienachweis, sondern ein Journal -- geprüft wird er
+            # deshalb mit dem Auditor auf Schleifenfreiheit.
+            if ! node dev/probe/journal-audit-cli.ts \
+              docs/ms7-2026-09-06-hal9000-26a-nachtrag.log --frei >/dev/null 2>&1; then
+              echo "26a-Nachtrag: der Auditor findet eine Rückkopplung" >&2
               fehler=1
             fi
 
