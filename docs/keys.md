@@ -287,7 +287,35 @@ gegen den Pin `8f287d9`; Rohdaten stehen in
 [`hal9000-abnahme-2026-09-06.log`](hal9000-abnahme-2026-09-06.log).
 
 - Das Verhalten bei einem **modalen Dialog** als Fokusziel ist nicht gemessen
-  (Fall 20b).
+  (Fall 20b). Die Vorschrift dafür steht in `build.md`; gezählt wird nicht die
+  `befehl`-Zeile, sondern die Zahl der `aktiviere <id>`-Zeilen. Dass es
+  strukturell nie mehr als eine je Befehl sein kann, hält
+  `checks.activate-once` fest: genau ein Schreibzugriff auf
+  `workspace.activeWindow` im ganzen Baum, in `src/kwin/adapter.ts`.
 - Der Fall „Fokusziel zwischen Tastendruck und Lauf geschlossen" (Fall 20c) ist
   nicht reproduzierbar herstellbar und bleibt unbelegt; der Pfad
   `aktivieren fehlgeschlagen für …` existiert im Adapter.
+
+## 6. Diagnosezeilen bei `debug=true`
+
+Reihenfolge, Layout-Teilnahme und Float-Markierung stehen in der Registry, nicht
+am KWin-Fenster. Eine lesende Probe kann sie deshalb nicht messen; für die
+Abnahme gibt es seit Meilenstein 7 zwei zusätzliche Zeilen, beide nur bei
+`debug=true`:
+
+```
+kwin-xmonad-lite: diagnose <surface> order=<id,id,id> teilnehmer=<id,id> float=<id>
+kwin-xmonad-lite: aktiviere <id>
+```
+
+Die erste steht je Surface in jedem Anordnungslauf, unmittelbar nach der
+`surface`-Zeile. Ohne sie sind der Zustandsverlust über einen Reload (Fall 16),
+getrennte Stapelreihenfolgen je Ausgabe (Fall 26) und die Zuordnung Fenster zu
+Zelle nicht belegbar, sondern nur plausibel.
+
+Die zweite steht im Aktivierungspfad und ist der einzige **live zählbare**
+Aktivierungsversuch. Die `befehl`-Zeile sagt nur, dass ein Befehl lief.
+
+In der Produktion schweigen beide, solange `debug` nicht gesetzt ist — je
+Surface und Lauf eine ganze Fensterliste ins Journal zu schreiben, wäre sonst
+der Normalzustand.

@@ -334,8 +334,9 @@ langlebiges Objekt; seine Beobachtung muss über `windowAdded` mitwachsen und
 In jedem vollständigen Lauf endeten einige Trennungen im Abschluss der Probe
 mit `Error: Function.prototype.disconnect: cannot disconnect from deleted
 QObject` (vier im Lauf `docs/signals-2026-09-05-spielkiste-3.ndjson`, dort als
-`cut`-Sätze mitgeschrieben und im `end`-Satz als `cut_tot: 4` gezählt; fünf und
-dreizehn in den Läufen `-1` und `-2`). Betroffen sind die
+`cut`-Sätze mitgeschrieben und im `end`-Satz als `cut_tot: 4` gezählt;
+dreizehn im Lauf `-1` und fünf im Lauf `-2`, dort jeweils an den `cut`-Sätzen
+abzuzählen, weil beide `end`-Sätze die Zähler noch nicht trugen). Betroffen sind die
 Fensterverbindungen von Panels, die während der Laufzeit verschwanden — beim
 Ändern der Panelhöhe und beim Hotplug.
 
@@ -634,3 +635,90 @@ Ausgangsstand. `/run/current-system` zeigte auf das Toplevel von Generation
   die gespeicherte Reihenfolge eine Teilmenge der Snapshot-Mitglieder ist. Die
   Prüfung bleibt defensiv im Code stehen; eine Abnahme darf diese Journalzeile
   nicht erwarten.
+
+## 7. Quelltextbefunde, Meilenstein 7
+
+Gelesen am 2026-09-06 aus dem gepinnten Tarball
+`kwin-6.7.4.tar.xz` im Nix-Store (`kdePackages.kwin.src`), ergänzt um zwei
+Live-Gegenproben auf SPIELKISTE. Modellwissen wurde nicht verwendet.
+
+### 7.1 Neustartverfahren unter Wayland
+
+Es gibt **zwei** Verfahren, und sie sind verschieden weitreichend.
+
+**KWin-Neustart in der laufenden Sitzung.** `kwin_wayland --replace` schickt nur
+eine D-Bus-Nachricht und beendet sich selbst
+(`src/main_wayland.cpp:377-379` und `:450-456`); die Arbeit macht die Methode
+`org.kde.KWin.replace` im laufenden Prozess:
+
+```cpp
+void DBusInterface::replace()
+{
+    QCoreApplication::exit(133);
+}
+```
+(`src/dbusinterface.cpp:110-113`)
+
+Den Neustart besorgt `kwin_wayland_wrapper`. Er hält den Wayland-Socket und
+startet KWin bei jedem Exit ungleich 0 erneut, wobei er den Socket-Dateideskriptor
+jedes Mal frisch übergibt (`src/helpers/wayland_wrapper/kwin_wrapper.cpp:113-114`).
+Der Exit-Code entscheidet über die Bewertung:
+
+| Exit | Wirkung im Wrapper |
+|---|---|
+| 0 | `qApp->quit()` — der Wrapper endet mit, das ist das Sitzungsende |
+| 133 (`replace`) | `m_crashCount = 0`, Neustart — ausdrücklich **kein** Absturz |
+| sonst | `m_crashCount++`, Neustart; ab dem elften Mal endet der Wrapper |
+
+(`kwin_wrapper.cpp:136-154`)
+
+**Live gegengeprüft** auf SPIELKISTE: `.replace` steht in der Schnittstelle
+unter `org.kde.KWin /KWin`, der Wrapper läuft als eigener Prozess mit
+`--wayland-fd 7 --socket wayland-0`, und seine Journalzeilen liegen unter
+derselben User-Unit wie die von KWin (`plasma-kwin_wayland`). Ein Auszug mit
+`_SYSTEMD_USER_UNIT=plasma-kwin_wayland.service` erfasst den Wrapper also mit.
+
+> **Nicht belegt:** ob bestehende Wayland-Clients den Prozesswechsel
+> überstehen. Der Socket überlebt, die Verbindungen zum alten Prozess nicht;
+> ob ein Client den Abbruch übersteht, entscheidet der Client. Das ist in
+> Fall 17a zu **messen**, nicht anzunehmen.
+
+**Sitzungsneustart.** Ab- und Anmelden. KWin endet mit Exit 0, der Wrapper
+endet mit, alles wird neu aufgebaut. Boot-Id, KWin-PID und Skriptlauf wechseln
+gemeinsam; beim KWin-Neustart bleibt die Boot-Id.
+
+### 7.2 Wann KWin Skripte lädt und entlädt
+
+`Scripting::start()` hängt an zwei Signalen des Workspace:
+
+```cpp
+connect(Workspace::self(), &Workspace::configChanged, this, &Scripting::start);
+connect(Workspace::self(), &Workspace::workspaceInitialized, this, &Scripting::start);
+```
+(`src/scripting/scripting.cpp:683-684`)
+
+`Workspace::slotReconfigure()` emittiert `configChanged()`
+(`src/workspace.cpp:1017`). Damit läuft nach **jedem** `reconfigure` die
+Abfrage `queryScriptsToLoad()`, und die liest `[Plugins]` neu ein und wertet
+je Paket das Flag `<pluginId>Enabled` aus (`scripting.cpp:746-793`):
+
+- Flag `false` und Skript geladen → `unloadScript(pluginId)`.
+- Flag `true` und Skript nicht geladen → laden und starten.
+
+Daraus folgt für die offene Frage aus `PLAN.md` Risiko 8: ein **Re-Enable ohne
+Neuanmeldung** ist im JS-Modus quelltextseitig vorgesehen. Der Weg ist
+`kwriteconfig6` auf `kwinrc [Plugins] kwin-xmonad-liteEnabled` und danach
+`reconfigure` über D-Bus. Fall 16c misst, ob es auch wirklich so eintritt.
+
+Die bisherige Formulierung „`reconfigure` lädt laufende Skripte nicht neu" ist
+zu schärfen: **ein bereits geladenes Skript** wird nicht neu geladen, weil
+`loadScript` bei bekanntem Pluginnamen sofort `-1` liefert
+(`scripting.cpp:861-866`). Abgeschaltete werden trotzdem entladen und neu
+eingeschaltete geladen.
+
+**Entwarnung zum Nebeneffekt:** `Scripting::start()` ruft am Ende `runScripts()`
+über **alle** Skripte, also auch über bereits laufende. Ein zweiter Start
+entsteht daraus nicht — `Script::run()` steigt bei `running() || m_starting`
+sofort aus (`scripting.cpp:166-170`). Ein `reconfigure`, wie es jede beliebige
+Änderung in den Systemeinstellungen auslöst, verdrahtet den Controller also
+nicht ein zweites Mal.

@@ -94,13 +94,49 @@ Desktop, Activitymenge, aktuelle Activity, Zustand der Hotplug-Ausgabe,
 mit Strg-C: der EXIT-Trap räumt genau einmal auf, und eine Ausgabe, die sich
 nicht wieder einschalten ließ, wird dort erneut versucht.
 
+### Geometrie-Probe
+
+```bash
+nix run .#probe-geometry                # nur Datenqualität und Invarianten
+nix run .#probe-geometry -- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0
+```
+
+Misst die anliegenden Fenstergeometrien, die nutzbare Arbeitsfläche je Surface
+und das aktive Fenster aus dem Skriptkontext, viermal gestaffelt (0, 500, 1500
+und 3000 ms), und schreibt sie als `geometry-<Zeitstempel>.ndjson` samt dem
+zugehörigen Controller-Journalauszug. Danach läuft das Orakel darüber und
+übernimmt dessen Exit-Code. Ohne `--erwarte` prüft es nur Datenqualität und
+Einschwingen, mit `--erwarte` zusätzlich das Journal gegen die vorgegebenen
+Werte und erst danach die Geometrie.
+
+Die Probe ist strikt lesend und verbindet kein KWin-Signal — nur `timeout` an
+eigenen Timern; `checks.probe-readonly` erzwingt das. Ausführlich im Abschnitt
+„Abnahme Matrix 16–17, 20b und 25–27".
+
+### Journal-Auditor
+
+```bash
+nix run .#audit                          # letzte 60 min als Alltagsstunde
+nix run .#audit -- --seit "-10 min"      # kürzerer Blick, ohne Belegschwelle
+nix run .#audit -- <datei>               # gesicherter Auszug
+```
+
+Sucht Geometrie-Schleifen: er zählt alle Schreibarten (`apply`, `float`,
+`nachbessern`), ordnet Nachbesserungen der Schreibgeneration des Fensters zu
+und lässt technische Gründe wie `geometrieExtern` oder `nachlauf*` nicht als
+neuen Anlass gelten.
+
 ## Testen / Checks
 
 ```bash
 nix flake check      # Paketbau (inkl. Typprüfung und Unit-Tests), Lint,
-                     # Skripte, Snapshot-Grenze, Home-Manager-Modul
+                     # Skripte, Snapshot-Grenze, Lesbarkeit der Geometrie-Probe,
+                     # einziger Aktivierungspfad, Home-Manager-Modul
                      # ein- und ausgeschaltet
 ```
+
+Acht Checks: `package`, `lint`, `scripts`, `snapshot-boundary`,
+`probe-readonly`, `activate-once`, `home-module` und `home-module-disabled`.
 
 `checks.snapshot-boundary` erzwingt die weiter unten beschriebene Grenze als
 Derivation. Das Grep-Paar ist dasselbe; der Check wirft zusätzlich die vier
@@ -108,6 +144,20 @@ erlaubten Dateien weg und scheitert mit der Trefferzeile, wenn etwas übrig
 bleibt. Vorher war die Grenze nur Prosa — `tsc` beanstandet einen
 `workspace`-Zugriff in `core/` oder `state/` nicht, ein neuer Globalzugriff
 wäre also grün durchgelaufen.
+
+`checks.probe-readonly` hält fest, dass `dev/probe/geometry.js` strikt lesend
+bleibt: keine Geometrie-Writes, kein `activeWindow`, kein `raiseWindow` und
+keine Verbindung zu einem KWin-, Fenster- oder Output-Signal. Erlaubt bleibt
+`timeout.connect` an eigenen QTimern — ohne das gäbe es keine zeitversetzten
+Samples. Eine Probe, die selbst schreibt, könnte das Prüfergebnis herstellen,
+das sie belegen soll.
+
+`checks.activate-once` erzwingt, dass es genau **einen** Schreibzugriff auf
+`workspace.activeWindow` gibt, und zwar in `src/kwin/adapter.ts`. Daran hängt
+die Schleifenfreiheit: Aktivieren löst `windowActivated` aus, das eine Epoche
+anmeldet, und die Epoche aktiviert nie selbst. Ein zweiter Schreibpfad wäre im
+Journal nicht von einem einzelnen Versuch zu unterscheiden — genau das prüft
+Fall 20b.
 
 `checks.home-module` wertet das Home-Manager-Modul mit **aktiviertem** Zweig
 aus: es baut ein `activationPackage` mit `programs.kwin-xmonad-lite.enable`,
@@ -983,6 +1033,345 @@ Aktionen und protokolliert nur die Rückgabewerte. Sie betätigt keine Taste und
 liest keine wirksame Zuordnung aus; `registerShortcut` liefert ohnehin immer
 `true`. Der Lauf bleibt als Nebenbefund nützlich, entscheidet aber keine
 Kollisionsfrage — das tut nur der Tastendruck.
+
+### Abnahme Matrix 16–17, 20b und 25–27: Meilenstein 7
+
+Diese Reihe schließt die Verhaltensprüfungen ab. Sie ist **noch nicht
+ausgeführt**; der Abschnitt ist die Vorschrift, gegen die sie läuft.
+
+Die Wayland-Smoke-VM ist nicht mehr Teil der MVP-Abnahme. HAL9000 liefert die
+Live-Nachweise in einer echten Sitzung, SPIELKISTE den Multi-Output-Lauf und
+die Alltagsstunde; eine automatisiert wiederholbare VM-Prüfung ist auf Stufe 2
+verschoben.
+
+#### Instanztrennung
+
+Die beiden Instanzen registrieren dieselben zwölf `xml-*`-objectNames und
+dürfen nie gleichzeitig laufen. Deshalb ist die Zuordnung fest:
+
+| Host | Instanz | Gruppe in `kwinrc` | `Meta+L` / `Meta+T` |
+|---|---|---|---|
+| HAL9000 | Produktion aus dem Store, Feature-Flag an | `[Script-kwin-xmonad-lite]` | Controller-Tasten (KDE-Kürzel umgelegt) |
+| SPIELKISTE | Entwicklung über `nix run` | `[Script-kwin-xmonad-lite-dev]` | KDE-Aktionen; die beiden Befehle laufen über `invokeShortcut` |
+
+`scripts/dev-load.sh` und `reload.sh` brechen über `require_no_production` ab,
+sobald die Produktion geladen ist. Auf HAL9000 ist das erwünscht und in Fall 24
+belegt; ein Reload der Produktionsinstanz läuft dort über D-Bus von Hand
+(Fall 16).
+
+#### Journal ziehen: Marken und Controllerzeilen in einem Auszug
+
+`journalctl` verknüpft `-u` und `-t` mit UND — eine Schrittmarke aus
+`systemd-cat` käme mit dem Unit-Filter allein **nicht** durch. Das `+` ist die
+ODER-Verknüpfung und liefert beides; es fängt zugleich die Zeilen von
+`kwin_wayland_wrapper` mit ein, die Fall 17a braucht:
+
+```bash
+systemd-cat -t kxl-abnahme echo "== Fall 25b Anfang =="
+# ... Fall ausführen ...
+systemd-cat -t kxl-abnahme echo "== Fall 25b Ende =="
+
+journalctl --user -b -o short-iso --since "@$t0" \
+  _SYSTEMD_USER_UNIT=plasma-kwin_wayland.service + SYSLOG_IDENTIFIER=kxl-abnahme
+```
+
+Ohne `-o short-iso` fehlen die Zeitstempel. Genau daran scheiterte die
+Beleglage von Meilenstein 6: die zehn ruhigen Minuten aus Fall 23 sind im
+Artefakt nicht nachweisbar.
+
+Ein Abschnitt **ohne** Controllerzeile — wie Fall 24e — ist nur über die Marken
+abgrenzbar. Deshalb bekommt jeder Fall Anfang und Ende.
+
+#### Protokollkopf
+
+Jeder Fall wird mit diesem Kopf protokolliert. Fehlt eine Zeile, gilt der Fall
+als **nicht belegt**:
+
+```
+Fall:            25b
+Projekt-Commit:  <sha des MS7-Branches>
+Host-Pin:        nixosconfig <sha>, kwin-xmonad-lite <sha>
+Host:            HAL9000
+Boot-ID:         <aus journalctl --list-boots>
+KWin-PID:        <aus kwin_wayland[<pid>]>
+Skriptlauf:      <Zeitstempel der "geladen"-Zeile dieser Instanz>
+Instanz:         Produktion (Store) | Entwicklung (nix run)
+Fall-Anfang:     <iso, Markerzeile>
+Fall-Ende:       <iso, Markerzeile>
+Artefakt:        docs/<datei>
+```
+
+Boot-Id, KWin-PID und Skriptlauf sind drei verschiedene Dinge, und die Fälle
+16, 17a und 17b unterscheiden sich genau daran:
+
+| Verfahren | Boot-Id | KWin-PID | Skriptlauf |
+|---|---|---|---|
+| Script-Reload (16) | bleibt | bleibt | neu |
+| KWin-Neustart (17a) | bleibt | neu | neu |
+| Sitzungsneustart (17b) | bleibt | neu | neu |
+| Systemneustart | neu | neu | neu |
+
+17a und 17b unterscheiden sich im Journal nicht an diesen drei Werten, sondern
+daran, ob die Clients überlebt haben und ob eine Anmeldung dazwischenlag.
+
+#### Werkzeuge
+
+```bash
+nix run .#probe-geometry                                        # nur Datenqualität
+nix run .#probe-geometry -- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0
+nix run .#audit                                                 # letzte 60 min, Fall 27
+nix run .#audit -- --seit "-10 min"                             # kürzerer Blick, ohne Schwelle
+nix run .#audit -- docs/ms7-<datum>-spielkiste.log               # gesicherter Auszug
+```
+
+Die Geometrie-Probe ist strikt lesend: sie schreibt keine Geometrie, setzt kein
+`activeWindow`, hebt nichts und verbindet kein KWin-Signal — nur `timeout` an
+eigenen Timern. `checks.probe-readonly` erzwingt das. Sie kann das
+Prüfergebnis also nicht selbst herstellen.
+
+**Die Erwartung kommt aus dieser Vorschrift, nicht aus dem Journal.** Das
+Orakel prüft in drei Stufen: Datenqualität und Einschwingen, dann das Journal
+gegen die vorgegebenen Werte, dann die Geometrie. Ohne die zweite Stufe
+bestünde ein Fall, dessen Anordnung sauber zu einem falschen Masteranteil passt.
+
+**Testclients.** Für exakte Zellen **kwrite** (`kwrite /tmp/kxl-g1.txt`; die
+Caption trägt damit den Präfix `kxl-`, den die Probe für die Titelausgabe
+verlangt). In Meilenstein 6 nahm kwrite die berechneten Zellen exakt an
+(`1664x1410`, zweimal `896x705`, `docs/research.md` 6.4). **foot ist dafür
+ungeeignet**: es quittierte ein Soll von `896x235` als `894x223`
+(`docs/research.md` 5.2) und bleibt dem Give-up-Fall vorbehalten. Nimmt ein
+Client nicht exakt an, meldet das Orakel einen **Hinweis** statt eines Fehlers,
+sofern das Soll stimmt und der Controller aufgegeben hat; der Fall wird dann am
+anderen Client wiederholt und die Eignung protokolliert.
+
+**Gegenprobe ohne Skriptkontext:** für mindestens ein Fenster je Fall
+
+```bash
+busctl --user call org.kde.KWin /KWin org.kde.KWin getWindowInfo s '{<uuid>}'
+```
+
+Es liefert `x`, `y`, `width`, `height`, `caption`, `uuid` und
+`hasTransientParent` (`src/dbusinterface.cpp:118-152`) und damit dieselbe
+Geometrie über einen zweiten, vom Skript unabhängigen Pfad. Weichen Probe und
+D-Bus voneinander ab, ist die Probe falsch, nicht der Controller.
+
+#### Fälle 25 bis 25c: Geometrie auf HAL9000
+
+Ein Output DP-3, Vollfläche `1920x1080`, Arbeitsfläche mit Panel `1920x1050`.
+`debug=true` ist Voraussetzung: Reihenfolge, Layout-Teilnahme und
+Float-Markierung stehen in der Registry und sind von außen nicht messbar. Sie
+kommen aus der Diagnosezeile
+
+```
+kwin-xmonad-lite: diagnose <key> order=<id,id,id> teilnehmer=<id,id> float=<id>
+```
+
+| # | Fall | Vorbereitung | Aktion | Erwartung | Beleg | Abbruch |
+|---|---|---|---|---|---|---|
+| 25 | Selbsttest der Probe | Controller geladen, keine Testfenster | `nix run .#probe-geometry` | ndjson mit `st:"ok"`, jede `view` hat eine `area`, ein `active`-Satz je Sample, Rückbau nachgewiesen; `getWindowInfo` und Probe stimmen für ein Fenster überein | ndjson, Rückbaublock, D-Bus-Ausgabe | Gegenprobe weicht ab oder `end` fehlt → **Reihe abbrechen** und zurückbauen |
+| 25a | Ein Fenster | `kxl-g1` als einziger Teilnehmer, Vorgabekonfiguration | `nix run .#probe-geometry -- --erwarte layout=tall n=1 ratio=0.65 gaps=0/0` | `fläche=1920x1050+0+0`, Ist gleich der ganzen Arbeitsfläche | ndjson + Journal | Fläche meldet `1920x1080` → `FullScreenArea` statt `MaximizeArea` |
+| 25b | Tall mit drei Fenstern | `kxl-g1..g3` | `… --erwarte layout=tall n=3 ratio=0.65 gaps=0/0` | Master `1248x1050+0+0`, Stapel `672x525+1248+0` und `672x525+1248+525`; überlappungsfrei, exakte Zerlegung; Diagnosezeile zeigt drei Teilnehmer, `float=` leer | ndjson + Journal + Orakelbericht | Soll weicht von der Vorgabe ab (Controller-Fehler); weicht nur das Ist ab, gilt die Client-Regel oben |
+| 25c | Abstände, Ratio und Full | `settings` auf `gapOuter=8`, `gapInner=4`, `debug=true`; `switch`, neu anmelden | zweimal `Meta+H` (→ `ratio=0.55`), messen; dann `Meta+Space` (→ `full`), messen | erst Tall aus `tall(area, 3, {0.55, 8, 4})`, danach dreimal dasselbe Rechteck `1904x1034+8+8`; `config gaps=8/4` | zwei ndjson + Journal | `ratio` im Journal ungleich 0,55 — dann ist der Tastendruck nicht angekommen, auch wenn die Geometrie zum Journal passt |
+
+Screenshots dürfen ergänzen; der geometrische Nachweis kommt aus der ndjson.
+
+#### Fall 20b: Fokusziel hinter einem modalen Dialog
+
+Drei Fenster `kxl-m1..m3`, über `kxl-m2` ein **echt modaler** Dialog.
+Kandidaten in dieser Reihenfolge, bis die Probe `modal:true` **und** ein
+gesetztes `transientFor` meldet: kwrite „Speichern unter" (`Strg+Umschalt+S`),
+`kdialog --attach <winid> --msgbox`, ein Qt-Dialog mit `setModal(true)`. Ohne
+diesen Nachweis ist der Fall nicht durchgeführt; `getWindowInfo` liefert
+`hasTransientParent` als Gegenprobe.
+
+Zwei Durchgänge: über `invokeShortcut` und über einen echten Tastendruck. Fokus
+auf `kxl-m3` legen, dann die Aktion auslösen, deren Ziel `kxl-m2` ist.
+
+Erwartet:
+
+- **genau eine** `befehl`-Zeile je Auslösung, und ihr Name passt zur Aktion
+  (`befehl focusMaster` bei `xml-focus-master`, `befehl focusNext` bei
+  `xml-focus-next`), mit `fokus={id von kxl-m2}`;
+- **höchstens eine** `aktiviere <id>`-Zeile je Befehl. Die `befehl`-Zeile allein
+  zählt keine Aktivierungsversuche; die Diagnosezeile tut es. Dass es
+  strukturell nie mehr als einer sein kann, hält `checks.activate-once` fest —
+  genau ein Schreibzugriff auf `workspace.activeWindow` im ganzen Baum, in
+  `src/kwin/adapter.ts`;
+- **keine Schleife**: keine sich wiederholende Folge aus `windowActivated` und
+  neuem Anordnungslauf ohne weitere Nutzeraktion;
+- das tatsächliche Fokusziel danach steht im `active`-Satz der Probe und wird
+  **dokumentiert, nicht erzwungen** — KWin darf auf den Dialog umleiten.
+
+Die Zeile `aktivieren fehlgeschlagen für …` wird nicht erwartet; ihr Auftreten
+ist zu protokollieren. Abbruch: mehr als eine `aktiviere`-Zeile je Befehl oder
+mehr als zwei Anordnungsläufe ohne neue Nutzeraktion.
+
+#### Fälle 16 bis 16c: Script-Reload
+
+**Was Fall 23 bereits belegt:** nach einem Reload bleiben die Shortcuts
+wirksam, es entsteht keine doppelte Registrierung und keine zusätzliche Zeile
+in `kglobalshortcutsrc`, und bei **unverändertem** Zustand erscheint keine
+`apply`-Zeile.
+
+**Was Fall 16 hinzufügt:** den Nachweis über einen bewusst veränderten
+Ausgangszustand. „Null `apply`" ist hier das falsche Kriterium — der Reload
+verliert den flüchtigen Zustand und **muss** deshalb schreiben.
+
+Ausgangszustand herstellen (vier Fenster `kxl-r1..r4`):
+
+```bash
+kxl_action xml-next-layout      # -> full
+kxl_action xml-shrink; kxl_action xml-shrink   # -> ratio 0.55
+kxl_action xml-toggle-float     # ein Fenster floatet, dann verschieben
+kxl_action xml-promote          # Reihenfolge ändern
+```
+
+Zustand über Diagnosezeile und Probe festhalten: `teilnehmer` zählt jetzt
+**drei**, `float=` trägt eine Id.
+
+Reload der Produktionsinstanz (`nix run .#reload` bricht auf HAL9000
+absichtlich ab):
+
+```bash
+KXL_MAIN=/etc/profiles/per-user/muhackel/share/kwin/scripts/kwin-xmonad-lite/contents/code/main.js
+busctl --user call org.kde.KWin /Scripting org.kde.kwin.Scripting \
+  unloadScript s kwin-xmonad-lite
+until [ "$(busctl --user call org.kde.KWin /Scripting org.kde.kwin.Scripting \
+  isScriptLoaded s kwin-xmonad-lite | awk '{print $2}')" = "false" ]; do sleep 0.2; done
+id="$(busctl --user call org.kde.KWin /Scripting org.kde.kwin.Scripting \
+  loadScript ss "$KXL_MAIN" kwin-xmonad-lite | awk '{print $2}')"
+busctl --user call org.kde.KWin "/Scripting/Script$id" org.kde.kwin.Script run
+```
+
+| # | Erwartung | Beleg | Abbruch |
+|---|---|---|---|
+| 16 | genau eine neue Folge `geladen` / `config` / `shortcuts n=12`; `mitglieder=4` wie vorher, aber `teilnehmer` steigt von **3 auf 4** — die Float-Markierung ist fort; `diagnose … float=` ist leer; Layout und Ratio stehen wieder auf den konfigurierten Startwerten; für die betroffenen Fenster erscheinen `apply`-Zeilen; `grep -c '^xml-' ~/.config/kglobalshortcutsrc` bleibt 12 | Journal mit Zeitstempeln, Probe und Diagnosezeile vor und nach dem Reload | zweite `bereit`-Zeile ohne vorheriges Entladen, Dubletten in `kglobalshortcutsrc`, ein Fenster fehlt im Stapel, oder die Teilnehmerzahl bleibt bei 3 |
+| 16b | fünf Minuten ohne Nutzeraktion: keine `apply`-, `float`-, `nachbessern`-, `aufgegeben`- oder `extern`-Zeile | `nix run .#audit -- --seit "-5 min"` | irgendeine dieser Zeilen |
+| 16c | siehe unten | `isScriptLoaded` vor und nach jedem Schritt | keins — der Fall dokumentiert Verhalten |
+
+**Fall 16c — Re-Enable ohne Neuanmeldung.** Aus dem Quelltext folgt, dass es
+gehen muss: `Scripting::start()` hängt an `Workspace::configChanged`
+(`scripting.cpp:683-684`), `slotReconfigure()` emittiert das Signal
+(`workspace.cpp:1017`), und `queryScriptsToLoad()` entlädt abgeschaltete und
+lädt neu eingeschaltete Skripte (`scripting.cpp:746-793`). Belege in
+`docs/research.md` 7.2. Gemessen wird, ob es auch eintritt:
+
+```bash
+kwriteconfig6 --file kwinrc --group Plugins --key kwin-xmonad-liteEnabled false
+busctl --user call org.kde.KWin /KWin org.kde.KWin reconfigure
+sleep 1
+busctl --user call org.kde.KWin /Scripting org.kde.kwin.Scripting \
+  isScriptLoaded s kwin-xmonad-lite        # erwartet: false
+
+kwriteconfig6 --file kwinrc --group Plugins --key kwin-xmonad-liteEnabled true
+busctl --user call org.kde.KWin /KWin org.kde.KWin reconfigure
+sleep 1
+busctl --user call org.kde.KWin /Scripting org.kde.kwin.Scripting \
+  isScriptLoaded s kwin-xmonad-lite        # erwartet: true, plus eine neue "geladen"-Zeile
+```
+
+Wird im ersten Schritt **nicht** `false` erreicht, ist das der Befund
+(„`reconfigure` entlädt nicht"), und der zweite Teil entfällt ersatzlos — eine
+Reaktivierung lässt sich dann nicht belegen. `PLAN.md` Risiko 8 wird mit dem
+gemessenen Ergebnis geschlossen. Am Ende muss das Flag wieder dem Nix-Stand
+entsprechen.
+
+#### Fälle 17a und 17b: KWin- und Sitzungsneustart
+
+Beide beginnen mit demselben veränderten Ausgangszustand wie Fall 16 und mit
+einer Bestandsaufnahme:
+
+```bash
+pgrep -a kwin_wayland > /tmp/kxl-vorher-kwin.txt
+pgrep -a kwrite       > /tmp/kxl-vorher-clients.txt
+```
+
+**17a, KWin-Neustart in der laufenden Sitzung:**
+
+```bash
+busctl --user call org.kde.KWin /KWin org.kde.KWin replace
+```
+
+`replace` beendet KWin mit Exit 133; `kwin_wayland_wrapper` wertet das
+ausdrücklich **nicht** als Absturz, setzt den Zähler zurück und startet KWin
+mit demselben Wayland-Socket neu (`docs/research.md` 7.1). Erwartet:
+
+- eine neue `kwin_wayland`-PID in **derselben** Boot-Id;
+- das Skript startet über den KPackage-Autostart selbst: `geladen`,
+  `bereit nach N Versuch(en)`, `config …`, `shortcuts n=12`;
+- der Zustand wird aus der Ist-Menge neu gebaut, wie in Fall 16;
+- **welche Clients überlebt haben, wird gezählt**, nicht angenommen: `pgrep`
+  vorher gegen nachher. Ob eine Client-Verbindung den Prozesswechsel übersteht,
+  ist nicht belegt und entscheidet der Client.
+
+Startet KWin nicht neu, ist die Sitzung über `loginctl` oder SDDM
+wiederherzustellen und der Fall als nicht durchführbar zu protokollieren.
+
+**17b, Sitzungsneustart:** ab- und anmelden. Erwartet wie 17a, zusätzlich die
+`config`-Zeile mit den deklarierten Werten und genau zwölf `xml-*`-Zeilen in
+`kglobalshortcutsrc`.
+
+Die drei Verfahren bleiben getrennt protokolliert. Keine Aussage über eines
+wird auf ein anderes übertragen.
+
+#### Fälle 26 bis 27: Abschlusslauf auf SPIELKISTE
+
+Entwicklungsinstanz, drei Ausgaben DP-1/DP-9/DP-10 à 2560×1440, Arbeitsfläche
+`2560x1410`, vier Desktops, eine Activity, `perOutputVirtualDesktops=false`.
+`Meta+L` und `Meta+T` laufen dort über `invokeShortcut`.
+
+Die Fälle 3 bis 5 wurden in Meilenstein 4 gegen einen Stand **ohne** Befehls-
+und Konfigurationsschicht geprüft. Neu ist, dass je Ausgabe Layout,
+Masteranteil **und Stapelreihenfolge** unterschiedlich gesetzt und über
+Desktopwechsel hinweg getrennt gehalten werden.
+
+| # | Fall | Aktion | Erwartung | Beleg |
+|---|---|---|---|---|
+| 26 | Multi-Output mit getrennten Zuständen | je drei Fenster auf DP-1, DP-9, DP-10; auf DP-1 `xml-promote`, auf DP-9 `xml-next-layout` (→ `full`), auf DP-10 zweimal `xml-shrink` und `xml-swap-next` | drei `surface`-Zeilen je Lauf mit eigenem `layout=` und `ratio=`, drei `diagnose`-Zeilen mit **verschiedener** `order=`; eine Aktion auf einer Ausgabe erzeugt keine Schreibzeile auf den anderen | Journal + Geometrie-Probe je Surface |
+| 26a | alle vier Desktops (Fall 4) | auf jedem Desktop einen anderen Zustand herstellen, dann reihum durchschalten | vier Zustandssätze je Ausgabe; im Journal nur UUIDs, keine Desktopnamen; nach dem Durchlauf stehen alle Zustände unverändert | Journal + Diagnosezeilen |
+| 26b | Desktopwechsel (Fall 5) | `Meta+2`, zurück `Meta+1` | genau **ein** Lauf, obwohl `desktopChanged` je Ausgabe feuert; neue Surface-Schlüssel; keine Schreibzeile für Fenster, die auf ihrem Desktop bleiben | Journal + Probe vor/nach |
+| 26c | Fenster auf allen Desktops (Fall 7) | ein Fenster per Fensterregel auf alle Desktops | in jeder Surface mitgekachelt; keine Fokusübernahme durch eine inaktive Surface | Journal + Diagnosezeilen |
+| 27 | Alltagsstunde | mindestens 60 Minuten normale Arbeit mit geladener Dev-Instanz | `nix run .#audit` meldet: keine Schleife, keine Rückkopplung, kein unerwartetes `aufgegeben`, Anteil „manuell zu prüfen" höchstens 5 %, Laufzeit mindestens 60 min und **ein** Skriptlauf | Journalartefakt und Auditorbericht, beide eingecheckt |
+
+Das Kriterium aus `PLAN.md` Abschnitt 11 ist im Auditor operationalisiert: er
+zählt **alle** Schreibarten (`apply`, `float`, `nachbessern`), rechnet
+Nachbesserungen der Schreibgeneration des Fensters zu und erkennt technische
+Gründe — `geometrieExtern`, `dock*`, `screensChanged`, `screenGeometry`,
+`nachlauf*`, `closed` — **nicht** als neuen Anlass an. Sonst hielte sich eine
+Rückkopplung `extern → arrange → apply → extern` selbst am Leben und wiese
+formal immer einen frischen Grund vor. Ein zu kurzer Auszug, eine Lücke oder
+ein zweiter Skriptlauf führen zu „nicht ausreichend belegt" — nicht zu
+„bestanden".
+
+#### Rückbau nach der MS7-Reihe auf HAL9000
+
+Wie in der 24er-Reihe, mit einer geschärften Reihenfolge. **Der Sitzungszustand
+entscheidet mit:** plasma-manager schreibt `kwinrc` und `kglobalshortcutsrc`
+imperativ aus einem Aktivierungsskript, und `kglobalaccel` schreibt seinen
+gespeicherten Zustand beim Sitzungsende zurück. Eine Wiederherstellung in der
+laufenden Sitzung wird deshalb wieder überschrieben.
+
+1. **Autologin abschalten**, solange die Testkonfiguration noch aktiv ist —
+   sonst startet nach dem Neustart sofort wieder eine Sitzung.
+2. Auf die notierte Startgeneration zurückschalten und
+   `switch-to-configuration switch` aus dem `system-<N>-link` ausführen.
+3. Testgenerationen löschen, `switch-to-configuration boot` für die
+   Booteinträge.
+4. Patches im `nixosconfig`-Baum mit `git apply --reverse` zurücknehmen;
+   `git status --porcelain` muss leer sein.
+5. Neu starten und **nicht anmelden**. Die Wiederherstellung läuft am
+   Anmeldebildschirm über TTY oder SSH.
+6. `kwinrc` und `kglobalshortcutsrc` aus den Sicherungen zurückspielen.
+7. Erst danach anmelden.
+8. Nachweis: `diff` gegen die beiden `.bak`-Dateien ist leer. Geprüft wird
+   gegen die **gesicherte Ausgangslage**, nicht gegen Werte aus früheren
+   Protokollen.
+
+Auf SPIELKISTE genügt `nix run .#unload`: `isScriptLoaded` meldet `false`, und
+innerhalb von 30 Sekunden kommt keine Controllerzeile mehr. Die zwölf
+`xml-*`-Zeilen bleiben stehen — es gibt kein `unregisterShortcut`, das ist
+erwartet und kein Rückstand. Die Gruppe `[Script-kwin-xmonad-lite-dev]` wird
+auf den Stand vor dem Lauf zurückgesetzt.
 
 ### Eigenschaftsprüfung des Layoutkerns
 
