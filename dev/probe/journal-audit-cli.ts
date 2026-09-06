@@ -7,7 +7,8 @@
  *   node dev/probe/journal-audit-cli.ts <journal> [--stunde] [--provoziert id,id]
  *
  * Ohne `--stunde` prüft er nur auf Schleifen; mit `--stunde` zusätzlich die
- * Belegschwelle aus Fall 27 (Dauer, ein einziger Skriptlauf, kein Give-up).
+ * Belegschwelle aus Fall 27 (Dauer, ein einziger Skriptlauf, kein Give-up,
+ * Mindestaktivität).
  *
  * `--provoziert` nennt die Fenster, für die die Vorschrift ein `aufgegeben`
  * ausdrücklich vorsieht. Die Ausnahme steht damit in der Kommandozeile und im
@@ -39,8 +40,9 @@ for (const befund of bericht.befunde) {
 }
 
 console.log(
-	`  -- ${bericht.schreibvorgaenge} Schreibvorgänge, ${bericht.unklar} ohne Zuordnung, ` +
-		`höchstens ${bericht.maxWiederholungen} auf dasselbe Soll ohne neuen Anlass`,
+	`  -- ${bericht.laeufe} Läufe, davon ${bericht.nutzerlaeufe} rein nutzerveranlasst, ` +
+		`${bericht.schreibvorgaenge} Schreibvorgänge, ${bericht.unklar} ohne Zuordnung, ` +
+		`höchstens ${bericht.maxWiederholungen} auf dasselbe Soll ohne freigebenden Lauf`,
 );
 
 if (bericht.bestanden) {
