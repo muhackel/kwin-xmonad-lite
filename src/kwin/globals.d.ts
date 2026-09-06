@@ -233,3 +233,41 @@ interface UserActionItem {
 
 /** Der Callback läuft bei jedem Öffnen des Fenstermenüs für dessen Fenster. */
 declare function registerUserActionsMenu(callback: (window: KwinWindow) => UserActionItem): void;
+
+/**
+ * Liest `kwinrc [Script-<pluginName>]` -- ohne installiertes KPackage und ohne
+ * `contents/config/main.xml`. Der Rückgabetyp folgt dem Typ des Vorgabewerts;
+ * ohne Vorgabewert kommt `undefined`.
+ *
+ * Deklariert ist **nur** die Zeichenkettenform, weil das Projekt nur sie
+ * benutzt: KConfig ersetzt einen nicht konvertierbaren Eintrag bereits selbst
+ * durch den Vorgabewert, mit einer Zahl als Vorgabe käme für `gapOuter=abc`
+ * also die Vorgabe an -- ununterscheidbar von "nicht gesetzt". Der Adapter
+ * liest deshalb Rohzeichenketten gegen einen Sentinel und lässt
+ * `kwin/config.ts` prüfen, klemmen und melden.
+ *
+ * Neu geschriebene Werte werden erst nach `Workspace::reconfigure()` sichtbar,
+ * und das startet nur `reconfigureTimer.start(200)`
+ * (`workspace.cpp:1000`, docs/research.md Abschnitt 2.7).
+ */
+declare function readConfig(key: string, defaultValue: string): string;
+
+/**
+ * Registriert eine globale Aktion unter der Komponente `kwin`; Schlüssel ist
+ * `objectName`.
+ *
+ * Liefert **immer** `true`, solange der Rückruf aufrufbar ist -- ein Konflikt
+ * ist am Rückgabewert nicht zu erkennen, kglobalacceld meldet ihn nur als
+ * Debug-Zeile (`src/globalshortcut.cpp:146`). `keys` ist eine reine
+ * Erstinstallations-Vorgabe: der Aufruf geht ohne `NoAutoloading` an
+ * `KGlobalAccel::setShortcut`, ein vorhandener Eintrag in
+ * `kglobalshortcutsrc` überschreibt die im Code angegebene Taste. Ein
+ * `unregisterShortcut` gibt es nicht -- `objectName`s sind ab dem ersten
+ * Release unwiderruflich.
+ */
+declare function registerShortcut(
+	objectName: string,
+	text: string,
+	keys: string,
+	callback: () => void,
+): boolean;

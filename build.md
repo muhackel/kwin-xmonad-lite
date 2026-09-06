@@ -139,7 +139,7 @@ und `src/dev.ts` sowie — hinter der Snapshot-Grenze — `src/kwin/read.ts` und
 Unit-Test. Die Grenze ist nachprüfbar:
 
 ```bash
-grep -rn 'workspace\.\|KWin\.\|new QTimer\|options\.\|registerUserActionsMenu' src \
+grep -rn 'workspace\.\|KWin\.\|new QTimer\|options\.\|registerUserActionsMenu\|registerShortcut\|readConfig' src \
   | grep -vE '(globals\.d\.ts|:[0-9]+:[[:space:]]*(\*|//|/\*))'
 # darf nur Zeilen aus boot.ts, dev.ts, read.ts und adapter.ts zeigen
 ```
