@@ -97,8 +97,19 @@ nicht wieder einschalten ließ, wird dort erneut versucht.
 ## Testen / Checks
 
 ```bash
-nix flake check      # Paketbau (inkl. Typprüfung und Unit-Tests), Lint, Skripte
+nix flake check      # Paketbau (inkl. Typprüfung und Unit-Tests), Lint,
+                     # Skripte, Home-Manager-Modul
 ```
+
+`checks.home-module` wertet das Home-Manager-Modul mit **aktiviertem** Zweig
+aus: es baut ein `activationPackage` mit `programs.kwin-xmonad-lite.enable`,
+sucht darin das von plasma-manager erzeugte `data.json` und prüft mit `jq` das
+Plugin-Flag, alle sechs Schlüssel der Gruppe `[Script-kwin-xmonad-lite]` und
+einen gesetzten `xml-*`-Shortcut. `kwinrc` selbst entsteht erst zur
+Aktivierungszeit auf der Maschine und ist in einer Derivation nicht zu prüfen.
+`excludes` bleibt in der Prüfkonfiguration bewusst ungesetzt — damit belegt der
+Check, dass auch ein nicht gesetzter Schlüssel mit seinem Vorgabewert
+geschrieben wird. Ein bloßer Import prüfte nur die Optionsdeklarationen.
 
 Einzeln in der Entwicklungsumgebung:
 
@@ -107,6 +118,14 @@ tsc --noEmit                 # Typprüfung
 node --test tests/*.test.ts  # Unit-Tests, nativ mit Type-Stripping
 biome check .                # Lint und Format
 ```
+
+**In einem Agenten-Worktree unter `.claude/worktrees/` bricht `biome check .`
+ab** („No files were processed in the specified paths"): das Ausschlussmuster
+`!**/.claude` aus `biome.json` greift dort gegen den absoluten Pfad und schließt
+damit den ganzen Baum aus. Dort ist `biome check src tests` das richtige
+Kommando. Das Muster ersatzlos zu streichen hilft nicht — ohne es findet
+`biome check .` im Hauptbaum die `biome.json` des Worktrees und bricht mit
+„nested root configuration" ab.
 
 Getestet werden `src/core/`, `src/state/` und der überwiegende Teil von
 `src/kwin/`. Der Adapter ist an der **Snapshot-Grenze** geteilt: er liest die
@@ -188,6 +207,21 @@ kwin-xmonad-lite: gc #83 fenster=0 surfaces=3     # Registry-GC dieses Laufs
 kwin-xmonad-lite: surface entfernt <activity>|<desktop>|DP-1
 kwin-xmonad-lite: arrange #61 grund=nachlauf500:dockHinzugefügt+dockGeometrie
 ```
+
+Und ab Meilenstein 6:
+
+```
+kwin-xmonad-lite: config gaps=8/4 ratio=0.5 layout=1 excludes=3 debug=true
+kwin-xmonad-lite: config gapOuter=abc unlesbar, verwende 0   # je Korrektur eine
+kwin-xmonad-lite: config excludes=krunner,plasmashell,…      # nur bei debug=true
+kwin-xmonad-lite: shortcuts n=12
+kwin-xmonad-lite: befehl focusNext surface=…|…|DP-1 via=aktiv fokus={911cbadb-…}
+kwin-xmonad-lite: arrange #7 grund=windowActivated,shortcut:focusNext …
+```
+
+Die `config`-Zeilen stehen einmal beim Laden; `layout=` ist der Index in
+`LAYOUTS` (0 = `tall`, 1 = `full`). `via=` nennt, wie die Surface gefunden
+wurde: `aktiv`, `ausgabe` oder `erste`.
 
 Der Nachlaufgrund trägt seine **Quellen** mit: `dockHinzugefügt`,
 `dockGeometrie`, `dockEntfernt`, `screensChanged` und `screenGeometry` starten
@@ -364,8 +398,12 @@ wieder einkacheln und erneut floaten. Erwartete Folge: `gefloatet` ohne
 `apply` an dieser ID, `gekachelt` mit einem `apply` auf die alte Zelle,
 `wiederhergestellt` mit `float … soll=<gezogene Geometrie>` und ohne `apply`.
 Der Menüeintrag ist im Float-Zustand angehakt. Danach `nix run .#unload`:
-`isScriptLoaded` meldet `false`, „Extensions" ist fort und
-`kglobalshortcutsrc` unverändert.
+`isScriptLoaded` meldet `false` und „Extensions" ist fort.
+`kglobalshortcutsrc` enthält danach genau die zwölf `xml-*`-Zeilen und keine
+weiteren — ab Meilenstein 6 registriert jedes Laden diese Aktionen, und es gibt
+kein `unregisterShortcut`, sie bleiben also auch nach dem Entladen stehen. Bis
+Meilenstein 5 lautete das Kriterium hier „Datei unverändert"; das ist seitdem
+falsch.
 
 **Testmatrix 15** — `kxl-min` und `kxl-max` in Stapelzellen legen. Soll und Ist
 müssen die geklemmte, in der Arbeitsfläche verankerte Geometrie zeigen. Nach
@@ -394,6 +432,196 @@ Nach dem Entladen darf innerhalb von 30 Sekunden keine neue Zeile mit
 `kwin-xmonad-lite:` erscheinen. IDs von minimierten, maximierten,
 Vollbild- und Float-Fenstern dürfen im jeweiligen Zustand keine `apply`-Zeile
 haben.
+
+### Abnahme Matrix 18–23: Tastenkürzel und Konfiguration
+
+Auf der Entwicklungsinstanz (`nix run`). Die eigenen Aktionen lassen sich
+genauso über kglobalaccel auslösen wie die von KWin — das ist der einzige Weg
+für `Meta+L` und `Meta+T`, solange die KDE-Kürzel nicht umgelegt sind:
+
+```bash
+kxl_action() {
+  busctl --user call org.kde.kglobalaccel /component/kwin \
+    org.kde.kglobalaccel.Component invokeShortcut s "$1"
+}
+for a in xml-focus-next xml-focus-prev xml-swap-next xml-swap-prev \
+         xml-focus-master xml-promote xml-shrink xml-expand \
+         xml-sink xml-toggle-float xml-next-layout xml-reset-layout; do
+  kxl_action "$a"
+done
+```
+
+**Testmatrix 18** — alle zwölf Aktionen über D-Bus. Erwartet: je Aktion **genau
+eine** `befehl …`-Zeile, danach höchstens ein Anordnungslauf, dessen Grund die
+auslösenden Aktionen als `shortcut:<name>` trägt. Kein Flattern. Wirkungslose
+Befehle (`unverändert`, `bereitsGekachelt`, `bereitsGefloatet`) melden **keinen**
+Lauf an. Gemessen auf SPIELKISTE fasste die Entprellung die ganze Folge zu einem
+Lauf zusammen (hier umbrochen, im Journal steht das auf einer Zeile):
+
+```
+arrange #2 grund=fensterzustand,windowActivated,shortcut:shrink,shortcut:expand,
+shortcut:nextLayout,shortcut:resetLayout,shortcut:toggleFloat
+```
+
+Die Journalzeile `ziel … nicht mehr im Snapshot` ist über `runCommand`
+**unerreichbar** — der Abgleich vor dem Reducer garantiert, dass die
+gespeicherte Reihenfolge eine Teilmenge der Snapshot-Mitglieder ist. Sie darf
+in der Abnahme nicht erwartet werden.
+
+**Testmatrix 19** — die **zehn konfliktfreien** Tasten per Tastendruck; gleiche
+Wirkung wie 18. `Meta+L` und `Meta+T` bleiben hier ausgespart, weil auf dieser
+Maschine die KDE-Kürzel gelten (siehe 22).
+
+**Testmatrix 20** — `Meta+J` auf mindestens drei Fenstern. `workspace.activeWindow`
+folgt, ein voller Zyklus kehrt zum Ausgangsfenster zurück, jede Zeile meldet
+`via=aktiv`. Im `full`-Layout wechselt dabei das sichtbare Fenster. Es darf
+**kein** zweiter Aktivierungsversuch für dieselbe Id im Journal stehen — die
+Epoche aktiviert nie selbst, daran hängt die Schleifenfreiheit.
+
+**Testmatrix 20a** — Fokusziel ist **minimiert**. Gemessen: das Fenster bleibt
+Mitglied und im Fokuszyklus, verliert aber die Teilnahme (`n=3` → `n=2`).
+Landet `focusNext` darauf, stellt KWin es wieder her und die folgende
+Surface-Zeile meldet wieder `n=3`. Verhalten dokumentieren, nicht erzwingen.
+
+**Testmatrix 20b** — Fokusziel liegt hinter einem **modalen Dialog**. Erwartet
+wird kein zweiter Aktivierungsversuch und keine Schleife im Journal.
+**Noch nicht abgenommen.**
+
+**Testmatrix 20c** — Fokusziel zwischen Tastendruck und Lauf **geschlossen**.
+Erwartet: `aktivieren fehlgeschlagen für …`, genau eine Zeile, kein Wurf.
+**Nicht reproduzierbar herstellbar, deshalb unbelegt.**
+
+**Testmatrix 21** — Konfiguration. Die Entwicklungsinstanz liest aus der Gruppe
+`[Script-kwin-xmonad-lite-dev]`, **nicht** aus `[Script-kwin-xmonad-lite]`:
+`scripts/dev-load.sh` lädt unter dem Dev-Namen, und `readConfig` bildet die
+Gruppe aus dem Pluginnamen. Wer beim Erproben in die Produktionsgruppe
+schreibt, sieht keine Wirkung.
+
+Wirksam wird eine Änderung nur **zweistufig**:
+
+```bash
+kwriteconfig6 --file kwinrc --group Script-kwin-xmonad-lite-dev --key gapOuter 8
+kwriteconfig6 --file kwinrc --group Script-kwin-xmonad-lite-dev --key gapInner 4
+kwriteconfig6 --file kwinrc --group Script-kwin-xmonad-lite-dev --key masterRatio 0.5
+kwriteconfig6 --file kwinrc --group Script-kwin-xmonad-lite-dev --key defaultLayout full
+kwriteconfig6 --file kwinrc --group Script-kwin-xmonad-lite-dev --key debug true
+kwriteconfig6 --file kwinrc --group Script-kwin-xmonad-lite-dev \
+  --key excludes krunner,yakuake,plasmashell
+busctl --user call org.kde.KWin /KWin org.kde.KWin reconfigure
+sleep 1
+nix run .#reload
+```
+
+Ohne den `reconfigure`-Aufruf liest das neu geladene Skript die **alten** Werte
+— `readConfig` reicht den Wert aus dem Speicher heraus, und
+`Workspace::reconfigure()` startet dafür nur `reconfigureTimer.start(200)`
+(`docs/research.md` Abschnitt 2.7). `scripts/reload.sh` ruft `reconfigure`
+**nicht**. In der Produktion schreibt `nixos-rebuild switch` zwar `kwinrc`,
+startet den laufenden Controller aber nicht neu, und KWin lädt eine bereits
+geladene Plugin-Id nicht erneut — dort wirkt die Änderung erst nach Ab- und
+Anmeldung.
+
+Erwartet: **eine** `config …`-Zeile mit genau den gesetzten Werten, die
+Abstände in den Geometrien sichtbar, `defaultLayout` für alle Surfaces dieser
+frischen Instanz. Gemessen auf SPIELKISTE:
+
+```
+config gaps=8/4 ratio=0.5 layout=1 excludes=3 debug=true
+config excludes=krunner,plasmashell,yakuake
+apply {56a36406-…} soll=2544x1394+2568+8
+```
+
+Die zweite Zeile ist die `debugLog`-Zeile und erscheint nur bei `debug=true`.
+
+**Testmatrix 21a** — Zustandserhalt **innerhalb einer Instanz**: `Meta+H`
+ändert die Ratio, danach auf einen bis dahin unbenutzten virtuellen Desktop
+wechseln. Die alte Surface behält ihren Wert, die neu angelegte startet mit
+`masterRatio` und `defaultLayout`; `Meta+Shift+Space` zieht die alte auf die
+konfigurierten Werte. Gemessen: `ratio=0.4` auf Desktop 1, `ratio=0.5` und
+`layout=full` auf dem neuen. Über einen Reload hinweg ist das **nicht** zu
+prüfen — ein Reload erzeugt einen neuen Adapter mit leerer Registry, danach
+gelten überall die konfigurierten Startwerte.
+
+**Testmatrix 21b** — unsinnige Werte:
+
+Zu setzen sind `gapOuter=abc`, `gapInner=-5`, `masterRatio=1.5`,
+`defaultLayout=grid`, `debug=ja` und ein leeres `excludes` in der Gruppe
+`[Script-kwin-xmonad-lite-dev]`, danach wieder `reconfigure`, warten, `reload`.
+Ob `kwriteconfig6` einen Wert mit führendem Bindestrich annimmt, ist nicht
+geprüft; für `gapInner` ist die Zeile gegebenenfalls direkt in `kwinrc`
+einzutragen.
+
+Erwartet: je eine `config …`-Notiz, das Skript läuft weiter, keine Ausnahme.
+Gemessen waren es sechs Notizen mit dem Wortlaut
+
+```
+config gapOuter=abc unlesbar, verwende 0
+config gapInner=-5 unzulässig, verwende 0
+config excludes leer: kein Fenster wird ausgeschlossen
+config masterRatio=1.5 geklemmt auf 0.9
+config defaultLayout=grid unbekannt, verwende tall
+config debug=ja unlesbar, verwende false
+```
+
+Mit leerer Ausschlussliste blieb die Mitgliederzahl unverändert bei 7: Panels
+sind schon über `!dock` im Mitgliedschaftsfilter draußen. Die Ausschlussliste
+ist eine zweite Verteidigungslinie, nicht die einzige.
+
+**Testmatrix 22** — fremde Shortcuts unverändert. Die Vergleichsbasis
+unmittelbar vor dem Lauf erheben, nicht den Referenzwert aus
+`docs/research.md` 5.2 verwenden:
+
+```bash
+cp ~/.config/kglobalshortcutsrc /tmp/kgs.vorher
+nix run
+sleep 3
+diff /tmp/kgs.vorher ~/.config/kglobalshortcutsrc
+grep -c '^xml-' ~/.config/kglobalshortcutsrc   # erwartet: 12
+```
+
+Erwartet: der `diff` zeigt **ausschließlich** zwölf hinzugefügte
+`xml-*`-Zeilen, sonst nichts. Nach mehreren Ladevorgängen sind es weiterhin
+genau zwölf, keine Dubletten. Format einer Zeile:
+`xml-expand=Meta+L,none,Master vergrößern`.
+
+Steht eine der Tasten bereits bei einer fremden Aktion, bleiben **beide**
+Einträge in der Datei stehen und der **vorhandene gewinnt** beim Tastendruck
+(gemessen für `Meta+L` und `Meta+T`, `docs/research.md` Abschnitt 6.1). Ein
+Journaleintrag dazu entsteht nicht — `registerShortcut` liefert immer `true`.
+
+**Testmatrix 23** — Reload und Sitzungsneustart. Nach `nix run .#reload` darf
+**keine einzige** `apply`-Zeile erscheinen, keine doppelte Registrierung im
+Journal, kein zusätzlicher Eintrag in `kglobalshortcutsrc`; die zwölf Aktionen
+bleiben wirksam. Gemessen: über zehn Minuten danach kein `nachbessern`, kein
+`aufgegeben`, kein `extern`. Die Konfiguration fällt erwartungsgemäß auf die
+konfigurierten Startwerte zurück.
+
+### Abnahme Matrix 24–24e: deklarative Installation
+
+Auf HAL9000 nach `nixos-rebuild switch --sudo` und Neuanmeldung.
+**Noch nicht abgenommen** — die Fälle stehen hier als Abnahmevorschrift.
+
+| # | Fall | Erwartung |
+|---|---|---|
+| 24 | Aktivierung | `isScriptLoaded kwin-xmonad-lite` meldet `true`, das Skript läuft aus dem Store, `nix run` bricht dort mit der Meldung aus `require_no_production` ab |
+| 24a | `Meta+L` und `Meta+T` per Tastendruck | Master vergrößern bzw. wieder kacheln; die Sitzung sperrt **nicht**, „Kachelung bearbeiten" öffnet **nicht**. `Ctrl+Alt+L` sperrt weiterhin |
+| 24b | Konfliktausgang nach der Umlegung | in `kglobalshortcutsrc` prüfen, dass `Lock Session` auf `Screensaver` und `Ctrl+Alt+L` steht und `Edit Tiles` leer ist; im Journal muss die `befehl expand`- bzw. `befehl sink`-Zeile erscheinen |
+| 24c | `settings` ändern, `switch`, neu anmelden | die neuen Werte stehen in `kwinrc` und in der `config …`-Zeile |
+| 24d | Schlüssel in Nix **entfernen**, `switch`, neu anmelden | der dokumentierte Vorgabewert steht in `kwinrc`, nicht der alte Wert — der Beleg für „immer alle sechs Schlüssel schreiben" |
+| 24e | `kwinXmonadLite = false`, `switch`, neu anmelden | `kwin-xmonad-liteEnabled=false`, Skript nicht geladen, `Meta+L` sperrt wieder. Die zwölf `xml-*`-Zeilen **bleiben** in `kglobalshortcutsrc` stehen — es gibt kein `unregisterShortcut`; das ist erwartet |
+
+```bash
+busctl --user call org.kde.KWin /Scripting \
+  org.kde.kwin.Scripting isScriptLoaded s kwin-xmonad-lite
+kreadconfig6 --file kwinrc --group Script-kwin-xmonad-lite --key gapOuter
+grep -E '^(Lock Session|Edit Tiles)=' ~/.config/kglobalshortcutsrc
+```
+
+Zur **Feature-Probe:** `nix run .#probe -- --shortcuts` registriert drei
+Aktionen und protokolliert nur die Rückgabewerte. Sie betätigt keine Taste und
+liest keine wirksame Zuordnung aus; `registerShortcut` liefert ohnehin immer
+`true`. Der Lauf bleibt als Nebenbefund nützlich, entscheidet aber keine
+Kollisionsfrage — das tut nur der Tastendruck.
 
 ### Eigenschaftsprüfung des Layoutkerns
 

@@ -5,14 +5,17 @@ einen Teil des alten XMonad-Arbeitsgefühls zurück: Tall- und Full-Layout,
 Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
-und Messwerte in [`docs/research.md`](docs/research.md). **Stand: Meilenstein 5
-samt Nachschlag 5.1 ist abgeschlossen; Matrix 11–15 sind live geprüft.**
-Meilenstein 4 samt 4.1, 4.1.1 und Audit 4.2 ist abgeschlossen. Der
-Controller kachelt auf allen Ausgaben mit `Tall`; Zustandsübergänge, Float,
-Dialogfilter und Größenschranken liegen hinter der Snapshot-Grenze. Die
-Tastenkürzel folgen in Meilenstein 6. Bis dahin ist `Full` nicht erreichbar,
-weil der Layoutwechsel an `Meta+Space` hängt; der Float-Toggle ist nur im
-getrennten Dev-Bundle verfügbar.
+und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
+Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 6 ist
+abgeschlossen; Matrix 18–23 sind live geprüft (299 Tests, `nix flake check`
+grün über neun Prüfungen).** Die Meilensteine 0 bis 5 samt 5.1 und den Audits
+sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
+Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
+Snapshot-Grenze, und seit Meilenstein 6 ist er bedienbar: zwölf `xml-*`-Aktionen,
+sechs Konfigurationsschlüssel aus `kwinrc` und ein Home-Manager-Modul auf
+plasma-manager-Basis. `Full` ist damit erstmals erreichbar. **Offen:** die
+deklarative Abnahme auf HAL9000 (Fälle 24–24e), der modale Dialog als Fokusziel
+(20b) und der Wayland-Smoke-Test in einer VM (Meilenstein 7).
 
 ## Ursprung & Zweck
 
@@ -55,10 +58,12 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Datensätze), `filter` (Mitgliedschaft, Layout-Teilnahme, Surface-Zuordnung),
   `plan` (die ganze Anordnung), `geometry` (Klemmung und die beiden Urteile),
   `apply` (Geometrieerwartung und Nachbesserung), `epoch` (Anordnungslauf),
-  `float` (Float-Toggle), `timer` (Entprellung und Nachläufe) und `purge`
-  (Registry-GC) sind reine Rechnung und mit `node --test` prüfbar. Nur `read`
-  und `adapter` fassen dort eine KWin-Global an. `apply` bekommt seinen
-  Fensterzugriff als `GeometryPort` und seinen Timer als Fabrik.
+  `float` (Float-Zielzustand), `timer` (Entprellung und Nachläufe), `purge`
+  (Registry-GC), `command` (die zwölf Tastenaktionen samt Surface-Wahl) und
+  `config` (Umwandlung, Prüfung und Klemmung der sechs Schlüssel) sind reine
+  Rechnung und mit `node --test` prüfbar. Nur `read` und `adapter` fassen dort
+  eine KWin-Global an. `apply` bekommt seinen Fensterzugriff als `GeometryPort`
+  und seinen Timer als Fabrik, `config` seinen Leser als `ConfigReader`.
 - `boot.ts` trägt den gemeinsamen Init-Retry. `main.ts` startet das
   Produktions-Bundle; `dev.ts` ergänzt nur dort den Float-Toggle im
   Fenstermenü.
@@ -67,7 +72,14 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - `dev/probe/` → zwei Proben: `probe.js` misst die Skriptumgebung,
   `signals.js` misst, welche Signale im Betrieb ankommen und was sie tragen
   (siehe unten).
-- `nix/`, `scripts/` → Paket, Entwicklungsumgebung, Lade- und Reload-Werkzeuge.
+- `nix/` → `package.nix`, `devshell.nix` und `home-module.nix`. Das
+  Home-Manager-Modul setzt ausschließlich plasma-manager-Optionen; es hängt als
+  `homeModules.default` am Flake (`homeManagerModules.default` ist derselbe
+  Wert unter dem älteren Namen). `scripts/` → Lade-, Reload- und
+  Journalwerkzeuge.
+- `docs/keys.md` → Tastentabelle, objectNames, Konfliktlage, Schlüsseltabelle
+  und das zweistufige Wirksamkeitsverfahren. Erste Anlaufstelle für alles, was
+  Bedienung oder Konfiguration betrifft.
 
 ## Fallstricke / Merker
 
@@ -175,9 +187,47 @@ Activities und verwaltet nicht die Zahl der Desktops.
   `state/` gilt; Kommentarzeilen müssen herausgefiltert werden, sonst melden
   `types.ts` und `timer.ts` falsch positiv). Wer Logik in den Adapter zieht,
   verliert sie aus den Tests.
+- **Kommentare gehören auf eigene Zeilen, nie hinter Code.** Der Grenz-Grep
+  wirft nur Zeilen weg, die **vollständig** als Kommentar beginnen. Ein
+  nachgestelltes `// workspace.activeWindow` in `command.ts` meldete die Datei
+  sofort als Grenzverletzung, obwohl sie keine Global anfasst.
 - **`runEpoch` ist die Anordnungsepoche.** `adapter.runArrange` liest den
   Snapshot, bereinigt Registry und Verbindungen und ruft sie. Änderungen am
   Ablauf aus Plan, Teilnehmerwechsel, Writes und Raise gehören in `epoch.ts`.
+- **`defaultRatio` und `defaultLayoutIndex` stehen hinter `ports`**, nicht davor. Sie
+  kamen in Meilenstein 6 als Default-Parameter ans Ende der Signaturen von
+  `createSurface`, `resetLayout`, `getSurface`, `planArrangement` und
+  `runEpoch`. Ein eingeschobener Parameter bräche `tests/support/epochrig.ts`
+  und jeden bestehenden Aufruf — deshalb hinten anhängen, nie einsortieren.
+- **`activate` ist der einzige Schreibpfad auf `workspace.activeWindow`** im
+  ganzen Baum, und er läuft ausschließlich aus einem Shortcut-Rückruf. Daran
+  hängt die Schleifenfreiheit: Aktivieren löst `windowActivated` aus, das eine
+  Epoche anmeldet, und **die Epoche aktiviert nie selbst** — sie hebt höchstens
+  mit `raiseWindow`. Die Invariante lautet **nicht** „derselbe Fokus kommt
+  zurück": KWin darf die Aktivierung ablehnen, an einen modalen Dialog umleiten
+  oder ein minimiertes Fenster wiederherstellen (gemessen: es stellt wieder
+  her). Der nächste Befehl rechnet dann auf dem Stand, der danach gilt. Wer eine
+  Aktivierung in den Anordnungslauf einbaut, baut die Schleife.
+- **Ein Tastendruck liest den Snapshot selbst.** `runShortcut` ruft
+  `readSnapshot()`, obwohl die entprellte Epoche 20 ms später ohnehin liest —
+  dafür gibt es nur einen Lesepfad, und der Befehl prüft sein Fokusziel gegen
+  dieselbe Ist-Menge, die er gesehen hat. Die frischen Handles gewinnen vor
+  `handles`, werden aber **nicht** übernommen: ein hier eingeschleuster Eintrag
+  käme am GC in `runArrange` vorbei.
+- **`arrange` hat bei Float und Sink eine andere Quelle als beim Stapel.** Für
+  Fokus, Tausch, Layout und Ratio ist es der Objektvergleich gegen den
+  abgeglichenen Stand (die Reducer geben bei Wirkungslosigkeit dasselbe Objekt
+  zurück). Für Float und Sink nicht: die Markierung sitzt im `WindowState`,
+  `order` und `focus` bleiben unberührt — dort entscheidet der `FloatOutcome`.
+  Ohne diese zweite Quelle bliebe ein Fenster nach `Meta+T` bis zum nächsten
+  fremden Ereignis ungeordnet.
+- **Vor dem Reducer wird die gewählte Surface abgeglichen.** Ein Tastendruck
+  kann vor der entprellten Epoche eintreffen; ohne den `reconcile` fehlten neu
+  erschienene Fenster im Stapel, geschlossene stünden noch darin, und ein
+  Fokusbefehl könnte über `activeWindow` sogar einen Desktopwechsel auslösen.
+  Derselbe Abgleich macht den Zweig „Ziel nicht mehr im Snapshot" in
+  `command.ts` unerreichbar — er bleibt defensiv stehen, aber keine Abnahme
+  darf diese Journalzeile erwarten.
 - **`moveable`/`resizeable` gehören in die Layout-Teilnahme, nicht in die
   Mitgliedschaft.** Ein Vollbildfenster meldet beide als `false`, ebenso das
   Panel — als Mitgliedschaftskriterium taugen sie für nichts. Entschieden in
@@ -331,12 +381,44 @@ Activities und verwaltet nicht die Zahl der Desktops.
   `main.xml`. Der Rückgabetyp folgt dem Vorgabewert. **Neu geschriebene Werte
   brauchen ~200 ms**: `Workspace::reconfigure()` startet nur
   `reconfigureTimer.start(200)`.
+- **KConfig ersetzt bei typisiertem Vorgabewert selbst — deshalb Rohstring plus
+  Sentinel.** `readConfig` reicht an `KConfigGroup::readEntry(key, default)`
+  durch, und ein nicht konvertierbarer Eintrag kommt dort schon als Vorgabewert
+  heraus. Mit `Number(readConfig("gapOuter", 0))` wäre `gapOuter=abc` von „nicht
+  gesetzt" nicht zu unterscheiden und die versprochene Korrekturnotiz nie zu
+  erzeugen. Der Adapter liest deshalb gegen `RAW_UNSET` und gibt Rohzeichen-
+  ketten weiter; die ganze Prüfung liegt in `kwin/config.ts` hinter der
+  Snapshot-Grenze. Aus demselben Grund gilt reiner Leerraum als **unlesbar**,
+  nicht als `0` — `Number("")` ist `0` und damit endlich.
+- **Die Konfiguration wird genau einmal gelesen**, am Anfang von `start()`. Ein
+  Lesen je Epoche hinge an veränderlichem Außenzustand, ohne je einen anderen
+  Wert zu sehen. Folge: eine Änderung ist **zweistufig** — `kwriteconfig6`,
+  dann `reconfigure` über D-Bus, dann eine Sekunde warten, dann `nix run
+  .#reload`; `scripts/reload.sh` ruft `reconfigure` **nicht**. In der Produktion
+  wirkt sie erst nach Ab- und Anmeldung.
+- **Zwei Gruppen, je nach Instanz.** Die Entwicklungsinstanz lädt unter dem
+  Namen `kwin-xmonad-lite-dev` und liest deshalb aus
+  `[Script-kwin-xmonad-lite-dev]`, die Produktion aus
+  `[Script-kwin-xmonad-lite]`. Wer beim Erproben in die Produktionsgruppe
+  schreibt, sieht keine Wirkung und sucht den Fehler im Code.
 - `registerShortcut` ruft `KGlobalAccel::setShortcut` **ohne** `NoAutoloading`
-  und liefert immer `true`. Ein vorhandener Eintrag in `kglobalshortcutsrc`
-  überschreibt damit die im Code angegebene Taste, und tote Einträge
-  reservieren Tasten weiter (dort stehen 35 `Krohnkite*`- und 20
-  `Polonium*`-Leichen). `objectName`s sind ab dem ersten Release stabil zu
-  halten.
+  und liefert **immer** `true`, auch bei einer Kollision. Der Rückgabewert ist
+  deshalb wertlos und wird nicht geprüft. Ein vorhandener Eintrag in
+  `kglobalshortcutsrc` überschreibt die im Code angegebene Taste, und tote
+  Einträge reservieren Tasten weiter (dort stehen 35 `Krohnkite*`- und 20
+  `Polonium*`-Leichen).
+- **Gemessen am 2026-09-06, nicht mehr nur aus dem Quelltext geschlossen:** nach
+  der Registrierung stehen **beide** Aktionen gleichzeitig in
+  `kglobalshortcutsrc`, und beim Tastendruck gewinnt der **vorhandene** Eintrag
+  — `Meta+L` sperrte die Sitzung, `Meta+T` öffnete den Kachel-Editor. Die
+  Umlegung der KDE-Kürzel in der Host-Konfiguration ist damit **Voraussetzung**,
+  nicht Absicherung.
+- **`objectName`s sind unwiderruflich.** Es gibt kein `unregisterShortcut`;
+  jede Umbenennung hinterlässt eine Leiche, die die Taste weiter reserviert.
+  Auch nach dem Abschalten des Skripts bleiben die zwölf `xml-*`-Zeilen stehen
+  — das ist erwartet, kein Rückstand. Die im Code stehenden Tasten sind nur die
+  **Erstinstallations-Vorgabe**; eine spätere Änderung erreicht keine Maschine,
+  die das Skript schon geladen hat.
 - `registerUserActionsMenu` ruft den Callback bei jedem Öffnen mit dem
   betroffenen Fenster auf. `triggered` bekommt die QAction, deshalb kommt das
   Fenster aus der äußeren Closure (`scripting.cpp:461-530`). Das Projekt nutzt
@@ -373,6 +455,13 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Konfiguration heißt es `rules.preset`, nicht `rules.recommended`.
 - Biome formatiert auch `biome.json` selbst; nach einer Änderung von Hand
   einmal `biome check --write biome.json` laufen lassen.
+- **`biome check .` bricht in einem Agenten-Worktree unter `.claude/worktrees/`
+  ab** — „No files were processed in the specified paths". Das Ausschlussmuster
+  `!**/.claude` aus `biome.json` greift dort gegen den absoluten Pfad und
+  schließt damit den ganzen Baum aus. Dort ist `biome check src tests` das
+  richtige Kommando. Das Muster ersatzlos zu streichen hilft nicht: ohne es
+  findet `biome check .` im Hauptbaum die `biome.json` des Worktrees und bricht
+  mit „nested root configuration" ab.
 - `nix run .#size-window` startet den Xwayland-Testclient für Mindest-, Höchst-
   und Rastergrößen. Der nackte `pkgs.python3` enthält im Pin kein `_tkinter`;
   der App-Wrapper braucht `python3Packages.tkinter`.
