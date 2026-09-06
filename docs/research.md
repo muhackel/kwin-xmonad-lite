@@ -442,18 +442,28 @@ Entwicklungsinstanz aus `nix run`. Rohdaten:
 (210 Journalzeilen aus mehreren Ladevorgängen). Die Datei enthält keine
 Fenstertitel und keine Pfade.
 
+Die folgenden Befunde sind manuelle Beobachtungen. Das eingecheckte Artefakt
+belegt die Journalausgaben und Geometrien, enthält aber keine Zeitstempel,
+Schrittmarken oder Vorher-/Nachher-Abzüge von `kglobalshortcutsrc`. Es kann daher
+weder die Herkunft einer Auslösung (D-Bus oder Tastendruck) noch die Dauer der
+Ruhephase oder den Dateidiff selbst nachweisen. Bei der nächsten Live-Abnahme
+werden Zeitstempel, Schrittmarken und die relevanten Konfigurationsauszüge mit
+erfasst.
+
 ### 6.1 Registrierung und Konfliktausgang
 
-Der `diff` von `~/.config/kglobalshortcutsrc` unmittelbar vor und nach dem
-ersten Laden zeigt **ausschließlich zwölf hinzugefügte `xml-*`-Zeilen**, sonst
-nichts — keine fremde Zeile wurde verändert. Nach fünf weiteren Ladevorgängen
-stehen weiterhin genau zwölf; es entstehen keine Dubletten. Format einer Zeile:
+Manuell festgehalten: Der `diff` von `~/.config/kglobalshortcutsrc` unmittelbar
+vor und nach dem ersten Laden zeigt **ausschließlich zwölf hinzugefügte
+`xml-*`-Zeilen**, sonst nichts — keine fremde Zeile wurde verändert. Nach fünf
+weiteren Ladevorgängen stehen weiterhin genau zwölf; es entstehen keine
+Dubletten. Format einer Zeile:
 
 ```
 xml-expand=Meta+L,none,Master vergrößern
 ```
 
-Zur **Kollision** (offene Frage aus Abschnitt 2.9): nach der Registrierung
+Zur **Kollision** (offene Frage aus Abschnitt 2.9), ebenfalls manuell geprüft:
+Nach der Registrierung
 standen `Lock Session=Screensaver\tMeta+L` und `xml-expand=Meta+L`
 **gleichzeitig** in der Datei, ebenso `Edit Tiles=Meta+T` und
 `xml-sink=Meta+T`. Beim Tastendruck gewann in **beiden** Fällen der vorhandene
@@ -549,8 +559,9 @@ nicht „das Panel wird gekachelt".
 
 ### 6.6 Ruhe nach dem Reload
 
-Nach `nix run .#reload` erschien **keine einzige** `apply`-Zeile. Über zehn
-Minuten danach kam kein `nachbessern`, kein `aufgegeben` und kein `extern`. Die
+Nach `nix run .#reload` erschien **keine einzige** `apply`-Zeile. In der manuell
+gemessenen Ruhephase von zehn Minuten kam kein `nachbessern`, kein `aufgegeben`
+und kein `extern`; das Logartefakt selbst trägt keine Zeitstempel. Die
 zwölf Aktionen blieben über den Reload hinweg wirksam, ohne zweite
 Registrierung im Journal und ohne zusätzliche Zeile in `kglobalshortcutsrc`.
 
@@ -561,6 +572,9 @@ Registrierung im Journal und ohne zusätzliche Zeile in `kglobalshortcutsrc`.
   Entfernen von `settings`, Abschalten des Feature-Flags. Steht aus.
 - **Fokusziel hinter einem modalen Dialog** (Fall 20b). Aus dem Quelltext
   folgt, dass `activateWindow` den Fokus umleiten kann; gemessen ist es nicht.
+- **KWin-/Sitzungsneustart** (Fälle 16–17, Meilenstein 7). Fall 23 belegt nur
+  das Neuladen der Entwicklungsinstanz per `nix run .#reload`; eine Ab- und
+  Anmeldung oder ein KWin-Neustart fand in dieser Abnahme nicht statt.
 - **Fokusziel zwischen Tastendruck und Lauf geschlossen** (Fall 20c). Der Pfad
   `aktivieren fehlgeschlagen für …` in `src/kwin/adapter.ts` ist genauso
   **unerreichbar** wie der Zweig unten: `result.focus` ist nur dann

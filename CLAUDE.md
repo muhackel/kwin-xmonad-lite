@@ -7,15 +7,17 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
 Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 6 ist
-abgeschlossen und nachauditiert; Matrix 18–23 sind live geprüft (306 Tests,
-`nix flake check` grün über die sechs Checks).** Die Meilensteine 0 bis 5 samt 5.1 und den Audits
+abgeschlossen und zweifach nachauditiert; live geprüft sind die Fälle 18–20a
+und 21–23 (307 Tests, das Projektflake hat sechs Checks, das `nixosconfig`-Flake
+vier).** Die Meilensteine 0 bis 5 samt 5.1 und den Audits
 sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
 Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
 Snapshot-Grenze, und seit Meilenstein 6 ist er bedienbar: zwölf `xml-*`-Aktionen,
 sechs Konfigurationsschlüssel aus `kwinrc` und ein Home-Manager-Modul auf
 plasma-manager-Basis. `Full` ist damit erstmals erreichbar. **Offen:** die
 deklarative Abnahme auf HAL9000 (Fälle 24–24e), der modale Dialog als Fokusziel
-(20b) und der Wayland-Smoke-Test in einer VM (Meilenstein 7). Fall 20c ist
+(20b), der KWin-/Sitzungsneustart (Fälle 16–17) und der Wayland-Smoke-Test in
+einer VM (Meilenstein 7). Fall 20c ist
 nicht offen, sondern **nicht herstellbar** (siehe `docs/research.md` 6.7).
 
 ## Ursprung & Zweck

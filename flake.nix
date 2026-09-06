@@ -5,10 +5,11 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
 
     # Home Manager und plasma-manager sind Inputs, weil das Home-Manager-Modul
-    # ausschließlich plasma-manager-Optionen setzt und `checks.home-module` eine
-    # vollständige Home-Manager-Auswertung baut. Beide folgen dem nixpkgs-Pin
-    # dieses Flakes, plasma-manager zusätzlich dem Home-Manager-Pin — sonst
-    # wertete der Check eine andere Version aus als der einbindende Host.
+    # neben `home.packages` plasma-manager-Optionen setzt und
+    # `checks.home-module` eine vollständige Home-Manager-Auswertung baut. Beide
+    # folgen dem nixpkgs-Pin dieses Flakes, plasma-manager zusätzlich dem
+    # Home-Manager-Pin — sonst wertete der Check eine andere Version aus als der
+    # einbindende Host.
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -177,6 +178,15 @@
           pkgs = pkgsFor system;
           tools = toolsFor system;
 
+          # Eindeutige Paket-Derivation für die Modulprüfung. Ein bloßer Test
+          # auf den Vorgabepfad könnte nicht unterscheiden, ob das Modul
+          # `cfg.package` oder versehentlich ein fest verdrahtetes Paket nutzt.
+          homeModuleTestPackage = pkgs.writeTextDir "share/kwin-xmonad-lite-check/paket" "Paketprüfung";
+
+          hasHomeModuleTestPackage = homeConfig: builtins.elem (toString homeModuleTestPackage) (
+            builtins.map toString homeConfig.config.home.packages
+          );
+
           # Beide Home-Manager-Checks werten dieselbe Grundkonfiguration aus
           # und unterscheiden sich nur im Prüfmodul. Ohne den gemeinsamen
           # Aufbau liefe der Aus-Zweig Gefahr, versehentlich gegen eine andere
@@ -259,9 +269,11 @@
           # `workspace`-Zugriff in `core/` oder `state/` also nicht.
           #
           # Das Musterpaar ist mit dem Abschnitt „Die Grenze ist nachprüfbar"
-          # in build.md deckungsgleich zu halten. Der zweite `grep` wirft
-          # Kommentarzeilen weg -- `types.ts` und `timer.ts` erwähnen die
-          # Globals in ihren Erklärungen, ohne sie zu benutzen.
+          # in build.md deckungsgleich zu halten. Gesucht werden die nackten
+          # Bezeichner statt nur Punktzugriffe: damit fallen auch Klammerzugriffe,
+          # Aliase und `new (QTimer)` auf. Der zweite `grep` wirft die
+          # Typdeklaration und Kommentarzeilen weg -- `types.ts` und `timer.ts`
+          # erwähnen die Globals in ihren Erklärungen, ohne sie zu benutzen.
           #
           # Jeder `grep` schreibt mit `|| true` in eine Datei, statt drei
           # Aufrufe in eine Bedingung zu ketten: stdenv setzt
@@ -270,7 +282,7 @@
           snapshot-boundary = pkgs.runCommand "kwin-xmonad-lite-snapshot-boundary" { } ''
             cd ${self}
 
-            grep -rn 'workspace\.\|KWin\.\|new QTimer\|options\.\|registerUserActionsMenu\|registerShortcut\|readConfig' src > "$TMPDIR/roh" || true
+            grep -rnE '(^|[^[:alnum:]_$])(workspace|KWin|QTimer|options|registerUserActionsMenu|registerShortcut|readConfig)([^[:alnum:]_$]|$)' src --include='*.ts' > "$TMPDIR/roh" || true
             grep -vE '(globals\.d\.ts|:[0-9]+:[[:space:]]*(\*|//|/\*))' "$TMPDIR/roh" > "$TMPDIR/treffer" || true
             grep -vE '^src/(boot|dev)\.ts:|^src/kwin/(read|adapter)\.ts:' "$TMPDIR/treffer" > "$TMPDIR/verstoesse" || true
 
@@ -307,6 +319,8 @@
               homeConfig = mkHomeConfig {
                 programs.kwin-xmonad-lite = {
                   enable = true;
+                  package = homeModuleTestPackage;
+                  relocateKdeShortcuts = true;
                   # `excludes` bleibt bewusst ungesetzt: der Check weist
                   # damit nach, dass auch ein nicht gesetzter Schlüssel mit
                   # seinem Default geschrieben wird.
@@ -317,7 +331,16 @@
                     defaultLayout = "full";
                     debug = true;
                   };
-                  shortcuts."xml-focus-next" = "Meta+J";
+                };
+              };
+
+              # Eigene Auswertung, damit der Standardfall alle zwölf
+              # Erstbelegungen unmaskiert gegen TypeScript prüfen kann.
+              overrideConfig = mkHomeConfig {
+                programs.kwin-xmonad-lite = {
+                  enable = true;
+                  package = homeModuleTestPackage;
+                  shortcuts."xml-focus-next" = "Meta+Y";
                 };
               };
             in
@@ -325,8 +348,16 @@
               {
                 nativeBuildInputs = [ pkgs.jq ];
                 activation = homeConfig.activationPackage;
+                overrideActivation = overrideConfig.activationPackage;
+                packagePresent =
+                  if hasHomeModuleTestPackage homeConfig then
+                    "true"
+                  else
+                    throw "checks.home-module: das konfigurierte Paket fehlt in home.packages";
               }
               ''
+                test "$packagePresent" = true
+
                 ${findDataJson}
 
                 kwinrc='."/home/pruefer/.config/kwinrc"'
@@ -344,19 +375,33 @@
 
                 ${extractShortcuts}
 
+                pruefe "[$shortcuts.kwin | keys[] | select(startswith(\"xml-\"))] | length == 12"
+
                 # Die Nix-Tabelle gegen die TypeScript-Tabelle: `defaultShortcuts`
                 # in nix/home-module.nix und `SHORTCUTS` in src/kwin/command.ts
                 # sind sonst nur je für sich geprüft und könnten unbemerkt
-                # auseinanderlaufen. plasma-manager schreibt den Wert als
-                # `Meta+J,,` (Tasten, leere Vorgabeliste, leerer Anzeigename),
-                # deshalb `startswith` statt Gleichheit.
+                # auseinanderlaufen. Der Standardfall enthält bewusst keinen
+                # `shortcuts`-Override. plasma-manager hängt an jede Taste die
+                # leere Vorgabeliste und den leeren Anzeigenamen an.
                 #
                 # Die Schleife liest aus einer Datei, nicht aus einer Pipe:
                 # `pruefe` beendet mit `exit 1`, und in der Subshell einer
                 # Pipeline bliebe der Fehlschlag folgenlos.
                 while IFS="$(printf '\t')" read -r objectName keys; do
-                  pruefe "$shortcuts.kwin.\"$objectName\".value | startswith(\"$keys\")"
+                  pruefe "$shortcuts.kwin.\"$objectName\".value == \"$keys,,\""
                 done < "$TMPDIR/paare"
+
+                pruefe "$shortcuts.kwin.\"Edit Tiles\".value == \"none,,\""
+                pruefe "$shortcuts.ksmserver.\"Lock Session\".value == \"Screensaver\\tCtrl+Alt+L,,\""
+
+                # Ein abweichender, ausdrücklich gesetzter Wert muss den
+                # Erstinstallationswert ersetzen. Dafür wird ein zweites
+                # Aktivierungspaket ausgewertet, damit der Default-Abgleich oben
+                # vollständig bleibt.
+                activation="$overrideActivation"
+                ${findDataJson}
+                shortcuts='."/home/pruefer/.config/kglobalshortcutsrc"'
+                pruefe "$shortcuts.kwin.\"xml-focus-next\".value == \"Meta+Y,,\""
 
                 touch "$out"
               '';
@@ -374,15 +419,34 @@
                 # und ohne plasma-manager entstünde gar keine `data.json` --
                 # der Check prüfte dann Leere und wäre wertlos.
                 programs.plasma.enable = true;
-                programs.kwin-xmonad-lite.enable = false;
+                programs.kwin-xmonad-lite = {
+                  enable = false;
+                  package = homeModuleTestPackage;
+                  # Muss im Aus-Zustand wirkungslos bleiben. Ein Rückfall auf
+                  # die bloße Schalterbedingung kollidiert mit den beiden
+                  # Host-Rückbelegungen darunter.
+                  relocateKdeShortcuts = true;
+                };
+                programs.plasma.shortcuts.ksmserver."Lock Session" = [
+                  "Screensaver"
+                  "Meta+L"
+                ];
+                programs.plasma.shortcuts.kwin."Edit Tiles" = [ "Meta+T" ];
               };
             in
             pkgs.runCommand "kwin-xmonad-lite-home-module-disabled"
               {
                 nativeBuildInputs = [ pkgs.jq ];
                 activation = homeConfig.activationPackage;
+                packageAbsent =
+                  if !hasHomeModuleTestPackage homeConfig then
+                    "true"
+                  else
+                    throw "checks.home-module-disabled: das konfigurierte Paket steht trotz Aus-Zustand in home.packages";
               }
               ''
+                test "$packageAbsent" = true
+
                 ${findDataJson}
 
                 kwinrc='."/home/pruefer/.config/kwinrc"'
@@ -392,12 +456,17 @@
 
                 ${extractShortcuts}
 
+                pruefe "[$shortcuts.kwin | keys[] | select(startswith(\"xml-\"))] | length == 12"
+
                 # Freigegeben werden muss genau die Menge, die das Skript
                 # registriert -- deshalb kommen die Namen auch hier aus dem
                 # Quelltext und nicht aus einer zweiten Liste.
                 while IFS="$(printf '\t')" read -r objectName keys; do
-                  pruefe "$shortcuts.kwin.\"$objectName\".value | startswith(\"none\")"
+                  pruefe "$shortcuts.kwin.\"$objectName\".value == \"none,,\""
                 done < "$TMPDIR/paare"
+
+                pruefe "$shortcuts.kwin.\"Edit Tiles\".value == \"Meta+T,,\""
+                pruefe "$shortcuts.ksmserver.\"Lock Session\".value == \"Screensaver\\tMeta+L,,\""
 
                 touch "$out"
               '';
