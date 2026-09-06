@@ -4,12 +4,15 @@ import type { Registry } from "../state/registry.ts";
 import { createRegistry, getWindow } from "../state/registry.ts";
 import type { GeometryHooks, GeometryPort } from "./apply.ts";
 import { createGeometryController } from "./apply.ts";
+import type { CommandName } from "./command.ts";
+import { runCommand, SHORTCUTS } from "./command.ts";
+import type { Config, ConfigReader } from "./config.ts";
+import { defaultConfig, loadConfig, RAW_UNSET } from "./config.ts";
 import { runEpoch } from "./epoch.ts";
-import { DEFAULT_EXCLUDES, makeExcludes, participates } from "./filter.ts";
+import { participates } from "./filter.ts";
 import type { FloatOutcome } from "./float.ts";
-import { toggleFloat as toggleFloating } from "./float.ts";
-import { log } from "./log.ts";
-import { NO_GAPS } from "./plan.ts";
+import { setFloat } from "./float.ts";
+import { debugLog, log, setDebug } from "./log.ts";
 import { purgeFromSnapshot } from "./purge.ts";
 import {
 	readFrameGeometry,
@@ -36,7 +39,12 @@ export interface Adapter {
  */
 export function createAdapter(): Adapter {
 	const registry: Registry = createRegistry();
-	const excludes = makeExcludes(DEFAULT_EXCLUDES);
+	/**
+	 * Bis `start()` die Gruppe gelesen hat, gelten die Vorgabewerte. Ein
+	 * `undefined` hier wäre die einzige Stelle, an der eine Epoche ohne
+	 * Konfiguration rechnen könnte.
+	 */
+	let config: Config = defaultConfig();
 	const connections = new Map<WindowId, () => void>();
 	/**
 	 * Die einzige Stelle, über die ein KWin-Fensterobjekt nach dem Lesedurchgang
@@ -276,8 +284,8 @@ export function createAdapter(): Adapter {
 			reading.snapshot,
 			registry,
 			geometry,
-			NO_GAPS,
-			excludes,
+			config.gaps,
+			config.excludes,
 			lastParticipants,
 			{
 				raise(id: WindowId): void {
@@ -288,6 +296,8 @@ export function createAdapter(): Adapter {
 				},
 				log,
 			},
+			config.masterRatio,
+			config.layoutIndex,
 		);
 		lastParticipants = result.participants;
 	}
@@ -302,7 +312,7 @@ export function createAdapter(): Adapter {
 				break;
 			}
 		}
-		const outcome = toggleFloating(registry, geometry, info, area, excludes);
+		const outcome = setFloat(registry, geometry, info, area, config.excludes, "toggle");
 		log(`floatToggle ${info.id} → ${outcome}`);
 		debouncer.schedule("floatToggle");
 		return outcome;
@@ -310,6 +320,62 @@ export function createAdapter(): Adapter {
 
 	function isFloating(window: KwinWindow): boolean {
 		return registry.windows.get(windowId(window))?.floating === true;
+	}
+
+	/**
+	 * Der Rohleser. Der Sentinel ist Absicht: KConfig ersetzt einen nicht
+	 * konvertierbaren Eintrag bereits selbst durch den Vorgabewert, mit einer
+	 * Zahl als Vorgabe käme für `gapOuter=abc` schlicht die Vorgabe an --
+	 * ununterscheidbar von "nicht gesetzt". Mit einem Wert, den niemand von
+	 * Hand schreibt, kommt jede Eingabe unverfälscht durch, und die ganze
+	 * Prüfung liegt hinter der Snapshot-Grenze in `config.ts`.
+	 */
+	const configReader: ConfigReader = {
+		raw(key: string): string | null {
+			const value = String(readConfig(key, RAW_UNSET));
+			return value === RAW_UNSET ? null : value;
+		},
+	};
+
+	/**
+	 * Der **einzige** Schreibpfad auf `workspace.activeWindow` im ganzen Baum,
+	 * und er läuft ausschließlich aus einem Shortcut-Rückruf.
+	 *
+	 * Daran hängt die Schleifenfreiheit: aktivieren löst `windowActivated` aus,
+	 * das eine Epoche anmeldet, und die Epoche aktiviert **nie** selbst -- sie
+	 * hebt höchstens mit `raiseWindow`. Wer hier eine Aktivierung in den
+	 * Anordnungslauf einbaut, baut die Schleife. KWin darf die Aktivierung
+	 * dabei ablehnen, umleiten oder ein minimiertes Fenster wiederherstellen;
+	 * der nächste Befehl rechnet dann auf dem Stand, der danach gilt.
+	 */
+	function activate(id: WindowId, fresh: Map<WindowId, KwinWindow>): boolean {
+		// Die Handles aus demselben Lesedurchgang gewinnen. Übernommen werden
+		// sie **nicht** -- die Buchführung gehört zu `runArrange`, ein hier
+		// eingeschleuster Eintrag käme am Aufräumen vorbei.
+		const window = fresh.get(id) ?? handles.get(id);
+		if (window === undefined) {
+			return false;
+		}
+		workspace.activeWindow = window;
+		return true;
+	}
+
+	/**
+	 * Ein Tastendruck. Er kostet einen eigenen Lesedurchgang, obwohl die
+	 * folgende Epoche ohnehin liest -- dafür gibt es nur einen Lesepfad, und
+	 * der Befehl prüft sein Fokusziel gegen dieselbe Ist-Fenstermenge, die er
+	 * bereits gesehen hat.
+	 */
+	function runShortcut(name: CommandName): void {
+		const reading = readSnapshot();
+		const result = runCommand(name, reading.snapshot, registry, geometry, config);
+		log(result.note);
+		if (result.focus !== null && !activate(result.focus, reading.handles)) {
+			log(`aktivieren fehlgeschlagen für ${result.focus}`);
+		}
+		if (result.arrange) {
+			debouncer.schedule(`shortcut:${name}`);
+		}
 	}
 
 	function start(): void {
@@ -370,6 +436,35 @@ export function createAdapter(): Adapter {
 				connectWindow(window);
 			}
 		}
+
+		// Einmal lesen, danach nie wieder: `readConfig` reicht den Wert aus dem
+		// Speicher heraus, und eine Änderung an `kwinrc` wird erst nach
+		// `Workspace::reconfigure()` sichtbar (docs/research.md 2.7). Eine
+		// Epoche, die ihre Werte je Lauf neu holte, hinge an veränderlichem
+		// Außenzustand, ohne je einen anderen Wert zu sehen.
+		config = loadConfig(configReader);
+		setDebug(config.debug);
+		for (const note of config.notes) {
+			log(note);
+		}
+		log(
+			`config gaps=${config.gaps.outer}/${config.gaps.inner} ` +
+				`ratio=${config.masterRatio} layout=${config.layoutIndex} ` +
+				`excludes=${config.excludeList.length} debug=${String(config.debug)}`,
+		);
+		debugLog(`config excludes=${config.excludeList.join(",")}`);
+
+		// `keys` ist nur die Erstinstallations-Vorgabe: der Aufruf geht ohne
+		// `NoAutoloading` an KGlobalAccel, ein vorhandener Eintrag in
+		// `kglobalshortcutsrc` gewinnt dagegen. Der Rückgabewert wird nicht
+		// geprüft -- er ist belegt immer `true`, auch bei einem Konflikt.
+		for (const entry of SHORTCUTS) {
+			const name = entry.name;
+			registerShortcut(entry.objectName, entry.text, entry.keys, () => {
+				runShortcut(name);
+			});
+		}
+		log(`shortcuts n=${SHORTCUTS.length}`);
 
 		// Steuert kein Verhalten -- `currentDesktopForScreen` mit Fallback deckt
 		// beide Fälle ab --, aber ohne die Zeile ist ein Journalauszug später
