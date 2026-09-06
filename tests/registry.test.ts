@@ -52,6 +52,7 @@ test("getWindow legt einen Fensterzustand mit Vorgaben an", () => {
 	const state = getWindow(registry, "w1");
 	assert.equal(state.floating, false);
 	assert.equal(state.floatRect, null);
+	assert.equal(state.floatRestorePending, false);
 	assert.equal(state.tiledRect, null);
 	assert.equal(state.lastObservedRect, null);
 	assert.equal(state.expectedRect, null);

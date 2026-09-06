@@ -46,12 +46,14 @@ export function toggleFloat(
 
 	const remembered = state.floatRect;
 	setFloating(registry, info.id, true, capture);
+	if (!placeable) {
+		state.floatRestorePending = remembered !== null;
+		return "gefloatetOhneWiederherstellung";
+	}
 	if (remembered === null) {
 		return "gefloatet";
 	}
-	if (!placeable) {
-		return "gefloatetOhneWiederherstellung";
-	}
-	geometry.place(info.id, area === null ? remembered : anchorInto(remembered, area));
+	const target = area === null ? remembered : anchorInto(remembered, area);
+	state.floatRestorePending = !geometry.place(info.id, target);
 	return "wiederhergestellt";
 }

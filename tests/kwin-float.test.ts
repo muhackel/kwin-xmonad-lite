@@ -161,13 +161,14 @@ test("eine gemerkte Float-Geometrie wird in die aktuelle Arbeitsfläche veranker
 	assert.equal(actual.height, outside.height);
 });
 
-test("ein maximiertes Fenster wird gefloatet, aber nicht beschrieben", () => {
-	const { rig, info } = sinkMovedFloat();
+test("ein maximiertes Fenster wird erst nach dem Restore wiederhergestellt", () => {
+	const { rig, windows, info } = sinkMovedFloat();
 	const state = getWindow(rig.registry, "b");
 	const writes = rig.port.writesFor("b");
 	sync(rig, info);
-	const before = info.frameGeometry;
 	info.maximizeMode = 3;
+	rig.port.place("b", AREA);
+	info.frameGeometry = AREA;
 
 	assert.equal(
 		toggleFloat(rig.registry, rig.geometry, info, AREA, EXCLUDES),
@@ -175,9 +176,41 @@ test("ein maximiertes Fenster wird gefloatet, aber nicht beschrieben", () => {
 	);
 	assert.equal(state.floating, true);
 	assert.equal(rig.port.writesFor("b"), writes, "place schreibt nicht am maximierten Fenster");
-	assert.deepEqual(rig.port.read("b"), before, "die Maximierung bleibt unangetastet");
+	assert.deepEqual(rig.port.read("b"), AREA, "die Maximierung bleibt unangetastet");
 	assert.deepEqual(state.floatRect, MOVED, "die gemerkte Float-Geometrie überlebt");
+	assert.equal(state.floatRestorePending, true);
 	assert.equal(rig.geometry.pendingCount(), 0);
+
+	rig.run(windows, "b");
+	assert.equal(rig.port.writesFor("b"), writes, "im Sonderzustand bleibt der Auftrag offen");
+	assert.equal(state.floatRestorePending, true);
+	info.maximizeMode = 0;
+	rig.run(windows, "b");
+	assert.deepEqual(rig.port.read("b"), MOVED);
+	assert.equal(rig.port.writesFor("b"), writes + 1);
+	assert.equal(state.floatRestorePending, false);
+	rig.run(windows, "b");
+	assert.equal(rig.port.writesFor("b"), writes + 1, "die Wiederherstellung läuft nur einmal");
+});
+
+test("erstmaliges Floaten im Vollbild fängt keine Geometrie ein", () => {
+	const rig = epochRig();
+	const info = windowInfo("a");
+	rig.port.place("a", START);
+	rig.run([info], "a");
+	info.fullScreen = true;
+	info.frameGeometry = AREA;
+	rig.port.place("a", AREA);
+
+	assert.equal(
+		toggleFloat(rig.registry, rig.geometry, info, AREA, EXCLUDES),
+		"gefloatetOhneWiederherstellung",
+	);
+	const state = getWindow(rig.registry, "a");
+	assert.equal(state.floating, true);
+	assert.equal(state.floatRect, null);
+	assert.equal(state.floatRestorePending, false);
+	assert.deepEqual(rig.port.read("a"), AREA);
 });
 
 test("das Einkacheln im Vollbild fängt die Vollbildfläche nicht als floatRect ein", () => {
@@ -195,7 +228,7 @@ test("das Einkacheln im Vollbild fängt die Vollbildfläche nicht als floatRect 
 	rig.run(windows, "b");
 });
 
-test("ein gezogenes Fenster stellt seine Float-Geometrie nicht wieder her", () => {
+test("während des Ziehens wird die Float-Geometrie noch nicht wiederhergestellt", () => {
 	const { rig, info } = sinkMovedFloat();
 	const writes = rig.port.writesFor("b");
 	sync(rig, info);
@@ -207,6 +240,7 @@ test("ein gezogenes Fenster stellt seine Float-Geometrie nicht wieder her", () =
 	);
 	assert.equal(rig.port.writesFor("b"), writes);
 	assert.deepEqual(getWindow(rig.registry, "b").floatRect, MOVED);
+	assert.equal(getWindow(rig.registry, "b").floatRestorePending, true);
 });
 
 test("ein Sticky-Fenster floatet global in allen sichtbaren Surfaces", () => {

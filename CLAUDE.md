@@ -210,7 +210,9 @@ Activities und verwaltet nicht die Zahl der Desktops.
   als `floatRect` — `anchorInto` verschiebt beim Wiederherstellen nur, es
   verkleinert nicht, das Fenster überdeckte danach das Panel. Der
   Zustandswechsel selbst gilt trotzdem immer; das Journal meldet ihn dann als
-  `gefloatetOhneWiederherstellung`.
+  `gefloatetOhneWiederherstellung`. Eine vorhandene `floatRect` setzt dabei
+  `floatRestorePending`; die erste Epoche nach Ende des Sonderzustands
+  vollzieht `place` genau einmal.
 - **Der Recheck prüft `port.blocked` vor jedem Write.** `judgeWrite` schützt nur
   die Epoche; ein bereits geplanter Recheck könnte sonst ein inzwischen
   maximiertes, minimiertes, vollbildiges oder floatendes Fenster beschreiben.
