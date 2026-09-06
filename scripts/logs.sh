@@ -8,5 +8,5 @@ if [ "${1:-}" = "-a" ]; then
 	exec journalctl --user -u plasma-kwin_wayland -f
 fi
 
-log_info "Folge dem KWin-Journal, gefiltert auf kwin-xmonad-lite und KXLPROBE/KXLSIG (-a für alles)."
-exec journalctl --user -u plasma-kwin_wayland -f -o cat --grep 'kwin-xmonad-lite|KXLPROBE|KXLSIG'
+log_info "Folge dem KWin-Journal, gefiltert auf kwin-xmonad-lite und KXLPROBE/KXLSIG/KXLGEO (-a für alles)."
+exec journalctl --user -u plasma-kwin_wayland -f -o cat --grep 'kwin-xmonad-lite|KXLPROBE|KXLSIG|KXLGEO'

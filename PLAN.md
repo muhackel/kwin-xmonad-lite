@@ -1,6 +1,6 @@
 # Implementierungsplan `kwin-xmonad-lite`
 
-Stand: 2026-09-06. Der Entwurf mit allen Nutzerentscheidungen steht in Abschnitt 12. Abgeschlossen sind die Meilensteine 0 bis 6 samt den Stabilisierungsschritten 3.1, 3.1.1, 4.1, 4.1.1, 5.1, den Audits 4.2, 6.1 und 6.2 sowie der Abnahme 6.3. Die deklarative Abnahme auf HAL9000 (Fälle 24 bis 24e) ist gegen den Projekt-Pin `8f287d9` bestanden. Offen bleiben der modale Dialog als Fokusziel (Fall 20b) sowie Meilenstein 7 mit den Fällen 16–17 und der Wayland-Smoke-VM. Das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein läuft als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
+Stand: 2026-09-06. Der Entwurf mit allen Nutzerentscheidungen steht in Abschnitt 12. Abgeschlossen sind die Meilensteine 0 bis **7** samt den Stabilisierungsschritten 3.1, 3.1.1, 4.1, 4.1.1, 5.1, den Audits 4.2, 6.1 und 6.2 sowie den Abnahmen 6.3 und 7. **Der MVP ist damit abgenommen** — die sechs Kriterien aus Abschnitt 11 sind erfüllt, mit zwei dort benannten Einschränkungen (zwei statt drei Ausgaben im Multi-Output-Lauf, skriptgesteuerte statt normaler Arbeit in der Alltagsstunde). Fall 20c ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.7). Die Wayland-Smoke-VM ist kein MVP-Bestandteil mehr, sondern Stufe 2. Das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein läuft als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
 
 ## 0. Position
 
@@ -247,9 +247,9 @@ Die Tasten in der Tabelle sind ausschließlich die **Erstinstallations-Vorgabe**
   - `apps.default` (`nix run`): baut das Paket und lädt das gebaute `main.js` über KWins Scripting-D-Bus direkt aus dem Store. `nix run . -- --menu` lädt stattdessen das getrennte Dev-Bundle mit Float-Toggle im Fenstermenü. Vorher wird eine laufende Entwicklungsinstanz beendet; ist die deklarativ aktivierte Produktionsinstanz geladen, bricht der Wrapper mit einer verständlichen Meldung ab. Es entsteht keine Kopie unter `~/.local/share`, die später das Nix-Profil überschattet.
   - `apps.reload`: lädt ausschließlich die Entwicklungsinstanz aus dem aktuellen Store-Pfad neu: `unloadScript <dev-id>` → `loadScript <store-pfad>/contents/code/main.js <dev-id>` → `/Scripting/Script<N> org.kde.kwin.Script.run`. Der von `loadScript` gelieferte numerische Bezeichner wird ausgewertet, nicht geraten.
   - `apps.logs`: `journalctl --user -u plasma-kwin_wayland -f`, standardmäßig auf die Zeilen des Controllers und der beiden Proben gefiltert; `-a` zeigt alles.
-  - `apps.dev-load` (Alias von `apps.default`), `apps.unload`, `apps.size-window`, `apps.probe` (Feature-Probe, MS 0) und `apps.probe-signals` (Signalprobe, MS 4). Die Shellwerkzeuge entstehen mit `writeShellApplication` und laufen durch shellcheck; `size-window` startet den Tkinter-Testclient mit `python3Packages.tkinter`.
+  - `apps.dev-load` (Alias von `apps.default`), `apps.unload`, `apps.size-window`, `apps.probe` (Feature-Probe, MS 0), `apps.probe-signals` (Signalprobe, MS 4), `apps.probe-geometry` (Geometrie-Probe samt Orakel, MS 7) und `apps.audit` (Journal-Auditor, MS 7). Die Shellwerkzeuge entstehen mit `writeShellApplication` und laufen durch shellcheck; `size-window` startet den Tkinter-Testclient mit `python3Packages.tkinter`.
   - `devShells.default`: alle Tools plus `kdePackages.kpackage`, `kdePackages.qttools` (liefert `qdbus`), `kdePackages.kconfig` (`kwriteconfig6`).
-  - `checks`: `package` (Typcheck, Tests und Bundle in der buildPhase), `lint` (Biome), `scripts` (alle Werkzeuge samt shellcheck), `snapshot-boundary` (das Grep-Paar aus `build.md` als Derivation — eine KWin-Global außerhalb der vier erlaubten Dateien bricht den Check ab), `home-module` (baut ein `activationPackage` mit aktiviertem Modulzweig und prüft die von plasma-manager erzeugte `data.json` mit `jq` auf das Plugin-Flag, alle sechs Schlüssel und **alle zwölf** `xml-*`-Tasten, wobei die Paare mit `awk` aus `SHORTCUTS` in `src/kwin/command.ts` gezogen werden) und `home-module-disabled` (dieselbe Auswertung mit `enable = false`: das Plugin-Flag muss `false` sein und alle zwölf Tasten auf `none` stehen); `nix flake check` grün über diese sechs Checks.
+  - `checks`: `package` (Typcheck, Tests und Bundle in der buildPhase), `lint` (Biome), `scripts` (alle Werkzeuge samt shellcheck), `snapshot-boundary` (das Grep-Paar aus `build.md` als Derivation — eine KWin-Global außerhalb der vier erlaubten Dateien bricht den Check ab), `home-module` (baut ein `activationPackage` mit aktiviertem Modulzweig und prüft die von plasma-manager erzeugte `data.json` mit `jq` auf das Plugin-Flag, alle sechs Schlüssel und **alle zwölf** `xml-*`-Tasten, wobei die Paare mit `awk` aus `SHORTCUTS` in `src/kwin/command.ts` gezogen werden), `home-module-disabled` (dieselbe Auswertung mit `enable = false`: das Plugin-Flag muss `false` sein und alle zwölf Tasten auf `none` stehen), `activate-once` und `probe-readonly` (Meilenstein 7: Grep auf Geometrie-Writes, `activeWindow =`, `raiseWindow`, `setMaximize`, `setFullScreen`, `rootTile` und **jede** Signalverbindung in `dev/probe/geometry.js`, wobei `timeout.connect` an eigenen `QTimer`-Objekten und reine Kommentarzeilen herausgefiltert werden — ohne diesen Check könnte die Probe ihr eigenes Prüfergebnis herstellen); `nix flake check` grün über diese **acht** Checks.
   - `homeModules.default` — das ist der Name, den Nix 2.34 als Flake-Output kennt. `homeManagerModules.default` bleibt als Alias auf denselben Wert bestehen; für ihn meldet `nix flake check` eine Warnung („unknown flake output"), keinen Fehler. Home Manager und plasma-manager haben ebenfalls umbenannt, bei plasma-manager ist der alte Name nur noch ein `lib.warn`-Wrapper.
 - **Konfigurationsschlüssel (`readConfig`, Meilenstein 6).** Gelesen wird `kwinrc` in der Gruppe `[Script-<pluginName>]` — für die Produktion `[Script-kwin-xmonad-lite]`, für die über `scripts/dev-load.sh` geladene Entwicklungsinstanz `[Script-kwin-xmonad-lite-dev]`. Der Adapter liest **Rohzeichenketten** gegen einen Sentinel-Vorgabewert; die ganze Umwandlung liegt in `src/kwin/config.ts` hinter der Snapshot-Grenze. Nie werfen, immer klemmen, jede Korrektur bekommt eine Journalzeile.
 
@@ -267,7 +267,7 @@ Die Tasten in der Tabelle sind ausschließlich die **Erstinstallations-Vorgabe**
 - **Einbindung in `nixosconfig`:** Flake-Inputs `plasma-manager` und `kwin-xmonad-lite`, beide mit `inputs.nixpkgs.follows = "nixpkgs"` und `inputs.home-manager.follows`; `kwin-xmonad-lite` folgt zusätzlich dem `plasma-manager` des Hosts, sonst wertete der Projektcheck eine andere Version aus als der Host importiert. Der Input zeigt auf `github:muhackel/kwin-xmonad-lite` — nicht auf den lokalen Pfad `/home/muhackel/Documents/Projects/kwin-xmonad-lite`: HAL9000 hat das Projektverzeichnis nicht, und `nixos-rebuild` wertet lokal aus. Vor dem Merge wird mit `--override-input kwin-xmonad-lite path:…` geprüft.
 
   Beide Module hängen in `home-manager.sharedModules` (`lib/default.nix`). **Diesen Schlüssel führt Meilenstein 6 dort erst ein**; er existierte in `nixosconfig` bisher nicht und ist der einzige strukturelle Zusatz. Eingebunden wird `kwin-xmonad-lite.homeModules.default`, nicht der ältere Alias. Die Aktivierung hängt am eigenen Feature-Flag `local.features.kwinXmonadLite` (Default aus, zunächst nur HAL9000), zusätzlich zu `plasma6`; ein Modul in `sharedModules` bleibt ohne `enable` wirkungslos. `nixosconfig` enthält die hostübergreifende KDE-Shortcut-Politik einschließlich der beiden Konfliktauflösungen — sie gilt nur dort, wo der Controller aktiv ist.
-- **Test-VM (Entscheidung 3):** Im MVP ein Wayland-Smoke-Test mit einem Output: Autologin, `org.kde.kwin.Scripting.isScriptLoaded`, Journal ohne `kwin_scripting`-Fehler. Ein zusätzlich geladenes Test-Probe-Skript liest `workspace.windowList()` und schreibt Fenster-IDs, Surface-Zuordnung und Geometrien als auswertbares JSON ins Journal; der Test-Driver prüft mindestens Einzelfenster und Tall-Aufteilung statt nur einen Screenshot. Der nixpkgs-Plasma-6-Test läuft auf X11 und `wait_for_window` ist X11-gebunden (`nixos/lib/test-driver/.../machine/__init__.py:1488-1493`). Zwei Outputs über `-vga none -device virtio-gpu-pci,max_outputs=2` (`nixos/tests/cardwire.nix:17-23`) sind ein Stufe-2-Experiment, weil nicht belegt ist, ob KWin-Wayland den zweiten Output in der VM als verbunden zeigt. Bis dahin ist der dokumentierte Test auf SPIELKISTE mit mindestens zwei der drei Outputs Teil der MVP-Abnahme.
+- **Test-VM (Entscheidung 3, in Meilenstein 7 revidiert):** Die Wayland-Smoke-VM ist **nicht** Teil der MVP-Abnahme. Sie wandert zusammen mit dem Zwei-Output-Experiment auf Stufe 2. Die Live-Nachweise liefert stattdessen eine echte Wayland-Sitzung auf HAL9000 mit der Geometrie-Probe `dev/probe/geometry.js` und dem Orakel `dev/probe/expect-geometry.ts` (Fälle 25–25c), den Reload- und Neustartfällen 16–17b und dem Multi-Output-Lauf 26–26c. Der Grund ist keine Schwäche des VM-Ansatzes, sondern seine Reichweite: der nixpkgs-Plasma-6-Test läuft auf X11 und `wait_for_window` ist X11-gebunden (`nixos/lib/test-driver/.../machine/__init__.py:1488-1493`), und für zwei Outputs über `-vga none -device virtio-gpu-pci,max_outputs=2` (`nixos/tests/cardwire.nix:17-23`) ist nicht belegt, ob KWin-Wayland den zweiten Output in der VM als verbunden zeigt. Eine echte Sitzung beantwortet genau die Fragen, an denen der MVP hängt — Panelabzug, Clientannahme, KWin-Neustart, modale Umleitung —, und beantwortet sie gegen die Hardware, auf der der Controller laufen soll. Was die VM dafür voraushat, ist die automatisierte Wiederholbarkeit; sie bleibt als Regressionsnetz auf Stufe 2 vorgesehen.
 
 ## 9. Phasenplan
 
@@ -289,8 +289,8 @@ Die Tasten in der Tabelle sind ausschließlich die **Erstinstallations-Vorgabe**
 | 6.1 | **erledigt 2026-09-06.** Audit gegen den gemergten Stand beider Repos (ein Prüfagent, sieben Befunde). Behoben: das Abschalten per Feature-Flag nimmt jetzt wirklich zurück — plasma-manager hängt in `nixosconfig` am eigenen Flag `local.features.plasmaManager` statt am Controller, das Projektmodul hat einen Aus-Zweig (`cleanupWhenDisabled`), der das Plugin abschaltet und die zwölf Tasten mit `none` freigibt, und der Host stellt `Lock Session` und `Edit Tiles` auf die KDE-Vorgaben zurück; `shortcuts` ist ein Submodul über die zwölf bekannten Namen statt `attrsOf`; die Erstbelegungen werden deklarativ geschrieben und gegen `command.ts` geprüft; die Snapshot-Grenze ist ein Flake-Check; `focusPrev`, `swapNext`, `swapPrev` und der Vollzug der Hebeliste sind wirksam getestet; die Umlegung der KDE-Kürzel hängt wieder an `enable` | Tests grün (306), `nix flake check` grün über sechs Checks, sechs Mutationsproben erkannt (drei Befehlsverwechslungen, entfernter Raise-Vollzug, Grenzverletzung, Shortcut-Tippfehler), Matrix 24–24e auf HAL9000 weiterhin offen |
 | 6.2 | **erledigt 2026-09-06.** Re-Audit der Nachbesserung mit vier parallelen Prüfagenten. Behoben: Bindung jedes `objectName` an seinen Befehl; exakte Menge und Werte der Nix-Shortcuts samt abweichendem Override; Paketinstallation im Ein- und Aus-Zweig; Umlegung und Rückstellung der KDE-Kürzel; Snapshot-Grenze für nackte Bezeichner; NixOS-Assertion für die Flag-Abhängigkeiten und eigener Check des HAL9000-Aus-Zustands; Status, Beleggrenzen und pastebare Abnahme samt gezieltem Rückbau | Tests grün (307), sieben neue Mutationsproben erkannt; das Projektflake hat sechs Checks, das `nixosconfig`-Flake drei Host-Checks plus `kwinXmonadLite-disabled`, also vier; Fall 20b und Matrix 24–24e bleiben offen |
 | 6.3 | **erledigt 2026-09-06.** Deklarative Live-Abnahme auf HAL9000 gegen Projekt-Pin `8f287d9`: Installation aus dem Store, alle zwölf Tasten per `/dev/uinput`, KDE-Konfliktauflösung, Konfigurationsänderung, Rückfall eines entfernten Schlüssels und Aus-Zweig für Plugin und Tasten | Fälle 24–24e bestanden; Rohdaten `docs/hal9000-abnahme-2026-09-06.log`; Rückbau auf Generation 584, Testgenerationen 585–588 gelöscht und beide Konfigurationsdateien wiederhergestellt |
-| 7 | Wayland-Smoke-VM mit Geometrie-Probe, KWin-/Sitzungsneustart-Verhalten, dokumentierter Multi-Output-Lauftest, MVP-Abnahme | Matrix 1–5 und 16–17 |
-| 8 (Stufe 2) | `grid`, Activities-Tests, Zwei-Output-VM-Experiment, optionale Persistenz, KCM-Dialog nur bei Bedarf | Matrix 6–8, Grid-Abnahme |
+| 7 | **erledigt 2026-09-06.** Prüfwerkzeuge (Geometrie-Probe, Orakel mit unabhängiger Vorgabe, Journal-Auditor, Diagnosezeilen `surface`/`diagnose`/`aktiviere`), Abnahmevorschrift und Protokollvorlage; dann zwei Live-Reihen auf HAL9000: Geometrie-Probe, Reload- und Neustartverhalten, modaler Fokusfall, Multi-Output-Lauf und Alltagsstunde | Tests grün (337), acht Flake-Checks; Matrix 16/16b/16c, 17a/17b, 20b und 25–25c bestanden (Protokoll `docs/ms7-2026-09-06-hal9000.md`), 26–26c und 27 bestanden (Protokoll `docs/ms7-2026-09-06-hal9000-ap7.md`) |
+| 8 (Stufe 2) | `grid`, Activities-Tests, Zwei-Output-VM-Experiment, **Wayland-Smoke-VM als automatisiert wiederholbare Prüfung**, optionale Persistenz, KCM-Dialog nur bei Bedarf | Matrix 6–8, Grid-Abnahme |
 
 Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine Entwicklungs-Commits auf `main`, keine `Co-Authored-By`-Zeilen. `CLAUDE.md`, `README.md` und `build.md` werden vor jedem Merge geprüft.
 
@@ -299,18 +299,58 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
 1. **Wayland-Größe unverbindlich:** Clients wie foot liefern abweichende Größen. Gegenmaßnahme: höchstens zwei Nachbesserungen je Schreibgeneration; nach `giveup` bleibt dasselbe Soll/Ist-Paar auch über spätere Epochen gesperrt. Eine fremde Verschiebung, ein neues Layoutziel oder ein Wechsel der Layout-Teilnahme öffnet wieder einen Versuch. X11-Rasterhinweise sind dafür kein verlässlicher Test: KWin 6.7.4 setzte beim Tk-Client eine Geometrie außerhalb seines belegten `20x10`-Rasters durch.
 2. **Panel-Timing:** Beim Login erscheint das Panel nach dem Skript; ohne direktes `clientArea`-Signal bleiben Dock-`frameGeometryChanged`, `outputChanged`, Verzögerung und `windowAdded` nur Proxys. Nicht garantiert.
 3. ~~ES-Level und `print()` der QJSEngine~~ **erledigt in MS 0**: Target `es2016`, `print()` existiert, `setTimeout` nicht. Neu aufgetaucht: `windowList()`, `desktops` und `activities` sind array-artig, aber keine echten Arrays — `map`/`filter` sind darauf nicht verwendbar. Beim erneuten Durchsehen der Rohdaten in MS 3 fielen zwei Fehler in `docs/research.md` auf: `QTimer.restart` existiert **nicht**, und benannte Regex-Gruppen parsen zwar, füllen aber `match.groups` nicht. Beides dort korrigiert.
-4. ~~**`registerShortcut` bei belegter Taste:** nur Debug-Log~~ **geklärt in MS 6**: der Rückgabewert ist immer `true`, beide Einträge stehen danach in `kglobalshortcutsrc`, und der **vorhandene** feuert. Die konfliktfreie Belegung über eine explizite, vom Projekt getrennte Host-Konfiguration ist damit Voraussetzung, nicht Absicherung. Die Fälle 24a und 24b haben die Umlegung auf HAL9000 per Tastendruck bestätigt.
+4. ~~**`registerShortcut` bei belegter Taste:** nur Debug-Log~~ **geklärt in MS 6**: der Rückgabewert ist immer `true`, beide Einträge stehen danach in `kglobalshortcutsrc`, und der **vorhandene** feuert. Die konfliktfreie Belegung über eine explizite, vom Projekt getrennte Host-Konfiguration ist damit Voraussetzung, nicht Absicherung. Die Fälle 24a und 24b haben die Umlegung auf HAL9000 per Tastendruck bestätigt. **Nachtrag aus MS 7:** eine Registrierung ist nicht dauerhaft. Die KWin-Skript-API hat kein `unregisterShortcut`, kglobalaccel selbst aber schon — `org.kde.KGlobalAccel.unregister(componentUnique, shortcutUnique)` nimmt sie in laufender Sitzung restlos zurück und gibt die Taste frei (Fall AP7-Rückbau, zwölfmal `true`, danach null `xml-*`-Zeilen).
 5. **Output-Identität:** `name` ist portstabil; beim Umstecken auf einen anderen Port wandert der Zustand nicht mit. Akzeptiert.
 6. **Kein Unload-Hook:** durch die Regel „keine dauerhaften Eigenschaften" entschärft; beim Deaktivieren bleiben Fenster dort, wo sie sind.
 7. **Fenster auf allen Activities:** leere Liste bedeutet „alle" (Polonium-Issue #222). Die Surface-Zuordnung im Adapter (`kwin/filter.ts`, `surfaceKeysFor`) behandelt das explizit; der Reconcile selbst arbeitet nur auf Fenster-IDs.
-8. **Re-Enable ohne Relogin** scheitert laut Tessera-README auf 6.6–6.8 bei QML-Skripten; ob der JS-Modus betroffen ist, klärt MS 7.
+8. ~~**Re-Enable ohne Relogin** scheitert laut Tessera-README auf 6.6–6.8 bei QML-Skripten; ob der JS-Modus betroffen ist, klärt MS 7.~~ **geschlossen in MS 7, Fall 16c**: im JS-Modus funktioniert beides. `kwin-xmonad-liteEnabled=false` plus `reconfigure` entlädt das Skript (`isScriptLoaded` wechselt auf `false`), `true` plus `reconfigure` lädt es wieder und durchläuft die vollständige Startfolge — ohne Ab- und Anmeldung. Das bestätigt live, was der Quelltext sagt: `Scripting::start()` hängt an `Workspace::configChanged`, und `queryScriptsToLoad()` wertet die Plugin-Flags neu aus (`docs/research.md` 7.2). Die verbreitete Kurzfassung „`reconfigure` lädt Skripte nicht neu" gilt nur für ein **bereits geladenes** Skript, für das `loadScript` sofort `-1` liefert.
 9. **Persistenz:** `readConfig` ist lesend; Schreiben ginge nur über `callDBus` oder eine eigene Datei. Stufe 2.
-10. **Zweiter VM-Output:** Verhalten von KWin-Wayland mit `virtio-gpu max_outputs=2` nicht belegt. Stufe 2.
+10. **Test-VM insgesamt:** Das Verhalten von KWin-Wayland mit `virtio-gpu max_outputs=2` ist nach wie vor nicht belegt. In MS 7 ist zusätzlich die **einfache** Smoke-VM auf Stufe 2 gewandert (Abschnitt 8 und die Entscheidung von 2026-09-06): sie hätte den Live-Teil nicht ersetzt, sondern neben ihm gestanden, und die Fragen, an denen der MVP hängt — Panelabzug aus `MaximizeArea`, ob ein Client die berechnete Zelle exakt annimmt, ob Clients einen KWin-Neustart überleben, wohin KWin den Fokus bei einem modalen Dialog umleitet — beantwortet nur eine echte Sitzung. Als automatisiert wiederholbares Regressionsnetz bleibt sie sinnvoll und vorgesehen.
 11. **Lokale Schattenkopie:** Eine Installation unter `~/.local/share/kwin/scripts` würde ein deklaratives Store-Paket überlagern. Die vorgesehenen `nix run`-/Reload-Apps laden deshalb direkt aus dem Store und legen dort keine Kopie ab.
 
 ## 11. Abnahmekriterien und Testmatrix
 
-**MVP abgenommen, wenn:** alle Punkte des MVP-Umfangs laufen, die Testmatrix bis auf die markierten Fälle besteht, `nix flake check`, `nix shell`, `nix run` funktionieren, das Home-Manager-Modul in `nixosconfig` aktiviert ist, die VM-Probe die erwarteten Geometrien aus dem Journal bestätigt, ein dokumentierter Lauf mit mindestens zwei Outputs auf SPIELKISTE bestanden ist und im Journal über eine Stunde normaler Arbeit keine Geometrie-Schleife (mehr als 3 Anwendungen desselben Fensters ohne Nutzeraktion) auftritt.
+**MVP abgenommen, wenn:**
+
+1. alle Punkte des MVP-Umfangs laufen und die Testmatrix bis auf die markierten
+   Fälle besteht;
+2. `nix flake check`, `nix shell` und `nix run` funktionieren;
+3. das Home-Manager-Modul in `nixosconfig` aktiviert ist;
+4. die **Geometrie-Probe** die erwarteten Geometrien in einer echten
+   Wayland-Sitzung auf HAL9000 bestätigt — gegen eine Erwartung, die aus der
+   Fallvorschrift kommt und nicht aus dem geprüften System, mit `getWindowInfo`
+   über D-Bus als vom Skriptkontext unabhängiger Gegenprobe (Fälle 25–25c);
+5. ein dokumentierter Lauf mit mindestens zwei Ausgaben **gegen den
+   Abnahmestand** besteht, mit je eigenem Layout, Masteranteil und
+   Stapelreihenfolge und ohne Schreibvorgang auf der unbeteiligten Ausgabe
+   (Fall 26); die Läufe aus den Meilensteinen 3 und 4 zählen dafür nicht, sie
+   liefen gegen einen Stand ohne Befehls- und Konfigurationsschicht;
+6. der Journal-Auditor über mindestens 60 Minuten Betrieb in **einem**
+   Skriptlauf keine Geometrie-Schleife findet. Operationalisiert heißt das,
+   über **alle** Schreibarten (`apply`, `float`, `nachbessern`) gerechnet:
+   keine Fenster-Id mit mehr als drei Schreibvorgängen auf dasselbe Soll ohne
+   dazwischenliegenden **nutzerveranlassten** Grund — technische Gründe
+   (`geometrieExtern`, `dock*`, `screensChanged`, `screenGeometry`,
+   `nachlauf*`, `closed`) setzen den Zähler nicht zurück; keine
+   Rückkopplungskette `extern → arrange → apply → extern` für dieselbe Id mehr
+   als zweimal in Folge; kein `aufgegeben` außerhalb bewusst provozierter
+   Fälle; und höchstens 5 % der Schreibvorgänge ohne zuordenbaren
+   Anordnungslauf. Ein zu kurzer Auszug, eine Lücke oder ein Skriptneustart
+   mitten in der Messung ergeben **„nicht ausreichend belegt"**, nicht
+   „bestanden" (Fall 27).
+
+**Stand 2026-09-06: alle sechs Punkte erfüllt.** Zwei Einschränkungen gehören
+zur Feststellung dazu und stehen in den Protokollen:
+
+- Punkt 5 wurde auf HAL9000 mit **zwei** Ausgaben erbracht, nicht auf
+  SPIELKISTE mit dreien. Zwei Ausgaben waren immer das Minimum des Kriteriums;
+  über drei und mehr Ausgaben, über unterschiedliche Auflösungen und über
+  gebrochene Skalierung sagt der Lauf nichts.
+- Punkt 6 wurde mit **skriptgesteuerter** Last erbracht, nicht mit normaler
+  Arbeit: 75 Aktionen in 64,5 Minuten, dichter getaktet als eine typische
+  Arbeitsstunde, aber ohne Mausziehen und ohne die Fenstervielfalt echter
+  Arbeit. Belegt ist Schleifenfreiheit unter dichter Ereignislast, nicht unter
+  Alltagsbedingungen.
 
 **Grid-Stufe abgenommen, wenn:** `grid` in der Layoutliste zyklisch erreichbar ist, die Unit-Tests dieselben Eigenschaften wie Tall prüfen, und Fälle 6–8 der Matrix bestehen.
 
@@ -332,13 +372,16 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
 | 13 | minimiert und wiederhergestellt | dito | ja |
 | 14 | Float-Toggle und Wiedereinkacheln | Geometrie gemerkt, Reihenfolge erhalten | ja |
 | 15 | Fenster mit Mindest-/Höchstgröße und abweichender Wayland-Geometrie | Beschränkung respektiert, dokumentierte Überlappung/Freifläche; nach `giveup` kein neuer Zyklus bei unverändertem Soll/Ist | **eingeschränkt** (Client entscheidet) |
-| 16 | Script-Reload | Zustand neu aus Ist-Menge, keine Rückstände | **offen** (erwartet: Zustand verloren, Persistenz Stufe 2) |
-| 17 | KWin-/Sitzungsneustart | wie 16 nach Init-Retry | **offen** (erwartet: Zustand verloren) |
+| 16 | Script-Reload mit **verändertem** Zustand | Zustand neu aus der Ist-Menge, keine Rückstände; die Float-Markierung geht verloren, die Teilnehmerzahl steigt deshalb | **bestanden 2026-09-06**: `teilnehmer` 3 → 4, `float=` leer, `tall`/`0.65` zurück, vier `apply`, zwölf `xml-*`-Zeilen unverändert, promote-Reihenfolge verloren |
+| 16b | Ruhe nach dem Reload | fünf Minuten ohne `apply`, `float`, `nachbessern`, `aufgegeben` oder `extern` | **bestanden**: 5 min 40 s ohne **irgendeine** Controllerzeile |
+| 16c | Re-Enable ohne Relogin | Verhalten dokumentieren; Risiko 8 damit schließen | **bestanden**: `reconfigure` entlädt (`true`→`false`) **und** lädt (`false`→`true`); Risiko 8 geschlossen |
+| 17a | KWin-Neustart in der laufenden Sitzung (`org.kde.KWin.replace`) | neue KWin-PID im selben Boot, Skript startet über den KPackage-Autostart selbst, Zustand neu aus der Ist-Menge; **welche Clients überleben, wird gezählt** | **bestanden**: PID 49086 → 53902, derselbe Wrapper und Socket, `bereit nach 1 Versuch(en)` — und **0 von 4 Clients** überlebten. Nebenbefund: `ksmserver`, `kaccess` und `gmenudbusmenuproxy` starben mit `status=1/FAILURE` |
+| 17b | Sitzungsneustart | wie 17a, zusätzlich `config`-Zeile mit den deklarierten Werten, `shortcuts n=12`, genau zwölf `xml-*`-Zeilen | **bestanden**: neue PID 56697, deklarierte Werte, `shortcuts n=12`, zwölf `xml-*`-Zeilen |
 | 18 | alle zwölf Aktionen über `invokeShortcut` | je Aktion genau eine `befehl …`-Zeile, danach höchstens ein Lauf mit `shortcut:<name>` im Grund; kein Flattern | ja (**bestanden 2026-09-06**) |
 | 19 | die **zehn konfliktfreien** Tasten per Tastendruck | dieselbe Wirkung wie 18; `Meta+L` und `Meta+T` bleiben hier ausgespart | ja (**bestanden**) |
 | 20 | Fokuszyklus über mehrere Fenster | `activeWindow` folgt, ein Zyklus kehrt zum Ausgangsfenster zurück, kein zweiter Aktivierungsversuch; in `full` wechselt das sichtbare Fenster | ja (**bestanden**, vier Mitglieder, jedes Mal `via=aktiv`) |
 | 20a | Fokusziel ist **minimiert** | Verhalten dokumentieren, nicht erzwingen | ja (**gemessen**: bleibt Mitglied, verliert die Teilnahme `n=3`→`n=2`, KWin stellt beim Aktivieren wieder her) |
-| 20b | Fokusziel hinter einem **modalen Dialog** | Aktivierung darf umgeleitet werden; kein zweiter Versuch, keine Schleife | **offen** |
+| 20b | Fokusziel hinter einem **modalen Dialog** | Modalität zuerst belegen (`modal:true` **und** gesetztes `transientFor`); Aktivierung darf umgeleitet werden; je Befehl genau eine `befehl`- und höchstens eine `aktiviere`-Zeile, danach keine Schleife | **bestanden 2026-09-06**: kwrite „Speichern unter", `modal=true`, `transientFor` auf `kxl-m2`, `hasTransientParent=True` über D-Bus. In beiden Durchgängen (`invokeShortcut` und echter Tastendruck über `/dev/uinput`) je **eine** `befehl`- und **eine** `aktiviere`-Zeile; KWin leitete den Fokus auf den Dialog um, der Controller aktivierte nicht erneut, danach **null** Anordnungsläufe |
 | 20c | Fokusziel zwischen Tastendruck und Lauf **geschlossen** | entfällt: der Pfad ist unerreichbar, weil `readSnapshot` jedes Snapshot-Fenster mit Handle liefert und der Rückruf dazwischen nicht in die Ereignisschleife zurückkehrt | **nicht herstellbar**, die Zeile bleibt defensiv |
 | 21 | Konfiguration der Entwicklungsinstanz (`kwriteconfig6` → `reconfigure` → 1 s → `reload`) | eine `config …`-Zeile mit genau den gesetzten Werten, Abstände in den Geometrien sichtbar | ja (**bestanden**: `gaps=8/4 ratio=0.5 layout=1`, `2544x1394+2568+8`) |
 | 21a | Ratio ändern, dann auf einen unbenutzten Desktop wechseln | alte Surface behält ihren Wert, neue startet mit `masterRatio`/`defaultLayout` | ja (**bestanden**, 0,4 gegen 0,5/`full`) |
@@ -351,6 +394,15 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
 | 24c | `settings` ändern, `switch`, neu anmelden | neue Werte in `kwinrc` und in der `config …`-Zeile | **bestanden**: `gaps=8/4 ratio=0.5 layout=1 debug=true`, Soll `1904x1034+8+8`, Layout `full` |
 | 24d | Schlüssel in Nix **entfernen**, `switch`, neu anmelden | der dokumentierte Vorgabewert steht in `kwinrc`, nicht der alte Wert | **bestanden**: nur `gapOuter` entfernt; `gapOuter=0` in `kwinrc`, `gaps=0/4`, `gapInner=4` blieb erhalten |
 | 24e | `kwinXmonadLite` auf `false` (`plasmaManager` bleibt an), `switch`, neu anmelden | `kwin-xmonad-liteEnabled=false`, Skript nicht geladen, alle zwölf `xml-*`-Zeilen stehen auf `none`, `Lock Session` wieder auf `Screensaver`/`Meta+L`, `Edit Tiles` auf `Meta+T`; `Meta+L` sperrt per Tastendruck wieder, `Ctrl+Alt+L` nicht mehr | **bestanden**: Plugin aus, keine Journalzeilen, zwölf `xml-*` auf `none`; `Meta+L` sperrte, `Ctrl+Alt+L` nicht mehr |
+| 25 | Selbsttest der Geometrie-Probe | ndjson mit `st:"ok"`, jede `view` hat eine `area`, `active`-Satz vorhanden, Rückbau nachgewiesen; `getWindowInfo` und Probe stimmen für ein Fenster überein. **Abbruchtor der Reihe** | **bestanden 2026-09-06**: Probe strikt lesend, Gegenprobe deckungsgleich (`0,1050,1920,30`) |
+| 25a | Ein Fenster, `n=1`, `tall`, `ratio=0.65`, `gaps=0/0` | `surface`-Zeile meldet genau diese Werte und `fläche=1920x1050+0+0`; Panelabzug sichtbar | **bestanden**: `1920x1050+0+0`, `MaximizeArea` bestätigt |
+| 25b | Tall mit drei Fenstern, `ratio=0.65`, `gaps=0/0` | Master `1248x1050`, zwei Stapelzellen `672x525`; Multimenge Soll == Ist, überlappungsfrei, exakte Zerlegung | **bestanden**: kwrite nimmt exakt an |
+| 25c | Abstände, Ratio und Full: `gaps=8/4` deklarativ, dann zweimal `Meta+H` (→ `0.55`), dann `Meta+Space` (→ `full`) | Tall-Zellen aus `tall(area, 3, {0.55, 8, 4})` == Ist; in `full` bekommen **alle drei** dasselbe Rechteck | **bestanden**: Master `1045x1034+8+8`, Stapel `855x515+1057+8`/`+1057+527`; `full` dreimal `1904x1034+8+8` |
+| 26 | Multi-Output mit getrennten Zuständen | je Ausgabe eigenes `layout=`, `ratio=` und eigene `order=`; eine Aktion auf einer Ausgabe erzeugt **keine** Schreibzeile auf der anderen | **bestanden 2026-09-06** auf HAL9000 mit **zwei** Ausgaben: DP-3 `tall`/0.55, eDP-1 `full`/0.65; sechs Befehle auf DP-3 erzeugten null `apply` für eDP-1; beide Surfaces einzeln gegen unabhängige Vorgabe durchs Orakel |
+| 26a | Alle vier Desktops (Neuauflage von Fall 4 gegen den Abnahmestand) | vier Zustandssätze, nach dem Durchschalten unverändert; keine Desktopnamen im Journal, nur UUIDs | **bestanden**: `full` / `tall 0.6` / `tall 0.65` mit gedrehter Reihenfolge / `tall 0.55` |
+| 26b | Desktopwechsel (Neuauflage von Fall 5) | genau **ein** Lauf, obwohl `currentDesktopChanged` je Ausgabe feuert; keine Schreibzeile für Fenster, die auf ihrem Desktop bleiben | **bestanden**: ein `arrange` je Wechsel bei zwei Ausgaben, **null** Schreibzeilen |
+| 26c | Fenster auf allen Desktops (Neuauflage von Fall 7) | in jeder Surface mitgekachelt, keine Fokusübernahme durch eine inaktive Surface | **bestanden**: dieselbe Id in allen vier Surfaces, jeder Desktop behält seinen Ratio, **keine** `aktiviere`-Zeile |
+| 27 | Alltagsstunde | Auditor meldet keine Schleife, keine Rückkopplung, kein unerwartetes `aufgegeben`, Anteil „unklar" ≤ 5 %, Laufzeit ≥ 60 min in **einem** Skriptlauf | **bestanden**, mit Abweichung: 64,5 min, 75 Aktionen **skriptgesteuerter** Last statt normaler Arbeit; 37 Schreibvorgänge, 0 ohne Zuordnung, höchstens 2 auf dasselbe Soll; von 59 Anordnungsläufen schrieben nur 16 überhaupt etwas |
 
 ### Rückbau nach einer Abnahmereihe
 
@@ -370,12 +422,33 @@ Generationsnummer soll nicht mit jedem Durchlauf davonlaufen.
 
 Die Kommandos stehen in [`build.md`](build.md).
 
-Die Reihe vom 2026-09-06 endete auf Generation 584. Die Testgenerationen
-585–588 wurden gelöscht, die Booteinträge nachgezogen und `kwinrc` sowie
-`kglobalshortcutsrc` aus den Sicherungen wiederhergestellt. Danach enthielt
-`kwinrc` keinen Plugin-Eintrag und `kglobalshortcutsrc` keine `xml-*`-Zeile;
-`Lock Session` stand wieder auf `Screensaver`/`Meta+L`, `Edit Tiles` auf
-`Meta+T`.
+**Für eine Reihe mit der Entwicklungsinstanz** (kein `switch`, kein
+Generationswechsel) entfallen die Punkte 2 und 3, und die Wiederherstellung
+braucht keinen Neustart: `nix run .#unload`, dann die zwölf Registrierungen
+einzeln über `org.kde.KGlobalAccel.unregister` zurücknehmen, dann die
+gesicherten Dateien zurückspielen. Erst dieser Weg macht den Rückbau in
+laufender Sitzung dicht — spielt man `kglobalshortcutsrc` nur zurück, ohne die
+Registrierungen zu lösen, schreibt kglobalaccel seinen Speicherstand beim
+Sitzungsende wieder hinein.
+
+Drei Reihen sind bisher gelaufen:
+
+- **2026-09-06, Fälle 24–24e** (Produktion, Pin `8f287d9`): endete auf
+  Generation 584, Testgenerationen 585–588 gelöscht, Booteinträge nachgezogen,
+  beide Dateien wiederhergestellt. Danach kein Plugin-Eintrag, keine
+  `xml-*`-Zeile; `Lock Session` wieder auf `Screensaver`/`Meta+L`, `Edit Tiles`
+  auf `Meta+T`.
+- **2026-09-06, Fälle 25–25c, 20b, 16–17b** (Produktion, Pin `abdffa2`):
+  Startgeneration 584, Testgenerationen 585–587 gelöscht, `nixosconfig`-Patches
+  zurückgenommen, Neustart **ohne** Anmeldung, beide Dateien vor der ersten
+  Anmeldung zurückgespielt, `diff` gegen beide Sicherungen leer. Zusätzlich
+  zurückzunehmen war hier `/etc/sddm.conf.d/kde_settings.conf`, das für das
+  Autologin der Reihe imperativ geändert werden musste.
+- **2026-09-06, Fälle 26–26c und 27** (Entwicklung, Commit `0c903cb`): kein
+  `switch`. Instanz entladen (0 Controllerzeilen in 32 s), zwölf
+  `xml-*`-Registrierungen abgemeldet, `diff` gegen beide Sicherungen leer,
+  und die für den Multi-Output-Fall zugeschaltete Ausgabe eDP-1 wieder
+  abgeschaltet samt zurückgespielter kscreen-Konfiguration.
 
 ## 12. Entscheidungen (2026-09-05)
 
@@ -383,7 +456,10 @@ Die Reihe vom 2026-09-06 endete auf Generation 584. Die Testgenerationen
 |---|---|
 | Shortcut-Konflikte `Meta+L` / `Meta+T` | XMonad-Tasten behalten; Projektmodul verändert fremde Shortcuts standardmäßig nicht. `nixosconfig` setzt „Lock Session" auf `Screensaver` und `Ctrl+Alt+L` und leert KWin „Edit Tiles" explizit. |
 | Fenster auf allen Desktops / mehreren Activities | in jeder Surface mitkacheln (XMonad `copyToAll`-Verhalten) |
-| Test-VM im MVP | Wayland-Smoke-Test mit einem Output; Zwei-Output-VM als Stufe-2-Experiment |
+| Test-VM im MVP | ~~Wayland-Smoke-Test mit einem Output; Zwei-Output-VM als Stufe-2-Experiment~~ **revidiert 2026-09-06** (Zeile darunter) |
+| Test-VM im MVP (2026-09-06, Meilenstein 7) | **entfällt.** Die Live-Nachweise kommen aus einer echten Wayland-Sitzung auf HAL9000 mit Geometrie-Probe und Orakel; die Smoke-VM wandert zusammen mit dem Zwei-Output-Experiment auf Stufe 2. Begründung: die VM beantwortet die Fragen nicht, an denen der MVP hängt (Panelabzug, Clientannahme, Überleben eines KWin-Neustarts, Fokusumleitung am modalen Dialog), und der nixpkgs-Plasma-6-Test ist X11-gebunden. Was sie voraushat — automatisierte Wiederholbarkeit — bleibt als Regressionsnetz vorgesehen. |
+| Alltagsstunde ohne Alltag (2026-09-06, Meilenstein 7) | Fall 27 lief mit **skriptgesteuerter** Last statt normaler Arbeit, weil die Reihe auf HAL9000 stattfand und dort niemand arbeitet. Die Alternative wäre eine Leerlaufstunde gewesen, die weniger belegt: 75 Aktionen in 64,5 Minuten sind dichter getaktet als eine Arbeitsstunde, decken aber kein Mausziehen und keine fremde Fenstervielfalt ab. Die Einschränkung steht im MVP-Satz und im Protokoll, nicht nur hier. |
+| Prüfmittel gegen Zirkelschluss (2026-09-06, Meilenstein 7) | Die Erwartung eines Falls kommt **nie** aus dem geprüften System. Das Orakel bekommt Layout, Fensterzahl, Ratio und beide Abstände als Aufrufparameter aus der Fallvorschrift, prüft das Journal gegen diese Vorgabe **und** die Geometrie gegen die daraus gerechneten Zellen; die Probe ist strikt lesend, erzwungen durch `checks.probe-readonly`. Ohne diese Trennung bestätigte eine Messung nur, dass der Controller mit sich selbst übereinstimmt. Aus demselben Grund trennt der Auditor nutzerveranlasste von technischen Gründen: sonst wiese eine Rückkopplung formal immer einen „neuen Anlass" vor. |
 | `moveable`/`resizeable` im Filter (Meilenstein 3) | nur bei der Layout-Teilnahme prüfen, nicht bei der Mitgliedschaft (Begründung in Abschnitt 7) |
 | Testschnitt des Adapters (Meilenstein 3) | Snapshot-Grenze: der Adapter liest KWin einmal in schlichte Datensätze aus, Filter, Zuordnung, Anordnung und Geometriewächter sind reine Funktionen darauf und laufen unter `node --test` |
 | Wer nachbessert (Meilenstein 3.1) | ausschließlich der Recheck-Timer, höchstens einmal je Fenster und Durchlauf. Der Signal-Callback liest, beruhigt und plant — er schreibt nie, sonst entstünde ein Write innerhalb von `frameGeometryChanged`. |

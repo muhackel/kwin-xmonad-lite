@@ -295,6 +295,7 @@ export function createAdapter(): Adapter {
 					}
 				},
 				log,
+				debug: debugLog,
 			},
 			config.masterRatio,
 			config.layoutIndex,
@@ -356,6 +357,10 @@ export function createAdapter(): Adapter {
 		if (window === undefined) {
 			return false;
 		}
+		// Der einzige live zählbare Aktivierungsversuch. Die `befehl`-Zeile
+		// belegt nur, dass ein Befehl lief, nicht wie oft aktiviert wurde;
+		// Fall 20b braucht die Zahl der Versuche selbst.
+		debugLog(`aktiviere ${id}`);
 		workspace.activeWindow = window;
 		return true;
 	}

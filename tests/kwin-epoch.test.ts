@@ -249,3 +249,49 @@ test("ein Fenster ohne Handle löst nach dem Schreibfehler keinen Lesezugriff au
 	assert.deepEqual(surface(rig.run([], null)).placements, []);
 	assert.deepEqual(getWindow(rig.registry, "a").expectedRect, null);
 });
+
+test("die Diagnosezeile trägt Reihenfolge, Teilnehmer und Float-Markierung", () => {
+	const rig = epochRig();
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	const c = windowInfo("c");
+	mount(rig, ["a", "b", "c"]);
+	rig.run([a, b, c], "b");
+
+	setFloating(rig.registry, "c", true, null);
+	rig.run([a, b, c], "b");
+
+	assert.equal(
+		rig.debugLogs[rig.debugLogs.length - 1],
+		`diagnose ${singleView().key} order=c,b,a teilnehmer=b,a float=c`,
+	);
+});
+
+test("die Diagnosezeile läuft über den debug-Port, nicht über das Journal", () => {
+	const rig = epochRig();
+	const a = windowInfo("a");
+	mount(rig, ["a"]);
+	rig.run([a], "a");
+
+	assert.equal(
+		rig.logs.some((zeile) => zeile.startsWith("diagnose ")),
+		false,
+	);
+	assert.equal(
+		rig.debugLogs.some((zeile) => zeile.startsWith("diagnose ")),
+		true,
+	);
+});
+
+test("ohne Float-Markierung bleibt das Feld der Diagnosezeile leer", () => {
+	const rig = epochRig();
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	mount(rig, ["a", "b"]);
+	rig.run([a, b], "a");
+
+	assert.equal(
+		rig.debugLogs[rig.debugLogs.length - 1],
+		`diagnose ${singleView().key} order=b,a teilnehmer=b,a float=`,
+	);
+});

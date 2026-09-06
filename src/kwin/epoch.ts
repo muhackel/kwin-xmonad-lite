@@ -11,6 +11,12 @@ import type { Snapshot, WindowInfo } from "./types.ts";
 export interface EpochPorts {
 	raise(id: WindowId): void;
 	log(message: string): void;
+	/**
+	 * Zeile, die nur bei `debug=true` erscheint. Sie ist ein eigener Port und
+	 * nicht `log`, weil die Diagnose je Surface sonst das Journal jeder
+	 * Produktionsinstanz mit ganzen Fensterlisten füllte.
+	 */
+	debug(message: string): void;
 }
 
 export interface EpochResult {
@@ -50,6 +56,27 @@ function applyPlacement(
 	if (verdict === "write") {
 		geometry.apply(placement.id, placement.rect);
 	}
+}
+
+/**
+ * Reihenfolge, Layout-Teilnahme und Float-Markierung einer Surface.
+ *
+ * Diese drei Angaben stehen in der Registry, nicht am KWin-Fenster: eine
+ * lesende Probe kann sie nicht messen, und ohne sie sind der Zustandsverlust
+ * über einen Reload, getrennte Stapelreihenfolgen je Ausgabe und die
+ * Zuordnung Fenster zu Zelle nur plausibel, nicht belegt.
+ */
+function logDiagnosis(surface: SurfacePlan, registry: Registry, ports: EpochPorts): void {
+	const floating: WindowId[] = [];
+	for (const id of surface.members) {
+		if (registry.windows.get(id)?.floating === true) {
+			floating.push(id);
+		}
+	}
+	ports.debug(
+		`diagnose ${surface.key} order=${surface.members.join(",")} ` +
+			`teilnehmer=${surface.participants.join(",")} float=${floating.join(",")}`,
+	);
 }
 
 /** Vollzieht eine Float-Wiederherstellung, sobald der Sonderzustand beendet ist. */
@@ -137,6 +164,7 @@ export function runEpoch(
 				`n=${surface.participants.length} ratio=${surface.ratio} ` +
 				`fläche=${fmt(surface.area)}`,
 		);
+		logDiagnosis(surface, registry, ports);
 		restorePendingFloats(surface, infos, registry, geometry);
 		for (const placement of surface.placements) {
 			applyPlacement(placement, infos, registry, geometry);
