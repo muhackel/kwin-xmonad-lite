@@ -1,8 +1,10 @@
 # Home-Manager-Modul für kwin-xmonad-lite (kein NixOS-Modul).
 #
-# Es setzt ausschließlich Optionen von plasma-manager; die Datei `kwinrc` wird
-# also von plasma-manager geschrieben, nicht von diesem Modul. Vorausgesetzt ist
-# deshalb, dass `plasma-manager.homeModules.plasma-manager` in derselben
+# Konfiguration schreibt es ausschließlich über Optionen von plasma-manager:
+# `kwinrc` und `kglobalshortcutsrc` entstehen dort, nicht in diesem Modul.
+# Selbst gesetzt wird nur `home.packages` — das KPackage muss im Profil liegen,
+# damit KWin es überhaupt findet. Vorausgesetzt ist deshalb, dass
+# `plasma-manager.homeModules.plasma-manager` in derselben
 # Home-Manager-Konfiguration liegt (in `nixosconfig` über
 # `home-manager.sharedModules`).
 #
@@ -36,6 +38,33 @@ let
     "xwaylandvideobridge"
     "steam_app_default"
   ];
+
+  # Die zwölf `objectName`s samt Erstbelegung, wörtlich gespiegelt aus
+  # `SHORTCUTS` in `src/kwin/command.ts`. Diese Tabelle ist die einzige Quelle
+  # für die Namen: aus ihr entstehen die Optionen von `shortcuts` (ein
+  # Tippfehler ist damit ein Auswertungsfehler statt einer wirkungslosen Zeile
+  # in `kglobalshortcutsrc`), die deklarativ geschriebene Belegung und die
+  # Freigabeliste des Aus-Zweiges.
+  #
+  # Die beiden Tabellen laufen nur deshalb nicht auseinander, weil
+  # `checks.home-module` die `objectName`/`keys`-Paare aus dem TypeScript zieht
+  # und gegen das hier Geschriebene hält.
+  defaultShortcuts = {
+    "xml-focus-next" = "Meta+J";
+    "xml-focus-prev" = "Meta+K";
+    "xml-swap-next" = "Meta+Shift+J";
+    "xml-swap-prev" = "Meta+Shift+K";
+    "xml-focus-master" = "Meta+M";
+    "xml-promote" = "Meta+Return";
+    "xml-shrink" = "Meta+H";
+    "xml-expand" = "Meta+L";
+    "xml-sink" = "Meta+T";
+    "xml-toggle-float" = "Meta+Shift+T";
+    "xml-next-layout" = "Meta+Space";
+    "xml-reset-layout" = "Meta+Shift+Space";
+  };
+
+  shortcutNames = builtins.attrNames defaultShortcuts;
 
   installedPackages = [ cfg.package ];
 
@@ -89,6 +118,34 @@ let
     };
   };
 
+  # Ein Submodul mit genau zwölf festen Optionen, nicht `attrsOf`. `attrsOf`
+  # nähme jeden Namen an; ein Tippfehler wie `xml-focus-nex` erzeugte damit eine
+  # Zeile in `kglobalshortcutsrc`, die keine Aktion je abholt — und die dort
+  # dauerhaft stehen bliebe, weil plasma-manager mit `overrideConfig = false`
+  # nichts löscht. Als Submodul-Option ist derselbe Tippfehler ein
+  # Auswertungsfehler, der den Namen nennt.
+  #
+  # `null` heißt „nicht gesetzt" und lässt der Erstbelegung aus
+  # `defaultShortcuts` den Vortritt. Ein Vorgabewert je Option wäre bei
+  # `filterAttrs` von einer bewussten Angabe nicht mehr zu unterscheiden.
+  shortcutsType = lib.types.submodule {
+    options = lib.genAttrs shortcutNames (
+      name:
+      lib.mkOption {
+        type = lib.types.nullOr (lib.types.either lib.types.str (lib.types.listOf lib.types.str));
+        default = null;
+        description = ''
+          Taste für die Aktion `${name}`. `null` behält die Erstbelegung
+          `${defaultShortcuts.${name}}`; eine leere Liste gibt die Taste frei.
+        '';
+      }
+    );
+  };
+
+  # Was tatsächlich nach `kglobalshortcutsrc` geht: alle zwölf Aktionen, die
+  # nicht gesetzten mit ihrer Erstbelegung.
+  effectiveShortcuts = defaultShortcuts // lib.filterAttrs (_: value: value != null) cfg.shortcuts;
+
   # Die Gruppe [Script-kwin-xmonad-lite] in `kwinrc`, aus der das Skript per
   # `readConfig` liest.
   #
@@ -137,7 +194,7 @@ in
     };
 
     shortcuts = lib.mkOption {
-      type = lib.types.attrsOf (lib.types.either lib.types.str (lib.types.listOf lib.types.str));
+      type = shortcutsType;
       default = { };
       example = {
         "xml-focus-next" = "Meta+J";
@@ -145,8 +202,15 @@ in
       };
       description = ''
         Tastenkürzel für die `xml-*`-Aktionen, geschrieben nach
-        `programs.plasma.shortcuts.kwin`. Bleibt die Menge leer, gelten die vom
-        Skript selbst registrierten Erstbelegungen.
+        `programs.plasma.shortcuts.kwin`. Erlaubt sind nur die zwölf
+        `objectName`s des Controllers; jeder andere Name ist ein
+        Auswertungsfehler.
+
+        Geschrieben werden immer alle zwölf — die hier nicht gesetzten mit der
+        Erstbelegung aus dem Skript. Der Grund ist derselbe wie bei den sechs
+        `kwinrc`-Schlüsseln: `registerShortcut` erreicht eine Maschine, die das
+        Skript schon einmal geladen hat, nicht mehr, und plasma-manager löscht
+        mit `overrideConfig = false` nichts.
       '';
     };
 
@@ -162,10 +226,29 @@ in
         Host-Konfiguration und nicht in dieses Modul.
       '';
     };
+
+    cleanupWhenDisabled = lib.mkOption {
+      type = lib.types.bool;
+      default = true;
+      description = ''
+        Schreibt bei `enable = false` das Gegenstück zum Ein-Zweig: das Plugin
+        wird in `kwinrc` abgeschaltet und die zwölf `xml-*`-Aktionen bekommen
+        `none`. Ohne das bliebe beim Ausschalten alles Alte stehen —
+        plasma-manager löscht mit `overrideConfig = false` keinen Schlüssel,
+        und `objectName`s lassen sich nicht abmelden: die Zeilen in
+        `kglobalshortcutsrc` reservieren ihre Taste weiter.
+
+        Standardmäßig an, aber bewusst abschaltbar: das Modul liegt über
+        `home-manager.sharedModules` auf jedem Host. Auf einer
+        Entwicklungsmaschine lädt die Dev-Instanz dieselben `xml-*`-Namen,
+        obwohl das Produktionspaket dort aus ist — der Aus-Zweig nähme ihr
+        genau die Tasten, mit denen sie erprobt werden soll.
+      '';
+    };
   };
 
-  config = lib.mkIf cfg.enable (lib.mkMerge [
-    {
+  config = lib.mkMerge [
+    (lib.mkIf cfg.enable {
       home.packages = installedPackages;
 
       # plasma-manager schreibt die Konfiguration nur, wenn es selbst aktiv ist.
@@ -177,15 +260,32 @@ in
         "Script-kwin-xmonad-lite" = scriptGroup;
       };
 
-      programs.plasma.shortcuts.kwin = cfg.shortcuts;
-    }
+      programs.plasma.shortcuts.kwin = effectiveShortcuts;
+    })
 
-    (lib.mkIf cfg.relocateKdeShortcuts {
+    # Der Aus-Zweig kommt ohne `mkIf config.programs.plasma.enable` aus: läuft
+    # plasma-manager nicht, wertet niemand diese Optionen aus. Die Bedingung
+    # läse den Wert einer Option, die dieses Modul im Ein-Zweig selbst setzt —
+    # das ist unnötig heikel.
+    (lib.mkIf (!cfg.enable && cfg.cleanupWhenDisabled) {
+      programs.plasma.configFile."kwinrc".Plugins."kwin-xmonad-liteEnabled" = false;
+
+      # plasma-manager macht aus der leeren Liste `none` und gibt die Taste
+      # damit frei (`mkGlobalShortcutFor` in modules/shortcuts.nix).
+      programs.plasma.shortcuts.kwin = lib.genAttrs shortcutNames (_: [ ]);
+    })
+
+    # Die Umlegung hängt an `enable`, nicht nur an ihrem eigenen Schalter: sie
+    # ergibt ohne laufenden Controller keinen Sinn, und ein Host, der im
+    # Aus-Zustand die KDE-Vorgaben zurückschreibt, definierte sonst dieselben
+    # beiden Optionen ein zweites Mal -- das ist kein "letzter gewinnt",
+    # sondern ein Merge-Konflikt.
+    (lib.mkIf (cfg.enable && cfg.relocateKdeShortcuts) {
       programs.plasma.shortcuts.ksmserver."Lock Session" = [
         "Screensaver"
         "Ctrl+Alt+L"
       ];
       programs.plasma.shortcuts.kwin."Edit Tiles" = [ ];
     })
-  ]);
+  ];
 }

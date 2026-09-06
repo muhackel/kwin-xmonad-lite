@@ -4,7 +4,7 @@ import { test } from "node:test";
 import type { Rect } from "../src/core/rect.ts";
 import { MAX_CORRECTIONS } from "../src/kwin/geometry.ts";
 import type { SurfacePlan } from "../src/kwin/plan.ts";
-import { getSurface, getWindow } from "../src/state/registry.ts";
+import { getSurface, getWindow, setFloating } from "../src/state/registry.ts";
 import { epochRig } from "./support/epochrig.ts";
 import { singleView, windowInfo } from "./support/kwinfake.ts";
 
@@ -200,6 +200,38 @@ test("eine spätere Epoche wiederholt ein bereits aufgegebenes Ziel nicht", () =
 		writes + 1,
 		"eine echte Verschiebung öffnet einen neuen Versuch",
 	);
+});
+
+test("die Hebeliste wird an den Port übergeben", () => {
+	const rig = epochRig();
+	rig.config.layoutIndex = 1;
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	const c = windowInfo("c");
+	mount(rig, ["a", "b", "c"]);
+	setFloating(rig.registry, "c", true, null);
+
+	const plan = surface(rig.run([a, b, c], "c"));
+	assert.equal(plan.layoutId, "full");
+	// Das fokussierte Fenster floatet, ist also kein Teilnehmer: gehoben wird
+	// zuerst der Master der Teilnehmer, danach das fokussierte Float-Fenster.
+	assert.deepEqual(plan.participants, ["b", "a"]);
+	assert.deepEqual(plan.raise, ["b", "c"]);
+	assert.deepEqual(rig.raises, ["b", "c"], "die berechnete Liste wird auch vollzogen");
+});
+
+test("tall hebt nichts", () => {
+	const rig = epochRig();
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	const c = windowInfo("c");
+	mount(rig, ["a", "b", "c"]);
+	setFloating(rig.registry, "c", true, null);
+
+	const plan = surface(rig.run([a, b, c], "c"));
+	assert.equal(plan.layoutId, "tall");
+	assert.deepEqual(plan.raise, []);
+	assert.deepEqual(rig.raises, []);
 });
 
 test("ein Fenster ohne Handle löst nach dem Schreibfehler keinen Lesezugriff aus", () => {

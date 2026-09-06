@@ -98,18 +98,34 @@ nicht wieder einschalten ließ, wird dort erneut versucht.
 
 ```bash
 nix flake check      # Paketbau (inkl. Typprüfung und Unit-Tests), Lint,
-                     # Skripte, Home-Manager-Modul
+                     # Skripte, Snapshot-Grenze, Home-Manager-Modul
+                     # ein- und ausgeschaltet
 ```
+
+`checks.snapshot-boundary` erzwingt die weiter unten beschriebene Grenze als
+Derivation. Das Grep-Paar ist dasselbe; der Check wirft zusätzlich die vier
+erlaubten Dateien weg und scheitert mit der Trefferzeile, wenn etwas übrig
+bleibt. Vorher war die Grenze nur Prosa — `tsc` beanstandet einen
+`workspace`-Zugriff in `core/` oder `state/` nicht, ein neuer Globalzugriff
+wäre also grün durchgelaufen.
 
 `checks.home-module` wertet das Home-Manager-Modul mit **aktiviertem** Zweig
 aus: es baut ein `activationPackage` mit `programs.kwin-xmonad-lite.enable`,
 sucht darin das von plasma-manager erzeugte `data.json` und prüft mit `jq` das
 Plugin-Flag, alle sechs Schlüssel der Gruppe `[Script-kwin-xmonad-lite]` und
-einen gesetzten `xml-*`-Shortcut. `kwinrc` selbst entsteht erst zur
-Aktivierungszeit auf der Maschine und ist in einer Derivation nicht zu prüfen.
-`excludes` bleibt in der Prüfkonfiguration bewusst ungesetzt — damit belegt der
-Check, dass auch ein nicht gesetzter Schlüssel mit seinem Vorgabewert
-geschrieben wird. Ein bloßer Import prüfte nur die Optionsdeklarationen.
+alle zwölf `xml-*`-Tasten. Die Paare zieht ein `awk` aus `SHORTCUTS` in
+`src/kwin/command.ts` — damit ist zugleich geprüft, dass die Nix-Tabelle
+`defaultShortcuts` und die TypeScript-Tabelle nicht auseinanderlaufen.
+`kwinrc` selbst entsteht erst zur Aktivierungszeit auf der Maschine und ist in
+einer Derivation nicht zu prüfen. `excludes` bleibt in der Prüfkonfiguration
+bewusst ungesetzt — damit belegt der Check, dass auch ein nicht gesetzter
+Schlüssel mit seinem Vorgabewert geschrieben wird. Ein bloßer Import prüfte nur
+die Optionsdeklarationen.
+
+`checks.home-module-disabled` ist das Gegenstück: dieselbe Auswertung mit
+`enable = false`, aber ausdrücklich gesetztem `programs.plasma.enable`. Erwartet
+werden `kwin-xmonad-liteEnabled = false` und zwölf Tasten auf `none`. Ohne
+diesen Check fiele nicht auf, dass das Abschalten nichts zurücknimmt.
 
 Einzeln in der Entwicklungsumgebung:
 
@@ -162,6 +178,9 @@ grep -rn 'workspace\.\|KWin\.\|new QTimer\|options\.\|registerUserActionsMenu\|r
   | grep -vE '(globals\.d\.ts|:[0-9]+:[[:space:]]*(\*|//|/\*))'
 # darf nur Zeilen aus boot.ts, dev.ts, read.ts und adapter.ts zeigen
 ```
+
+Dasselbe Musterpaar steckt in `checks.snapshot-boundary` und läuft mit
+`nix flake check` mit; die beiden Stellen sind deckungsgleich zu halten.
 
 Der `grep` läuft rekursiv über ganz `src`, nicht nur über `src/*.ts` und
 `src/kwin/*.ts`: `tsc` beanstandet einen `workspace`-Zugriff in `core` oder
@@ -612,7 +631,7 @@ Auf HAL9000 nach `nixos-rebuild switch --sudo` und Neuanmeldung.
 | 24b | Konfliktausgang nach der Umlegung | in `kglobalshortcutsrc` prüfen, dass `Lock Session` auf `Screensaver` und `Ctrl+Alt+L` steht und `Edit Tiles` leer ist; im Journal muss die `befehl expand`- bzw. `befehl sink`-Zeile erscheinen |
 | 24c | `settings` ändern, `switch`, neu anmelden | die neuen Werte stehen in `kwinrc` und in der `config …`-Zeile |
 | 24d | Schlüssel in Nix **entfernen**, `switch`, neu anmelden | der dokumentierte Vorgabewert steht in `kwinrc`, nicht der alte Wert — der Beleg für „immer alle sechs Schlüssel schreiben" |
-| 24e | `kwinXmonadLite = false`, `switch`, neu anmelden | `kwin-xmonad-liteEnabled=false`, Skript nicht geladen, `Meta+L` sperrt wieder. Die zwölf `xml-*`-Zeilen **bleiben** in `kglobalshortcutsrc` stehen — es gibt kein `unregisterShortcut`; das ist erwartet |
+| 24e | `kwinXmonadLite = false` (`plasmaManager` bleibt an), `switch`, neu anmelden | `kwin-xmonad-liteEnabled=false`, Skript nicht geladen, alle zwölf `xml-*`-Zeilen stehen auf `none`, `Lock Session` wieder auf `Screensaver\tMeta+L`, `Edit Tiles` auf `Meta+T`. **`Meta+L` sperrt per Tastendruck wieder**, `Ctrl+Alt+L` nicht mehr. Die zwölf Zeilen selbst bleiben stehen — es gibt kein `unregisterShortcut`; `none` gibt nur die Taste frei |
 
 ```bash
 busctl --user call org.kde.KWin /Scripting \
@@ -620,6 +639,38 @@ busctl --user call org.kde.KWin /Scripting \
 kreadconfig6 --file kwinrc --group Script-kwin-xmonad-lite --key gapOuter
 grep -E '^(Lock Session|Edit Tiles)=' ~/.config/kglobalshortcutsrc
 ```
+
+#### Rückbau nach der Reihe
+
+Die Reihe endet **nicht** im Testzustand. Die nächste Abnahme soll wieder auf
+einem nackten Gerät beginnen, und die Generationsnummer soll nicht mit jedem
+Durchlauf davonlaufen.
+
+**Vor** dem ersten `switch`:
+
+```bash
+sudo nix-env --list-generations --profile /nix/var/nix/profiles/system | tail -3
+cp ~/.config/kwinrc              ~/kxl-abnahme-kwinrc.bak
+cp ~/.config/kglobalshortcutsrc  ~/kxl-abnahme-kglobalshortcutsrc.bak
+```
+
+Nach dem letzten Fall — `<N>` ist die notierte Ausgangsgeneration, `<M> …` sind
+die während der Reihe entstandenen:
+
+```bash
+sudo nixos-rebuild switch --rollback          # oder gezielt:
+sudo /nix/var/nix/profiles/system-<N>-link/bin/switch-to-configuration switch
+sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations <M> <M+1>
+sudo /run/current-system/bin/switch-to-configuration boot
+
+cp ~/kxl-abnahme-kwinrc.bak              ~/.config/kwinrc
+cp ~/kxl-abnahme-kglobalshortcutsrc.bak  ~/.config/kglobalshortcutsrc
+```
+
+Danach ab- und anmelden. Das Zurückspielen der beiden Dateien ist **kein**
+Beiwerk: plasma-manager schreibt sie imperativ aus einem Aktivierungsskript,
+und seine Schreibvorgänge überleben den Generationswechsel. Ein Rollback allein
+lässt `kwinrc` und `kglobalshortcutsrc` im Testzustand zurück.
 
 Zur **Feature-Probe:** `nix run .#probe -- --shortcuts` registriert drei
 Aktionen und protokolliert nur die Rückgabewerte. Sie betätigt keine Taste und

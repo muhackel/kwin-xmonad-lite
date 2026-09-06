@@ -53,6 +53,10 @@ installiertes Paket überschatten würde.
 
 Die Tasten sind nur die **Erstinstallations-Vorgabe**: `registerShortcut` läuft
 ohne `NoAutoloading`, ein vorhandener Eintrag in `kglobalshortcutsrc` gewinnt.
+Genau deshalb schreibt das Home-Manager-Modul alle zwölf Belegungen bei jeder
+Generation selbst — auf einer deklarativ verwalteten Maschine ist die
+Nix-Konfiguration maßgeblich, und eine in den Systemeinstellungen umgelegte
+`xml-*`-Taste ist beim nächsten `switch` wieder weg.
 
 Zwei Tasten kollidieren mit KDE-Vorgaben — `Meta+L` sperrt die Sitzung,
 `Meta+T` öffnet die Kachelbearbeitung. Gemessen gewinnt in beiden Fällen der
@@ -62,8 +66,9 @@ fremden Tastenkürzel. Einzelheiten in [`docs/keys.md`](docs/keys.md).
 
 ## Installation
 
-Deklarativ über das mitgelieferte Home-Manager-Modul. Es setzt ausschließlich
-plasma-manager-Optionen und schreibt keine Datei selbst.
+Deklarativ über das mitgelieferte Home-Manager-Modul. Konfiguration schreibt
+es ausschließlich über plasma-manager-Optionen, keine Datei selbst; direkt
+gesetzt wird nur `home.packages`, damit das KPackage im Profil liegt.
 
 > **Noch nicht in Betrieb genommen.** `checks.home-module` baut das
 > Aktivierungspaket und prüft den erzeugten plasma-manager-Datensatz, aber der
@@ -96,10 +101,23 @@ programs.kwin-xmonad-lite.enable = true;
 
 Der Output heißt `homeModules.default`; `homeManagerModules.default` ist
 derselbe Wert unter dem älteren Namen. Das Modul installiert das Paket, setzt
-`Plugins.kwin-xmonad-liteEnabled` in `kwinrc` und schreibt die Gruppe
-`[Script-kwin-xmonad-lite]`. In `nixosconfig` hängt die Aktivierung am
-Feature-Flag `local.features.kwinXmonadLite`; dort steht auch die Umlegung der
-beiden kollidierenden KDE-Kürzel.
+`Plugins.kwin-xmonad-liteEnabled` in `kwinrc`, schreibt die Gruppe
+`[Script-kwin-xmonad-lite]` und alle zwölf Tastenbelegungen.
+
+`enable = false` nimmt das wieder zurück: das Plugin wird abgeschaltet und die
+zwölf Tasten bekommen `none`, was die Taste freigibt — die Zeilen selbst
+bleiben stehen, ein `unregisterShortcut` gibt es nicht. Der Aus-Zweig ist über
+`cleanupWhenDisabled` abschaltbar, für Maschinen, auf denen die
+Entwicklungsinstanz dieselben objectNames lädt. **Er wirkt nur, wenn
+plasma-manager unabhängig vom Controller läuft** — sonst schreibt nach dem
+Abschalten niemand mehr, und mit `overrideConfig = false` bliebe der alte Stand
+stehen.
+
+In `nixosconfig` hängt plasma-manager deshalb am eigenen Feature-Flag
+`local.features.plasmaManager` und der Controller an
+`local.features.kwinXmonadLite`; dort steht auch die Umlegung der beiden
+kollidierenden KDE-Kürzel und ihre Rückstellung, sobald der Controller aus
+ist.
 
 Für die Entwicklung genügt `nix run` — das lädt die Entwicklungsinstanz unter
 einem eigenen Namen und bricht ab, wenn die deklarative Produktionsinstanz

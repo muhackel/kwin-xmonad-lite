@@ -41,12 +41,20 @@ die das Skript schon einmal geladen hat; dort ist die Taste über
 `programs.plasma.shortcuts.kwin.<objectName>` oder die Systemeinstellungen zu
 ändern.
 
+**Auf einer deklarativ verwalteten Maschine gilt trotzdem die Nix-Tabelle.**
+Genau weil die Erstbelegung dort nicht mehr ankommt, schreibt das
+Home-Manager-Modul alle zwölf Tasten in jeder Generation — die nicht in
+`shortcuts` gesetzten mit der Vorgabe aus dem Skript. Der Preis: eine in den
+Systemeinstellungen umgelegte `xml-*`-Taste ist beim nächsten `switch` wieder
+weg. Wer sie behalten will, schreibt sie ins Modul.
+
 Die **objectNames sind ab dem ersten Release unwiderruflich.** Es gibt kein
 `unregisterShortcut`; jede Umbenennung hinterlässt eine tote Zeile in
 `kglobalshortcutsrc`, die die Taste weiter reserviert. In der Datei auf
 SPIELKISTE stehen aus demselben Grund bereits 35 `Krohnkite*`- und 20
 `Polonium*`-Leichen. Das gilt auch für das Deaktivieren: nach dem Abschalten
-des Skripts bleiben die zwölf `xml-*`-Zeilen stehen.
+des Skripts bleiben die zwölf `xml-*`-Zeilen stehen. Das Modul setzt sie im
+Aus-Zweig deshalb auf `none` — die Zeile bleibt, aber die Taste ist frei.
 
 ### Konfliktlage `Meta+L` und `Meta+T`
 
@@ -177,10 +185,29 @@ programs.kwin-xmonad-lite = {
 ```
 
 Das Modul schreibt **immer alle sechs Schlüssel** nach
-`[Script-kwin-xmonad-lite]`, auch die unveränderten. plasma-manager läuft mit
+`[Script-kwin-xmonad-lite]`, auch die unveränderten, und ebenso **alle zwölf
+Tasten** nach `kglobalshortcutsrc`. plasma-manager läuft mit
 `overrideConfig = false` und löscht nicht mehr deklarierte Schlüssel nicht;
 ohne das vollständige Schreiben bliebe nach dem Entfernen von
 `settings.gapOuter = 8` weiterhin `8` in `kwinrc` stehen.
+
+`shortcuts` nimmt nur die zwölf bekannten `objectName`s an. Ein Tippfehler wie
+`xml-focus-nex` ist ein Auswertungsfehler und keine wirkungslose Zeile, die
+dauerhaft in `kglobalshortcutsrc` stehen bliebe.
+
+### Abschalten
+
+`enable = false` nimmt zurück, was der Ein-Zweig geschrieben hat:
+`kwin-xmonad-liteEnabled` wird `false`, und die zwölf Tasten bekommen `none`.
+Steuern lässt sich das über `cleanupWhenDisabled` (Vorgabe `true`) — auf einer
+Maschine, deren Entwicklungsinstanz dieselben objectNames lädt, nähme der
+Aus-Zweig ihr sonst genau die Tasten, mit denen sie erprobt werden soll.
+
+**Der Aus-Zweig wirkt nur, wenn plasma-manager unabhängig vom Controller
+läuft.** Sein gesamter Schreibvorgang hängt an `mkIf programs.plasma.enable`;
+setzt nur der Ein-Zweig diese Option, verschwindet mit dem Abschalten der
+Schreiber selbst, und der alte Stand bleibt für immer stehen. In `nixosconfig`
+hängt plasma-manager deshalb am eigenen Flag `local.features.plasmaManager`.
 
 Die Konfliktauflösung der beiden KDE-Kürzel gehört **nicht** hierher, sondern
 in die Host-Konfiguration (siehe Abschnitt 1).

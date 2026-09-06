@@ -207,6 +207,30 @@ test("der Fokus läuft zyklisch durch die Reihenfolge", () => {
 	assert.deepEqual(seen, [second, third, first]);
 });
 
+test("focusPrev läuft rückwärts durch die Reihenfolge", () => {
+	const rig = epochRig();
+	const windows = threeWindows(rig, "a");
+	const order = orderOf(rig, KEY_1);
+	const first = must(order[0], "leere Reihenfolge");
+	const second = must(order[1], "zu kurze Reihenfolge");
+	const third = must(order[2], "zu kurze Reihenfolge");
+
+	let active = first;
+	const seen: string[] = [];
+	for (let i = 0; i < 3; i++) {
+		const result = cmd(rig, "focusPrev", windows, active);
+		const next = need(result.focus, "kein Fokusziel");
+		seen.push(next);
+		active = next;
+	}
+	assert.deepEqual(seen, [third, second, first]);
+	assert.notEqual(
+		seen.join(","),
+		[second, third, first].join(","),
+		"focusPrev läuft nicht vorwärts",
+	);
+});
+
 test("der Fokusbefehl führt den Fokus dem aktiven Fenster nach", () => {
 	const rig = epochRig();
 	const windows = threeWindows(rig, "a");
@@ -260,6 +284,68 @@ test("swapNext ohne Fokus lässt die Reihenfolge stehen", () => {
 	const result = cmd(rig, "swapNext", windows, null);
 	assert.equal(result.arrange, false);
 	assert.deepEqual(orderOf(rig, KEY_1), before);
+});
+
+test("swapNext schiebt das fokussierte Fenster eine Position nach hinten", () => {
+	const rig = epochRig();
+	const windows = threeWindows(rig, "a");
+	const order = orderOf(rig, KEY_1);
+	const first = must(order[0], "leere Reihenfolge");
+	const second = must(order[1], "zu kurze Reihenfolge");
+	const third = must(order[2], "zu kurze Reihenfolge");
+
+	const result = cmd(rig, "swapNext", windows, first);
+	assert.equal(result.arrange, true);
+	assert.deepEqual(orderOf(rig, KEY_1), [second, first, third]);
+	// Der Fokus hängt am Fenster, nicht an der Position: er wandert mit auf
+	// Position 1 und bleibt nicht am neuen Master.
+	assert.equal(must(rig.registry.surfaces.get(KEY_1), "Surface fehlt").focus, first);
+});
+
+test("swapPrev schiebt das fokussierte Fenster eine Position nach vorn", () => {
+	const rig = epochRig();
+	const windows = threeWindows(rig, "a");
+	const order = orderOf(rig, KEY_1);
+	const first = must(order[0], "leere Reihenfolge");
+	const second = must(order[1], "zu kurze Reihenfolge");
+	const third = must(order[2], "zu kurze Reihenfolge");
+
+	const result = cmd(rig, "swapPrev", windows, first);
+	assert.equal(result.arrange, true);
+	assert.deepEqual(orderOf(rig, KEY_1), [third, second, first]);
+	assert.notEqual(
+		orderOf(rig, KEY_1).join(","),
+		[second, first, third].join(","),
+		"swapPrev tauscht nicht in dieselbe Richtung wie swapNext",
+	);
+	assert.equal(must(rig.registry.surfaces.get(KEY_1), "Surface fehlt").focus, first);
+});
+
+test("die vier Stapelbefehle wirken paarweise verschieden", () => {
+	const names: CommandName[] = ["focusNext", "focusPrev", "swapNext", "swapPrev"];
+	const effects: string[] = [];
+	for (const name of names) {
+		// Jeder Befehl bekommt eine frische Registry, damit alle vier vom
+		// selben Startzustand aus laufen.
+		const rig = epochRig();
+		const windows = threeWindows(rig, "a");
+		const first = must(orderOf(rig, KEY_1)[0], "leere Reihenfolge");
+		cmd(rig, name, windows, first);
+		const state = must(rig.registry.surfaces.get(KEY_1), "Surface fehlt");
+		effects.push(`${state.order.join(",")}|${state.focus ?? "-"}`);
+	}
+
+	for (let i = 0; i < effects.length; i++) {
+		for (let j = i + 1; j < effects.length; j++) {
+			const one = must(names[i], "Befehl fehlt");
+			const other = must(names[j], "Befehl fehlt");
+			assert.notEqual(
+				must(effects[i], "Wirkung fehlt"),
+				must(effects[j], "Wirkung fehlt"),
+				`${one} und ${other} wirken gleich`,
+			);
+		}
+	}
 });
 
 test("promote holt das Fenster von Position 2 an den Master", () => {
