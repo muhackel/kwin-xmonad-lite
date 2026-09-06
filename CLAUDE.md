@@ -7,8 +7,8 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
 Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 6 ist
-abgeschlossen; Matrix 18–23 sind live geprüft (299 Tests, `nix flake check`
-grün über die vier Checks).** Die Meilensteine 0 bis 5 samt 5.1 und den Audits
+abgeschlossen und nachauditiert; Matrix 18–23 sind live geprüft (306 Tests,
+`nix flake check` grün über die sechs Checks).** Die Meilensteine 0 bis 5 samt 5.1 und den Audits
 sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
 Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
 Snapshot-Grenze, und seit Meilenstein 6 ist er bedienbar: zwölf `xml-*`-Aktionen,
@@ -74,7 +74,9 @@ Activities und verwaltet nicht die Zahl der Desktops.
   `signals.js` misst, welche Signale im Betrieb ankommen und was sie tragen
   (siehe unten).
 - `nix/` → `package.nix`, `devshell.nix` und `home-module.nix`. Das
-  Home-Manager-Modul setzt ausschließlich plasma-manager-Optionen; es hängt als
+  Home-Manager-Modul schreibt Konfiguration ausschließlich über
+  plasma-manager-Optionen; selbst gesetzt wird nur `home.packages`, denn ohne
+  das KPackage im Profil findet KWin nichts. Es hängt als
   `homeModules.default` am Flake (`homeManagerModules.default` ist derselbe
   Wert unter dem älteren Namen). `scripts/` → Lade-, Reload- und
   Journalwerkzeuge.
@@ -183,10 +185,13 @@ Activities und verwaltet nicht die Zahl der Desktops.
   `kwin/read.ts` und `kwin/adapter.ts` eine KWin-Global (`workspace`, `KWin`,
   `QTimer`) anfassen; davor tun es die beiden Einstiege `boot.ts` und `dev.ts`.
   Alles andere in `kwin/` rechnet auf `WindowInfo` und läuft unter
-  `node --test`. Die Regel ist prüfbar (das Kommando steht in `build.md` und
-  läuft rekursiv über ganz `src`, weil `globals.d.ts` auch für `core/` und
-  `state/` gilt; Kommentarzeilen müssen herausgefiltert werden, sonst melden
-  `types.ts` und `timer.ts` falsch positiv). Wer Logik in den Adapter zieht,
+  `node --test`. Die Regel ist **erzwungen**, nicht nur dokumentiert: seit dem
+  Audit nach Meilenstein 6 läuft sie als `checks.snapshot-boundary` in
+  `nix flake check` (dasselbe Grep-Paar wie in `build.md`, rekursiv über ganz
+  `src`, weil `globals.d.ts` auch für `core/` und `state/` gilt;
+  Kommentarzeilen müssen herausgefiltert werden, sonst melden `types.ts` und
+  `timer.ts` falsch positiv). Vorher wäre ein neuer Globalzugriff in `core/`
+  oder `state/` grün durchgelaufen — `tsc` beanstandet ihn nicht. Wer Logik in den Adapter zieht,
   verliert sie aus den Tests.
 - **Kommentare gehören auf eigene Zeilen, nie hinter Code.** Der Grenz-Grep
   wirft nur Zeilen weg, die **vollständig** als Kommentar beginnen. Ein
@@ -423,6 +428,27 @@ Activities und verwaltet nicht die Zahl der Desktops.
   — das ist erwartet, kein Rückstand. Die im Code stehenden Tasten sind nur die
   **Erstinstallations-Vorgabe**; eine spätere Änderung erreicht keine Maschine,
   die das Skript schon geladen hat.
+- **Auf einer deklarativ verwalteten Maschine ist die Nix-Tabelle maßgeblich,
+  nicht der Quelltext.** Das Home-Manager-Modul schreibt alle zwölf Tasten in
+  jeder Generation — genau weil `registerShortcut` eine Maschine mit bereits
+  geladenem Skript nicht mehr erreicht. Folge: eine in den Systemeinstellungen
+  umgelegte `xml-*`-Taste ist beim nächsten `switch` wieder weg; wer sie
+  behalten will, schreibt sie in `programs.kwin-xmonad-lite.shortcuts`. Die
+  Tabelle steht doppelt (`SHORTCUTS` in `command.ts`, `defaultShortcuts` in
+  `nix/home-module.nix`) und läuft nur deshalb nicht auseinander, weil
+  `checks.home-module` die Paare aus dem TypeScript zieht und gegen die
+  erzeugte `data.json` hält.
+- **`enable = false` muss selbst schreiben, sonst nimmt es nichts zurück.**
+  plasma-manager läuft mit `overrideConfig = false` und löscht keinen
+  Schlüssel; zudem hängt sein gesamter Schreibvorgang an
+  `mkIf programs.plasma.enable`. Setzt das Modul diese Option nur im
+  Ein-Zweig, verschwindet mit dem Abschalten der Schreiber selbst, und der
+  alte Stand bleibt für immer stehen. Deshalb gibt es einen Aus-Zweig
+  (`cleanupWhenDisabled`, Vorgabe an), der `kwin-xmonad-liteEnabled = false`
+  setzt und die zwölf Tasten mit einer leeren Liste auf `none` schreibt — das
+  gibt die Taste frei, die die tote Zeile sonst weiter reservierte. Wirksam
+  wird er nur, wenn plasma-manager unabhängig vom Controller läuft; in
+  `nixosconfig` ist das das eigene Flag `local.features.plasmaManager`.
 - `registerUserActionsMenu` ruft den Callback bei jedem Öffnen mit dem
   betroffenen Fenster auf. `triggered` bekommt die QAction, deshalb kommt das
   Fenster aus der äußeren Closure (`scripting.cpp:461-530`). Das Projekt nutzt

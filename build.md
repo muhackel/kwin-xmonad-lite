@@ -98,18 +98,34 @@ nicht wieder einschalten ließ, wird dort erneut versucht.
 
 ```bash
 nix flake check      # Paketbau (inkl. Typprüfung und Unit-Tests), Lint,
-                     # Skripte, Home-Manager-Modul
+                     # Skripte, Snapshot-Grenze, Home-Manager-Modul
+                     # ein- und ausgeschaltet
 ```
+
+`checks.snapshot-boundary` erzwingt die weiter unten beschriebene Grenze als
+Derivation. Das Grep-Paar ist dasselbe; der Check wirft zusätzlich die vier
+erlaubten Dateien weg und scheitert mit der Trefferzeile, wenn etwas übrig
+bleibt. Vorher war die Grenze nur Prosa — `tsc` beanstandet einen
+`workspace`-Zugriff in `core/` oder `state/` nicht, ein neuer Globalzugriff
+wäre also grün durchgelaufen.
 
 `checks.home-module` wertet das Home-Manager-Modul mit **aktiviertem** Zweig
 aus: es baut ein `activationPackage` mit `programs.kwin-xmonad-lite.enable`,
 sucht darin das von plasma-manager erzeugte `data.json` und prüft mit `jq` das
 Plugin-Flag, alle sechs Schlüssel der Gruppe `[Script-kwin-xmonad-lite]` und
-einen gesetzten `xml-*`-Shortcut. `kwinrc` selbst entsteht erst zur
-Aktivierungszeit auf der Maschine und ist in einer Derivation nicht zu prüfen.
-`excludes` bleibt in der Prüfkonfiguration bewusst ungesetzt — damit belegt der
-Check, dass auch ein nicht gesetzter Schlüssel mit seinem Vorgabewert
-geschrieben wird. Ein bloßer Import prüfte nur die Optionsdeklarationen.
+alle zwölf `xml-*`-Tasten. Die Paare zieht ein `awk` aus `SHORTCUTS` in
+`src/kwin/command.ts` — damit ist zugleich geprüft, dass die Nix-Tabelle
+`defaultShortcuts` und die TypeScript-Tabelle nicht auseinanderlaufen.
+`kwinrc` selbst entsteht erst zur Aktivierungszeit auf der Maschine und ist in
+einer Derivation nicht zu prüfen. `excludes` bleibt in der Prüfkonfiguration
+bewusst ungesetzt — damit belegt der Check, dass auch ein nicht gesetzter
+Schlüssel mit seinem Vorgabewert geschrieben wird. Ein bloßer Import prüfte nur
+die Optionsdeklarationen.
+
+`checks.home-module-disabled` ist das Gegenstück: dieselbe Auswertung mit
+`enable = false`, aber ausdrücklich gesetztem `programs.plasma.enable`. Erwartet
+werden `kwin-xmonad-liteEnabled = false` und zwölf Tasten auf `none`. Ohne
+diesen Check fiele nicht auf, dass das Abschalten nichts zurücknimmt.
 
 Einzeln in der Entwicklungsumgebung:
 
@@ -162,6 +178,9 @@ grep -rn 'workspace\.\|KWin\.\|new QTimer\|options\.\|registerUserActionsMenu\|r
   | grep -vE '(globals\.d\.ts|:[0-9]+:[[:space:]]*(\*|//|/\*))'
 # darf nur Zeilen aus boot.ts, dev.ts, read.ts und adapter.ts zeigen
 ```
+
+Dasselbe Musterpaar steckt in `checks.snapshot-boundary` und läuft mit
+`nix flake check` mit; die beiden Stellen sind deckungsgleich zu halten.
 
 Der `grep` läuft rekursiv über ganz `src`, nicht nur über `src/*.ts` und
 `src/kwin/*.ts`: `tsc` beanstandet einen `workspace`-Zugriff in `core` oder
