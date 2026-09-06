@@ -347,7 +347,25 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
 | 24b | Konfliktausgang nach der Umlegung belegen | `Lock Session` auf `Screensaver`/`Ctrl+Alt+L`, `Edit Tiles` leer; `befehl expand`/`befehl sink` im Journal | **offen** (die Kollisionsfrage selbst ist über Fall 22/19 auf SPIELKISTE beantwortet) |
 | 24c | `settings` ändern, `switch`, neu anmelden | neue Werte in `kwinrc` und in der `config …`-Zeile | **offen** |
 | 24d | Schlüssel in Nix **entfernen**, `switch`, neu anmelden | der dokumentierte Vorgabewert steht in `kwinrc`, nicht der alte Wert | **offen** |
-| 24e | Feature-Flag auf `false`, `switch`, neu anmelden | `kwin-xmonad-liteEnabled=false`, Skript nicht geladen, `Meta+L` sperrt wieder; die zwölf `xml-*`-Zeilen bleiben stehen | **offen** |
+| 24e | `kwinXmonadLite` auf `false` (`plasmaManager` bleibt an), `switch`, neu anmelden | `kwin-xmonad-liteEnabled=false`, Skript nicht geladen, alle zwölf `xml-*`-Zeilen stehen auf `none`, `Lock Session` wieder auf `Screensaver`/`Meta+L`, `Edit Tiles` auf `Meta+T`; `Meta+L` sperrt per Tastendruck wieder, `Ctrl+Alt+L` nicht mehr | **offen** |
+
+### Rückbau nach einer Abnahmereihe
+
+Eine Abnahmereihe auf einem produktiv genutzten Host endet **nicht** im
+Testzustand. Der Rückbau gehört zur Vorschrift, nicht in die Nacharbeit: die
+nächste Reihe soll wieder auf einem nackten Gerät beginnen, und die
+Generationsnummer soll nicht mit jedem Durchlauf davonlaufen.
+
+1. **Vor** dem ersten `switch` die aktuelle Systemgeneration notieren und
+   `~/.config/kwinrc` sowie `~/.config/kglobalshortcutsrc` sichern.
+2. Nach dem letzten Fall auf die notierte Generation zurückschalten.
+3. Die entstandenen Testgenerationen löschen und die Booteinträge nachziehen.
+4. Die beiden gesicherten Dateien zurückspielen, danach ab- und anmelden. Ein
+   Rollback allein genügt dafür nicht: plasma-manager schreibt `kwinrc` und
+   `kglobalshortcutsrc` **imperativ** aus einem Aktivierungsskript, seine
+   Schreibvorgänge überleben den Generationswechsel.
+
+Die Kommandos stehen in [`build.md`](build.md).
 
 ## 12. Entscheidungen (2026-09-05)
 
