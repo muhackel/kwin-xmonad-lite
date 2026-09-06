@@ -117,6 +117,8 @@ export function planArrangement(
 	registry: Registry,
 	gaps: Gaps,
 	excludes: Set<string>,
+	defaultRatio?: number,
+	defaultLayoutIndex?: number,
 ): ArrangePlan {
 	const infos = byId(snapshot.windows);
 	const membersPerSurface = membersBySurface(snapshot.windows, snapshot.views, excludes);
@@ -124,7 +126,7 @@ export function planArrangement(
 
 	for (const view of snapshot.views) {
 		const members = membersPerSurface.get(view.key) ?? [];
-		const before = getSurface(registry, view.key);
+		const before = getSurface(registry, view.key, defaultRatio, defaultLayoutIndex);
 		const result = reconcile(before, members, snapshot.activeId);
 		// Auch bei Gleichstand einhängen: `putSurface` ist billig, und eine
 		// Sonderbehandlung wäre die erste Stelle, an der jemand versucht ist,

@@ -190,19 +190,43 @@ sichtbar, und `Workspace::reconfigure()` startet dafür nur
 Probelauf fehlte diese Wartezeit, und `readConfig` lieferte ausschließlich die
 Vorgabewerte; mit einer Sekunde Wartezeit kamen die gesetzten Werte an.
 
+**Folge für den Entwurf (Meilenstein 6): der Adapter liest Rohzeichenketten.**
+Weil der Rückgabetyp dem Typ des Vorgabewerts folgt, reicht `readConfig` an
+`KConfigGroup::readEntry(key, default)` durch — und KConfig ersetzt einen nicht
+konvertierbaren Eintrag **bereits selbst** durch den Vorgabewert. Mit
+`Number(readConfig("gapOuter", 0))` käme für `gapOuter=abc` schlicht `0` an,
+ununterscheidbar von „nicht gesetzt"; die versprochene Korrekturnotiz wäre nie
+zu erzeugen. Der Adapter liest deshalb gegen einen **Sentinel-Vorgabewert**
+(`RAW_UNSET = "<kxl-unset>"` in `src/kwin/config.ts`): jede Eingabe kommt
+unverfälscht durch, „nicht gesetzt" ist am Sentinel erkennbar, und die gesamte
+Umwandlung, Prüfung und Klemmung liegt hinter der Snapshot-Grenze unter
+`node --test`. Aus demselben Grund gilt ein Rohwert aus reinem Leerraum als
+unlesbar und nicht als `0` — `Number("")` ist `0` und damit endlich.
+
+Gelesen wird **einmal**, am Anfang von `start()`. Eine Epoche, die ihre Werte
+je Lauf neu holte, hinge an veränderlichem Außenzustand, ohne je einen anderen
+Wert zu sehen. Das zweistufige Wirksamkeitsverfahren, das daraus folgt, steht
+in [`keys.md`](keys.md) Abschnitt 3.
+
 ### 2.8 `callDBus`
 
 Funktioniert; der Callback wurde mit einem Argument aufgerufen
 (`org.freedesktop.DBus.GetId`).
 
-### 2.9 Nicht gemessen
+### 2.9 Shortcut-Konflikte — in Meilenstein 6 aufgelöst
 
 Die Shortcut-Phase (`nix run .#probe -- --shortcuts`) lief in diesem Durchgang
-nicht. Aus dem Quelltext steht fest: `registerShortcut` liefert `true`, solange
+nicht. Aus dem Quelltext stand fest: `registerShortcut` liefert `true`, solange
 der Rückruf aufrufbar ist, und ruft `KGlobalAccel::setShortcut` **ohne**
 `NoAutoloading` auf — ein vorhandener Eintrag in `kglobalshortcutsrc`
-überschreibt damit die im Code angegebene Taste. Empirisch offen bleibt die
-Reihenfolge bei zwei Aktionen auf derselben Taste. Zu klären in Meilenstein 6.
+überschreibt damit die im Code angegebene Taste. Empirisch offen blieb die
+Reihenfolge bei zwei Aktionen auf derselben Taste.
+
+**Gemessen am 2026-09-06** (Abschnitt 6.1): beide Aktionen stehen danach
+gleichzeitig in der Datei, und beim Tastendruck gewinnt der **vorhandene**
+Eintrag. Die Frage ist damit beantwortet; die Konsequenz — die Umlegung der
+beiden KDE-Kürzel ist Voraussetzung, nicht Absicherung — steht in
+[`keys.md`](keys.md) Abschnitt 1.
 
 ## 3. Signalprobe, Meilenstein 4
 
@@ -408,3 +432,144 @@ Nach `nix run .#unload` meldete `isScriptLoaded` `false`. In den folgenden
 30 Sekunden erschien keine weitere Controller-Zeile. Der SHA-256-Wert von
 `~/.config/kglobalshortcutsrc` blieb vor und nach dem Dev-Menü
 `f4d9cdb30108d892d3272778667841b5bb7d0475a4e4dccc8af6755a052c20f5`.
+
+## 6. Livebefunde, Meilenstein 6
+
+Gemessen am 2026-09-06 auf SPIELKISTE (KWin 6.7.4 auf Wayland, drei Ausgaben
+DP-1, DP-9, DP-10, vier virtuelle Desktops, eine Activity) mit der
+Entwicklungsinstanz aus `nix run`. Rohdaten:
+[`shortcuts-2026-09-06-spielkiste.log`](shortcuts-2026-09-06-spielkiste.log)
+(210 Journalzeilen aus mehreren Ladevorgängen). Die Datei enthält keine
+Fenstertitel und keine Pfade.
+
+### 6.1 Registrierung und Konfliktausgang
+
+Der `diff` von `~/.config/kglobalshortcutsrc` unmittelbar vor und nach dem
+ersten Laden zeigt **ausschließlich zwölf hinzugefügte `xml-*`-Zeilen**, sonst
+nichts — keine fremde Zeile wurde verändert. Nach fünf weiteren Ladevorgängen
+stehen weiterhin genau zwölf; es entstehen keine Dubletten. Format einer Zeile:
+
+```
+xml-expand=Meta+L,none,Master vergrößern
+```
+
+Zur **Kollision** (offene Frage aus Abschnitt 2.9): nach der Registrierung
+standen `Lock Session=Screensaver\tMeta+L` und `xml-expand=Meta+L`
+**gleichzeitig** in der Datei, ebenso `Edit Tiles=Meta+T` und
+`xml-sink=Meta+T`. Beim Tastendruck gewann in **beiden** Fällen der vorhandene
+Eintrag: `Meta+L` sperrte die Sitzung, `Meta+T` öffnete den Kachel-Editor. Die
+zehn konfliktfreien Tasten wirkten alle wie vorgesehen. `registerShortcut`
+meldete nichts — es liefert immer `true`.
+
+Folge: die Umlegung der beiden KDE-Kürzel in der Host-Konfiguration ist
+**Voraussetzung** dafür, dass `xml-expand` und `xml-sink` ihre Taste bekommen,
+nicht bloß eine Absicherung gegen Doppelbelegung.
+
+### 6.2 Auslösung über D-Bus und Entprellung
+
+Alle zwölf Aktionen wurden über `invokeShortcut` an
+`org.kde.kglobalaccel /component/kwin` ausgelöst. Jede erzeugte **genau eine**
+`befehl …`-Zeile, und die Entprellung fasste die ganze Folge zu **einem**
+Anordnungslauf zusammen (hier umbrochen, im Journal eine Zeile):
+
+```
+arrange #2 grund=fensterzustand,windowActivated,shortcut:shrink,shortcut:expand,
+shortcut:nextLayout,shortcut:resetLayout,shortcut:toggleFloat
+```
+
+Nur die fünf Befehle, die wirklich etwas geändert haben, stehen im Grund; die
+wirkungslosen (`unverändert`) melden keinen Lauf an. `sink` auf einem
+gekachelten Fenster meldete `bereitsGekachelt` ohne Lauf, `toggleFloat` auf
+demselben Fenster `gefloatetOhneWiederherstellung`.
+
+### 6.3 Fokuszyklus und minimierte Fenster
+
+Vier `focusNext` über vier Mitglieder kehrten zum Ausgangsfenster zurück, jedes
+Mal mit `via=aktiv` — KWin hat die Aktivierung also jedes Mal angenommen und
+`windowActivated` gemeldet. Ein zweiter Aktivierungsversuch trat nie auf; die
+Epoche aktiviert nie selbst.
+
+**Minimierte Fenster** (bisher unbelegt): ein minimiertes Fenster bleibt
+Surface-Mitglied und im Fokuszyklus, verliert aber die Layout-Teilnahme — die
+Surface-Zeile ging von `n=3` auf `n=2`. Landet `focusNext` darauf, **stellt
+KWin es wieder her**; die folgende Surface-Zeile meldet wieder `n=3`. Der
+Controller erzwingt das nicht, er nimmt es hin.
+
+### 6.4 Layoutwechsel und Promote
+
+Bei drei kwrite-Fenstern auf DP-1 bekam der Master `1664x1410` und die beiden
+Stapelzeilen je `896x705` — dieselben Zahlen wie in `tests/kwin-plan.test.ts`.
+`xml-promote` zog das fokussierte Fenster in die Masterzelle und schrieb genau
+die beiden betroffenen Geometrien. Nach `xml-next-layout` bekamen alle drei
+`2560x1410`: das Full-Layout ist mit Meilenstein 6 zum ersten Mal überhaupt
+erreichbar.
+
+### 6.5 Konfiguration
+
+Mit `gapOuter=8 gapInner=4 masterRatio=0.5 defaultLayout=full debug=true
+excludes=krunner,yakuake,plasmashell` in der Gruppe
+`[Script-kwin-xmonad-lite-dev]` meldete das Journal
+
+```
+config gaps=8/4 ratio=0.5 layout=1 excludes=3 debug=true
+config excludes=krunner,plasmashell,yakuake
+```
+
+und die Fenster bekamen `2544x1394+2568+8` — Außen- und Innenabstand sind in
+der Geometrie sichtbar. Die zweite Zeile ist die `debugLog`-Zeile; sie erschien
+nur bei `debug=true`.
+
+**Zustandserhalt innerhalb einer Instanz:** zweimal `Meta+H` auf Desktop 1
+brachte die Surface auf `ratio=0.4`. Nach dem Wechsel auf einen bis dahin
+unbenutzten virtuellen Desktop startete die **neue** Surface mit `ratio=0.5`
+und `layout=full`, also mit den konfigurierten Werten, während die alte beim
+Zurückwechseln weiterhin `ratio=0.4` meldete. Über einen Reload hinweg ist das
+nicht zu beobachten — ein Reload erzeugt einen neuen Adapter mit leerer
+Registry, danach gelten überall wieder die konfigurierten Startwerte.
+
+**Fehleingaben:** `gapOuter=abc`, `gapInner=-5`, `masterRatio=1.5`,
+`defaultLayout=grid`, `debug=ja` und ein leer gesetztes `excludes` erzeugten
+sechs Korrekturnotizen und keinen Absturz:
+
+```
+config gapOuter=abc unlesbar, verwende 0
+config gapInner=-5 unzulässig, verwende 0
+config excludes leer: kein Fenster wird ausgeschlossen
+config masterRatio=1.5 geklemmt auf 0.9
+config defaultLayout=grid unbekannt, verwende tall
+config debug=ja unlesbar, verwende false
+config gaps=0/0 ratio=0.9 layout=0 excludes=0 debug=false
+```
+
+**Nebenbefund zur leeren Ausschlussliste:** mit `excludes=` blieb die
+Mitgliederzahl unverändert bei 7. Panels sind schon über `!dock` im
+Mitgliedschaftsfilter draußen; die Ausschlussliste ist also eine zweite
+Verteidigungslinie, nicht die einzige. „Nichts ausschließen" bedeutet demnach
+nicht „das Panel wird gekachelt".
+
+### 6.6 Ruhe nach dem Reload
+
+Nach `nix run .#reload` erschien **keine einzige** `apply`-Zeile. Über zehn
+Minuten danach kam kein `nachbessern`, kein `aufgegeben` und kein `extern`. Die
+zwölf Aktionen blieben über den Reload hinweg wirksam, ohne zweite
+Registrierung im Journal und ohne zusätzliche Zeile in `kglobalshortcutsrc`.
+
+### 6.7 Nicht gemessen
+
+- **Deklarative Aktivierung auf HAL9000** (Fälle 24 bis 24e): Laden aus dem
+  Store, `Meta+L`/`Meta+T` per Tastendruck nach der Umlegung, Ändern und
+  Entfernen von `settings`, Abschalten des Feature-Flags. Steht aus.
+- **Fokusziel hinter einem modalen Dialog** (Fall 20b). Aus dem Quelltext
+  folgt, dass `activateWindow` den Fokus umleiten kann; gemessen ist es nicht.
+- **Fokusziel zwischen Tastendruck und Lauf geschlossen** (Fall 20c). Der Pfad
+  `aktivieren fehlgeschlagen für …` in `src/kwin/adapter.ts` ist genauso
+  **unerreichbar** wie der Zweig unten: `result.focus` ist nur dann
+  nicht-null, wenn das Fenster im Snapshot steht, `readSnapshot` legt für
+  jedes Snapshot-Fenster ein Handle an, und zwischen dem Lesedurchgang und
+  der Zuweisung kehrt der Rückruf nicht in die Ereignisschleife zurück. Die
+  Zeile bleibt defensiv stehen; eine Abnahme darf sie nicht erwarten.
+- Der Zweig „`ziel … nicht mehr im Snapshot`" in `src/kwin/command.ts` ist über
+  `runCommand` **unerreichbar**: der Abgleich vor dem Reducer garantiert, dass
+  die gespeicherte Reihenfolge eine Teilmenge der Snapshot-Mitglieder ist. Die
+  Prüfung bleibt defensiv im Code stehen; eine Abnahme darf diese Journalzeile
+  nicht erwarten.

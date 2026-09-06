@@ -60,12 +60,22 @@ export function createWindowState(): WindowState {
 	};
 }
 
-export function getSurface(registry: Registry, key: SurfaceKey): SurfaceState {
+/**
+ * Zustand einer Surface, bei Bedarf angelegt. Die beiden Vorgabewerte wirken
+ * nur beim Anlegen -- eine bestehende Surface behält ihren per Tastenkürzel
+ * geschraubten Stand.
+ */
+export function getSurface(
+	registry: Registry,
+	key: SurfaceKey,
+	ratio?: number,
+	layoutIndex?: number,
+): SurfaceState {
 	const existing = registry.surfaces.get(key);
 	if (existing !== undefined) {
 		return existing;
 	}
-	const created = createSurface();
+	const created = createSurface(ratio, layoutIndex);
 	registry.surfaces.set(key, created);
 	return created;
 }

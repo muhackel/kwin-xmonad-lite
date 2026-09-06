@@ -1,15 +1,15 @@
 import type { WindowId } from "../../src/core/stack.ts";
 import type { GeometryController } from "../../src/kwin/apply.ts";
 import { createGeometryController } from "../../src/kwin/apply.ts";
+import type { Config } from "../../src/kwin/config.ts";
+import { defaultConfig } from "../../src/kwin/config.ts";
 import type { EpochResult } from "../../src/kwin/epoch.ts";
 import { runEpoch } from "../../src/kwin/epoch.ts";
-import { DEFAULT_EXCLUDES, makeExcludes } from "../../src/kwin/filter.ts";
-import { NO_GAPS } from "../../src/kwin/plan.ts";
 import type { SurfaceView, WindowInfo } from "../../src/kwin/types.ts";
 import type { Registry } from "../../src/state/registry.ts";
 import { createRegistry } from "../../src/state/registry.ts";
 import type { FakePort, FakeTimer } from "./kwinfake.ts";
-import { fakePort, fakeTimer, singleView, snapshotOf } from "./kwinfake.ts";
+import { fakePort, fakeTimer, snapshotFor } from "./kwinfake.ts";
 
 export interface EpochRig {
 	registry: Registry;
@@ -19,23 +19,17 @@ export interface EpochRig {
 	raises: WindowId[];
 	logs: string[];
 	externals: WindowId[];
+	/**
+	 * Die wirksame Konfiguration dieses Laufs. Veränderbar: ein Test setzt
+	 * `rig.config.gaps` oder `rig.config.masterRatio` und ruft danach `run`.
+	 */
+	config: Config;
 	run(windows: WindowInfo[], activeId: WindowId | null, views?: SurfaceView[]): EpochResult;
-}
-
-function unique(values: string[]): string[] {
-	const seen = new Set<string>();
-	const result: string[] = [];
-	for (const value of values) {
-		if (!seen.has(value)) {
-			seen.add(value);
-			result.push(value);
-		}
-	}
-	return result;
 }
 
 export function epochRig(): EpochRig {
 	const registry = createRegistry();
+	const config = defaultConfig();
 	const port = fakePort();
 	const timer = fakeTimer();
 	const raises: WindowId[] = [];
@@ -62,32 +56,23 @@ export function epochRig(): EpochRig {
 		raises,
 		logs,
 		externals,
-		run(
-			windows: WindowInfo[],
-			activeId: WindowId | null,
-			views: SurfaceView[] = [singleView()],
-		): EpochResult {
+		config,
+		run(windows: WindowInfo[], activeId: WindowId | null, views?: SurfaceView[]): EpochResult {
 			for (const info of windows) {
 				const actual = port.read(info.id);
 				if (actual !== null) {
 					info.frameGeometry = actual;
 				}
 			}
-			const activities: string[] = [];
-			const desktops: string[] = [];
-			for (const view of views) {
-				activities.push(view.ref.activity);
-				desktops.push(view.ref.desktop);
-			}
 			epoch += 1;
 			const result = runEpoch(
 				epoch,
 				["test"],
-				snapshotOf(views, windows, activeId, unique(activities), unique(desktops)),
+				snapshotFor(windows, activeId, views),
 				registry,
 				geometry,
-				NO_GAPS,
-				makeExcludes(DEFAULT_EXCLUDES),
+				config.gaps,
+				config.excludes,
 				previous,
 				{
 					raise(id: WindowId): void {
@@ -97,6 +82,8 @@ export function epochRig(): EpochRig {
 						logs.push(message);
 					},
 				},
+				config.masterRatio,
+				config.layoutIndex,
 			);
 			previous = result.participants;
 			return result;

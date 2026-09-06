@@ -81,6 +81,37 @@ export function snapshotOf(
 	return { views, windows, activeId, activities, desktops };
 }
 
+function unique(values: string[]): string[] {
+	const seen = new Set<string>();
+	const result: string[] = [];
+	for (const value of values) {
+		if (!seen.has(value)) {
+			seen.add(value);
+			result.push(value);
+		}
+	}
+	return result;
+}
+
+/**
+ * Wie `snapshotOf`, leitet die Ist-Mengen aber aus den Views ab. Das ist der
+ * Normalfall im Test: eine Activity oder ein Desktop, der nirgends sichtbar
+ * ist, wäre für den Registry-GC ein Sonderfall und gehört ausgeschrieben.
+ */
+export function snapshotFor(
+	windows: WindowInfo[],
+	activeId: string | null,
+	views: SurfaceView[] = [singleView()],
+): Snapshot {
+	const activities: string[] = [];
+	const desktops: string[] = [];
+	for (const view of views) {
+		activities.push(view.ref.activity);
+		desktops.push(view.ref.desktop);
+	}
+	return snapshotOf(views, windows, activeId, unique(activities), unique(desktops));
+}
+
 export interface FakeTimer extends Timer {
 	/** Löst den verbundenen Handler aus, wie es der echte Timer täte. */
 	fire(): void;

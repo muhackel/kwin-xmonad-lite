@@ -12,8 +12,16 @@ export interface SurfaceState {
 	masterRatio: number;
 }
 
-export function createSurface(): SurfaceState {
-	return { order: [], focus: null, layoutIndex: 0, masterRatio: RATIO_DEFAULT };
+/**
+ * Startzustand einer Surface. Die beiden Vorgabewerte kommen ab Meilenstein 6
+ * aus der Konfiguration; als Default-Parameter geschrieben, damit jeder
+ * bestehende Aufruf unverändert gültig bleibt.
+ */
+export function createSurface(
+	ratio: number = RATIO_DEFAULT,
+	layoutIndex: number = 0,
+): SurfaceState {
+	return { order: [], focus: null, layoutIndex, masterRatio: ratio };
 }
 
 export function currentLayout(state: SurfaceState): LayoutDef {
@@ -184,8 +192,13 @@ export function nextLayout(state: SurfaceState): SurfaceState {
 	return withLayout(state, (state.layoutIndex + 1) % LAYOUTS.length, state.masterRatio);
 }
 
-export function resetLayout(state: SurfaceState): SurfaceState {
-	return withLayout(state, 0, RATIO_DEFAULT);
+/** Zurück auf die konfigurierten Startwerte, nicht fest auf Index 0. */
+export function resetLayout(
+	state: SurfaceState,
+	ratio: number = RATIO_DEFAULT,
+	layoutIndex: number = 0,
+): SurfaceState {
+	return withLayout(state, layoutIndex, ratio);
 }
 
 export function growMaster(state: SurfaceState): SurfaceState {

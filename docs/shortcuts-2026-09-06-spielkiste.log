@@ -1,0 +1,210 @@
+kwin-xmonad-lite: geladen, Version 0.0.0
+kwin-xmonad-lite: bereit nach 1 Versuch(en), activities=1 outputs=3
+kwin-xmonad-lite: config gaps=0/0 ratio=0.65 layout=0 excludes=7 debug=false
+kwin-xmonad-lite: shortcuts n=12
+kwin-xmonad-lite: bereit perOutputDesktops=false
+kwin-xmonad-lite: arrange #1 grund=start surfaces=3 mitglieder=4 teilnehmer=1
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=0 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=ausgabe fokus={8d72afe2-d1fb-483d-a1ae-8e713d350d26} unverändert
+kwin-xmonad-lite: befehl focusPrev surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={8d72afe2-d1fb-483d-a1ae-8e713d350d26} unverändert
+kwin-xmonad-lite: befehl focusMaster surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={8d72afe2-d1fb-483d-a1ae-8e713d350d26} unverändert
+kwin-xmonad-lite: befehl promote surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv master={8d72afe2-d1fb-483d-a1ae-8e713d350d26} unverändert
+kwin-xmonad-lite: befehl swapNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv master={8d72afe2-d1fb-483d-a1ae-8e713d350d26} unverändert
+kwin-xmonad-lite: befehl swapPrev surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv master={8d72afe2-d1fb-483d-a1ae-8e713d350d26} unverändert
+kwin-xmonad-lite: befehl shrink surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv ratio=0.6
+kwin-xmonad-lite: befehl expand surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv ratio=0.65
+kwin-xmonad-lite: befehl nextLayout surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv layout=full
+kwin-xmonad-lite: befehl resetLayout surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv layout=tall
+kwin-xmonad-lite: befehl sink surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fenster={8d72afe2-d1fb-483d-a1ae-8e713d350d26} → bereitsGekachelt
+kwin-xmonad-lite: befehl toggleFloat surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fenster={8d72afe2-d1fb-483d-a1ae-8e713d350d26} → gefloatetOhneWiederherstellung
+kwin-xmonad-lite: arrange #2 grund=fensterzustand,windowActivated,shortcut:shrink,shortcut:expand,shortcut:nextLayout,shortcut:resetLayout,shortcut:toggleFloat surfaces=3 mitglieder=4 teilnehmer=1
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=0 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl sink surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fenster={8d72afe2-d1fb-483d-a1ae-8e713d350d26} → gekachelt
+kwin-xmonad-lite: arrange #3 grund=shortcut:sink surfaces=3 mitglieder=4 teilnehmer=1
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=0 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: arrange #4 grund=windowActivated,windowAdded surfaces=3 mitglieder=5 teilnehmer=2
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=1 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {023b69c8-96da-41be-8fba-9d935b36947c} soll=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: arrange #5 grund=windowActivated,windowAdded surfaces=3 mitglieder=6 teilnehmer=3
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=2 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {911cbadb-00cd-4c04-8dbc-8b29a3a74123} soll=1664x1410+2560+0
+kwin-xmonad-lite: apply {023b69c8-96da-41be-8fba-9d935b36947c} soll=896x1410+4224+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: arrange #6 grund=windowActivated,windowAdded surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {56a36406-2b69-4267-b018-76e962209846} soll=1664x1410+2560+0
+kwin-xmonad-lite: apply {911cbadb-00cd-4c04-8dbc-8b29a3a74123} soll=896x705+4224+0
+kwin-xmonad-lite: apply {023b69c8-96da-41be-8fba-9d935b36947c} soll=896x705+4224+705
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={911cbadb-00cd-4c04-8dbc-8b29a3a74123}
+kwin-xmonad-lite: arrange #7 grund=windowActivated,shortcut:focusNext surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={023b69c8-96da-41be-8fba-9d935b36947c}
+kwin-xmonad-lite: arrange #8 grund=windowActivated,shortcut:focusNext surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={8d72afe2-d1fb-483d-a1ae-8e713d350d26}
+kwin-xmonad-lite: arrange #9 grund=windowActivated,shortcut:focusNext surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={56a36406-2b69-4267-b018-76e962209846}
+kwin-xmonad-lite: arrange #10 grund=windowActivated,shortcut:focusNext surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={911cbadb-00cd-4c04-8dbc-8b29a3a74123}
+kwin-xmonad-lite: arrange #11 grund=windowActivated,shortcut:focusNext surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl promote surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv master={911cbadb-00cd-4c04-8dbc-8b29a3a74123}
+kwin-xmonad-lite: arrange #12 grund=shortcut:promote surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {911cbadb-00cd-4c04-8dbc-8b29a3a74123} soll=1664x1410+2560+0
+kwin-xmonad-lite: apply {56a36406-2b69-4267-b018-76e962209846} soll=896x705+4224+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl nextLayout surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv layout=full
+kwin-xmonad-lite: arrange #13 grund=shortcut:nextLayout surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=full n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {911cbadb-00cd-4c04-8dbc-8b29a3a74123} soll=2560x1410+2560+0
+kwin-xmonad-lite: apply {56a36406-2b69-4267-b018-76e962209846} soll=2560x1410+2560+0
+kwin-xmonad-lite: apply {023b69c8-96da-41be-8fba-9d935b36947c} soll=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: geladen, Version 0.0.0
+kwin-xmonad-lite: bereit nach 1 Versuch(en), activities=1 outputs=3
+kwin-xmonad-lite: config gaps=8/4 ratio=0.5 layout=1 excludes=3 debug=true
+kwin-xmonad-lite: config excludes=krunner,plasmashell,yakuake
+kwin-xmonad-lite: shortcuts n=12
+kwin-xmonad-lite: bereit perOutputDesktops=false
+kwin-xmonad-lite: arrange #1 grund=start surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=full n=3 ratio=0.5 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {56a36406-2b69-4267-b018-76e962209846} soll=2544x1394+2568+8
+kwin-xmonad-lite: apply {911cbadb-00cd-4c04-8dbc-8b29a3a74123} soll=2544x1394+2568+8
+kwin-xmonad-lite: apply {023b69c8-96da-41be-8fba-9d935b36947c} soll=2544x1394+2568+8
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=full n=0 ratio=0.5 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=full n=1 ratio=0.5 fläche=2560x1410+0+0
+kwin-xmonad-lite: apply {a39eeb62-d1de-4bd5-b776-752ad98deeda} soll=2544x1394+8+8
+kwin-xmonad-lite: befehl shrink surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv ratio=0.45
+kwin-xmonad-lite: arrange #2 grund=shortcut:shrink surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=full n=3 ratio=0.45 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=full n=0 ratio=0.5 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=full n=1 ratio=0.5 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl shrink surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv ratio=0.4
+kwin-xmonad-lite: arrange #3 grund=shortcut:shrink surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=full n=3 ratio=0.4 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=full n=0 ratio=0.5 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=full n=1 ratio=0.5 fläche=2560x1410+0+0
+kwin-xmonad-lite: arrange #4 grund=desktopChanged,windowActivated surfaces=3 mitglieder=0 teilnehmer=0
+kwin-xmonad-lite: arrange #5 grund=windowActivated,windowAdded surfaces=3 mitglieder=1 teilnehmer=1
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|30c27d93-fa7d-452a-ad6a-53201edcdca1|DP-1 layout=full n=1 ratio=0.5 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {d817ed77-760a-4075-bd1b-640374a70c84} soll=2544x1394+2568+8
+kwin-xmonad-lite: arrange #6 grund=desktopChanged,windowActivated surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=full n=3 ratio=0.4 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=full n=0 ratio=0.5 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=full n=1 ratio=0.5 fläche=2560x1410+0+0
+kwin-xmonad-lite: geladen, Version 0.0.0
+kwin-xmonad-lite: bereit nach 1 Versuch(en), activities=1 outputs=3
+kwin-xmonad-lite: config gapOuter=abc unlesbar, verwende 0
+kwin-xmonad-lite: config excludes leer: kein Fenster wird ausgeschlossen
+kwin-xmonad-lite: config masterRatio=1.5 geklemmt auf 0.9
+kwin-xmonad-lite: config defaultLayout=grid unbekannt, verwende tall
+kwin-xmonad-lite: config debug=ja unlesbar, verwende false
+kwin-xmonad-lite: config gaps=0/4 ratio=0.9 layout=0 excludes=0 debug=false
+kwin-xmonad-lite: shortcuts n=12
+kwin-xmonad-lite: bereit perOutputDesktops=false
+kwin-xmonad-lite: arrange #1 grund=start surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.9 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {56a36406-2b69-4267-b018-76e962209846} soll=2300x1410+2560+0
+kwin-xmonad-lite: apply {911cbadb-00cd-4c04-8dbc-8b29a3a74123} soll=256x703+4864+0
+kwin-xmonad-lite: apply {023b69c8-96da-41be-8fba-9d935b36947c} soll=256x703+4864+707
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.9 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.9 fläche=2560x1410+0+0
+kwin-xmonad-lite: apply {a39eeb62-d1de-4bd5-b776-752ad98deeda} soll=2560x1410+0+0
+kwin-xmonad-lite: geladen, Version 0.0.0
+kwin-xmonad-lite: bereit nach 1 Versuch(en), activities=1 outputs=3
+kwin-xmonad-lite: config gapOuter=abc unlesbar, verwende 0
+kwin-xmonad-lite: config gapInner=-5 unzulässig, verwende 0
+kwin-xmonad-lite: config excludes leer: kein Fenster wird ausgeschlossen
+kwin-xmonad-lite: config masterRatio=1.5 geklemmt auf 0.9
+kwin-xmonad-lite: config defaultLayout=grid unbekannt, verwende tall
+kwin-xmonad-lite: config debug=ja unlesbar, verwende false
+kwin-xmonad-lite: config gaps=0/0 ratio=0.9 layout=0 excludes=0 debug=false
+kwin-xmonad-lite: shortcuts n=12
+kwin-xmonad-lite: bereit perOutputDesktops=false
+kwin-xmonad-lite: arrange #1 grund=start surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.9 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {56a36406-2b69-4267-b018-76e962209846} soll=2304x1410+2560+0
+kwin-xmonad-lite: apply {911cbadb-00cd-4c04-8dbc-8b29a3a74123} soll=256x705+4864+0
+kwin-xmonad-lite: apply {023b69c8-96da-41be-8fba-9d935b36947c} soll=256x705+4864+705
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.9 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.9 fläche=2560x1410+0+0
+kwin-xmonad-lite: geladen, Version 0.0.0
+kwin-xmonad-lite: bereit nach 1 Versuch(en), activities=1 outputs=3
+kwin-xmonad-lite: config gaps=0/0 ratio=0.65 layout=0 excludes=7 debug=false
+kwin-xmonad-lite: shortcuts n=12
+kwin-xmonad-lite: bereit perOutputDesktops=false
+kwin-xmonad-lite: arrange #1 grund=start surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {56a36406-2b69-4267-b018-76e962209846} soll=1664x1410+2560+0
+kwin-xmonad-lite: apply {911cbadb-00cd-4c04-8dbc-8b29a3a74123} soll=896x705+4224+0
+kwin-xmonad-lite: apply {023b69c8-96da-41be-8fba-9d935b36947c} soll=896x705+4224+705
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: geladen, Version 0.0.0
+kwin-xmonad-lite: bereit nach 1 Versuch(en), activities=1 outputs=3
+kwin-xmonad-lite: config gaps=0/0 ratio=0.65 layout=0 excludes=7 debug=false
+kwin-xmonad-lite: shortcuts n=12
+kwin-xmonad-lite: bereit perOutputDesktops=false
+kwin-xmonad-lite: arrange #1 grund=start surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusMaster surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={56a36406-2b69-4267-b018-76e962209846}
+kwin-xmonad-lite: arrange #2 grund=windowActivated,shortcut:focusMaster surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: arrange #3 grund=windowActivated,fensterzustand surfaces=3 mitglieder=7 teilnehmer=3
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=2 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {911cbadb-00cd-4c04-8dbc-8b29a3a74123} soll=1664x1410+2560+0
+kwin-xmonad-lite: apply {023b69c8-96da-41be-8fba-9d935b36947c} soll=896x1410+4224+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={023b69c8-96da-41be-8fba-9d935b36947c}
+kwin-xmonad-lite: arrange #4 grund=windowActivated,shortcut:focusNext surfaces=3 mitglieder=7 teilnehmer=3
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=2 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={8d72afe2-d1fb-483d-a1ae-8e713d350d26}
+kwin-xmonad-lite: arrange #5 grund=windowActivated,shortcut:focusNext surfaces=3 mitglieder=7 teilnehmer=3
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=2 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={56a36406-2b69-4267-b018-76e962209846}
+kwin-xmonad-lite: arrange #6 grund=fensterzustand,windowActivated,shortcut:focusNext surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: apply {911cbadb-00cd-4c04-8dbc-8b29a3a74123} soll=896x705+4224+0
+kwin-xmonad-lite: apply {023b69c8-96da-41be-8fba-9d935b36947c} soll=896x705+4224+705
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
+kwin-xmonad-lite: befehl focusNext surface=a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 via=aktiv fokus={911cbadb-00cd-4c04-8dbc-8b29a3a74123}
+kwin-xmonad-lite: arrange #7 grund=windowActivated,shortcut:focusNext surfaces=3 mitglieder=7 teilnehmer=4
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-1 layout=tall n=3 ratio=0.65 fläche=2560x1410+2560+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-9 layout=tall n=0 ratio=0.65 fläche=2560x1410+5120+0
+kwin-xmonad-lite: surface a89f5ec2-ab8e-4108-8088-7118500a3aab|89539ae6-e06b-4c76-a057-95df959578a9|DP-10 layout=tall n=1 ratio=0.65 fläche=2560x1410+0+0
