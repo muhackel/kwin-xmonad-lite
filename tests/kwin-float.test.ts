@@ -4,7 +4,7 @@ import { test } from "node:test";
 import type { Rect } from "../src/core/rect.ts";
 import { contains } from "../src/core/rect.ts";
 import { DEFAULT_EXCLUDES, makeExcludes } from "../src/kwin/filter.ts";
-import { toggleFloat } from "../src/kwin/float.ts";
+import { setFloat, toggleFloat } from "../src/kwin/float.ts";
 import type { SurfacePlan } from "../src/kwin/plan.ts";
 import type { WindowInfo } from "../src/kwin/types.ts";
 import { getWindow } from "../src/state/registry.ts";
@@ -260,6 +260,49 @@ test("ein Sticky-Fenster floatet global in allen sichtbaren Surfaces", () => {
 		assert.deepEqual(surface.members, ["a"]);
 		assert.deepEqual(surface.participants, []);
 	}
+});
+
+test("ein zweites Floaten am floatenden Fenster bleibt folgenlos", () => {
+	const { rig, info } = sinkMovedFloat();
+	sync(rig, info);
+	assert.equal(toggleFloat(rig.registry, rig.geometry, info, AREA, EXCLUDES), "wiederhergestellt");
+	const state = getWindow(rig.registry, "b");
+	const floatRect = state.floatRect;
+	const writes = rig.port.writesFor("b");
+	sync(rig, info);
+
+	assert.equal(
+		setFloat(rig.registry, rig.geometry, info, AREA, EXCLUDES, "float"),
+		"bereitsGefloatet",
+	);
+	assert.equal(state.floating, true);
+	assert.deepEqual(state.floatRect, floatRect);
+	assert.equal(rig.port.writesFor("b"), writes, "bereitsGefloatet schreibt nicht");
+});
+
+test("Sink am gekachelten Fenster lässt Erwartung und Nachprüfung stehen", () => {
+	const rig = epochRig();
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	const windows = [a, b];
+	for (const info of windows) {
+		rig.port.place(info.id, START);
+	}
+	rig.run(windows, "b");
+	// Ein Größenraster hält die Erwartung offen und plant eine Nachprüfung ein.
+	rig.port.setAccept("b", () => ({ x: 10, y: 10, width: 880, height: 700 }));
+	const target: Rect = { x: 5, y: 5, width: 900, height: 700 };
+	rig.geometry.apply("b", target);
+	assert.equal(rig.geometry.pendingCount(), 1);
+	const state = getWindow(rig.registry, "b");
+	const writes = rig.port.writesFor("b");
+	sync(rig, b);
+
+	assert.equal(setFloat(rig.registry, rig.geometry, b, AREA, EXCLUDES, "tile"), "bereitsGekachelt");
+	assert.equal(state.floating, false);
+	assert.deepEqual(state.expectedRect, target);
+	assert.equal(rig.geometry.pendingCount(), 1);
+	assert.equal(rig.port.writesFor("b"), writes, "bereitsGekachelt schreibt nicht");
 });
 
 test("Dialoge und Festfenster ändern beim Float-Toggle keinen Registry-Zustand", () => {
