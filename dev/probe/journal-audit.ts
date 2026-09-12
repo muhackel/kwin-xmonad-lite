@@ -12,11 +12,19 @@
  * 2. **`nachbessern` hängt am Fenster, nicht am letzten Anordnungslauf.** Es
  *    läuft im Recheck-Timer und gehört zur Schreibgeneration des Fensters. Es
  *    wird deshalb dem letzten `apply` **derselben Id** zugerechnet.
- * 3. **Technische Gründe sind kein Freibrief.** `geometrieExtern`,
- *    `nachlauf*`, `dock*`, `screensChanged`, `screenGeometry` und `closed`
- *    setzen den Wiederholungszähler nicht zurück. Sonst hielte sich eine
- *    Rückkopplung `extern -> arrange -> apply -> extern` selbst am Leben und
- *    wiese formal immer einen "neuen Anlass" vor.
+ * 3. **Technische Gründe einer Epoche sind kein Freibrief.** Der
+ *    `grund=geometrieExtern,nachlauf*,dock*,screensChanged,screenGeometry,
+ *    closed` einer `arrange`-Zeile setzt den Wiederholungszähler nicht zurück.
+ *    Sonst hielte sich eine Rückkopplung `extern -> arrange -> apply -> extern`
+ *    selbst am Leben und wiese formal immer einen "neuen Anlass" vor. Davon zu
+ *    trennen ist die eigene `extern`-Zeile eines Fensters: sie belegt, dass
+ *    genau **dieses** Fenster von außen bewegt wurde, und setzt seinen
+ *    Soll-Wiederholungszähler zurück -- der folgende Schreibvorgang korrigiert
+ *    dann eine echte Verschiebung. Den Schleifennachweis trägt weiterhin die
+ *    `extern`-**Kette** (Punkt daneben): eine echte Rückkopplung erzeugt
+ *    aufeinanderfolgende `extern` ohne Nutzerlauf dazwischen und fliegt über
+ *    die Kettenschwelle auf. Ohne diese Trennung zählte die Regel unter
+ *    technischer Last jede korrekte Korrektur mit (AP8, Fall 27b).
  * 4. **Unklares wird ausgewiesen, nicht gewertet.** Eine Lücke im Auszug oder
  *    ein Schreibvorgang ohne zuordenbaren Lauf zählt weder als bestanden noch
  *    als Schleife -- er wird zur manuellen Prüfung gemeldet.
@@ -364,6 +372,19 @@ export function pruefe(ereignisse: Ereignis[], optionen: PruefOptionen = {}): Be
 			continue;
 		}
 		if (ereignis.art === "extern") {
+			// Eine `extern`-Meldung **dieses** Fensters beweist, dass eine fremde
+			// Kraft es bewegt hat. Der nächste Schreibvorgang auf dasselbe Soll
+			// ist dann eine berechtigte Korrektur, keine Schleifeniteration --
+			// also beginnt der Soll-Wiederholungszähler dieses Fensters neu.
+			// Der Schleifennachweis bleibt allein an der `extern`-Kette unten:
+			// eine echte Rückkopplung `apply -> extern -> apply -> extern`
+			// treibt sie über die Schwelle, ohne dass ein Nutzerlauf dazwischen
+			// läge. Das Zurücksetzen hier betrifft nur den sekundären Zähler und
+			// verdeckt die Kette nicht. Unter technischer Last (Hotplug,
+			// Panelhöhe, Ziehen) stört diese Ereignisklasse dasselbe Fenster
+			// mehrfach in kurzer Folge; ohne diesen Reset zählte die Regel jede
+			// korrekte Korrektur mit (AP8, Fall 27b).
+			stand.delete(ereignis.id);
 			const bisher = externKetten.get(ereignis.id) ?? 0;
 			const jetzt = bisher + 1;
 			externKetten.set(ereignis.id, jetzt);

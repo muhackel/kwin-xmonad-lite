@@ -6,16 +6,22 @@ Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
-Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 7 und
-der Zwischenschritt 7.1 sind abgeschlossen, der MVP ist abgenommen
-(2026-09-06).** Die Abnahme war zwischenzeitlich ausgesetzt: ein externes Audit
-fand Defekte in den **Prüfwerkzeugen**, nicht im Controller. Ein zweites Audit
-(7.1) fand die berichtigten Prüfer an drei Stellen noch stumpf: der Auditor
-konnte in Fall 27 nach Konstruktion keine Schleife finden, das Orakel prüfte
-Mengen statt Zuordnung, und die Grep-Checks waren Namenslisten. Alle drei sind
-geschärft, und jeder archivierte Nachweis besteht auch sie; die Neuauswertung
-hängt als `checks.archiv-reauswertung` im Flake und deckt seit 7.1 **jedes**
-Artefakt unter `docs/` ab. 402 Tests, zehn Checks im Projektflake,
+Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 7 samt den
+Zwischenschritten 7.1 und 7.2 sind abgeschlossen, der MVP ist abgenommen
+(2026-09-06, Beleggrenzen nachgeholt 2026-09-12).** Die Abnahme war
+zwischenzeitlich ausgesetzt: ein externes Audit fand Defekte in den
+**Prüfwerkzeugen**, nicht im Controller. Ein zweites Audit (7.1) fand die
+berichtigten Prüfer an drei Stellen noch stumpf: der Auditor konnte in Fall 27
+nach Konstruktion keine Schleife finden, das Orakel prüfte Mengen statt
+Zuordnung, und die Grep-Checks waren Namenslisten. Die Live-Reihe **AP8 (7.2,
+2026-09-12)** holte die zwei offenen Beleggrenzen nach und fand dabei einen
+dritten Auditordefekt: die Regel „höchstens 3 auf dasselbe Soll" war zu streng
+für echte technische Last und meldete korrekte Korrekturen als Schleife. Auch
+der ist geschärft — eine eigene `extern`-Meldung eines Fensters setzt seinen
+Soll-Wiederholungszähler zurück, der Schleifennachweis liegt allein an der
+`extern`-Kette. Jeder archivierte Nachweis besteht die geschärften Prüfer; die
+Neuauswertung hängt als `checks.archiv-reauswertung` im Flake und deckt seit 7.1
+**jedes** Artefakt unter `docs/` ab. 405 Tests, zehn Checks im Projektflake,
 vier im `nixosconfig`-Flake. `src/` ist seit `abdffa2` unverändert. Die Meilensteine 0 bis 6 samt den
 Stabilisierungsschritten und Audits sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
 Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
@@ -23,25 +29,26 @@ Snapshot-Grenze, und seit Meilenstein 6 ist er bedienbar: zwölf `xml-*`-Aktione
 sechs Konfigurationsschlüssel aus `kwinrc` und ein Home-Manager-Modul auf
 plasma-manager-Basis. `Full` ist damit erstmals erreichbar.
 
-**Live gelaufen ist alles**, in drei Reihen auf HAL9000 mit vollständigem
+**Live gelaufen ist alles**, in vier Reihen auf HAL9000 mit vollständigem
 Rückbau: 24–24e (deklarative Installation, Pin `8f287d9`), 25–25c, 20b und
 16–17b (Produktionsinstanz, `abdffa2`), 26–26c und 27 (Entwicklungsinstanz,
-`0c903cb`). Die Protokolle liegen unter `docs/ms7-2026-09-06-hal9000*.md`, die
-Livebefunde in `docs/research.md` Abschnitt 8. Eine Test-VM gibt es nicht — mit
-zwei echten Maschinen beantwortet sie keine Frage besser, und die Ladbarkeit des
-Bundles prüft `checks.bundle-runtime` billiger — **per Grep auf Namen, nicht
-durch einen Ladeversuch** (`PLAN.md` Abschnitt 8). Fall 20c
-ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.8).
+`0c903cb`) sowie 26d und 27b (Produktionsinstanz, `68c9ba8`, AP8). Die
+Protokolle liegen unter `docs/ms7-2026-09-06-hal9000*.md` und
+`docs/ms7-2026-09-12-hal9000-ap8.md`, die Livebefunde in `docs/research.md`
+Abschnitt 8. Eine Test-VM gibt es nicht — mit zwei echten Maschinen beantwortet
+sie keine Frage besser, und die Ladbarkeit des Bundles prüft
+`checks.bundle-runtime` billiger — **per Grep auf Namen, nicht durch einen
+Ladeversuch** (`PLAN.md` Abschnitt 8). Fall 20c ist nicht offen, sondern
+**nicht herstellbar** (`docs/research.md` 6.8).
 
-**Drei Beleggrenzen**, die beim Weiterbauen zählen: der Multi-Output-Nachweis
-hat **zwei** Ausgaben gleicher Größe geprüft, nicht drei und keine
-unterschiedlichen Auflösungen oder Skalierungen; die Alltagsstunde lief mit
-skriptgesteuerter Last, belegt also Schleifenfreiheit unter dichter
-Ereignislast, nicht unter Alltagsbedingungen; und diese Last erzeugte keinen
-Hotplug, keine Panelhöhenänderung und kein Ziehen — von 59 Läufen sind nur
-acht rein technisch, und nur in ihnen kann der Wiederholungszähler des
-Auditors überhaupt stehen bleiben (`docs/research.md` 8.7). Eine Wiederholung
-mit technischer Last ist ein eigener Live-Termin.
+**Zwei der drei Beleggrenzen aus Meilenstein 7 sind in AP8 geschlossen**
+(`docs/research.md` 8.10): der Multi-Output-Nachweis deckt jetzt auch eine
+**skalierte** zweite Ausgabe (1,25, logisch ganzzahlig) ab, und die
+Alltagsstunde lief mit **technischer** Last (Hotplug, Panelhöhe, Ziehen) und
+belegte Schleifenfreiheit über die `extern`-Kette. **Offen bleiben:** drei oder
+mehr Ausgaben und eine Skalierung mit gebrochener Arbeitsfläche; und die Last
+ist weiterhin skriptgesteuert, nicht menschlich (dichter getaktet, kein Tippen,
+kein Ziehen am Rahmen mit der Hand).
 
 ## Ursprung & Zweck
 
@@ -546,6 +553,18 @@ Activities und verwaltet nicht die Zahl der Desktops.
   es der Nutzer, beschreibt der Nutzerlauf das Fenster und gibt es frei.
   `nachbessern` gibt nie frei. Ein `windowActivated` an einem fremden Fenster
   setzte vorher jeden Zähler global zurück.
+- **Eine eigene `extern`-Meldung setzt den Soll-Wiederholungszähler zurück**
+  (seit 7.2, AP8). Sie belegt, dass eine fremde Kraft genau dieses Fenster
+  bewegt hat; der folgende Schreibvorgang korrigiert eine echte Verschiebung,
+  keine Schleifeniteration. Den Schleifennachweis trägt damit **allein** die
+  `extern`-Kette (mehr als drei aufeinanderfolgende `extern` eines Fensters ohne
+  Nutzerlauf dazwischen). Der Soll-Zähler bleibt als sekundäres Netz für den
+  Give-up-Fall: `apply` plus zwei `nachbessern` **ohne** `extern` erreichen die
+  Schwelle 3. Ohne diesen Reset zählte der Auditor unter technischer Last
+  (Hotplug, Panelhöhe, Ziehen) jede korrekte Korrektur mit und meldete Fall 27b
+  fälschlich als Schleife — der dritte Auditordefekt, den erst ein echter
+  Lastfall zeigte. Der `grund=geometrieExtern` einer `arrange`-Zeile gibt
+  dagegen weiterhin **nichts** frei; nur die eigene `extern`-Zeile des Fensters.
 - **Der Stundenmodus verlangt Mindestaktivität** (zehn Läufe, zehn
   Schreibvorgänge, ein rein nutzerveranlasster Lauf). Eine leere Stunde
   belegt Stillstand, keine Schleifenfreiheit. `--seit` mit einer Datei ist
