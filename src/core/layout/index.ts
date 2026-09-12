@@ -1,8 +1,10 @@
 import { full } from "./full.ts";
+import { grid } from "./grid.ts";
 import { RATIO_DEFAULT, tall } from "./tall.ts";
 import type { LayoutDef, LayoutParams } from "./types.ts";
 
 export { full } from "./full.ts";
+export { grid } from "./grid.ts";
 export {
 	clampRatio,
 	RATIO_DEFAULT,
@@ -20,8 +22,9 @@ export const DEFAULT_PARAMS: LayoutParams = {
 	gapInner: 0,
 };
 
-/** Reihenfolge des Layoutzyklus (`Meta+Space`); `grid` kommt in Stufe 2 dazu. */
+/** Reihenfolge des Layoutzyklus (`Meta+Space`); alte Indizes bleiben stabil. */
 export const LAYOUTS: LayoutDef[] = [
 	{ id: "tall", label: "Tall", apply: tall },
 	{ id: "full", label: "Full", apply: full },
+	{ id: "grid", label: "Grid", apply: grid },
 ];

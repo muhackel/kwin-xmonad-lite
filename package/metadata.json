@@ -7,7 +7,7 @@
                 "Name": "Sebastian Rädle"
             }
         ],
-        "Description": "Schlanker Layout-Controller im Stil von XMonads Tall- und Full-Layout",
+        "Description": "Schlanker Layout-Controller mit Tall, Full und Grid im XMonad-Stil",
         "Icon": "preferences-system-windows-script-test",
         "Id": "kwin-xmonad-lite",
         "License": "MIT",

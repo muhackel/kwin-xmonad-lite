@@ -20,7 +20,7 @@ den Abnahmelauf vom 2026-09-06 auf SPIELKISTE gehalten
 | Master vergrößern | `Meta+L` | `xml-expand` | Masteranteil um 0,05, obere Grenze 0,9 |
 | Wieder kacheln | `Meta+T` | `xml-sink` | nimmt die Float-Markierung vom aktiven Fenster |
 | Float umschalten | `Meta+Shift+T` | `xml-toggle-float` | schaltet die Float-Markierung des aktiven Fensters um |
-| Layout wechseln | `Meta+Space` | `xml-next-layout` | zyklisch durch `LAYOUTS` (`tall`, `full`) |
+| Layout wechseln | `Meta+Space` | `xml-next-layout` | zyklisch durch `LAYOUTS` (`tall`, `full`, `grid`) |
 | Layout zurücksetzen | `Meta+Shift+Space` | `xml-reset-layout` | Layout und Masteranteil der Surface auf die konfigurierten Startwerte |
 
 Fokus, Tausch, Promote, Ratio und Layout wirken auf der **gewählten Surface**;
@@ -132,8 +132,8 @@ aber unbrauchbare Eingabe schon. Geworfen wird nie, geklemmt immer.
 | `gapOuter` | Zahl als Text | `0` | `Number` → endlich → `Math.round` → `[0, 200]` |
 | `gapInner` | Zahl als Text | `0` | wie oben |
 | `excludes` | Liste, mit `,` getrennt | die sieben Vorgabeklassen | normalisiert, Leereinträge fallen weg, sortiert; **leerer Wert heißt leere Liste** |
-| `masterRatio` | Zahl als Text | `0.65` | `clampRatio` auf `[0.1, 0.9]`, danach auf zwei Nachkommastellen |
-| `defaultLayout` | Text | `tall` | gegen `LAYOUTS` aufgelöst (`tall`, `full`), Groß-/Kleinschreibung egal; unbekannt → `tall` |
+| `masterRatio` | Zahl als Text | `0.65` | `clampRatio` auf `[0.1, 0.9]`, danach auf zwei Nachkommastellen; Geometriewirkung nur in Tall |
+| `defaultLayout` | Text | `tall` | gegen `LAYOUTS` aufgelöst (`tall`, `full`, `grid`), Groß-/Kleinschreibung egal; unbekannt → `tall` |
 | `debug` | `true` / `false` | `false` | alles andere → `false` |
 
 Die sieben Vorgabeklassen von `excludes` sind `krunner`, `yakuake`, `kded6`,
@@ -142,17 +142,23 @@ Die sieben Vorgabeklassen von `excludes` sind `krunner`, `yakuake`, `kded6`,
 **Vollmatch**, nicht als Teilzeichenkette.
 
 Die Obergrenze 200 für die Abstände fängt den Tippfehler ab, nicht den
-Geschmack. Ganzzahlig müssen sie sein, weil `tall` und `full` ganzzahlige
+Geschmack. Ganzzahlig müssen sie sein, weil `tall`, `full` und `grid` ganzzahlige
 Zellen liefern; eine gebrochene Kante erzeugte in jeder Epoche eine Abweichung
 zwischen Soll und Rücklesen.
+
+Grid wählt seine Spaltenzahl aus Fensterzahl und Seitenverhältnis der
+Arbeitsfläche mit einem Zielverhältnis von 16:9. Die Reihenfolge läuft
+spaltenweise von links oben nach unten; zusätzliche Fenster landen in den
+rechten Spalten. `masterRatio` bleibt als Surface-Zustand erhalten, verändert
+aber weder Grid noch Full.
 
 `masterRatio` und `defaultLayout` wirken auf **neu angelegte Surfaces** und als
 Ziel von `xml-reset-layout`. Eine bestehende Surface behält ihre per `Meta+H`,
 `Meta+L` und `Meta+Space` gemachten Anpassungen — sonst nähme der nächste
 Anordnungslauf sie zurück. Über einen Reload hinweg ist das nicht zu
 beobachten: ein Reload erzeugt einen neuen Adapter mit leerer Registry, danach
-gelten überall wieder die konfigurierten Startwerte. Zustandspersistenz ist
-Stufe 2.
+gelten überall wieder die konfigurierten Startwerte. Zustandspersistenz bleibt
+optionale Folgearbeit; Meilenstein 8 führt sie nicht ein.
 
 ### Beispiel `kwinrc`
 
@@ -275,7 +281,7 @@ kwin-xmonad-lite: arrange #7 grund=windowActivated,shortcut:focusNext surfaces=3
 ```
 
 Die `config`-Zeile fasst den wirksamen Stand zusammen; `layout=` ist der Index
-in `LAYOUTS` (0 = `tall`, 1 = `full`). Davor steht je Korrektur eine eigene
+in `LAYOUTS` (0 = `tall`, 1 = `full`, 2 = `grid`). Davor steht je Korrektur eine eigene
 Zeile, zum Beispiel:
 
 ```
@@ -283,7 +289,7 @@ kwin-xmonad-lite: config gapOuter=abc unlesbar, verwende 0
 kwin-xmonad-lite: config gapInner=-5 unzulässig, verwende 0
 kwin-xmonad-lite: config excludes leer: kein Fenster wird ausgeschlossen
 kwin-xmonad-lite: config masterRatio=1.5 geklemmt auf 0.9
-kwin-xmonad-lite: config defaultLayout=grid unbekannt, verwende tall
+kwin-xmonad-lite: config defaultLayout=spiral unbekannt, verwende tall
 kwin-xmonad-lite: config debug=ja unlesbar, verwende false
 ```
 
@@ -298,6 +304,11 @@ Tastendrücke innerhalb des 20-ms-Fensters landen in **einem** Lauf, dessen
 Grund dann alle Quellen sammelt.
 
 ## 5. Abnahme und offene Punkte
+
+Meilenstein 8 erweitert diese Bedienung um Grid und prüft die getrennten
+Activity-Zustände, Sticky-Fenster und Mehrfach-Activity-Zuordnung automatisch.
+Die nachgelagerte Live-Prüfung von Grid und Matrix 6–8 auf HAL9000 steht noch
+aus; daraus wird hier keine Nutzerabnahme abgeleitet.
 
 Die deklarative Aktivierung auf HAL9000 ist mit den Fällen 24 bis 24e
 bestanden: Laden aus dem Store, alle zwölf Tasten per `/dev/uinput`, Ändern

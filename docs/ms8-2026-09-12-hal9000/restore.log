@@ -1,0 +1,71 @@
+[1;32mok[0m Activities, Desktops, aktuelle IDs und entladene Skripte entsprechen der Ausgangslage.
+[1;34m==>[0m Stoppe die zu graphical-session.target gehörenden Plasma-Dienste.
+Job for graphical-session.target canceled.
+[1;34m==>[0m Fortsetzung nach Neustart; Ruhezustand während dieses Auftrags gesperrt.
+b true
+KXLMS8INVENTORY [{"id":"{b0e4278c-6d7b-4543-9bbf-517ceb47e33a}","cls":"plasmashell","normal":false,"special":true,"activities":[],"desktops":[],"minimized":false,"geometry":{"x":0,"y":0,"width":1920,"height":1080}},{"id":"{3d4e9a61-dba7-4f96-a46a-e8d6da8331a4}","cls":"plasmashell","normal":false,"special":true,"activities":[],"desktops":[],"minimized":false,"geometry":{"x":0,"y":1050,"width":1920,"height":30}}]
+[1;34m==>[0m Stoppe die drei schreibenden Plasma-Dienste.
+[1;32mok[0m Dateirückbau für Batch 0 geprüft.
+[1;32mok[0m Dateirückbau für Batch 10 geprüft.
+.config/kwinrc: OK
+.config/kglobalshortcutsrc: OK
+.config/kwriterc: OK
+.config/kactivitymanagerdrc: OK
+.config/kactivitymanagerd-statsrc: OK
+.config/kactivitymanagerd-pluginsrc: OK
+.config/plasma-org.kde.plasma.desktop-appletsrc: OK
+.config/plasmashellrc: OK
+.local/share/kactivitymanagerd/resources/database-wal: OK
+.local/share/kactivitymanagerd/resources/database-shm: OK
+.local/share/kactivitymanagerd/resources/errors.log: OK
+.local/share/kactivitymanagerd/resources/test-backup/database-wal: OK
+.local/share/kactivitymanagerd/resources/test-backup/database-shm: OK
+.local/share/kactivitymanagerd/resources/test-backup/database: OK
+.local/share/kactivitymanagerd/resources/database: OK
+.local/share/kactivitymanagerd/resources/working-backup/database-wal: OK
+.local/share/kactivitymanagerd/resources/working-backup/database-shm: OK
+.local/share/kactivitymanagerd/resources/working-backup/database: OK
+.local/share/plasma/containmentpreviews/102-a89f5ec2-ab8e-4108-8088-7118500a3aab.png: OK
+.local/share/plasma/containmentpreviews/83-.png: OK
+.local/share/plasma/containmentpreviews/82-a89f5ec2-ab8e-4108-8088-7118500a3aab.png: OK
+.local/share/recently-used.xbel: OK
+.local/share/RecentDocuments/OccS1Bg.mp4.desktop: OK
+.local/share/RecentDocuments/rs232.pdf.desktop: OK
+bash: line 51: /home/muhackel/kxl-ms8-live/backup-20260912/absent.list: No such file or directory
+Alle zwölf Sicherungspfade waren ursprünglich vorhanden.
+plasma-kwin_wayland.service: active
+[1;34m==>[0m Abschließender Rückbau; Ruhezustand während dieses Auftrags gesperrt.
+b true
+KXLMS8INVENTORY [{"id":"{a34e78f9-a2c6-4ba8-9b43-fb9d97b1a34b}","cls":"plasmashell","normal":false,"special":true,"activities":[],"desktops":[],"minimized":false,"geometry":{"x":0,"y":0,"width":1920,"height":1080}},{"id":"{702c02af-9ad0-499f-a9e4-a1f596933e75}","cls":"plasmashell","normal":false,"special":true,"activities":[],"desktops":[],"minimized":false,"geometry":{"x":0,"y":1050,"width":1920,"height":30}}]
+[1;34m==>[0m Stoppe die drei schreibenden Plasma-Dienste.
+[1;32mok[0m Dateirückbau für Batch 0 geprüft.
+[1;32mok[0m Dateirückbau für Batch 10 geprüft.
+.config/kwinrc: OK
+.config/kglobalshortcutsrc: OK
+.config/kwriterc: OK
+.config/kactivitymanagerdrc: OK
+.config/kactivitymanagerd-statsrc: OK
+.config/kactivitymanagerd-pluginsrc: OK
+.config/plasma-org.kde.plasma.desktop-appletsrc: OK
+.config/plasmashellrc: OK
+.local/share/kactivitymanagerd/resources/database-wal: OK
+.local/share/kactivitymanagerd/resources/database-shm: OK
+.local/share/kactivitymanagerd/resources/errors.log: OK
+.local/share/kactivitymanagerd/resources/test-backup/database-wal: OK
+.local/share/kactivitymanagerd/resources/test-backup/database-shm: OK
+.local/share/kactivitymanagerd/resources/test-backup/database: OK
+.local/share/kactivitymanagerd/resources/database: OK
+.local/share/kactivitymanagerd/resources/working-backup/database-wal: OK
+.local/share/kactivitymanagerd/resources/working-backup/database-shm: OK
+.local/share/kactivitymanagerd/resources/working-backup/database: OK
+.local/share/plasma/containmentpreviews/102-a89f5ec2-ab8e-4108-8088-7118500a3aab.png: OK
+.local/share/plasma/containmentpreviews/83-.png: OK
+.local/share/plasma/containmentpreviews/82-a89f5ec2-ab8e-4108-8088-7118500a3aab.png: OK
+.local/share/recently-used.xbel: OK
+.local/share/RecentDocuments/OccS1Bg.mp4.desktop: OK
+.local/share/RecentDocuments/rs232.pdf.desktop: OK
+[1;32mok[0m Alle zwölf Sicherungspfade waren ursprünglich vorhanden.
+plasma-kwin_wayland.service: inactive
+plasma-plasmashell.service: failed
+plasma-kactivitymanagerd.service: inactive
+[1;32mok[0m Alle gesicherten Dateiinhalte sind SHA-256-identisch; alle drei Plasma-Dienste sind inaktiv.

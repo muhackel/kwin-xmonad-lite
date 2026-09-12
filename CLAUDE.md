@@ -1,14 +1,18 @@
 # CLAUDE.md — kwin-xmonad-lite
 
 Schlanker Layout-Controller als KWin-Skript für Plasma 6 auf Wayland. Holt
-einen Teil des alten XMonad-Arbeitsgefühls zurück: Tall- und Full-Layout,
+einen Teil des alten XMonad-Arbeitsgefühls zurück: Tall-, Full- und Grid-Layout,
 Tastensteuerung für Fokus, Reihenfolge und Master-Anteil.
 
 Der vollständige Entwurf steht in [`PLAN.md`](PLAN.md), die belegten Quellen
 und Messwerte in [`docs/research.md`](docs/research.md), Tasten und
-Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 7 samt den
-Zwischenschritten 7.1 und 7.2 sind abgeschlossen, der MVP ist abgenommen
-(2026-09-06, Beleggrenzen nachgeholt 2026-09-12).** Die Abnahme war
+Konfiguration in [`docs/keys.md`](docs/keys.md). **Stand: Meilenstein 8 ist
+implementiert, automatisch und auf HAL9000 live geprüft (2026-09-12).**
+Grid und Matrix 6–8 bestehen; Rohdaten, Gegenproben und Ablauf stehen im
+[Prüfprotokoll](docs/ms8-2026-09-12-hal9000/README.md). Eine persönliche
+Nutzerabnahme ist damit nicht erklärt. Meilenstein 7 samt den Zwischenschritten 7.1 und 7.2 ist
+abgeschlossen, der MVP ist abgenommen (2026-09-06, Beleggrenzen nachgeholt
+2026-09-12). Die Abnahme war
 zwischenzeitlich ausgesetzt: ein externes Audit fand Defekte in den
 **Prüfwerkzeugen**, nicht im Controller. Ein zweites Audit (7.1) fand die
 berichtigten Prüfer an drei Stellen noch stumpf: der Auditor konnte in Fall 27
@@ -21,15 +25,17 @@ der ist geschärft — eine eigene `extern`-Meldung eines Fensters setzt seinen
 Soll-Wiederholungszähler zurück, der Schleifennachweis liegt allein an der
 `extern`-Kette. Jeder archivierte Nachweis besteht die geschärften Prüfer; die
 Neuauswertung hängt als `checks.archiv-reauswertung` im Flake und deckt seit 7.1
-**jedes** Artefakt unter `docs/` ab. 405 Tests, zehn Checks im Projektflake,
-vier im `nixosconfig`-Flake. `src/` ist seit `abdffa2` unverändert. Die Meilensteine 0 bis 6 samt den
+**jedes** Artefakt unter `docs/` ab. Meilenstein 8 erweitert den Bestand von
+405 auf 432 Tests und behält die zehn Checks im Projektflake; vier weitere liegen im
+`nixosconfig`-Flake. Die Meilensteine 0 bis 6 samt den
 Stabilisierungsschritten und Audits sind ebenfalls abgeschlossen. Der Controller kachelt auf allen Ausgaben,
 Zustandsübergänge, Float, Dialogfilter und Größenschranken liegen hinter der
 Snapshot-Grenze, und seit Meilenstein 6 ist er bedienbar: zwölf `xml-*`-Aktionen,
 sechs Konfigurationsschlüssel aus `kwinrc` und ein Home-Manager-Modul auf
-plasma-manager-Basis. `Full` ist damit erstmals erreichbar.
+plasma-manager-Basis. Der Layoutzyklus lautet jetzt `tall`, `full`, `grid`;
+`masterRatio` wirkt geometrisch nur in Tall.
 
-**Live gelaufen ist alles**, in vier Reihen auf HAL9000 mit vollständigem
+**Die folgenden MS7-Abnahmefälle liefen live**, in vier Reihen auf HAL9000 mit vollständigem
 Rückbau: 24–24e (deklarative Installation, Pin `8f287d9`), 25–25c, 20b und
 16–17b (Produktionsinstanz, `abdffa2`), 26–26c und 27 (Entwicklungsinstanz,
 `0c903cb`) sowie 26d und 27b (Produktionsinstanz, `68c9ba8`, AP8). Die
@@ -76,7 +82,8 @@ Activities und verwaltet nicht die Zahl der Desktops.
 - Zustand je **Surface** = Activity × Desktop × Ausgabe.
 - Fenster auf allen Desktops oder in mehreren Activities werden **in jeder
   Surface mitgekachelt**.
-- Kein KCM-Dialog im MVP; Konfiguration über `kwinrc` und das Nix-Modul.
+- Kein KCM-Dialog; Konfiguration über `kwinrc` und das Nix-Modul. Persistenz
+  und ein KCM bleiben optionale Folgearbeit, falls dafür ein Bedarf entsteht.
 
 ## Architektur (Kurz)
 
@@ -188,6 +195,10 @@ Activities und verwaltet nicht die Zahl der Desktops.
   Abstände zerlegen die Fläche exakt", nicht „lückenlos".
 - Ist die Fläche zu schmal für zwei Spalten, liefert `tall` einen reinen
   senkrechten Stapel statt einer Masterspalte, die aus der Fläche ragt.
+- Grid wählt seine Spaltenzahl mit Zielseitenverhältnis 16:9, ordnet
+  spaltenweise und gibt den rechten Spalten die zusätzlichen Fenster. Breiten
+  und Höhen verwenden dieselbe Restpixelverteilung und achsenweise Gap-Klemmung
+  wie der bestehende Kern; `masterRatio` hat auf Grid keine Geometriewirkung.
 - **Überlappungstests brauchen die Max/Min-Form.** Das kurze
   `a.x < b.x + b.width && …` meldet für ein Rechteck der Breite 0 fälschlich
   eine Überlappung; `max(links) < min(rechts)` nicht.
@@ -536,9 +547,13 @@ Activities und verwaltet nicht die Zahl der Desktops.
   ein unbekannter Schlüssel ist ein Fehler; vorher fiel `gap=8/4` still auf
   `0/0`.
 - **Das Orakel prüft die Zuordnung Fenster → Zelle**, nicht nur die Menge der
-  Rechtecke: das erste Fenster in `diagnose … teilnehmer=` muss die
-  Masterzelle belegen. Vorher bestand ein Auszug mit vertauschtem Master und
-  Stapelfenster.
+  Rechtecke: das erste Fenster in `diagnose … teilnehmer=` muss die erste
+  Layoutzelle belegen (in Tall die Masterzelle, in Grid die erste Zelle der
+  spaltenweisen Folge). Tall und Grid werden zusätzlich auf Überlappung
+  geprüft. Vorher bestand ein Auszug mit vertauschtem Master und Stapelfenster.
+  Das Orakel darf den gemeinsamen Layoutkern zur Laufzeit verwenden; der
+  unabhängige Grid-Algorithmusnachweis kommt aus fest ausgeschriebenen
+  positiven und negativen Testrechtecken.
 - **Ein Sammelgrund ist nur dann Nutzeranlass, wenn jeder Teil es ist.** Der
   Entpreller schreibt `grund=geometrieExtern,fensterzustand`; mit einem ODER
   darüber neutralisierte ein einziger Nutzerteil alle technischen, und in Fall

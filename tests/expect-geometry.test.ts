@@ -16,6 +16,19 @@ import { must } from "./support/props.ts";
 
 const TALL_ERWARTUNG = ["layout=tall", "n=3", "ratio=0.65", "gaps=0/0", `fläche=${FLAECHE_TEXT}`];
 
+const GRID_ERWARTUNG = ["layout=grid", "n=5", "ratio=0.65", "gaps=0/0", `fläche=${FLAECHE_TEXT}`];
+
+// Fest ausgeschrieben, nicht aus `grid` oder `LAYOUTS` erzeugt: auf der
+// 1920x1050-Fläche wählt die 16:9-Regel zwei Spalten. Das zusätzliche
+// Fenster steht in der rechten Spalte; die Reihenfolge ist spaltenweise.
+const GRID5 = [
+	{ x: 0, y: 0, w: 960, h: 525 },
+	{ x: 0, y: 525, w: 960, h: 525 },
+	{ x: 960, y: 0, w: 960, h: 350 },
+	{ x: 960, y: 350, w: 960, h: 350 },
+	{ x: 960, y: 700, w: 960, h: 350 },
+];
+
 function fenster(zellen: Array<{ x: number; y: number; w: number; h: number }>): Array<{
 	id: string;
 	geo: { x: number; y: number; w: number; h: number };
@@ -44,6 +57,63 @@ test("full besteht mit deckungsgleichen Rechtecken", () => {
 		["layout=full", "n=3", "ratio=0.55", "gaps=8/4", `fläche=${FLAECHE_TEXT}`],
 	);
 	assert.deepEqual(fehlertexte(report), []);
+});
+
+test("grid besteht mit fester externer Fünf-Fenster-Vorgabe", () => {
+	const report = run(
+		ndjson({ fenster: fenster(GRID5) }),
+		journal({ layout: "grid", n: 5, teilnehmer: ["a", "b", "c", "d", "w4"] }),
+		GRID_ERWARTUNG,
+	);
+	assert.deepEqual(fehlertexte(report), []);
+	assert.equal(report.bestanden, true);
+});
+
+test("grid erkennt eine vertauschte spaltenweise Zuordnung", () => {
+	const vertauscht = [GRID5[1], GRID5[0], GRID5[2], GRID5[3], GRID5[4]].map((rect) =>
+		must(rect, "Grid-Zelle"),
+	);
+	const report = run(
+		ndjson({ fenster: fenster(vertauscht) }),
+		journal({ layout: "grid", n: 5, teilnehmer: ["a", "b", "c", "d", "w4"] }),
+		GRID_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some(
+			(text) => text.includes("steht an Stelle 1") && text.includes("belegt aber Zelle 2"),
+		),
+		true,
+	);
+});
+
+test("grid erkennt eine überlappende Zelle", () => {
+	const ueberlappend = GRID5.map((rect, index) =>
+		index === 2 ? { ...rect, x: 900 } : { ...rect },
+	);
+	const report = run(
+		ndjson({ fenster: fenster(ueberlappend) }),
+		journal({ layout: "grid", n: 5, teilnehmer: ["a", "b", "c", "d", "w4"] }),
+		GRID_ERWARTUNG,
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("a und c überlappen sich in `grid`")),
+		true,
+	);
+});
+
+test("grid erkennt eine von der extern vorgegebenen Fläche abweichende Messung", () => {
+	const report = run(
+		ndjson({ fenster: fenster(GRID5) }),
+		journal({ layout: "grid", n: 5, teilnehmer: ["a", "b", "c", "d", "w4"] }),
+		["layout=grid", "n=5", "ratio=0.65", "gaps=0/0", "fläche=1920x1080+0+0"],
+	);
+	assert.equal(report.bestanden, false);
+	assert.equal(
+		fehlertexte(report).some((text) => text.includes("Probe misst fläche=1920x1050+0+0")),
+		true,
+	);
 });
 
 test("ein fehlendes Fenster im letzten Sample fällt auf", () => {

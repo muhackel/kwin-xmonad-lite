@@ -719,6 +719,7 @@ const ARCHIV = [
 	"docs/ms7-2026-09-06-hal9000-fall27.log",
 	"docs/ms7-2026-09-12-hal9000-ap8.log",
 	"docs/ms7-2026-09-12-hal9000-fall27b.log",
+	"docs/ms8-2026-09-12-hal9000/controller.log",
 	// `-o cat`, deshalb ohne PID: der Auditor meldet dafür einen Hinweis. Für
 	// die Schleifenprüfung reicht das, für eine Belegschwelle nicht.
 	"docs/shortcuts-2026-09-06-spielkiste.log",

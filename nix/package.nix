@@ -54,7 +54,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   '';
 
   meta = {
-    description = "Schlanker KWin-Layout-Controller im Stil von XMonads Tall- und Full-Layout";
+    description = "Schlanker KWin-Layout-Controller mit Tall, Full und Grid im XMonad-Stil";
     homepage = "https://github.com/muhackel/kwin-xmonad-lite";
     license = lib.licenses.mit;
     platforms = lib.platforms.linux;

@@ -2,8 +2,8 @@
 
 Ein schlanker Layout-Controller als KWin-Skript für Plasma 6 auf Wayland. Er
 holt einen kleinen Teil des alten XMonad-Arbeitsgefühls zurück: automatisches
-Kacheln mit einem Master-Bereich, ein Vollbild-Layout und Tastensteuerung für
-Fokus, Reihenfolge und Master-Anteil.
+Kacheln als Tall, Full oder Grid und Tastensteuerung für Fokus, Reihenfolge und
+Master-Anteil.
 
 Er ist **kein** Fenstermanager und **kein** XMonad-Nachbau. Fenster-, Desktop-,
 Activity- und Bildschirmzuordnung bleiben vollständig bei KWin und seinen
@@ -28,8 +28,8 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > Höchstgrößen werden berücksichtigt. Seit Meilenstein 6 ist der Controller
 > bedienbar: zwölf eigene Tastenkürzel, sechs Konfigurationsschlüssel in
 > `kwinrc` und ein Home-Manager-Modul für die deklarative Installation. Damit
-> ist auch das Full-Layout erreichbar. Der Stand hat 405 Tests und zehn
-> Flake-Checks.
+> ist auch das Full-Layout erreichbar. Der abgenommene MS7.2-Stand hatte 405
+> Tests und zehn Flake-Checks; Meilenstein 8 erweitert die Testsuite auf 432.
 >
 > Meilenstein 7 hat das Verhalten live geprüft, in vier Reihen auf HAL9000 mit
 > vollständigem Rückbau: die deklarative Installation samt Aus-Zweig
@@ -54,6 +54,14 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > das gebaute Bundle per Grep auf Funktionen, die QJSEngine nicht hat, und die
 > esbuild-Zielstufe — ein **Ladeversuch ist er nicht**. Nicht herstellbar und
 > deshalb unbelegt bleibt Fall 20c.
+>
+> **Meilenstein 8 ist implementiert und auf HAL9000 live geprüft (2026-09-12).**
+> Grid ist als drittes Layout erreichbar. Zehn Geometriefälle bestehen,
+> einschließlich vier unabhängiger Activity-/Desktop-Zustände, gemeinsamer
+> und Sticky-Fenster sowie Activity-GC. Die Rohdaten und verworfenen Vorläufe
+> werden im Flake-Check erneut ausgewertet; das
+> [Prüfprotokoll](docs/ms8-2026-09-12-hal9000/README.md) beschreibt die Belege.
+> Die persönliche Nutzerabnahme bleibt davon getrennt.
 
 ## Schnellstart
 
@@ -167,8 +175,8 @@ Gelesen wird `kwinrc`, Gruppe `[Script-kwin-xmonad-lite]` (Produktion) bzw.
 | `gapOuter` | `0` | Abstand zum Rand der Arbeitsfläche, `0`–`200` |
 | `gapInner` | `0` | Abstand zwischen den Zellen, `0`–`200` |
 | `excludes` | sieben Klassen | nicht zu kachelnde `resourceClass`-Werte, mit `,` getrennt |
-| `masterRatio` | `0.65` | Anteil der Masterspalte, `0.1`–`0.9` |
-| `defaultLayout` | `tall` | Startlayout neuer Surfaces: `tall` oder `full` |
+| `masterRatio` | `0.65` | Anteil der Masterspalte in Tall, `0.1`–`0.9`; in Full und Grid ohne Geometriewirkung |
+| `defaultLayout` | `tall` | Startlayout neuer Surfaces: `tall`, `full` oder `grid` |
 | `debug` | `false` | ausführlichere Journalzeilen |
 
 Unsinnige Werte werfen nie — sie werden geklemmt oder auf die Vorgabe
@@ -199,7 +207,7 @@ Das vollständige Verfahren steht in [`docs/keys.md`](docs/keys.md).
 
 ```
 src/core/     Layoutberechnung und Fensterstapel, ohne KWin-Abhängigkeit
-src/core/layout/  Tall und Full, gemeinsame Typen und Layoutliste
+src/core/layout/  Tall, Full und Grid, gemeinsame Typen und Layoutliste
 src/state/    Zustand je Activity × Desktop × Bildschirm, Abgleich gegen KWin
 src/kwin/     Adapter: Filter, Anordnung, Geometrie, Befehle, Konfiguration
 tests/        node --test bis zur Snapshot-Grenze, Hilfen unter support/

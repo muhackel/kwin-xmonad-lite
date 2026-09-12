@@ -1,0 +1,3 @@
+KXLMS8CLIENT before {"x":480,"y":0,"width":960,"height":1050}
+KXLMS8CLIENT target-500x400 {"x":100,"y":100,"width":500,"height":400}
+KXLMS8CLIENT target-800x600 {"x":200,"y":150,"width":800,"height":600}

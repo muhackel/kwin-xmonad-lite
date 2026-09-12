@@ -10,9 +10,9 @@
  *    System.** Layout, Fensterzahl, Masteranteil und Abstände werden von außen
  *    vorgegeben. Zöge das Orakel sie aus dem Journal, passte eine falsche
  *    Anordnung zu ihrem eigenen falschen Protokoll und der Fall bestünde.
- * 2. **Prüfregeln je Layout.** `full` erzeugt absichtlich deckungsgleiche
- *    Rechtecke; eine pauschale Überlappungsprüfung lehnte korrektes Verhalten
- *    ab.
+ * 2. **Prüfregeln je Layout.** `tall` und `grid` müssen überlappungsfrei sein;
+ *    `full` erzeugt dagegen absichtlich deckungsgleiche Rechtecke. Eine
+ *    pauschale Überlappungsprüfung lehnte korrektes Verhalten ab.
  * 3. **Client-Abweichung ist kein Controller-Fehler.** Weicht das Ist vom Soll
  *    ab, während das Soll stimmt, hat der Client die Größe nicht angenommen.
  *    Das ist ein anderer Befund als eine falsche Layoutrechnung und wird
@@ -792,6 +792,9 @@ export function enthalten(aussen: Rect, innen: Rect): boolean {
 }
 
 export function sollZellen(expect: Expectation): Rect[] {
+	// Die gemeinsame Layoutliste hält Orakel und Produktionskern in Deckung.
+	// Sie ist kein unabhängiger Beleg für den Grid-Algorithmus; den liefern die
+	// ausgeschriebenen Sollrechtecke in tests/expect-geometry.test.ts.
 	const def = LAYOUTS.find((entry) => entry.id === expect.layout);
 	if (def === undefined) {
 		return [];
@@ -945,10 +948,10 @@ export function checkGeometry(input: GeometryInput): Finding[] {
 	}
 
 	// Zuordnung Fenster zu Zelle. Das erste Fenster der Teilnehmerliste belegt
-	// die Masterzelle, die weiteren in Reihenfolge die Stapelzellen -- genau
-	// die Reihenfolge, die `LAYOUTS[layout].apply` liefert. Der
-	// Multimengenvergleich oben lässt eine Vertauschung durch: zwei
-	// getauschte Fenster belegen dieselben Rechtecke.
+	// die erste Layoutzelle, die weiteren folgen in Layoutreihenfolge (bei Tall
+	// Master, dann Stapel; bei Grid spaltenweise von links oben). Der
+	// Multimengenvergleich oben lässt eine Vertauschung durch: zwei getauschte
+	// Fenster belegen dieselben Rechtecke.
 	for (let i = 0; i < participants.length && i < soll.length; i++) {
 		const id = participants[i] as string;
 		const gemessenesRect = ist.get(id);
@@ -998,18 +1001,18 @@ export function checkGeometry(input: GeometryInput): Finding[] {
 		}
 	}
 
-	if (expect.layout === "tall") {
+	if (expect.layout === "tall" || expect.layout === "grid") {
 		const werte = Array.from(ist.entries());
 		for (let i = 0; i < werte.length; i++) {
 			for (let j = i + 1; j < werte.length; j++) {
 				const a = werte[i] as [string, Rect];
 				const b = werte[j] as [string, Rect];
 				if (ueberlappt(a[1], b[1])) {
-					findings.push(fehler(`${a[0]} und ${b[0]} überlappen sich in \`tall\``));
+					findings.push(fehler(`${a[0]} und ${b[0]} überlappen sich in \`${expect.layout}\``));
 				}
 			}
 		}
-		if (expect.n > 1) {
+		if (expect.layout === "tall" && expect.n > 1) {
 			// Der Master wird an seiner **vollständigen Sollzelle** erkannt, nicht
 			// an der Breite allein: bei `ratio=0.5` ist die Stapelspalte genauso
 			// breit wie der Master, und die Breitenzählung meldete dann zwei

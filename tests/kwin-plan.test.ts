@@ -378,6 +378,36 @@ test("Tall hebt auch mit Float-Fenstern nichts", () => {
 	assert.deepEqual(surface.raise, []);
 });
 
+test("Grid plant feste Zellen und erzeugt keine Full-Hebevorgänge", () => {
+	const registry = createRegistry();
+	const windows = [windowInfo("a"), windowInfo("b"), windowInfo("c")];
+	only(registry, windows, "b");
+	getSurface(registry, KEY).layoutIndex = 2;
+
+	const surface = only(registry, windows, "b");
+	assert.equal(surface.layoutId, "grid");
+	assert.deepEqual(surface.placements, [
+		{ id: "c", rect: { x: 0, y: 0, width: 1280, height: 1410 } },
+		{ id: "b", rect: { x: 1280, y: 0, width: 1280, height: 705 } },
+		{ id: "a", rect: { x: 1280, y: 705, width: 1280, height: 705 } },
+	]);
+	assert.deepEqual(surface.raise, []);
+});
+
+test("Grid hebt auch sichtbare Float-Fenster nicht", () => {
+	const registry = createRegistry();
+	const a = windowInfo("a");
+	const b = windowInfo("b");
+	only(registry, [a, b], "b");
+	getSurface(registry, KEY).layoutIndex = 2;
+	setFloating(registry, "b", true, null);
+
+	const surface = only(registry, [a, b], "b");
+	assert.equal(surface.layoutId, "grid");
+	assert.deepEqual(surface.participants, ["a"]);
+	assert.deepEqual(surface.raise, []);
+});
+
 test("full hebt ohne Teilnehmer nur die Float-Fenster", () => {
 	const registry = createRegistry();
 	const a = windowInfo("a");

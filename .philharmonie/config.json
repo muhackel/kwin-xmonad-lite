@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "max_rounds": 3,
+  "max_discussions": 3,
+  "timeout_seconds": 1800,
+  "generator": "codex",
+  "evaluator": "claude",
+  "second_opinion": false,
+  "model": null,
+  "effort": null,
+  "check_nix_daemon": true
+}

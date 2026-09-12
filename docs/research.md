@@ -12,6 +12,7 @@ ist keine Quelle: was hier nicht steht, ist nicht belegt.
 | kglobalacceld-Quellcode aus dem Pin | 6.7.4 | GPL-2.0-or-later | Konfliktverhalten bei Tastenkürzeln |
 | `~/.config/{kglobalshortcutsrc,kwinrc,kactivitymanagerdrc}` auf SPIELKISTE | 2026-09-05 | – | Konfliktprüfung, Altlasten, Desktop- und Ausgabezahl |
 | `nixosconfig/sources/xmonad/xmonad.hs` | vorliegend | – | Ratio 65 %, Schritt 5 %, Layoutreihenfolge, Tastenbelegung |
+| XMonad-Contrib [`XMonad/Layout/Grid.hs`](https://raw.githubusercontent.com/xmonad/xmonad-contrib/a60c385b92bf3ab54e08d6b22c6602f8fee3b9b7/XMonad/Layout/Grid.hs) | Pin `a60c385b92bf3ab54e08d6b22c6602f8fee3b9b7`, gelesen 2026-09-12 | BSD-3-Clause | Grid-Zielverhältnis 16:9, Spaltenwahl und spaltenweise Reihenfolge als mathematische Idee |
 | `~/Desktop/{xmonad,kde}-bindings.md` | vorliegend | – | Belegung, persönliche Abweichungen |
 | Polonium `github.com/zeroxoneafour/polonium` `afc713f6` | 2026-07-31 | MIT | Event-Dedup, Schlüsselbildung |
 | Tessera `github.com/IamAndelib/Tessera` `d66fbad4` | 2026-09-03 | MIT | Float-Restore, Init-Retry, ES-Target-Begründung |
@@ -964,3 +965,32 @@ Give-up-Fall ohne `extern`. Nach der Schärfung besteht Fall 27b mit höchstens 
 alle archivierten Nachweise bestehen weiter. Dieselbe Lehre wie in 7.1: ein
 Prüfwerkzeug ohne echten Lastfall hat blinde Flecken, die erst der Lastfall
 zeigt.
+
+## 9. Grid-Quellenbefund und Stand von Meilenstein 8
+
+Die frühere Konfiguration importiert normales `XMonad.Layout.Grid` und nutzt
+`smartBorders Grid`, keine eigene `GridRatio`-Instanz. Der am 2026-09-12
+gelesene, exakt gepinnte Originalquelltext setzt `defaultRatio = 16/9`. Seine
+Spaltenzahl beruht auf der gerundeten Quadratwurzel von
+`n × Breite / (Höhe × 16/9)`, geklemmt auf mindestens eine und höchstens
+`n` Spalten. Fenster werden spaltenweise angeordnet; die überzähligen Fenster
+liegen in den rechten Spalten. Das Projekt übernimmt diese Aufteilungsregel als
+mathematische Idee, nicht als wörtlichen Code, und behauptet keine
+Pixelgleichheit mit der Haskell-Implementierung.
+
+Zwei Unterschiede sind absichtlich sichtbar. JavaScripts `Math.round` rundet
+positive Halbwerte auf, während Haskells `round` zur geraden Zahl rundet. Für
+die Pixelgrößen nutzt das Projekt außerdem seine vorhandene Funktion
+`distribute`: Nach dem gewichteten Floor werden Restpixel von vorn verteilt;
+XMonads `chop` wird nicht nachgebaut. Außen- und Innenabstände folgen der
+bereits für Tall belegten Projektklemmung.
+
+Meilenstein 8 ist implementiert und automatisch geprüft: Grid ist das dritte
+Layout, das Orakel akzeptiert eine externe Grid-Vorschrift und feste
+synthetische Tests decken korrekte Geometrie, Zuordnung, Flächenabweichung und
+Überlappung ab. Activity A/B, Sticky-Desktops, Mehrfach-Activity-Fenster,
+Fokuserhalt in inaktiven Surfaces und Activity-GC laufen durch reale Planungs-
+und Adapterpfade der Tests. Diese Befunde sind **keine Live-Abnahme**. Grid und
+Matrix 6–8 müssen anschließend auf HAL9000 nach der Vorschrift in `build.md`
+laufen. Persistenz, KCM und die Umverteilung bei Größenbeschränkungen bleiben
+optionale Folgearbeit.

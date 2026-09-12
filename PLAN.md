@@ -1,6 +1,6 @@
 # Implementierungsplan `kwin-xmonad-lite`
 
-Stand: 2026-09-06. Der Entwurf mit allen Nutzerentscheidungen steht in Abschnitt 12. Abgeschlossen sind die Meilensteine 0 bis **7** samt den Stabilisierungsschritten 3.1, 3.1.1, 4.1, 4.1.1, 5.1, den Audits 4.2, 6.1, 6.2 und 7.1 sowie den Abnahmen 6.3 und 7. **Der MVP ist abgenommen** — ausgesetzt am 2026-09-06 nach einem externen Audit, das Defekte in den **Prüfwerkzeugen** fand, und nach deren Berichtigung und einer vollständigen Neuauswertung aller Artefakte wieder ausgesprochen. Der Controller war nie betroffen und ist seit `abdffa2` unverändert; jeder Nachweis besteht auch die verschärften Prüfer (Abschnitt 11). Fall 20c ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.8). Eine Test-VM gibt es nicht mehr, weder im MVP noch auf Stufe 2 (Abschnitt 8). Das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein läuft als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
+Stand: 2026-09-12. Der Entwurf mit allen Nutzerentscheidungen steht in Abschnitt 12. Abgeschlossen sind die Meilensteine 0 bis **7.2** samt den Stabilisierungsschritten 3.1, 3.1.1, 4.1, 4.1.1, 5.1, den Audits 4.2, 6.1, 6.2 und 7.1 sowie den Abnahmen 6.3 und 7. **Der MVP ist abgenommen** — ausgesetzt am 2026-09-06 nach einem externen Audit, das Defekte in den **Prüfwerkzeugen** fand, und nach deren Berichtigung und einer vollständigen Neuauswertung aller Artefakte wieder ausgesprochen. Der Controller war von diesen Auditdefekten nicht betroffen; bis einschließlich Meilenstein 7.2 blieb `src/` gegenüber `abdffa2` unverändert. Meilenstein 8 ergänzt Grid und ist automatisch sowie auf HAL9000 live geprüft; die persönliche Nutzerabnahme bleibt davon getrennt. Jeder archivierte Nachweis besteht auch die verschärften Prüfer (Abschnitt 11). Fall 20c ist nicht offen, sondern **nicht herstellbar** (`docs/research.md` 6.8). Eine Test-VM gibt es nicht mehr, weder im MVP noch auf Stufe 2 (Abschnitt 8). Das Repo liegt unter `github.com/muhackel/kwin-xmonad-lite`, jeder Meilenstein läuft als Feature-Branch mit `--no-ff`-Merge. Der aktuelle Stand steht in Abschnitt 9.
 
 ## 0. Position
 
@@ -16,6 +16,7 @@ Alle Angaben stammen aus dem Quellcode der gepinnten Version (kwin 6.7.4, nixpkg
 | kglobalacceld-Quellcode aus dem Pin | 6.7.4 | Konfliktverhalten bei Shortcuts |
 | `~/.config/kglobalshortcutsrc`, `kwinrc`, `kactivitymanagerdrc` auf SPIELKISTE | 2026-09-05 | Konfliktprüfung, Altlasten Krohnkite/Polonium, 4 Desktops, 3 Outputs 2560×1440 |
 | `nixosconfig/sources/xmonad/xmonad.hs`, `~/Desktop/xmonad-bindings.md`, `~/Desktop/kde-bindings.md`, `nixosconfig/{CLAUDE.md,flake.nix,flake.lock,modules/user/muhackel/home.nix}` | vorliegend | Ratio 65 %, Schritt 5 %, Layoutreihenfolge, Belegung, Konventionen |
+| XMonad-Contrib `XMonad/Layout/Grid.hs` am Pin `a60c385b92bf3ab54e08d6b22c6602f8fee3b9b7` | 2026-09-12 gelesen | Grid-Zielverhältnis 16:9, Spaltenwahl und spaltenweise Reihenfolge als mathematische Idee |
 | Polonium `github.com/zeroxoneafour/polonium` `afc713f6` (MIT) | 2026-07-31 | Event-Dedup, Schlüsselbildung, Issues #148/#205/#219/#221/#222/#223 |
 | Tessera `github.com/IamAndelib/Tessera` `d66fbad4` (MIT) | 2026-09-03 | Float-Restore, Init-Retry, Tile-API-Crash-Doku, ES-Target-Begründung |
 | Aerogel `codeberg.org/bovfbovf/aerogel` `29d16d1c` (GPL-3.0-or-later) | 2026-05-26 | nur Ideen: Filterkette, Gap/minSize-Rechnung, Ist/Soll-Vergleich |
@@ -89,7 +90,7 @@ flowchart LR
 
 | Schicht | Inhalt | KWin-Abhängigkeit |
 |---|---|---|
-| `core/layout` | `tall(area, n, params)`, `full(area, n, params)`, später `grid`. Eingabe reine Zahlen, Ausgabe `Rect[]` | keine |
+| `core/layout` | `tall(area, n, params)`, `full(area, n, params)`, `grid(area, n, params)`. Eingabe reine Zahlen, Ausgabe `Rect[]` | keine |
 | `core/stack` | XMonad-Stack je Surface: geordnete Fenster-IDs, Fokus als **Fenster-ID** (kein Index), Layoutindex, Masteranteil. Die Float-Markierung sitzt je Fenster in der Registry, nicht je Surface (Abschnitt 7). Reine Reducer: `focusNext/Prev`, `focusMaster`, `setFocus` (für den Reconcile, wenn KWins aktives Fenster gewinnt), `swapNext/Prev`, `promote`, `insert`, `remove`, `nextLayout`, `resetLayout`, `growMaster`/`shrinkMaster`. Jeder liefert einen **neuen** Zustand; ändert sich nichts, kommt dasselbe Objekt zurück | keine |
 | `state` | `SurfaceKey = activity\|desktopId\|outputName`, Registry mit `Map<SurfaceKey, SurfaceState>` und `Map<WindowId, WindowState>`, Reconcile (Ist-Fenstermenge gegen gespeicherte Reihenfolge). Der Behälter ist veränderlich, die Zustände darin nicht | keine |
 | `kwin/adapter` | Fensterfilter, Signal-Verdrahtung, Debounce (`QTimer`), Geometrie-Anwendung mit Guards, Output-/Desktop-/Activity-Auflösung, Shortcuts, `readConfig` | KWin |
@@ -163,7 +164,7 @@ kwin-xmonad-lite/
 ├── package/                      # KPackage-Wurzel (Build kopiert main.js hinein)
 │   └── metadata.json             # KPlugin.Id "kwin-xmonad-lite", X-Plasma-API javascript
 ├── src/
-│   ├── core/{rect,stack,surface}.ts, core/layout/{index,types,tall,full}.ts
+│   ├── core/{rect,stack,surface}.ts, core/layout/{index,types,tall,full,grid}.ts
 │   ├── state/{registry,reconcile}.ts
 │   ├── kwin/{globals.d,types,filter,plan,geometry,apply,epoch,float,timer,purge,command,config,read,adapter,log}.ts
 │   ├── boot.ts                   # gemeinsamer Init-Retry für Produktions- und Dev-Bundle
@@ -175,14 +176,14 @@ kwin-xmonad-lite/
 ├── dev/
 │   ├── probe/{probe,signals}.js  # Feature- und Signalprobe, nicht Teil des KPackage
 │   └── size-window.py            # Xwayland-Testclient für Größenhinweise und Raster
-├── nix/{package,devshell,home-module}.nix    # vm-test.nix folgt in MS 7
+├── nix/{package,devshell,home-module}.nix
 ├── scripts/{lib,dev-load,reload,unload,logs,probe,probe-signals}.sh
 └── docs/{research,keys}.md, docs/*.ndjson, docs/*.log   # Quellen, Messwerte, Rohdaten
 ```
 
 Kein `contents/ui/config.ui` und kein `contents/config/main.xml` im MVP: `readConfig` liest `kwinrc` auch ohne KConfigXT-Datei (`docs/research.md` Abschnitt 2.7), und das Home-Manager-Modul schreibt die Gruppe direkt. Konfiguration läuft über `kwinrc` und das Nix-Modul. `main.xml` kommt erst mit dem KCM-Dialog bei Bedarf in Stufe 2. Ein eigenes `docs/design.md` gibt es nicht — der Entwurf ist dieses Dokument.
 
-## 6. Tall- und Full-Algorithmus
+## 6. Tall-, Full- und Grid-Algorithmus
 
 ### Tall (XMonad `Tall 1 (5/100) (65/100)`)
 
@@ -197,9 +198,36 @@ Kein `contents/ui/config.ui` und kein `contents/config/main.xml` im MVP: `readCo
 
 Jedes gekachelte Fenster erhält das ganze Rect (nur Außenabstand). Die Raise-Liste hebt zuerst den fokussierten Layout-Teilnehmer, ersatzweise den ersten Teilnehmer. Danach folgen sichtbare Float-Fenster in Surface-Reihenfolge; ist ein Float-Fenster fokussiert, steht es zuletzt und damit oben. Minimierte, maximierte und echte Vollbildfenster werden nicht gehoben. `Tall` liefert keine Raise-Aufträge. Fokus vor/zurück wechselt das sichtbare Fenster.
 
+### Grid
+
+Grid übernimmt die mathematische Aufteilungsregel aus dem in der früheren
+Konfiguration verwendeten `XMonad.Layout.Grid`: Zielseitenverhältnis 16:9 und
+`round(sqrt(n × Breite / (Höhe × 16/9)))`, auf `[1,n]` geklemmt. Bei
+leerer Breite oder Höhe gilt defensiv eine Spalte. Das Projekt behauptet weder
+wörtliche Codeübernahme noch Pixelgleichheit mit Haskell.
+
+Die Reihenfolge ist spaltenweise von links oben nach unten. Jede Spalte erhält
+zunächst `floor(n / Spalten)` Fenster, die rechten `n % Spalten` Spalten je
+eines mehr. Außenabstand, achsenweise Klemmung der Innenabstände und
+Restpixelverteilung kommen aus demselben Rechteckkern wie Tall. Deshalb können
+die effektiven Zeilenabstände winziger Spalten unterschiedlich sein. Die
+Spaltenbreiten samt Spaltenabständen zerlegen die innere Breite exakt; je
+Spalte tun es Zellenhöhen und ihre dort geklemmten Abstände ebenso. Zu wenige
+Pixel dürfen Nullzellen ergeben. `masterRatio` hat in Grid keine Wirkung.
+
+Zwei bewusste Abweichungen von XMonads Implementierung sind dokumentiert:
+JavaScripts `Math.round` rundet positive Halbwerte auf, Haskells `round`
+halbiert zur geraden Zahl; und die Projektfunktion `distribute` reicht
+Restpixel von vorn nach, statt XMonads `chop` nachzubauen.
+
 ### Layoutwechsel
 
-Liste `[tall, full]` je Surface, `Meta+Space` zyklisch, `Meta+Shift+Space` setzt Layout und Masteranteil auf die **konfigurierten Startwerte** (`defaultLayout`, `masterRatio`; ohne Konfiguration Index 0 und 0,65). Master-Anzahl bleibt fest 1 (XMonads `IncMasterN` ist nicht im geforderten Umfang). `grid` wird in Stufe 2 an die Liste angehängt.
+Liste `[tall, full, grid]` je Surface, `Meta+Space` zyklisch einschließlich
+Rücksprung, `Meta+Shift+Space` setzt Layout und Masteranteil auf die
+**konfigurierten Startwerte** (`defaultLayout`, `masterRatio`; ohne
+Konfiguration Index 0 und 0,65). Master-Anzahl bleibt fest 1 (XMonads
+`IncMasterN` ist nicht im geforderten Umfang). Die Ratio wird als
+Surface-Zustand in allen Layouts erhalten, wirkt geometrisch aber nur in Tall.
 
 ## 7. Floating, Window-Filter und Tastatur
 
@@ -262,7 +290,7 @@ Die Tasten in der Tabelle sind ausschließlich die **Erstinstallations-Vorgabe**
   | `defaultLayout` | Text | `tall` | gegen `LAYOUTS[i].id` aufgelöst, Groß-/Kleinschreibung egal; unbekannt → Index 0 plus Notiz |
   | `debug` | `true` / `false` | `false` | alles andere → Vorgabe plus Notiz |
 
-  Gaps müssen ganzzahlig sein, weil `tall` und `full` ganzzahlige Zellen liefern. Es gibt bewusst **keinen** `excludesAdd`-Schlüssel: wer ergänzen will, schreibt in Nix `lib.concatStringsSep "," (defaults ++ [ "foo" ])`. `masterRatio` und `defaultLayout` wirken nur auf **neu angelegte** Surfaces und als Ziel von `resetLayout` — sonst verlöre jede Instanz mit dem ersten Anordnungslauf die per `Meta+H`/`Meta+L`/`Meta+Space` gemachten Anpassungen. Gelesen wird **einmal** am Anfang von `start()`; das zweistufige Wirksamkeitsverfahren steht in `docs/keys.md`.
+  Gaps müssen ganzzahlig sein, weil `tall`, `full` und `grid` ganzzahlige Zellen liefern. Es gibt bewusst **keinen** `excludesAdd`-Schlüssel: wer ergänzen will, schreibt in Nix `lib.concatStringsSep "," (defaults ++ [ "foo" ])`. `masterRatio` und `defaultLayout` wirken nur auf **neu angelegte** Surfaces und als Ziel von `resetLayout` — sonst verlöre jede Instanz mit dem ersten Anordnungslauf die per `Meta+H`/`Meta+L`/`Meta+Space` gemachten Anpassungen. Gelesen wird **einmal** am Anfang von `start()`; das zweistufige Wirksamkeitsverfahren steht in `docs/keys.md`.
 - **Home-Manager-Modul:** plasma-manager ist ein expliziter, an Home Manager und nixpkgs gekoppelter Flake-Input. Das Modul bietet `enable`, `package`, `settings`, `shortcuts`, `relocateKdeShortcuts` und `cleanupWhenDisabled`, installiert das Paket und setzt nur `programs.plasma.configFile."kwinrc".Plugins."kwin-xmonad-liteEnabled"`, die eigene Gruppe `[Script-kwin-xmonad-lite]` sowie `programs.plasma.shortcuts.kwin.<objectName>`. Es verwendet keine imperativen `home.activation`-Schreibzugriffe. Die Gruppe wird **immer vollständig** geschrieben, auch mit unveränderten Werten: plasma-manager läuft mit `overrideConfig = false` und löscht nicht mehr deklarierte Schlüssel nicht — ohne das bliebe ein aus `settings` entfernter Wert in `kwinrc` stehen. `overrideConfig = true` scheidet aus, das setzte fremde Plasma-Konfiguration zurück. `relocateKdeShortcuts` hat Default `false`; bevorzugt bleibt die Umlegung vollständig in der Host-Konfiguration. `cleanupWhenDisabled` ist standardmäßig an und schreibt bei abgeschaltetem Controller das Plugin-Flag `false` sowie alle zwölf eigenen Tasten auf `none`; auf einer Entwicklungsmaschine lässt sich dieser Aus-Zweig abschalten. Die Gruppe `[Script-kwin-xmonad-lite]` bleibt beim Abschalten mit ihren zuletzt geschriebenen Werten in `kwinrc`, ist ohne Plugin aber wirkungslos.
 - **Einbindung in `nixosconfig`:** Flake-Inputs `plasma-manager` und `kwin-xmonad-lite`, beide mit `inputs.nixpkgs.follows = "nixpkgs"` und `inputs.home-manager.follows`; `kwin-xmonad-lite` folgt zusätzlich dem `plasma-manager` des Hosts, sonst wertete der Projektcheck eine andere Version aus als der Host importiert. Der Input zeigt auf `github:muhackel/kwin-xmonad-lite` — nicht auf den lokalen Pfad `/home/muhackel/Documents/Projects/kwin-xmonad-lite`: HAL9000 hat das Projektverzeichnis nicht, und `nixos-rebuild` wertet lokal aus. Vor dem Merge wird mit `--override-input kwin-xmonad-lite path:…` geprüft.
 
@@ -296,7 +324,7 @@ Die Tasten in der Tabelle sind ausschließlich die **Erstinstallations-Vorgabe**
 | 7 | **erledigt 2026-09-06.** Prüfwerkzeuge (Geometrie-Probe, Orakel mit unabhängiger Vorgabe, Journal-Auditor, Diagnosezeilen `surface`/`diagnose`/`aktiviere`), Abnahmevorschrift und Protokollvorlage; dann zwei Live-Reihen auf HAL9000: Geometrie-Probe, Reload- und Neustartverhalten, modaler Fokusfall, Multi-Output-Lauf und Alltagsstunde | Tests grün (337), neun Flake-Checks (neu `probe-readonly` und `bundle-runtime`); Matrix 16/16b/16c, 17a/17b, 20b und 25–25c bestanden (Protokoll `docs/ms7-2026-09-06-hal9000.md`), 26–26c und 27 bestanden (Protokoll `docs/ms7-2026-09-06-hal9000-ap7.md`) |
 | 7.1 | **erledigt 2026-09-06.** Audit der MS7-Generation mit sechs parallelen Prüfagenten über Orakel, Auditor, Adapter-Rig, Flake-Checks, Doku und Hygiene; Nachbesserung in vier Arbeitspaketen. Behoben: der Auditor wertet einen Sammelgrund nur bei durchgehend nutzerveranlassten Teilen als Anlass und gibt nur die Fenster frei, die der Lauf selbst beschreibt (vorher ODER und globaler Reset — in Fall 27 konnte er damit nach Konstruktion keine Schleife finden); Mindestaktivität im Stundenmodus, `--seit` mit Datei ist ein Fehler; das Orakel prüft die Zuordnung Fenster → Zelle, nimmt die Fläche als Pflichtparameter aus der Vorschrift, verlangt alle fünf Schlüssel, rundet den Messbeginn auf die Sekunde und meldet Nichtteilnehmer in der Fläche; `probe-readonly` erkennt Eigenschafts-, Klammer- und Setter-Schreibzugriffe, `activate-once` Klammer- und Reflect-Form; das Adapter-Rig trägt alle Felder, die `readWindow` liest, gibt `console` zurück, wirft bei ausbleibender Ruhe und testet die `aktiviere`-Zeile, die `debug`-Bindung, die Epoche nach Befehl, den treuen 20b-Dialog und das Full-Layout mit Hebeliste; `archiv-reauswertung` deckt alle zwölf ndjson-Dateien und alle Journale ab; Ersatzschreibweisen in Orakel, Flake und Skripten; Fall 27 auf „bestanden" nachgezogen, §8 auf zehn Checks, 20c-Verweis auf 6.8 | Tests grün (402), `nix flake check` grün über zehn Checks, 27 Mutationsproben rot (4 Auditor, 7 Orakel, 11 Grep-Checks, 5 Adapter), alle sechs Journale bestehen den geschärften Auditor, Fall 27 mit 8 technischen Läufen bei höchstens 2 auf dasselbe Soll; `src/` byte-identisch zu `abdffa2` |
 | 7.2 | **erledigt 2026-09-12.** Live-Reihe AP8 auf HAL9000 (Produktion, Pin `68c9ba8`) gegen die zwei Beleggrenzen aus 7/7.1. Fall 26d: zweite Ausgabe mit `1600x900` bei Skalierung 1,25 (logisch `1280x720`), beide Surfaces einzeln gegen unabhängig vorgegebene Fläche durchs Orakel, alle Zellen ganzzahlig exakt — die Rundung in `read.ts` trägt bei gebrochener Skalierung. Fall 27b: 65 min skriptgesteuerte Last, erweitert um Hotplug, Panelhöhe und Ziehen (Maus per `/dev/uinput`, Tastatur per `Window Move`). Controller schleifenfrei (keine `extern`-Kette über der Schwelle, kein `aufgegeben`). Der 7.1-Auditor meldete dennoch „nicht bestanden", weil seine Regel „höchstens 3 auf dasselbe Soll" unter technischer Last zu streng ist; **Entscheidung des Nutzers: Auditor schärfen** — eine eigene `extern`-Meldung setzt den Soll-Wiederholungszähler zurück, der Schleifennachweis liegt allein an der `extern`-Kette. Protokoll `docs/ms7-2026-09-12-hal9000-ap8.md`, Rückbau auf Generation 584, alle fünf Konfigurationsdateien SHA-256-identisch | Tests grün (405), `nix flake check` grün; Fall 27b besteht nach der Schärfung mit höchstens 2 auf dasselbe Soll; neue Regressionsprobe (`ab0f184d`-Folge) und beide AP8-Auszüge in `checks.archiv-reauswertung`; `src/` byte-identisch zu `abdffa2` |
-| 8 (Stufe 2) | `grid`, Activities-Tests, optionale Persistenz, KCM-Dialog nur bei Bedarf | Matrix 6–8, Grid-Abnahme |
+| 8 | **implementiert, automatisch und live geprüft 2026-09-12.** `grid` als drittes Layout, Konfiguration und Home-Manager-Auswertung; Activity-/Sticky-Szenarien über mehrere Planungsepochen und echte Adapter-Signale; Grid-Orakel mit festen positiven und negativen Geometrien. Optionale Persistenz, KCM und Größen-Umverteilung bleiben Folgearbeit | 432 Tests, zehn Flake-Checks; zehn Geometriefälle und Matrix 6–8 auf HAL9000 bestanden, vier unabhängige Activity-/Desktop-Zustände samt GC; [Prüfprotokoll](docs/ms8-2026-09-12-hal9000/README.md). Persönliche Nutzerabnahme separat |
 
 Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine Entwicklungs-Commits auf `main`, keine `Co-Authored-By`-Zeilen. `CLAUDE.md`, `README.md` und `build.md` werden vor jedem Merge geprüft.
 
@@ -310,7 +338,7 @@ Jeder Meilenstein ist ein Feature-Branch mit `--no-ff`-Merge auf `main`, keine E
 6. **Kein Unload-Hook:** durch die Regel „keine dauerhaften Eigenschaften" entschärft; beim Deaktivieren bleiben Fenster dort, wo sie sind.
 7. **Fenster auf allen Activities:** leere Liste bedeutet „alle" (Polonium-Issue #222). Die Surface-Zuordnung im Adapter (`kwin/filter.ts`, `surfaceKeysFor`) behandelt das explizit; der Reconcile selbst arbeitet nur auf Fenster-IDs.
 8. ~~**Re-Enable ohne Relogin** scheitert laut Tessera-README auf 6.6–6.8 bei QML-Skripten; ob der JS-Modus betroffen ist, klärt MS 7.~~ **geschlossen in MS 7, Fall 16c**: im JS-Modus funktioniert beides. `kwin-xmonad-liteEnabled=false` plus `reconfigure` entlädt das Skript (`isScriptLoaded` wechselt auf `false`), `true` plus `reconfigure` lädt es wieder und durchläuft die vollständige Startfolge — ohne Ab- und Anmeldung. Das bestätigt live, was der Quelltext sagt: `Scripting::start()` hängt an `Workspace::configChanged`, und `queryScriptsToLoad()` wertet die Plugin-Flags neu aus (`docs/research.md` 7.2). Die verbreitete Kurzfassung „`reconfigure` lädt Skripte nicht neu" gilt nur für ein **bereits geladenes** Skript, für das `loadScript` sofort `-1` liefert.
-9. **Persistenz:** `readConfig` ist lesend; Schreiben ginge nur über `callDBus` oder eine eigene Datei. Stufe 2.
+9. **Persistenz:** `readConfig` ist lesend; Schreiben ginge nur über `callDBus` oder eine eigene Datei. Sie bleibt nach Meilenstein 8 optionale Folgearbeit, ebenso ein KCM-Dialog. Die Umverteilung beschränkungsbedingt abweichender Fenstergrößen auf Nachbarzellen ist ebenfalls nicht Teil der Grid-Stufe.
 10. ~~**Zweiter VM-Output:** Verhalten von KWin-Wayland mit `virtio-gpu max_outputs=2` nicht belegt.~~ **In MS 7 gestrichen, nicht verschoben.** Die Frage ist eine über QEMU, nicht über den Controller, und mit zwei echten Aufbauten (HAL9000 zwei Ausgaben, SPIELKISTE drei) beantwortet sie niemand mehr. Dasselbe gilt für die einfache Smoke-VM; ihr einziges verbliebenes Argument — automatisierte Prüfung der Ladbarkeit — trägt jetzt `checks.bundle-runtime` (Abschnitt 8). Neu offen und bewusst so belassen: ein **echter Ladeversuch** nach einem KWin-Versionssprung ist durch nichts automatisiert; dafür gibt es `nix run .#probe` von Hand.
 11. **Lokale Schattenkopie:** Eine Installation unter `~/.local/share/kwin/scripts` würde ein deklaratives Store-Paket überlagern. Die vorgesehenen `nix run`-/Reload-Apps laden deshalb direkt aus dem Store und legen dort keine Kopie ab.
 
@@ -393,7 +421,10 @@ Zustand über beide Ausgaben); und für Fall 20b gibt es jetzt den
 Adapter-Rig-Test, der die Aktivierungen je Befehl **zählt**, statt sich auf die
 Journalzeile zu verlassen, mit der der Controller über sich selbst berichtet.
 
-**Grid-Stufe abgenommen, wenn:** `grid` in der Layoutliste zyklisch erreichbar ist, die Unit-Tests dieselben Eigenschaften wie Tall prüfen, und Fälle 6–8 der Matrix bestehen.
+**Grid-Stufe abgenommen, wenn:** `grid` in der Layoutliste zyklisch erreichbar
+ist, die Unit-Tests dieselben Eigenschaften wie Tall prüfen, und Fälle 6–8
+der Matrix live bestehen. Diese technischen Kriterien sind durch die Reihe
+vom 2026-09-12 auf HAL9000 erfüllt; die persönliche Nutzerabnahme ist separat.
 
 | # | Fall | Erwartung | Reines Skript |
 |---|---|---|---|
@@ -402,9 +433,9 @@ Journalzeile zu verlassen, mit der der Controller über sich selbst berichtet.
 | 3 | 2 Bildschirme, unabhängige Stapel | getrennte Reihenfolge, Ratio, Layout je Output | ja |
 | 4 | 4 virtuelle Desktops | 4 Zustände je Output, keine Desktop-Namen im Code | ja |
 | 5 | Desktopwechsel mit offenen Fenstern | ein Lauf über alle Surfaces, kein Schreibvorgang auf den unbeteiligten Ausgaben | ja (Per-Output-Desktops nur im Unit-Test) |
-| 6 | zweite Activity | eigener Zustand je Activity, keine Activity-Erstellung | ja (Stufe 2 getestet) |
-| 7 | Fenster auf allen Desktops | in jeder Surface mitgekachelt | ja |
-| 8 | Fenster auf mehreren Activities | in jeder Surface mitgekachelt | ja |
+| 6 | zweite Activity | eigener Zustand je Activity, keine Activity-Erstellung durch den Produktionscontroller | automatisch und MS8 live geprüft; vier Surface-Zustände, Erhalt nach Rückkehr und Activity-GC |
+| 7 | Fenster auf allen Desktops | in jeder Surface mitgekachelt, inaktive Surface übernimmt nicht den Fokus | automatisch und MS8 live geprüft; Sticky-Fenster über zwei Desktops |
+| 8 | Fenster auf mehreren Activities | in jeder passenden Surface mitgekachelt, nicht in fremden Activities | automatisch und MS8 live geprüft; gemeinsames Fenster über zwei Activities, Erhalt nach GC |
 | 9 | Bildschirm an-/abstecken | Zustand überlebt am Namen; Fenster folgen KWins Zuordnung; der **letzte** Lauf mit Schreibvorgängen rechnet auf der eingeschwungenen Arbeitsfläche, nach dem 1500-ms-Nachlauf ist Ruhe | **eingeschränkt** (die Arbeitsfläche zieht bis 1,5 s nach, Zwischenstände werden mitgeschrieben) |
 | 10 | Panel ändert nutzbare Fläche | Reflow nach dem Dock-Geometriesignal, mit der bereits neuen Arbeitsfläche | ja (über den Dock-Proxy; ein direktes `clientArea`-Signal gibt es nicht) |
 | 11 | Dialog/Popup über gekacheltem Fenster | unberührt | ja |
@@ -538,6 +569,7 @@ Vom Planer entschieden und oben begründet: JS-Modus statt QML, keine Tile-API, 
 | Init-Retry bis Activities geladen | Tessera `controller/index.ts:213-233` | MIT | Idee |
 | esbuild-Target unter ES2022 wegen QJSEngine | Tessera `Makefile:43-47` | MIT | Begründung |
 | Gewichteter Split mit Floor + Restverteilung | Krohnkite `layoututils.ts:29-56` | MIT | Idee |
+| Grid-Spaltenzahl, 16:9-Zielverhältnis und spaltenweise Reihenfolge | XMonad-Contrib `XMonad/Layout/Grid.hs` am Pin `a60c385b92bf3ab54e08d6b22c6602f8fee3b9b7` | BSD-3-Clause | mathematische Idee; Projekt nutzt eigene Gap- und Restpixelregel |
 | Ratio-Grenzen und Schritt | Krohnkite `tilelayout.ts:22-23`; xmonad.hs `delta = 5/100` | MIT / eigene Config | Werte |
 | Filterkette `managed && normalWindow && …` | Aerogel `WindowFilter.ts:64-75` | GPL-3.0 | nur Idee, kein Code |
 | Ist/Soll-Vergleich in `frameGeometryChanged`, Ignorieren während Drag | Aerogel `WorkspaceManager.ts:393-415` | GPL-3.0 | nur Idee |

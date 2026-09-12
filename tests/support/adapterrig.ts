@@ -145,6 +145,8 @@ export interface AdapterRig {
 	logs: string[];
 	/** Jeder Aufruf von `workspace.raiseWindow`, in Reihenfolge der Id. */
 	hebungen: string[];
+	/** Jeder Schreibzugriff auf `window.frameGeometry`, in Reihenfolge. */
+	geometrieWrites: Array<{ id: string; rect: Rect }>;
 	/** Löst den Rückruf aus, den `registerShortcut` für diesen Namen bekam. */
 	taste(objectName: string): void;
 	/** Die Namen, unter denen Kürzel registriert wurden. */
@@ -153,6 +155,14 @@ export interface AdapterRig {
 	beruhigen(): void;
 	/** Setzt das aktive Fenster, ohne den Zähler zu erhöhen. */
 	fokus(id: string | null): void;
+	/** Ändert die aktuelle Activity, ohne selbst ein Signal auszulösen. */
+	activity(id: string): void;
+	/** Ändert die vollständige Ist-Menge der Workspace-Activities. */
+	activityMenge(ids: string[]): void;
+	/** Löst eines der beiden Activity-Signale des Workspace aus. */
+	activitySignal(name: "currentActivityChanged" | "activitiesChanged"): void;
+	/** Ändert die Activities eines Fensters und feuert dessen echtes Signal. */
+	fensterActivities(id: string, activities: string[]): void;
 	/** KWin leitet jede Aktivierung auf dieses Fenster um (Fall 20b). */
 	umleitenAuf(id: string | null): void;
 	fenster: RigFenster[];
@@ -178,9 +188,28 @@ export function adapterRig(optionen: RigOptionen = {}): AdapterRig {
 	const aktivierungen: string[] = [];
 	const logs: string[] = [];
 	const hebungen: string[] = [];
+	const geometrieWrites: Array<{ id: string; rect: Rect }> = [];
 	const tastenTabelle = new Map<string, Rueckruf>();
 	let aktiv: RigFenster | null = null;
 	let umleitung: string | null = null;
+
+	// Ein echter KWin-Write läuft über die Property-Zuweisung. Ein Accessor
+	// zählt genau diesen Pfad, ohne Produktionscode oder dessen GeometryPort
+	// nachzubauen. Das synchrone Signal wird hier bewusst nicht automatisch
+	// emittiert; Signaltests lösen ihre Eingänge explizit aus.
+	for (const window of fenster) {
+		let current = { ...window.frameGeometry };
+		Object.defineProperty(window, "frameGeometry", {
+			get(): Rect {
+				return current;
+			},
+			set(value: Rect): void {
+				current = { ...value };
+				geometrieWrites.push({ id: window.id, rect: { ...value } });
+			},
+			configurable: true,
+		});
+	}
 
 	const workspaceSignale = {
 		windowAdded: signal(),
@@ -312,6 +341,7 @@ export function adapterRig(optionen: RigOptionen = {}): AdapterRig {
 		aktivierungen,
 		logs,
 		hebungen,
+		geometrieWrites,
 		fenster,
 		workspace,
 		start(): void {
@@ -352,6 +382,24 @@ export function adapterRig(optionen: RigOptionen = {}): AdapterRig {
 		},
 		fokus(id: string | null): void {
 			aktiv = id === null ? null : (fenster.find((eintrag) => eintrag.id === id) ?? null);
+		},
+		activity(id: string): void {
+			workspace.currentActivity = id;
+		},
+		activityMenge(ids: string[]): void {
+			workspace.activities = ids.slice();
+		},
+		activitySignal(name: "currentActivityChanged" | "activitiesChanged"): void {
+			workspaceSignale[name].feuern();
+		},
+		fensterActivities(id: string, activities: string[]): void {
+			const window = fenster.find((eintrag) => eintrag.id === id);
+			if (window === undefined) {
+				throw new Error(`kein Fenster im Rig: ${id}`);
+			}
+			window.activities = activities.slice();
+			const changed = window.activitiesChanged as ReturnType<typeof signal>;
+			changed.feuern();
 		},
 		umleitenAuf(id: string | null): void {
 			umleitung = id;
