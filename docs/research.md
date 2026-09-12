@@ -888,6 +888,10 @@ nicht belegt: Schleifenfreiheit unter Hotplug, Panelhöhenänderung oder Ziehen
 — die Last erzeugte keinen dieser Anlässe. Eine Wiederholung mit technischer
 Last steht als eigener Live-Termin aus.
 
+**Nachgeholt in AP8 (2026-09-12), siehe 8.10.** Die Wiederholung mit technischer
+Last ist gelaufen und hat die Grenze geschlossen — und dabei einen dritten
+Defekt im Auditor aufgedeckt.
+
 ### 8.8 Shortcut-Registrierungen sind rücknehmbar
 
 Die KWin-Skript-API hat kein `unregisterShortcut`; daraus wurde bisher
@@ -917,3 +921,46 @@ der Entwicklungsinstanz und wäre auch der Weg, die 35 `Krohnkite*`- und 20
 - **`/VirtualOutputs` existiert in einer regulären KWin-Instanz nicht.** Ein
   virtueller zweiter Output als Ersatz für Hardware ist damit kein Weg; der
   Objektpfad kommt nur mit dem virtuellen Backend.
+
+### 8.10 AP8: die zwei Beleggrenzen geschlossen, ein dritter Auditordefekt
+
+Vierte HAL9000-Reihe (Protokoll `docs/ms7-2026-09-12-hal9000-ap8.md`), gegen den
+gemergten Stand `68c9ba8` in der Produktionsinstanz.
+
+**Multi-Output mit gebrochener Skalierung (Fall 26d).** Eine zweite Ausgabe mit
+`1600x900` bei Skalierung 1,25 ergibt die logische Fläche `1280x720`. Der Master
+belegt `832x720` (`0,65 × 1280`, ohne Rest), der Stapel zweimal `448x360`. Alle
+Zellen wurden als `exakt` gemessen, und das Journal trägt keinen zweiten `apply`
+auf dasselbe Soll. Die Rundung jedes gelesenen Rechtecks in `kwin/read.ts` trägt
+damit auch bei gebrochener Skalierung: ohne sie meldete `equals` in jeder Epoche
+eine Abweichung. Belegt ist das für **zwei** Ausgaben und für einen Modus, dessen
+logische Größe ganzzahlig aufgeht; drei Ausgaben und eine Skalierung mit
+gebrochener Arbeitsfläche bleiben offen.
+
+**Alltagsstunde mit technischer Last (Fall 27b).** 65 Minuten skriptgesteuerte
+Last, diesmal mit Hotplug (7×), Panelhöhenwechsel (6×) und Ziehen (20×, Maus per
+`/dev/uinput` und Tastatur per `Window Move`). Der Controller lief schleifenfrei:
+die längste `extern`-Kette eines Fensters blieb unter der Schwelle, kein
+`aufgegeben`, kein `aktivieren fehlgeschlagen`, und von 136 Anordnungsläufen
+schrieben nur 49 überhaupt. Die beiden verzögerten Nachläufe nach Hotplug
+(`nachlauf500/1500:screenGeometry+screensChanged`) und nach Panelhöhenwechsel
+(`…:dockGeometrie`) sind unter Last echt durchlaufen; die Sollfläche von DP-3
+wechselte messbar mit der Panelhöhe (`1920x1050` bei 30 px, `1920x1032` bei
+48 px).
+
+**Der dritte Auditordefekt.** Der 7.1-Auditor meldete Fall 27b trotzdem als
+durchgefallen: ein Fenster wurde viermal auf dasselbe Soll geschrieben, jeder
+Schreibvorgang an einem eigenen realen Anlass (Fenster auf, Ziehen samt
+Schließen, Nachhall des Ziehens, Hotplug) über drei Minuten. Die `extern`-Kette
+dieses Fensters erreichte nur 2. Die Regel „höchstens 3 auf dasselbe Soll ohne
+rein nutzerveranlasste Freigabe" war an Fall 27 kalibriert, dessen Last keinen
+dieser Anlässe erzeugte — unter technischer Last ist sie zu streng, weil die
+berichtigenden Läufe per Konstruktion technisch sind. Die dritte Schärfung der
+Prüfwerkzeuge (Zwischenschritt 7.2, Entscheidung des Nutzers): eine eigene
+`extern`-Meldung eines Fensters setzt seinen Soll-Wiederholungszähler zurück.
+Der Schleifennachweis liegt damit allein an der `extern`-Kette — dem
+aussagekräftigeren Indikator —, der Soll-Zähler bleibt das Netz für den
+Give-up-Fall ohne `extern`. Nach der Schärfung besteht Fall 27b mit höchstens 2,
+alle archivierten Nachweise bestehen weiter. Dieselbe Lehre wie in 7.1: ein
+Prüfwerkzeug ohne echten Lastfall hat blinde Flecken, die erst der Lastfall
+zeigt.

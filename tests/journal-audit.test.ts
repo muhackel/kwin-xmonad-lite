@@ -558,6 +558,45 @@ test("Kommen und Gehen mit wechselndem Soll ist keine Schleife", () => {
 	assert.equal(bericht.maxWiederholungen, 1);
 });
 
+test("eine eigene extern-Meldung zwischen den Schreibvorgängen ist keine Schleife", () => {
+	// Die echte Folge von {ab0f184d} aus AP8, Fall 27b: vier Schreibvorgänge auf
+	// dasselbe Soll über drei Minuten, jeder an einem eigenen realen Anlass
+	// (Fenster auf, Ziehen samt Schließen, Nachhall des Ziehens, Hotplug). Das
+	// Fenster meldet dazwischen zweimal `extern` -- eine fremde Verschiebung,
+	// keine Rückkopplungskette (die Kette bleibt bei 2, unter der Schwelle 3).
+	// Ohne den Reset des Soll-Zählers auf `extern` zählte der alte Auditor hier
+	// vier und meldete fälschlich eine Schleife.
+	const text = [
+		zeile(0, 0, "geladen, Version 0.0.0"),
+		zeile(
+			1,
+			10,
+			"arrange #1 grund=windowActivated,windowAdded surfaces=1 mitglieder=2 teilnehmer=1",
+		),
+		zeile(1, 10, "apply {a} soll=1920x1032+0+0"),
+		zeile(
+			1,
+			20,
+			"arrange #2 grund=closed,windowRemoved,moveResizeFinished surfaces=1 mitglieder=2 teilnehmer=1",
+		),
+		zeile(1, 20, "apply {a} soll=1920x1032+0+0"),
+		zeile(1, 20, "extern {a}"),
+		zeile(1, 20, "arrange #3 grund=geometrieExtern surfaces=1 mitglieder=2 teilnehmer=1"),
+		zeile(1, 20, "apply {a} soll=1920x1032+0+0"),
+		zeile(1, 30, "extern {a}"),
+		zeile(
+			1,
+			30,
+			"arrange #4 grund=geometrieExtern,fensterzustand surfaces=1 mitglieder=2 teilnehmer=1",
+		),
+		zeile(1, 30, "apply {a} soll=1920x1032+0+0"),
+	].join("\n");
+	const bericht = pruefe(parseEreignisse(text));
+	assert.deepEqual(fehler(bericht), []);
+	assert.equal(bericht.maxWiederholungen, 2);
+	assert.equal(bericht.bestanden, true);
+});
+
 test("eine Give-up-Kette in einem technischen Lauf bleibt an der Schwelle", () => {
 	// `MAX_CORRECTIONS = 2`: ein `apply` und zwei `nachbessern` sind drei
 	// Schreibvorgänge auf dasselbe Soll. Genau drei, nicht mehr -- die Schwelle
@@ -678,6 +717,8 @@ const ARCHIV = [
 	"docs/ms7-2026-09-06-hal9000-26a-nachtrag.log",
 	"docs/ms7-2026-09-06-hal9000-ap7.log",
 	"docs/ms7-2026-09-06-hal9000-fall27.log",
+	"docs/ms7-2026-09-12-hal9000-ap8.log",
+	"docs/ms7-2026-09-12-hal9000-fall27b.log",
 	// `-o cat`, deshalb ohne PID: der Auditor meldet dafür einen Hinweis. Für
 	// die Schleifenprüfung reicht das, für eine Belegschwelle nicht.
 	"docs/shortcuts-2026-09-06-spielkiste.log",

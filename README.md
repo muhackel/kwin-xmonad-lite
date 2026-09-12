@@ -28,23 +28,28 @@ Fensterregeln; dieses Skript ordnet nur an, was KWin ohnehin anzeigt.
 > Höchstgrößen werden berücksichtigt. Seit Meilenstein 6 ist der Controller
 > bedienbar: zwölf eigene Tastenkürzel, sechs Konfigurationsschlüssel in
 > `kwinrc` und ein Home-Manager-Modul für die deklarative Installation. Damit
-> ist auch das Full-Layout erreichbar. Der Stand hat 365 Tests und zehn
+> ist auch das Full-Layout erreichbar. Der Stand hat 405 Tests und zehn
 > Flake-Checks.
 >
-> Meilenstein 7 hat das Verhalten live geprüft, in drei Reihen auf HAL9000 mit
+> Meilenstein 7 hat das Verhalten live geprüft, in vier Reihen auf HAL9000 mit
 > vollständigem Rückbau: die deklarative Installation samt Aus-Zweig
 > (Testmatrix 24–24e), dann die Geometrie gegen eine unabhängig vorgegebene
 > Erwartung (25–25c), der modale Dialog als Fokusziel (20b), Reload und
-> KWin-/Sitzungsneustart (16–17b) und zuletzt der Multi-Output-Lauf mit einer
-> Stunde unter Last (26–27). Zwei Ergebnisse sind erwähnenswert: einen
-> KWin-Neustart über `org.kde.KWin.replace` überlebt **kein** Wayland-Client,
-> und von 59 Anordnungsläufen in der Laststunde schrieben nur 16 überhaupt
-> etwas — die übrigen stellten fest, dass alles am Platz ist.
+> KWin-/Sitzungsneustart (16–17b), der Multi-Output-Lauf mit einer Stunde unter
+> Last (26–27) und zuletzt die Reihe AP8 (26d, 27b) gegen die zwei offenen
+> Beleggrenzen. Zwei Ergebnisse sind erwähnenswert: einen KWin-Neustart über
+> `org.kde.KWin.replace` überlebt **kein** Wayland-Client, und von 59
+> Anordnungsläufen in der Laststunde schrieben nur 16 überhaupt etwas — die
+> übrigen stellten fest, dass alles am Platz ist.
 >
-> Zwei Einschränkungen gehören dazu: der Multi-Output-Lauf lief mit zwei
-> Ausgaben statt drei, und die Laststunde mit skriptgesteuerter Last statt
-> normaler Arbeit. Beides steht in den Protokollen unter [`docs/`](docs/)
-> und in [`PLAN.md`](PLAN.md) Abschnitt 11. Eine Test-VM ist nicht vorgesehen:
+> AP8 (2026-09-12) hat die zwei Einschränkungen des ersten Multi-Output-Laufs
+> nachgeholt: eine **skalierte** zweite Ausgabe (1,25) und eine Laststunde mit
+> **technischer** Last (Hotplug, Panelhöhe, Ziehen). Der Controller lief
+> schleifenfrei; die Laststunde deckte dabei einen dritten Defekt im **Auditor**
+> auf (die Wiederholungsregel war für technische Last zu streng), der geschärft
+> wurde — nicht im Controller. Offen bleiben drei oder mehr Ausgaben und eine
+> Last durch echtes menschliches Arbeiten. Alles steht in den Protokollen unter
+> [`docs/`](docs/) und in [`PLAN.md`](PLAN.md) Abschnitt 9. Eine Test-VM ist nicht vorgesehen:
 > gegen zwei echte Maschinen gewinnt sie nichts. `checks.bundle-runtime` prüft
 > das gebaute Bundle per Grep auf Funktionen, die QJSEngine nicht hat, und die
 > esbuild-Zielstufe — ein **Ladeversuch ist er nicht**. Nicht herstellbar und

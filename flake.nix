@@ -563,6 +563,34 @@
               fehler=1
             fi
 
+            # AP8 (2026-09-12): die beiden Beleggrenzen aus Meilenstein 7.
+            # Fall 26d -- Multi-Output mit abweichender Auflösung und
+            # Skalierung 1,25 (eDP-1 logisch 1280x720). KWin-PID 3254, beide
+            # Surfaces einzeln gegen eine unabhängig vorgegebene Fläche.
+            r8=docs/ms7-2026-09-12-hal9000-ap8.log
+            pruefe bestanden "26d DP-3" \
+              docs/geometry-2026-09-12-hal9000-ap8-26d-dp3.ndjson "$r8" --kwin-pid 3254 \
+              layout=tall n=3 ratio=0.55 gaps=0/0 fläche=1920x1050+0+0 \
+              "surface=$erwarte|DP-3"
+            pruefe bestanden "26d eDP-1" \
+              docs/geometry-2026-09-12-hal9000-ap8-26d-edp1.ndjson "$r8" --kwin-pid 3254 \
+              layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1280x720+1920+0 \
+              "surface=$erwarte|eDP-1"
+            pruefe bestanden "27b Abschluss" \
+              docs/geometry-2026-09-12-hal9000-ap8-27b-abschluss.ndjson \
+              docs/ms7-2026-09-12-hal9000-fall27b.log --kwin-pid 3254
+
+            # Fall 27b -- die Alltagsstunde mit technischer Last (Hotplug,
+            # Panelhöhe, Ziehen). Sie besteht die Belegschwelle erst mit dem in
+            # AP8 geschärften Auditor: eine eigene `extern`-Meldung setzt den
+            # Soll-Wiederholungszähler zurück. Wer die Schärfung zurücknimmt,
+            # sieht diesen Nachweis hier kippen.
+            if ! node dev/probe/journal-audit-cli.ts \
+              docs/ms7-2026-09-12-hal9000-fall27b.log --stunde >/dev/null 2>&1; then
+              echo "Fall 27b besteht die Belegschwelle nicht (Auditor zu streng?)" >&2
+              fehler=1
+            fi
+
             if [ "$fehler" != "0" ]; then
               echo "Die eingecheckten Nachweise werden anders bewertet als dokumentiert." >&2
               exit 1
