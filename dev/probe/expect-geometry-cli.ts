@@ -6,7 +6,7 @@
  * ein `import.meta`-Kunstgriff nötig wäre.
  *
  *   node dev/probe/expect-geometry-cli.ts <ndjson> <journal> [--kwin-pid N] \
- *       [layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 [surface=…]]
+ *       [layout=grid n=5 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 [surface=…]]
  *
  * `--kwin-pid` bindet den Auszug an eine KWin-Instanz. Ohne die Angabe weist
  * das Orakel einen Auszug mit mehreren Prozessen zurück -- nach einem
@@ -33,7 +33,7 @@ const [ndjsonPfad, journalPfad, ...erwartung] = argumente;
 if (ndjsonPfad === undefined || journalPfad === undefined) {
 	console.error(
 		"Aufruf: expect-geometry-cli.ts <ndjson> <journal> " +
-			"[layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0]",
+			"[layout=tall|full|grid n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0]",
 	);
 	process.exit(2);
 }

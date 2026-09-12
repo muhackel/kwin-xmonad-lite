@@ -1,0 +1,5 @@
+activities_before=a89f5ec2-ab8e-4108-8088-7118500a3aab,
+activity_before=a89f5ec2-ab8e-4108-8088-7118500a3aab
+desktops_before=89539ae6-e06b-4c76-a057-95df959578a9,b7798180-564c-4f75-ad4a-284026ac7a68,30c27d93-fa7d-452a-ad6a-53201edcdca1,eb859906-5dd5-4314-92bc-4f3cc1582e4f,
+desktop_before=eb859906-5dd5-4314-92bc-4f3cc1582e4f
+desktop_other=89539ae6-e06b-4c76-a057-95df959578a9

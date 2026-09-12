@@ -1,0 +1,70 @@
+{
+  "criteria": [
+    {
+      "id": "grid-core",
+      "description": "Reiner Grid-Kern nach der definierten Spaltenregel und vorhandenen Gap-Regeln.",
+      "verification": "Explizite Rechteckbeispiele und deterministische Eigenschaftstests einschließlich Randfällen, keine aus Grid errechneten Sollwerte."
+    },
+    {
+      "id": "grid-integration",
+      "description": "Grid ist drittes Layout, per Shortcut und Konfiguration einschließlich Home-Manager erreichbar.",
+      "verification": "Zyklustests, konfigurierter Reset, Adapter- und Nix-Auswertung samt erzeugtem Grid-Wert; Full-Regressionsabdeckung erhalten."
+    },
+    {
+      "id": "activities",
+      "description": "Matrix 6–8 besitzt wirksame Tests über Zustandsübergänge, gemeinsame Fenster und GC.",
+      "verification": "Mehrere reale Planungsepochen, Activity-/Desktopwechsel, gespeicherte Zustände, geteilte Fenster und Entfernung/Leerlisten testen."
+    },
+    {
+      "id": "adapter-signals",
+      "description": "Activity-Signale am echten Adapter bewirken neue Snapshots und gezielte Bereinigung ohne Aktivierungsschleife.",
+      "verification": "Adapter-Rig steuert Workspace-/Fenstersignale; Teilnehmer, Surface-Logs, GC, Ruhe und Aktivierungszähler prüfen."
+    },
+    {
+      "id": "oracle",
+      "description": "Grid-Geometrieprüfung erkennt falsche Zuordnung und Geometrie; Altarchive bleiben gültig.",
+      "verification": "Feste synthetische positive und negative Grid-Beispiele; gesamte bisherige Archivneuauswertung."
+    },
+    {
+      "id": "documentation",
+      "description": "Bedienung, Architektur, Quellen, Statusgrenzen und nachgelagerte Live-Vorschrift sind konsistent dokumentiert.",
+      "verification": "Betroffene Dokumente gegen implementiertes Verhalten und Spec lesen; kein unbelegter MS8-Live-Abschluss."
+    },
+    {
+      "id": "checks",
+      "description": "Alle bestehenden und ergänzten Nix-Prüfungen bestehen.",
+      "verification": "nix flake check path:. -L mit Exit 0; vollständige Prüflogs mit neuen Grid-/Activity-Tests und mehr als 405 Tests."
+    }
+  ],
+  "allowed_paths": [
+    "src/core/layout/grid.ts",
+    "src/core/layout/index.ts",
+    "src/core/rect.ts",
+    "src/kwin/config.ts",
+    "nix/home-module.nix",
+    "nix/package.nix",
+    "package/metadata.json",
+    "flake.nix",
+    "tests",
+    "dev/probe/expect-geometry.ts",
+    "dev/probe/expect-geometry-cli.ts",
+    "README.md",
+    "CLAUDE.md",
+    "PLAN.md",
+    "build.md",
+    "docs/keys.md",
+    "docs/research.md"
+  ],
+  "checks": [
+    {
+      "id": "flake",
+      "argv": [
+        "nix",
+        "flake",
+        "check",
+        "path:.",
+        "-L"
+      ]
+    }
+  ]
+}

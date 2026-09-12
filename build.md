@@ -99,6 +99,7 @@ nicht wieder einschalten ließ, wird dort erneut versucht.
 ```bash
 nix run .#probe-geometry                # nur Datenqualität und Invarianten
 nix run .#probe-geometry -- --erwarte layout=tall n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
+nix run .#probe-geometry -- --erwarte layout=grid n=5 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0
 ```
 
 Misst die anliegenden Fenstergeometrien, die nutzbare Arbeitsfläche je Surface
@@ -111,9 +112,12 @@ Werte und erst danach die Geometrie. Alle fünf Schlüssel (`layout`, `n`,
 `ratio`, `gaps`, `fläche`) sind dann Pflicht, ein unbekannter Schlüssel ist
 ein Fehler, und die verwendete Vorschrift steht als erste Ausgabezeile. Die
 Fläche kommt aus der Fallvorschrift, nicht aus der Messung: Probe und Journal
-müssen ihr entsprechen. Seit 7.1 prüft das Orakel auch die Zuordnung Fenster
-zu Zelle (das erste Fenster der Diagnosezeile belegt die Masterzelle) und
-meldet Nichtteilnehmer in der Fläche als Hinweis.
+müssen ihr entsprechen. Das Orakel prüft auch die Zuordnung Fenster zu Zelle
+(die Teilnehmerliste folgt der Layoutreihenfolge), bei Tall und Grid außerdem
+die Überlappungsfreiheit, und meldet Nichtteilnehmer in der Fläche als Hinweis.
+Die gemeinsame Nutzung des Layoutkerns ist nur eine Konsistenzprüfung; den
+unabhängigen Grid-Algorithmusnachweis tragen feste synthetische Rechtecke im
+Unit-Test.
 
 Die Probe ist strikt lesend und verbindet kein KWin-Signal — nur `timeout` an
 eigenen Timern; `checks.probe-readonly` erzwingt das. Ausführlich im Abschnitt
@@ -336,7 +340,7 @@ kwin-xmonad-lite: arrange #7 grund=windowActivated,shortcut:focusNext …
 ```
 
 Die `config`-Zeilen stehen einmal beim Laden; `layout=` ist der Index in
-`LAYOUTS` (0 = `tall`, 1 = `full`). `via=` nennt, wie die Surface gefunden
+`LAYOUTS` (0 = `tall`, 1 = `full`, 2 = `grid`). `via=` nennt, wie die Surface gefunden
 wurde: `aktiv`, `ausgabe` oder `erste`.
 
 Der Nachlaufgrund trägt seine **Quellen** mit: `dockHinzugefügt`,
@@ -663,6 +667,11 @@ prüfen — ein Reload erzeugt einen neuen Adapter mit leerer Registry, danach
 gelten überall die konfigurierten Startwerte.
 
 **Testmatrix 21b** — unsinnige Werte:
+
+Der folgende Absatz dokumentiert den Lauf vom 2026-09-06 unverändert: `grid`
+war damals noch kein Layout und deshalb das Negativbeispiel. Im aktuellen
+MS8-Stand ist `grid` gültig; für eine erneute Negativprobe ist etwa `spiral` zu
+verwenden.
 
 Zu setzen sind `gapOuter=abc`, `gapInner=-5`, `masterRatio=1.5`,
 `defaultLayout=grid`, `debug=ja` und ein leeres `excludes` in der Gruppe
@@ -1542,6 +1551,163 @@ selbst nimmt die Registrierung restlos zurück (`docs/research.md` 8.8). Für da
 **deklarative** Abschalten bleibt der `none`-Weg des Home-Manager-Moduls
 richtig — der D-Bus-Aufruf ist ein imperativer Eingriff und gehört in Abnahme
 und Aufräumarbeit.
+
+### Nachgelagerte Live-Prüfung Meilenstein 8: Grid und Matrix 6–8
+
+Meilenstein 8 ist implementiert und automatisch sowie live geprüft. Die Reihe
+vom 2026-09-12 auf HAL9000 umfasst zehn bestandene Geometriefälle und die
+Matrix 6–8; [Protokoll und Rohdaten](docs/ms8-2026-09-12-hal9000/README.md)
+enthalten auch die drei verworfenen Vorläufe. Der folgende Ablauf beschreibt
+eine Wiederholung in einer echten Wayland-Sitzung.
+
+Vor der Anmeldung und bei inaktiven Plasma-, KWin- und ActivityManager-Diensten
+die vorhandenen Dateien und Verzeichnisse sichern. Fehlende Pfade ebenfalls
+protokollieren, damit der Rückbau ihren ursprünglichen Nichtbestand herstellt:
+
+```text
+~/.config/kwinrc
+~/.config/kglobalshortcutsrc
+~/.config/kwriterc
+~/.config/kactivitymanagerdrc
+~/.config/kactivitymanagerd-statsrc
+~/.config/kactivitymanagerd-pluginsrc
+~/.config/plasma-org.kde.plasma.desktop-appletsrc
+~/.config/plasmashellrc
+~/.local/share/kactivitymanagerd/
+~/.local/share/plasma/containmentpreviews/
+~/.local/share/recently-used.xbel
+~/.local/share/RecentDocuments/
+```
+
+ActivityManager-Daten einschließlich SQLite-Datei, WAL und SHM als vollständiges
+Verzeichnis sichern. Neue Activities können auch Plasma-Containments und
+Ressourceneinträge erzeugen; `RemoveActivity` allein stellt diese Dateien nicht
+wieder her. Falls für den Test die Anmeldung konfiguriert wird, gehört auch
+diese Konfiguration in die Sicherung.
+
+Bei bereits angemeldeter Sitzung wurden am 2026-09-12 die drei schreibenden
+Dienste für die Sicherung kurz mit `systemctl --user freeze` angehalten und
+anschließend mit `thaw` fortgesetzt. Den Dateirückbau erst bei inaktiven
+Diensten vornehmen und vor der nächsten Anmeldung per Archivvergleich und
+SHA-256 prüfen. Währenddessen nicht erneut anmelden; ein vorübergehender
+`systemd-inhibit`-Auftrag kann Ruhezustand und Deckelschalter sperren.
+
+Nach der Anmeldung die Ausgangsmengen und Namen erfassen. Jeder Lauf erhält
+einen eigenen Namenspräfix aus UTC-Zeit und PID. Vor dem Anlegen prüfen, dass
+keine Activity, kein Desktop und kein Fenster einen vorgesehenen Namen trägt;
+bei einer Kollision abbrechen. Der ausführende Helfer muss seinen EXIT-Trap
+vor der ersten Änderung installieren und jede eigene Ressource erst nach
+erfolgreicher Erstellung als solche erfassen. Ein Abbruch der Vorprüfung darf
+keine bestehende Controllerinstanz entladen oder fremde Shortcuts abmelden.
+
+Die D-Bus-Aufrufe für Activities sind aus `scripts/probe-signals.sh` übernommen
+und dort live verifiziert. Der folgende Ausschnitt zeigt die Aufrufsyntax;
+Sicherung, Kollisionsprüfung und Rückbau müssen ihn im ausführenden Helfer
+umschließen:
+
+```bash
+ACT_SERVICE=org.kde.ActivityManager
+ACT_PATH=/ActivityManager/Activities
+ACT_IFACE=org.kde.ActivityManager.Activities
+run_prefix="kxl-ms8-$(date -u +%Y%m%dT%H%M%SZ)-$$"
+
+# Ausgangslage sichern; Zeichenketten liefert busctl als s "wert".
+activities_before="$(busctl --user call "$ACT_SERVICE" "$ACT_PATH" "$ACT_IFACE" \
+  ListActivities | grep -oE '"[0-9a-f-]{36}"' | tr -d '"' | sort)"
+activity_before="$(busctl --user call "$ACT_SERVICE" "$ACT_PATH" "$ACT_IFACE" \
+  CurrentActivity | cut -d'"' -f2)"
+
+activity_a="$(busctl --user call "$ACT_SERVICE" "$ACT_PATH" "$ACT_IFACE" \
+  AddActivity s "$run_prefix-a" | cut -d'"' -f2)"
+activity_b="$(busctl --user call "$ACT_SERVICE" "$ACT_PATH" "$ACT_IFACE" \
+  AddActivity s "$run_prefix-b" | cut -d'"' -f2)"
+
+busctl --user call "$ACT_SERVICE" "$ACT_PATH" "$ACT_IFACE" \
+  SetCurrentActivity s "$activity_a"
+# ... später B und zum Schluss die Ausgangs-Activity genauso setzen.
+```
+
+Vor jedem Eingriff die vorhandenen Activity- und Desktop-UUIDs, aktuelle
+Activity/Desktop, `kwinrc`, `kglobalshortcutsrc` und die gestartete
+Controllerinstanz protokollieren. Zwei virtuelle Desktops mit den eindeutigen
+Namen `$run_prefix-d1` und `$run_prefix-d2` anlegen; die Aufrufe `createDesktop us
+<position> <name>`, Setzen der Eigenschaft `current` und `removeDesktop s
+<uuid>` entsprechen der weiter oben belegten GC-Vorschrift. Nur UUIDs gelten
+als Eigentum des Laufs, die neu zurückgegeben wurden, nicht in der gesicherten
+Ausgangsmenge stehen und deren zurückgelesener Name dem vorgesehenen Namen
+entspricht.
+
+Sechs eigene, wegwerfbare Testfenster mit exakten Titeln starten:
+`$run_prefix-a1`, `$run_prefix-a2`, `$run_prefix-b1`, `$run_prefix-b2`,
+`$run_prefix-sticky` und `$run_prefix-shared`. Ein getrennt geladenes
+Einmal-Steuerskript verlangt vor jedem Schreibzugriff genau einen Treffer
+mit dem vollständigen eigenen Titel und der erwarteten Anwendungsklasse.
+Bei null oder mehreren Treffern bricht es ab. Es setzt:
+
+| Fenster | Activities | Desktops |
+|---|---|---|
+| `a1`, `a2` | nur A | D1 bzw. D2 |
+| `b1`, `b2` | nur B | D1 bzw. D2 |
+| `sticky` | nur A | leer = alle Desktops |
+| `shared` | `[A,B]` | leer = alle Desktops |
+
+**Die konkrete Schreibsyntax des Einmal-Skripts ist noch nicht live
+verifiziert und muss vor der Reihe geprüft werden.** Die KWin-6.7.4-Quelle
+deklariert `window.activities` und `window.desktops` als schreibbar; vorgesehen
+sind `window.activities = [activityUuid]` bzw. `[activityA, activityB]` sowie
+`window.desktops = [desktopObject]` oder `[]`. Zuerst an genau einem eigenen
+Testfenster setzen, beide Listen lesend zurückgeben, die Ausgangswerte
+wiederherstellen und erneut lesen. Scheitert dieser Vorabtest, Lauf abbrechen
+und die Syntax gegen die laufende API klären; keine fremden Fenster als
+Ersatz verwenden. Erst danach die Tabelle in einem einzigen Lauf setzen,
+zurücklesen und das Steuerskript sofort entladen. Der Produktionscontroller
+erstellt oder verschiebt weder Activities noch Fenster.
+
+Der Prüfablauf ist fest:
+
+1. Auf A/D1 Grid wählen, eine eindeutige Reihenfolge per Promote/Swap und
+   einen vom Default abweichenden Ratio-Wert setzen. Grid muss geometrisch
+   gleich bleiben. A/D2 bekommt einen anderen Layout-/Ratio-/Reihenfolgestand.
+2. Zu B wechseln. B/D1 und B/D2 jeweils verschieden einstellen. Die
+   `surface`- und `diagnose`-Zeilen müssen getrennte Schlüssel und Zustände
+   zeigen; A darf B weder Fokus noch Reihenfolge liefern.
+3. B → A und D2 → D1 zurückkehren. Jeder der vier gespeicherten Zustände
+   muss exakt wieder erscheinen. `sticky` nimmt an beiden A-Desktop-Surfaces
+   teil, `shared` an allen vier A/B×D1/D2-Surfaces; `a*` darf nie in B und
+   `b*` nie in A auftauchen. Ein gemeinsames Fenster darf beim Wechsel den
+   gespeicherten Fokus der inaktiven Surface nicht übernehmen.
+4. Grid mindestens auf A/D1 mit drei oder mehr Teilnehmern prüfen. Vor der
+   Messung Arbeitsfläche, Fensterzahl, Reihenfolge und Sollrechtecke **von Hand
+   aus der Fallvorschrift** festhalten: Zielverhältnis 16:9, Spaltenzahl
+   `round(sqrt(n*w/(h*16/9)))`, Zusatzfenster rechts, Reihenfolge spaltenweise,
+   Projekt-Restpixel- und Gap-Regel. Sollwerte nie aus `surface`, Probe,
+   `grid()` oder `LAYOUTS` kopieren.
+5. Jede Surface separat messen, zum Beispiel
+   `nix run .#probe-geometry -- --erwarte layout=grid n=<n> ratio=<gespeichert>
+   gaps=<außen>/<innen> fläche=<unabhängiges Soll> surface=<A|D1|output>`.
+   Die Ratio ist Pflicht im Protokoll, hat auf Grid aber keine
+   Geometriewirkung. Zuordnung und Überlappungsfreiheit müssen bestehen.
+6. Activity B entfernen, während A aktiv ist. Erwartet sind ausschließlich
+   `surface entfernt` für B; alle A-Surfaces und ihre Zustände bleiben. Nach
+   Ruhe dürfen weder wiederholte Geometriewrites noch `aktiviere`-Zeilen aus
+   einer Epoche folgen.
+
+Der Rückbau ist Bestandteil des Laufs und darf nur eigene Ressourcen treffen:
+alle sechs Fenster mit dem vollständigen eigenen Laufpräfix schließen, Einmal-Skript und
+Entwicklungscontroller entladen, die Ausgangs-Activity setzen, dann nur die
+beiden neu ermittelten Activities des Laufs per `RemoveActivity s <uuid>` und
+die beiden eigenen Desktops per `removeDesktop` entfernen. Danach Controller-
+Shortcuts wie im vorigen Abschnitt abmelden und Activity-/Desktopmengen,
+aktuelle Activity/Desktop, `isScriptLoaded` sowie die Fensterliste gegen die
+Ausgangslage prüfen. Einen temporären Autologin vor dem Abmelden zurückbauen.
+Dann abmelden, die Inaktivität der Plasma-, KWin- und ActivityManager-Dienste
+prüfen und erst danach alle gesicherten Dateien und Verzeichnisse einschließlich
+der ursprünglich fehlenden Pfade wiederherstellen. Die Hashes unmittelbar
+danach bei weiterhin ruhender Sitzung gegen die Sicherung prüfen. Bei einer
+späteren Anmeldung die logischen Mengen und IDs erneut vergleichen; neue
+Plasma- oder SQLite-Schreibvorgänge nach der Anmeldung sind kein geeigneter
+Bytevergleich des Rückbaus. Eine anfänglich abgemeldete Maschine bleibt nach
+dem Rückbau abgemeldet. Ein Fehlschlag ändert diese Rückbaupflicht nicht.
 
 ### Eigenschaftsprüfung des Layoutkerns
 

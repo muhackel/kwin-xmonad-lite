@@ -96,8 +96,8 @@ let
         type = lib.types.numbers.between 0.1 0.9;
         default = 0.65;
         description = ''
-          Anteil der Masterspalte an der Arbeitsfläche. Wirkt auf neu angelegte
-          Surfaces und als Ziel von `xml-reset-layout`.
+          Anteil der Masterspalte im Tall-Layout. Wirkt auf neu angelegte
+          Surfaces und als Ziel von `xml-reset-layout`; Grid ignoriert ihn.
         '';
       };
 
@@ -105,6 +105,7 @@ let
         type = lib.types.enum [
           "tall"
           "full"
+          "grid"
         ];
         default = "tall";
         description = "Layout, mit dem eine neu angelegte Surface startet.";

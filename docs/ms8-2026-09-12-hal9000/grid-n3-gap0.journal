@@ -1,0 +1,351 @@
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: geladen, Version 0.0.0
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: bereit nach 1 Versuch(en), activities=3 outputs=1
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: config gaps=0/0 ratio=0.65 layout=0 excludes=7 debug=true
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: config excludes=kded6,krunner,plasmashell,polkit-kde-authentication-agent-1,steam_app_default,xwaylandvideobridge,yakuake
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: shortcuts n=12
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: bereit perOutputDesktops=false
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #1 grund=start surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {03d6b4c9-4221-43d9-90d9-a31d8258b8fa} soll=1248x1050+0+0
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {2693ec12-b170-40b5-9448-c8bfde415d14} soll=672x525+1248+0
+2026-09-12T15:02:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=672x525+1248+525
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #2 grund=windowActivated surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl nextLayout surface=510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv layout=full
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #3 grund=shortcut:nextLayout surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=full n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {03d6b4c9-4221-43d9-90d9-a31d8258b8fa} soll=1920x1050+0+0
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {2693ec12-b170-40b5-9448-c8bfde415d14} soll=1920x1050+0+0
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=1920x1050+0+0
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl nextLayout surface=510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv layout=grid
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #4 grund=shortcut:nextLayout surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {03d6b4c9-4221-43d9-90d9-a31d8258b8fa} soll=960x1050+0+0
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {2693ec12-b170-40b5-9448-c8bfde415d14} soll=960x525+960+0
+2026-09-12T15:02:39+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=960x525+960+525
+2026-09-12T15:02:44+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #5 grund=windowActivated,windowAdded surfaces=1 mitglieder=4 teilnehmer=4
+2026-09-12T15:02:44+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=4 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:02:44+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:44+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {03d6b4c9-4221-43d9-90d9-a31d8258b8fa} soll=960x525+0+0
+2026-09-12T15:02:44+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {2693ec12-b170-40b5-9448-c8bfde415d14} soll=960x525+0+525
+2026-09-12T15:02:44+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2} soll=960x525+960+0
+2026-09-12T15:02:45+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #6 grund=windowActivated,windowAdded surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:02:45+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:02:45+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:45+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {d264a4dc-cd04-43c0-9531-664f6f92bd37} soll=960x350+960+0
+2026-09-12T15:02:45+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2} soll=960x350+960+350
+2026-09-12T15:02:45+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=960x350+960+700
+2026-09-12T15:02:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #7 grund=windowActivated surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:02:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:02:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl expand surface=510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv ratio=0.7
+2026-09-12T15:02:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #8 grund=shortcut:expand surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:02:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.7 fläche=1920x1050+0+0
+2026-09-12T15:02:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:50+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl promote surface=510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv master={03d6b4c9-4221-43d9-90d9-a31d8258b8fa} unverändert
+2026-09-12T15:02:50+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #9 grund=fensterzustand surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:02:50+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.7 fläche=1920x1050+0+0
+2026-09-12T15:02:50+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:50+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #10 grund=windowActivated,activityChanged surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:02:50+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:02:50+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:50+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=1920x1050+0+0
+2026-09-12T15:02:52+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #11 grund=windowActivated,windowAdded surfaces=1 mitglieder=2 teilnehmer=2
+2026-09-12T15:02:52+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=2 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:02:52+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={f385afab-6237-475d-8fc9-48f0be0db23f},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={f385afab-6237-475d-8fc9-48f0be0db23f},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:52+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {f385afab-6237-475d-8fc9-48f0be0db23f} soll=1248x1050+0+0
+2026-09-12T15:02:52+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=672x1050+1248+0
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #12 grund=windowActivated,windowAdded surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={aab9df1c-ae11-449f-a18d-257c81142adc},{f385afab-6237-475d-8fc9-48f0be0db23f},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={aab9df1c-ae11-449f-a18d-257c81142adc},{f385afab-6237-475d-8fc9-48f0be0db23f},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {aab9df1c-ae11-449f-a18d-257c81142adc} soll=1248x1050+0+0
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {f385afab-6237-475d-8fc9-48f0be0db23f} soll=672x525+1248+0
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=672x525+1248+525
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl shrink surface=2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv ratio=0.6
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #13 grund=shortcut:shrink surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.6 fläche=1920x1050+0+0
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={aab9df1c-ae11-449f-a18d-257c81142adc},{f385afab-6237-475d-8fc9-48f0be0db23f},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={aab9df1c-ae11-449f-a18d-257c81142adc},{f385afab-6237-475d-8fc9-48f0be0db23f},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {aab9df1c-ae11-449f-a18d-257c81142adc} soll=1152x1050+0+0
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {f385afab-6237-475d-8fc9-48f0be0db23f} soll=768x525+1152+0
+2026-09-12T15:02:53+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=768x525+1152+525
+2026-09-12T15:02:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl shrink surface=2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv ratio=0.55
+2026-09-12T15:02:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #14 grund=shortcut:shrink surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:02:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.55 fläche=1920x1050+0+0
+2026-09-12T15:02:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={aab9df1c-ae11-449f-a18d-257c81142adc},{f385afab-6237-475d-8fc9-48f0be0db23f},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={aab9df1c-ae11-449f-a18d-257c81142adc},{f385afab-6237-475d-8fc9-48f0be0db23f},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {aab9df1c-ae11-449f-a18d-257c81142adc} soll=1056x1050+0+0
+2026-09-12T15:02:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {f385afab-6237-475d-8fc9-48f0be0db23f} soll=864x525+1056+0
+2026-09-12T15:02:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=864x525+1056+525
+2026-09-12T15:02:55+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl promote surface=2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv master={aab9df1c-ae11-449f-a18d-257c81142adc} unverändert
+2026-09-12T15:02:59+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #15 grund=windowActivated,activityChanged surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:02:59+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.7 fläche=1920x1050+0+0
+2026-09-12T15:02:59+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:02:59+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=960x350+960+700
+2026-09-12T15:03:03+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #16 grund=activityChanged surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:03:03+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.55 fläche=1920x1050+0+0
+2026-09-12T15:03:03+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 2454db7b-5d1e-476f-9272-80e814c81234|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={aab9df1c-ae11-449f-a18d-257c81142adc},{f385afab-6237-475d-8fc9-48f0be0db23f},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={aab9df1c-ae11-449f-a18d-257c81142adc},{f385afab-6237-475d-8fc9-48f0be0db23f},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:03:03+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=864x525+1056+525
+2026-09-12T15:03:04+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #17 grund=activityChanged surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:03:04+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.7 fläche=1920x1050+0+0
+2026-09-12T15:03:04+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:03:04+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {5917748f-73f7-4e8c-9bd1-4f0d7ba51003} soll=960x350+960+700
+2026-09-12T15:03:05+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #18 grund=fensterzustand surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:03:05+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.7 fläche=1920x1050+0+0
+2026-09-12T15:03:05+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} teilnehmer={03d6b4c9-4221-43d9-90d9-a31d8258b8fa},{2693ec12-b170-40b5-9448-c8bfde415d14},{d264a4dc-cd04-43c0-9531-664f6f92bd37},{39dfc4f0-d36a-477c-a0b5-ae2214b2b7d2},{5917748f-73f7-4e8c-9bd1-4f0d7ba51003} float=
+2026-09-12T15:03:06+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #19 grund=windowActivated,desktopChanged surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:03:06+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:03:06+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2693ec12-b170-40b5-9448-c8bfde415d14} teilnehmer={2693ec12-b170-40b5-9448-c8bfde415d14} float=
+2026-09-12T15:03:06+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {2693ec12-b170-40b5-9448-c8bfde415d14} soll=1920x1050+0+0
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #20 fenster=1 surfaces=0
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #20 grund=closed,windowRemoved surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2693ec12-b170-40b5-9448-c8bfde415d14} teilnehmer={2693ec12-b170-40b5-9448-c8bfde415d14} float=
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #21 fenster=1 surfaces=0
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #21 grund=closed,windowRemoved surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 510d39f5-8d57-4998-acf2-50fd4345bbe0|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 510d39f5-8d57-4998-acf2-50fd4345bbe0|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2693ec12-b170-40b5-9448-c8bfde415d14} teilnehmer={2693ec12-b170-40b5-9448-c8bfde415d14} float=
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #22 fenster=1 surfaces=0
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #22 grund=closed,windowActivated,windowRemoved surfaces=1 mitglieder=0 teilnehmer=0
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #23 fenster=1 surfaces=0
+2026-09-12T15:03:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #23 grund=closed,windowRemoved surfaces=1 mitglieder=0 teilnehmer=0
+2026-09-12T15:03:11+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #24 fenster=1 surfaces=0
+2026-09-12T15:03:11+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #24 grund=closed,windowRemoved surfaces=1 mitglieder=0 teilnehmer=0
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: geladen, Version 0.0.0
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: bereit nach 1 Versuch(en), activities=3 outputs=1
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: config gaps=0/0 ratio=0.65 layout=0 excludes=7 debug=true
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: config excludes=kded6,krunner,plasmashell,polkit-kde-authentication-agent-1,steam_app_default,xwaylandvideobridge,yakuake
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: shortcuts n=12
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: bereit perOutputDesktops=false
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #1 grund=start surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {9bca861f-34a4-4b2d-afb9-4d8ba2096d86} soll=1248x1050+0+0
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {2b3b40fe-7675-417f-a6c1-1e441cddfb73} soll=672x525+1248+0
+2026-09-12T15:05:54+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=672x525+1248+525
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #2 grund=windowActivated surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl nextLayout surface=8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv layout=full
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #3 grund=shortcut:nextLayout surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=full n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {9bca861f-34a4-4b2d-afb9-4d8ba2096d86} soll=1920x1050+0+0
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {2b3b40fe-7675-417f-a6c1-1e441cddfb73} soll=1920x1050+0+0
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=1920x1050+0+0
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl nextLayout surface=8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv layout=grid
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #4 grund=shortcut:nextLayout surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {9bca861f-34a4-4b2d-afb9-4d8ba2096d86} soll=960x1050+0+0
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {2b3b40fe-7675-417f-a6c1-1e441cddfb73} soll=960x525+960+0
+2026-09-12T15:05:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=960x525+960+525
+2026-09-12T15:06:03+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #5 grund=windowActivated,windowAdded surfaces=1 mitglieder=4 teilnehmer=4
+2026-09-12T15:06:03+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=4 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:03+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:03+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {9bca861f-34a4-4b2d-afb9-4d8ba2096d86} soll=960x525+0+0
+2026-09-12T15:06:03+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {2b3b40fe-7675-417f-a6c1-1e441cddfb73} soll=960x525+0+525
+2026-09-12T15:06:03+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {1d437036-8366-46d1-8fc2-aaf92b288efc} soll=960x525+960+0
+2026-09-12T15:06:04+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #6 grund=windowActivated,windowAdded surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:06:04+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:04+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:04+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5} soll=960x350+960+0
+2026-09-12T15:06:04+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {1d437036-8366-46d1-8fc2-aaf92b288efc} soll=960x350+960+350
+2026-09-12T15:06:04+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=960x350+960+700
+2026-09-12T15:06:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #7 grund=windowActivated surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:06:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl expand surface=8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv ratio=0.7
+2026-09-12T15:06:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #8 grund=shortcut:expand surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:06:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.7 fläche=1920x1050+0+0
+2026-09-12T15:06:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl promote surface=8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv master={9bca861f-34a4-4b2d-afb9-4d8ba2096d86} unverändert
+2026-09-12T15:06:11+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #9 grund=fensterzustand surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:06:11+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.7 fläche=1920x1050+0+0
+2026-09-12T15:06:11+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:11+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #10 grund=windowActivated,activityChanged surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:06:11+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:11+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:11+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=1920x1050+0+0
+2026-09-12T15:06:12+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #11 grund=windowActivated,windowAdded surfaces=1 mitglieder=2 teilnehmer=2
+2026-09-12T15:06:12+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=2 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:12+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:12+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161} soll=1248x1050+0+0
+2026-09-12T15:06:12+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=672x1050+1248+0
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #12 grund=windowActivated,windowAdded surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={13f8163f-a36f-44d5-a77c-b8c9e6373287},{3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={13f8163f-a36f-44d5-a77c-b8c9e6373287},{3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {13f8163f-a36f-44d5-a77c-b8c9e6373287} soll=1248x1050+0+0
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161} soll=672x525+1248+0
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=672x525+1248+525
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl shrink surface=b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv ratio=0.6
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #13 grund=shortcut:shrink surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.6 fläche=1920x1050+0+0
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={13f8163f-a36f-44d5-a77c-b8c9e6373287},{3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={13f8163f-a36f-44d5-a77c-b8c9e6373287},{3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {13f8163f-a36f-44d5-a77c-b8c9e6373287} soll=1152x1050+0+0
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161} soll=768x525+1152+0
+2026-09-12T15:06:13+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=768x525+1152+525
+2026-09-12T15:06:14+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl shrink surface=b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv ratio=0.55
+2026-09-12T15:06:14+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #14 grund=shortcut:shrink surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:06:14+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.55 fläche=1920x1050+0+0
+2026-09-12T15:06:14+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={13f8163f-a36f-44d5-a77c-b8c9e6373287},{3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={13f8163f-a36f-44d5-a77c-b8c9e6373287},{3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:14+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {13f8163f-a36f-44d5-a77c-b8c9e6373287} soll=1056x1050+0+0
+2026-09-12T15:06:14+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161} soll=864x525+1056+0
+2026-09-12T15:06:14+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=864x525+1056+525
+2026-09-12T15:06:14+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl promote surface=b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv master={13f8163f-a36f-44d5-a77c-b8c9e6373287} unverändert
+2026-09-12T15:06:20+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #15 grund=windowActivated,activityChanged surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:06:20+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.7 fläche=1920x1050+0+0
+2026-09-12T15:06:20+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:20+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=960x350+960+700
+2026-09-12T15:06:27+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #16 grund=activityChanged surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:06:27+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.55 fläche=1920x1050+0+0
+2026-09-12T15:06:27+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5d4257f-468d-4a85-ba74-7ad223b7fdd7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={13f8163f-a36f-44d5-a77c-b8c9e6373287},{3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={13f8163f-a36f-44d5-a77c-b8c9e6373287},{3ef5b5eb-5f9d-4bf5-a51c-778d29ad9161},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:27+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=864x525+1056+525
+2026-09-12T15:06:28+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #17 grund=activityChanged surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:06:28+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.7 fläche=1920x1050+0+0
+2026-09-12T15:06:28+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:28+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4d65198b-458b-4e29-af39-459b7207e531} soll=960x350+960+700
+2026-09-12T15:06:29+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #18 grund=fensterzustand surfaces=1 mitglieder=5 teilnehmer=5
+2026-09-12T15:06:29+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=5 ratio=0.7 fläche=1920x1050+0+0
+2026-09-12T15:06:29+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} teilnehmer={9bca861f-34a4-4b2d-afb9-4d8ba2096d86},{2b3b40fe-7675-417f-a6c1-1e441cddfb73},{dd25f0cd-3b8b-49da-be13-8c42e3ad7ac5},{1d437036-8366-46d1-8fc2-aaf92b288efc},{4d65198b-458b-4e29-af39-459b7207e531} float=
+2026-09-12T15:06:30+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #19 grund=windowActivated,desktopChanged surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:06:30+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:30+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2b3b40fe-7675-417f-a6c1-1e441cddfb73} teilnehmer={2b3b40fe-7675-417f-a6c1-1e441cddfb73} float=
+2026-09-12T15:06:30+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {2b3b40fe-7675-417f-a6c1-1e441cddfb73} soll=1920x1050+0+0
+2026-09-12T15:06:33+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #20 grund=screensChanged surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:06:33+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:33+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2b3b40fe-7675-417f-a6c1-1e441cddfb73} teilnehmer={2b3b40fe-7675-417f-a6c1-1e441cddfb73} float=
+2026-09-12T15:06:33+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #21 grund=screensChanged surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:06:33+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:33+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2b3b40fe-7675-417f-a6c1-1e441cddfb73} teilnehmer={2b3b40fe-7675-417f-a6c1-1e441cddfb73} float=
+2026-09-12T15:06:34+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #22 grund=nachlauf500:screensChanged surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:06:34+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:34+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2b3b40fe-7675-417f-a6c1-1e441cddfb73} teilnehmer={2b3b40fe-7675-417f-a6c1-1e441cddfb73} float=
+2026-09-12T15:06:35+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #23 grund=nachlauf1500:screensChanged surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:06:35+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:35+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2b3b40fe-7675-417f-a6c1-1e441cddfb73} teilnehmer={2b3b40fe-7675-417f-a6c1-1e441cddfb73} float=
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #24 fenster=1 surfaces=0
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #24 grund=closed,windowRemoved surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2b3b40fe-7675-417f-a6c1-1e441cddfb73} teilnehmer={2b3b40fe-7675-417f-a6c1-1e441cddfb73} float=
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #25 fenster=1 surfaces=0
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #25 grund=closed,windowRemoved surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2b3b40fe-7675-417f-a6c1-1e441cddfb73} teilnehmer={2b3b40fe-7675-417f-a6c1-1e441cddfb73} float=
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #26 fenster=1 surfaces=0
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #26 grund=closed,windowRemoved surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 layout=tall n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3 order={2b3b40fe-7675-417f-a6c1-1e441cddfb73} teilnehmer={2b3b40fe-7675-417f-a6c1-1e441cddfb73} float=
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #27 fenster=1 surfaces=0
+2026-09-12T15:06:37+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #27 grund=closed,windowActivated,windowRemoved surfaces=1 mitglieder=0 teilnehmer=0
+2026-09-12T15:06:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #28 fenster=1 surfaces=0
+2026-09-12T15:06:38+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #28 grund=closed,windowRemoved surfaces=1 mitglieder=0 teilnehmer=0
+2026-09-12T15:06:40+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #29 fenster=1 surfaces=0
+2026-09-12T15:06:40+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #29 grund=closed,windowRemoved surfaces=1 mitglieder=0 teilnehmer=0
+2026-09-12T15:06:43+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #30 fenster=1 surfaces=0
+2026-09-12T15:06:43+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #30 grund=closed,windowRemoved surfaces=1 mitglieder=0 teilnehmer=0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: geladen, Version 0.0.0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: bereit nach 1 Versuch(en), activities=3 outputs=1
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: config gaps=0/0 ratio=0.65 layout=0 excludes=7 debug=true
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: config excludes=kded6,krunner,plasmashell,polkit-kde-authentication-agent-1,steam_app_default,xwaylandvideobridge,yakuake
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: shortcuts n=12
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: bereit perOutputDesktops=false
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #1 grund=start surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0},{05f8708b-e4ef-430d-a164-18b4bbdb3e43},{341223c7-002b-45d7-b157-6c7d656ccb0d} teilnehmer={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0},{05f8708b-e4ef-430d-a164-18b4bbdb3e43},{341223c7-002b-45d7-b157-6c7d656ccb0d} float=
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} soll=1248x1050+0+0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {05f8708b-e4ef-430d-a164-18b4bbdb3e43} soll=672x525+1248+0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {341223c7-002b-45d7-b157-6c7d656ccb0d} soll=672x525+1248+525
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} versuch=1 ist=864x350+0+0 soll=1248x1050+0+0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {05f8708b-e4ef-430d-a164-18b4bbdb3e43} versuch=1 ist=672x350+1248+0 soll=672x525+1248+0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {341223c7-002b-45d7-b157-6c7d656ccb0d} versuch=1 ist=672x350+1248+525 soll=672x525+1248+525
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} versuch=2 ist=864x350+0+0 soll=1248x1050+0+0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {05f8708b-e4ef-430d-a164-18b4bbdb3e43} versuch=2 ist=672x350+1248+0 soll=672x525+1248+0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {341223c7-002b-45d7-b157-6c7d656ccb0d} versuch=2 ist=672x350+1248+525 soll=672x525+1248+525
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: aufgegeben {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} nach 2 Versuchen, ist=864x350+0+0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: aufgegeben {05f8708b-e4ef-430d-a164-18b4bbdb3e43} nach 2 Versuchen, ist=672x350+1248+0
+2026-09-12T15:08:47+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: aufgegeben {341223c7-002b-45d7-b157-6c7d656ccb0d} nach 2 Versuchen, ist=672x350+1248+525
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #2 grund=windowActivated surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0},{05f8708b-e4ef-430d-a164-18b4bbdb3e43},{341223c7-002b-45d7-b157-6c7d656ccb0d} teilnehmer={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0},{05f8708b-e4ef-430d-a164-18b4bbdb3e43},{341223c7-002b-45d7-b157-6c7d656ccb0d} float=
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl nextLayout surface=b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv layout=full
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #3 grund=shortcut:nextLayout surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=full n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0},{05f8708b-e4ef-430d-a164-18b4bbdb3e43},{341223c7-002b-45d7-b157-6c7d656ccb0d} teilnehmer={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0},{05f8708b-e4ef-430d-a164-18b4bbdb3e43},{341223c7-002b-45d7-b157-6c7d656ccb0d} float=
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} soll=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {05f8708b-e4ef-430d-a164-18b4bbdb3e43} soll=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {341223c7-002b-45d7-b157-6c7d656ccb0d} soll=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} versuch=1 ist=864x350+0+0 soll=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {05f8708b-e4ef-430d-a164-18b4bbdb3e43} versuch=1 ist=864x350+0+0 soll=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {341223c7-002b-45d7-b157-6c7d656ccb0d} versuch=1 ist=864x350+0+0 soll=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} versuch=2 ist=864x350+0+0 soll=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {05f8708b-e4ef-430d-a164-18b4bbdb3e43} versuch=2 ist=864x350+0+0 soll=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {341223c7-002b-45d7-b157-6c7d656ccb0d} versuch=2 ist=864x350+0+0 soll=1920x1050+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: aufgegeben {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} nach 2 Versuchen, ist=864x350+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: aufgegeben {05f8708b-e4ef-430d-a164-18b4bbdb3e43} nach 2 Versuchen, ist=864x350+0+0
+2026-09-12T15:08:48+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: aufgegeben {341223c7-002b-45d7-b157-6c7d656ccb0d} nach 2 Versuchen, ist=864x350+0+0
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl nextLayout surface=b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv layout=grid
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #4 grund=shortcut:nextLayout surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0},{05f8708b-e4ef-430d-a164-18b4bbdb3e43},{341223c7-002b-45d7-b157-6c7d656ccb0d} teilnehmer={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0},{05f8708b-e4ef-430d-a164-18b4bbdb3e43},{341223c7-002b-45d7-b157-6c7d656ccb0d} float=
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} soll=960x1050+0+0
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {05f8708b-e4ef-430d-a164-18b4bbdb3e43} soll=960x525+960+0
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {341223c7-002b-45d7-b157-6c7d656ccb0d} soll=960x525+960+525
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} versuch=1 ist=864x350+0+0 soll=960x1050+0+0
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {05f8708b-e4ef-430d-a164-18b4bbdb3e43} versuch=1 ist=864x350+960+0 soll=960x525+960+0
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {341223c7-002b-45d7-b157-6c7d656ccb0d} versuch=1 ist=864x350+960+525 soll=960x525+960+525
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} versuch=2 ist=864x350+0+0 soll=960x1050+0+0
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {05f8708b-e4ef-430d-a164-18b4bbdb3e43} versuch=2 ist=864x350+960+0 soll=960x525+960+0
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {341223c7-002b-45d7-b157-6c7d656ccb0d} versuch=2 ist=864x350+960+525 soll=960x525+960+525
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: aufgegeben {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} nach 2 Versuchen, ist=864x350+0+0
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: aufgegeben {05f8708b-e4ef-430d-a164-18b4bbdb3e43} nach 2 Versuchen, ist=864x350+960+0
+2026-09-12T15:08:49+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: aufgegeben {341223c7-002b-45d7-b157-6c7d656ccb0d} nach 2 Versuchen, ist=864x350+960+525
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #5 fenster=1 surfaces=0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #5 grund=closed,windowRemoved surfaces=1 mitglieder=2 teilnehmer=2
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=2 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0},{341223c7-002b-45d7-b157-6c7d656ccb0d} teilnehmer={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0},{341223c7-002b-45d7-b157-6c7d656ccb0d} float=
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} soll=1920x525+0+0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {341223c7-002b-45d7-b157-6c7d656ccb0d} soll=1920x525+0+525
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} versuch=1 ist=864x350+0+0 soll=1920x525+0+0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {341223c7-002b-45d7-b157-6c7d656ccb0d} versuch=1 ist=864x350+960+525 soll=1920x525+0+525
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #6 fenster=1 surfaces=0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #6 grund=closed,windowActivated,windowRemoved surfaces=1 mitglieder=1 teilnehmer=1
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=1 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} teilnehmer={4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} float=
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} soll=1920x1050+0+0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} versuch=1 ist=864x350+0+0 soll=1920x1050+0+0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: nachbessern {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} versuch=2 ist=864x350+0+0 soll=1920x1050+0+0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: aufgegeben {4f9e5ec0-3742-4c1f-818d-b31d1533d1d0} nach 2 Versuchen, ist=864x350+0+0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: gc #7 fenster=1 surfaces=0
+2026-09-12T15:08:56+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #7 grund=closed,windowActivated,windowRemoved surfaces=1 mitglieder=0 teilnehmer=0
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: geladen, Version 0.0.0
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: bereit nach 1 Versuch(en), activities=3 outputs=1
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: config gaps=0/0 ratio=0.65 layout=0 excludes=7 debug=true
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: config excludes=kded6,krunner,plasmashell,polkit-kde-authentication-agent-1,steam_app_default,xwaylandvideobridge,yakuake
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: shortcuts n=12
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: bereit perOutputDesktops=false
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #1 grund=start surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={881b6cdc-382c-443e-8672-1e31db161665},{6b665812-3f32-4104-ae61-84ce97c48ce6},{8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} teilnehmer={881b6cdc-382c-443e-8672-1e31db161665},{6b665812-3f32-4104-ae61-84ce97c48ce6},{8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} float=
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {881b6cdc-382c-443e-8672-1e31db161665} soll=1248x1050+0+0
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {6b665812-3f32-4104-ae61-84ce97c48ce6} soll=672x525+1248+0
+2026-09-12T15:14:08+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} soll=672x525+1248+525
+2026-09-12T15:14:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #2 grund=windowActivated surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:14:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=tall n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:14:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={881b6cdc-382c-443e-8672-1e31db161665},{6b665812-3f32-4104-ae61-84ce97c48ce6},{8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} teilnehmer={881b6cdc-382c-443e-8672-1e31db161665},{6b665812-3f32-4104-ae61-84ce97c48ce6},{8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} float=
+2026-09-12T15:14:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl nextLayout surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv layout=full
+2026-09-12T15:14:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #3 grund=shortcut:nextLayout surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:14:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=full n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:14:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={881b6cdc-382c-443e-8672-1e31db161665},{6b665812-3f32-4104-ae61-84ce97c48ce6},{8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} teilnehmer={881b6cdc-382c-443e-8672-1e31db161665},{6b665812-3f32-4104-ae61-84ce97c48ce6},{8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} float=
+2026-09-12T15:14:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {881b6cdc-382c-443e-8672-1e31db161665} soll=1920x1050+0+0
+2026-09-12T15:14:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {6b665812-3f32-4104-ae61-84ce97c48ce6} soll=1920x1050+0+0
+2026-09-12T15:14:09+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} soll=1920x1050+0+0
+2026-09-12T15:14:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: befehl nextLayout surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 via=aktiv layout=grid
+2026-09-12T15:14:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: arrange #4 grund=shortcut:nextLayout surfaces=1 mitglieder=3 teilnehmer=3
+2026-09-12T15:14:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 layout=grid n=3 ratio=0.65 fläche=1920x1050+0+0
+2026-09-12T15:14:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: diagnose 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3 order={881b6cdc-382c-443e-8672-1e31db161665},{6b665812-3f32-4104-ae61-84ce97c48ce6},{8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} teilnehmer={881b6cdc-382c-443e-8672-1e31db161665},{6b665812-3f32-4104-ae61-84ce97c48ce6},{8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} float=
+2026-09-12T15:14:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {881b6cdc-382c-443e-8672-1e31db161665} soll=960x1050+0+0
+2026-09-12T15:14:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {6b665812-3f32-4104-ae61-84ce97c48ce6} soll=960x525+960+0
+2026-09-12T15:14:10+02:00 HAL9000 kwin_wayland[2706]: kwin-xmonad-lite: apply {8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} soll=960x525+960+525

@@ -1,0 +1,244 @@
+==> Vorprüfung der vorbereiteten Plasma-Sitzung.
+==> Leite die Sollfläche aus KScreen und der Panelkonfiguration ab.
+  ok Unabhängige Sollfläche: 1920x1050+0+0
+==> Lege die zwei eigenen Test-Activities an.
+==> Grid n=3 ohne Abstände.
+Running as unit: kxl-ms8-20260912T131400Z-12686-g1.service; invocation ID: e64099fe899a4305867ea97e00fd5657
+KXLMS8CTRL 20260912T131400Z-12686-4-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-g1.txt id={8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=800x600+560+225
+KXLMS8CTRL 20260912T131400Z-12686-5-place-a st=ok op=place-a label=kxl-ms8-20260912T131400Z-12686-g1.txt id={8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=800x600+560+225
+KXLMS8CTRL 20260912T131400Z-12686-6-resize-ready st=ok op=resize-ready label=kxl-ms8-20260912T131400Z-12686-g1.txt id={8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=800x600+560+225
+KXLMS8CTRL 20260912T131400Z-12686-7-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-g1.txt id={8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=600x400+37+41
+  ok Eigenes Testfenster bereit: kxl-ms8-20260912T131400Z-12686-g1.txt
+Running as unit: kxl-ms8-20260912T131400Z-12686-g2.service; invocation ID: 5239fc17f25e48699810f83855a6126f
+KXLMS8CTRL 20260912T131400Z-12686-11-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-g2.txt id={6b665812-3f32-4104-ae61-84ce97c48ce6} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=800x600+560+225
+KXLMS8CTRL 20260912T131400Z-12686-12-place-a st=ok op=place-a label=kxl-ms8-20260912T131400Z-12686-g2.txt id={6b665812-3f32-4104-ae61-84ce97c48ce6} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=800x600+560+225
+KXLMS8CTRL 20260912T131400Z-12686-13-resize-ready st=ok op=resize-ready label=kxl-ms8-20260912T131400Z-12686-g2.txt id={6b665812-3f32-4104-ae61-84ce97c48ce6} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=800x600+560+225
+KXLMS8CTRL 20260912T131400Z-12686-14-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-g2.txt id={6b665812-3f32-4104-ae61-84ce97c48ce6} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=600x400+37+41
+  ok Eigenes Testfenster bereit: kxl-ms8-20260912T131400Z-12686-g2.txt
+Running as unit: kxl-ms8-20260912T131400Z-12686-g3.service; invocation ID: cf5a8ff73db642658fbfc98ba6e608ad
+KXLMS8CTRL 20260912T131400Z-12686-19-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-g3.txt id={881b6cdc-382c-443e-8672-1e31db161665} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=800x600+560+225
+KXLMS8CTRL 20260912T131400Z-12686-20-place-a st=ok op=place-a label=kxl-ms8-20260912T131400Z-12686-g3.txt id={881b6cdc-382c-443e-8672-1e31db161665} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=800x600+560+225
+KXLMS8CTRL 20260912T131400Z-12686-21-resize-ready st=ok op=resize-ready label=kxl-ms8-20260912T131400Z-12686-g3.txt id={881b6cdc-382c-443e-8672-1e31db161665} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=800x600+560+225
+KXLMS8CTRL 20260912T131400Z-12686-22-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-g3.txt id={881b6cdc-382c-443e-8672-1e31db161665} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=600x400+37+41
+  ok Eigenes Testfenster bereit: kxl-ms8-20260912T131400Z-12686-g3.txt
+==> Lade /nix/store/9qa98p3mfh5a9bsgsgll97h7nl5rgzkw-kwin-xmonad-lite-0.0.0/share/kwin/scripts/kwin-xmonad-lite/contents/code/main.js als 'kwin-xmonad-lite-dev' ohne Fenstermenü.
+  ok Geladen als /Scripting/Script0 (ohne Fenstermenü).
+==> Journal ansehen mit: nix run .#logs
+KXLMS8CTRL 20260912T131400Z-12686-23-activate st=ok op=activate label=kxl-ms8-20260912T131400Z-12686-g1.txt id={8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=672x525+1248+525
+==> Probe grid-n3-gap0, Versuch 1: layout=grid n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+==> Lade Geometrie-Probe: /nix/store/y13wyranvrmy0ad10jw6wz9k3kljav7c-geometry.js
+  ok Gestartet als /Scripting/Script1.
+==> Warte auf den Abschlusssatz (max. 30 s; die Samplestaffel läuft 3 s).
+  ok Abschlusssatz erhalten.
+  ok 30 Sätze nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151416.ndjson geschrieben.
+  ok 351 Controllerzeilen nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151416.journal geschrieben.
+==> Entlade Probe.
+    isScriptLoaded  false
+    kwinrc          keine Gruppe der Probe
+==> Werte aus.
+  == Vorschrift: layout=grid n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+  !! 322 Zeilen vor dem letzten `geladen` verworfen: sie gehören zu einer früheren Instanz
+  ok Geometrie-Orakel: bestanden
+==> Grid n=5 ohne Abstände.
+Running as unit: kxl-ms8-20260912T131400Z-12686-g4.service; invocation ID: 528d44d751e946738778dfebde42b0c7
+KXLMS8CTRL 20260912T131400Z-12686-27-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-g4.txt id={2c312b33-42c1-48e1-b05c-576cfcea5e37} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=960x525+960+0
+KXLMS8CTRL 20260912T131400Z-12686-28-place-a st=ok op=place-a label=kxl-ms8-20260912T131400Z-12686-g4.txt id={2c312b33-42c1-48e1-b05c-576cfcea5e37} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=960x525+960+0
+  ok Eigenes Testfenster bereit: kxl-ms8-20260912T131400Z-12686-g4.txt
+Running as unit: kxl-ms8-20260912T131400Z-12686-g5.service; invocation ID: 2b2b325d1b1c4f52932d98b1e6c48023
+KXLMS8CTRL 20260912T131400Z-12686-32-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-g5.txt id={5c31c1a6-b8b5-4a37-90e7-91f017859931} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=960x350+960+0
+KXLMS8CTRL 20260912T131400Z-12686-33-place-a st=ok op=place-a label=kxl-ms8-20260912T131400Z-12686-g5.txt id={5c31c1a6-b8b5-4a37-90e7-91f017859931} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=960x350+960+0
+  ok Eigenes Testfenster bereit: kxl-ms8-20260912T131400Z-12686-g5.txt
+==> Probe grid-n5-gap0, Versuch 1: layout=grid n=5 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+==> Lade Geometrie-Probe: /nix/store/y13wyranvrmy0ad10jw6wz9k3kljav7c-geometry.js
+  ok Gestartet als /Scripting/Script1.
+==> Warte auf den Abschlusssatz (max. 30 s; die Samplestaffel läuft 3 s).
+  ok Abschlusssatz erhalten.
+  ok 38 Sätze nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151424.ndjson geschrieben.
+  ok 363 Controllerzeilen nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151424.journal geschrieben.
+==> Entlade Probe.
+    isScriptLoaded  false
+    kwinrc          keine Gruppe der Probe
+==> Werte aus.
+  == Vorschrift: layout=grid n=5 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+  !! 322 Zeilen vor dem letzten `geladen` verworfen: sie gehören zu einer früheren Instanz
+  ok Geometrie-Orakel: bestanden
+==> Getrennte Zustände und gemeinsames Activity-Fenster.
+KXLMS8CTRL 20260912T131400Z-12686-34-activate st=ok op=activate label=kxl-ms8-20260912T131400Z-12686-g3.txt id={881b6cdc-382c-443e-8672-1e31db161665} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=960x525+0+0
+KXLMS8CTRL 20260912T131400Z-12686-35-share st=ok op=share label=kxl-ms8-20260912T131400Z-12686-g1.txt id={8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76,9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=960x350+960+700
+  ok Surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3: grid n=5 ratio=0.7
+  ok Fenster {8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} ist Teilnehmer von 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3.
+Running as unit: kxl-ms8-20260912T131400Z-12686-b1.service; invocation ID: 2dfe8fd93e9443b4974b5107292b4f62
+KXLMS8CTRL 20260912T131400Z-12686-40-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-b1.txt id={675fe026-b98f-409e-b328-2ba763ffb27c} activities=9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=1248x1050+0+0
+KXLMS8CTRL 20260912T131400Z-12686-41-place-b st=ok op=place-b label=kxl-ms8-20260912T131400Z-12686-b1.txt id={675fe026-b98f-409e-b328-2ba763ffb27c} activities=9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=1248x1050+0+0
+  ok Eigenes Testfenster bereit: kxl-ms8-20260912T131400Z-12686-b1.txt
+Running as unit: kxl-ms8-20260912T131400Z-12686-b2.service; invocation ID: 8215eb7be9e04ace84c2fce3dea4bca6
+KXLMS8CTRL 20260912T131400Z-12686-46-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-b2.txt id={0e4b497e-852f-428e-9e52-bcd90401c257} activities=9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=1248x1050+0+0
+KXLMS8CTRL 20260912T131400Z-12686-47-place-b st=ok op=place-b label=kxl-ms8-20260912T131400Z-12686-b2.txt id={0e4b497e-852f-428e-9e52-bcd90401c257} activities=9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=1248x1050+0+0
+  ok Eigenes Testfenster bereit: kxl-ms8-20260912T131400Z-12686-b2.txt
+KXLMS8CTRL 20260912T131400Z-12686-48-activate st=ok op=activate label=kxl-ms8-20260912T131400Z-12686-b2.txt id={0e4b497e-852f-428e-9e52-bcd90401c257} activities=9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=1248x1050+0+0
+  ok Surface 9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3: tall n=3 ratio=0.55
+  ok Fenster {8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} ist Teilnehmer von 9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3.
+==> Probe activity-b-tall, Versuch 1: layout=tall n=3 ratio=0.55 gaps=0/0 fläche=1920x1050+0+0 surface=9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+==> Lade Geometrie-Probe: /nix/store/y13wyranvrmy0ad10jw6wz9k3kljav7c-geometry.js
+  ok Gestartet als /Scripting/Script1.
+==> Warte auf den Abschlusssatz (max. 30 s; die Samplestaffel läuft 3 s).
+  ok Abschlusssatz erhalten.
+  ok 46 Sätze nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151437.ndjson geschrieben.
+  ok 404 Controllerzeilen nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151437.journal geschrieben.
+==> Entlade Probe.
+    isScriptLoaded  false
+    kwinrc          keine Gruppe der Probe
+==> Werte aus.
+  == Vorschrift: layout=tall n=3 ratio=0.55 gaps=0/0 fläche=1920x1050+0+0 surface=9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+  !! 322 Zeilen vor dem letzten `geladen` verworfen: sie gehören zu einer früheren Instanz
+  ok Geometrie-Orakel: bestanden
+  ok Surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3: grid n=5 ratio=0.7
+==> Probe activity-a-return, Versuch 1: layout=grid n=5 ratio=0.7 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+==> Lade Geometrie-Probe: /nix/store/y13wyranvrmy0ad10jw6wz9k3kljav7c-geometry.js
+  ok Gestartet als /Scripting/Script1.
+==> Warte auf den Abschlusssatz (max. 30 s; die Samplestaffel läuft 3 s).
+  ok Abschlusssatz erhalten.
+  ok 46 Sätze nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151445.ndjson geschrieben.
+  ok 408 Controllerzeilen nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151445.journal geschrieben.
+==> Entlade Probe.
+    isScriptLoaded  false
+    kwinrc          keine Gruppe der Probe
+==> Werte aus.
+  == Vorschrift: layout=grid n=5 ratio=0.7 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+  !! 322 Zeilen vor dem letzten `geladen` verworfen: sie gehören zu einer früheren Instanz
+  ok Geometrie-Orakel: bestanden
+==> Sticky-Fenster auf einem zweiten vorhandenen Desktop.
+KXLMS8CTRL 20260912T131400Z-12686-49-sticky st=ok op=sticky label=kxl-ms8-20260912T131400Z-12686-g2.txt id={6b665812-3f32-4104-ae61-84ce97c48ce6} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops= allDesktops=true geometry=960x525+0+525
+KXLMS8CTRL 20260912T131400Z-12686-50-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-g1.txt id={8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76,9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=960x350+960+700
+KXLMS8CTRL 20260912T131400Z-12686-51-inspect st=ok op=inspect label=kxl-ms8-20260912T131400Z-12686-g2.txt id={6b665812-3f32-4104-ae61-84ce97c48ce6} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops= allDesktops=true geometry=960x525+0+525
+  ok Fenster {6b665812-3f32-4104-ae61-84ce97c48ce6} ist Teilnehmer von 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3.
+  ok Surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3: tall n=1 ratio=0.65
+  ok Fenster {6b665812-3f32-4104-ae61-84ce97c48ce6} ist Teilnehmer von 88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3.
+==> Probe sticky-desktop, Versuch 1: layout=tall n=1 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+==> Lade Geometrie-Probe: /nix/store/y13wyranvrmy0ad10jw6wz9k3kljav7c-geometry.js
+  ok Gestartet als /Scripting/Script1.
+==> Warte auf den Abschlusssatz (max. 30 s; die Samplestaffel läuft 3 s).
+  ok Abschlusssatz erhalten.
+  ok 46 Sätze nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151454.ndjson geschrieben.
+  ok 423 Controllerzeilen nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151454.journal geschrieben.
+==> Entlade Probe.
+    isScriptLoaded  false
+    kwinrc          keine Gruppe der Probe
+==> Werte aus.
+  == Vorschrift: layout=tall n=1 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+  !! 322 Zeilen vor dem letzten `geladen` verworfen: sie gehören zu einer früheren Instanz
+  ok Geometrie-Orakel: bestanden
+  ok Surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3: grid n=5 ratio=0.7
+==> Grid n=3 mit Außenabstand 8 und Innenabstand 4.
+KXLMS8CTRL 20260912T131400Z-12686-52-close st=ok op=close label=kxl-ms8-20260912T131400Z-12686-g4.txt
+KXLMS8CTRL 20260912T131400Z-12686-53-close st=ok op=close label=kxl-ms8-20260912T131400Z-12686-g5.txt
+==> Entlade 'kwin-xmonad-lite-dev'.
+  ok Entladen; isScriptLoaded=false.
+==> Lade /nix/store/9qa98p3mfh5a9bsgsgll97h7nl5rgzkw-kwin-xmonad-lite-0.0.0/share/kwin/scripts/kwin-xmonad-lite/contents/code/main.js als 'kwin-xmonad-lite-dev' ohne Fenstermenü.
+  ok Geladen als /Scripting/Script0 (ohne Fenstermenü).
+==> Journal ansehen mit: nix run .#logs
+KXLMS8CTRL 20260912T131400Z-12686-54-activate st=ok op=activate label=kxl-ms8-20260912T131400Z-12686-g1.txt id={8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76,9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=665x515+1247+527
+  ok Surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3: grid n=3 ratio=0.65
+==> Probe grid-n3-gap8-4, Versuch 1: layout=grid n=3 ratio=0.65 gaps=8/4 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+==> Lade Geometrie-Probe: /nix/store/y13wyranvrmy0ad10jw6wz9k3kljav7c-geometry.js
+  ok Gestartet als /Scripting/Script1.
+==> Warte auf den Abschlusssatz (max. 30 s; die Samplestaffel läuft 3 s).
+  ok Abschlusssatz erhalten.
+  ok 38 Sätze nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151506.ndjson geschrieben.
+  ok 468 Controllerzeilen nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151506.journal geschrieben.
+==> Entlade Probe.
+    isScriptLoaded  false
+    kwinrc          keine Gruppe der Probe
+==> Werte aus.
+  == Vorschrift: layout=grid n=3 ratio=0.65 gaps=8/4 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+  !! 439 Zeilen vor dem letzten `geladen` verworfen: sie gehören zu einer früheren Instanz
+  ok Geometrie-Orakel: bestanden
+==> Vier getrennte Zustände über zwei Activities und zwei Desktops.
+KXLMS8CTRL 20260912T131400Z-12686-55-sticky st=ok op=sticky label=kxl-ms8-20260912T131400Z-12686-g1.txt id={8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76,9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops= allDesktops=true geometry=950x515+962+527
+KXLMS8CTRL 20260912T131400Z-12686-56-activate st=ok op=activate label=kxl-ms8-20260912T131400Z-12686-g2.txt id={6b665812-3f32-4104-ae61-84ce97c48ce6} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76 desktops= allDesktops=true geometry=1235x1034+8+8
+  ok Surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3: full n=2 ratio=0.7
+  ok Fenster {8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} ist Teilnehmer von 88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3.
+==> Probe matrix-a2-full, Versuch 1: layout=full n=2 ratio=0.7 gaps=8/4 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+==> Lade Geometrie-Probe: /nix/store/y13wyranvrmy0ad10jw6wz9k3kljav7c-geometry.js
+  ok Gestartet als /Scripting/Script1.
+==> Warte auf den Abschlusssatz (max. 30 s; die Samplestaffel läuft 3 s).
+  ok Abschlusssatz erhalten.
+  ok 38 Sätze nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151515.ndjson geschrieben.
+  ok 490 Controllerzeilen nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151515.journal geschrieben.
+==> Entlade Probe.
+    isScriptLoaded  false
+    kwinrc          keine Gruppe der Probe
+==> Werte aus.
+  == Vorschrift: layout=full n=2 ratio=0.7 gaps=8/4 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+  !! 439 Zeilen vor dem letzten `geladen` verworfen: sie gehören zu einer früheren Instanz
+  ok Geometrie-Orakel: bestanden
+KXLMS8CTRL 20260912T131400Z-12686-57-activate st=ok op=activate label=kxl-ms8-20260912T131400Z-12686-b1.txt id={675fe026-b98f-409e-b328-2ba763ffb27c} activities=9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops=eb859906-5dd5-4314-92bc-4f3cc1582e4f allDesktops=false geometry=665x515+1247+8
+  ok Surface 9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3: full n=3 ratio=0.6
+==> Probe matrix-b1-full, Versuch 1: layout=full n=3 ratio=0.6 gaps=8/4 fläche=1920x1050+0+0 surface=9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+==> Lade Geometrie-Probe: /nix/store/y13wyranvrmy0ad10jw6wz9k3kljav7c-geometry.js
+  ok Gestartet als /Scripting/Script1.
+==> Warte auf den Abschlusssatz (max. 30 s; die Samplestaffel läuft 3 s).
+  ok Abschlusssatz erhalten.
+  ok 38 Sätze nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151524.ndjson geschrieben.
+  ok 517 Controllerzeilen nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151524.journal geschrieben.
+==> Entlade Probe.
+    isScriptLoaded  false
+    kwinrc          keine Gruppe der Probe
+==> Werte aus.
+  == Vorschrift: layout=full n=3 ratio=0.6 gaps=8/4 fläche=1920x1050+0+0 surface=9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+  !! 439 Zeilen vor dem letzten `geladen` verworfen: sie gehören zu einer früheren Instanz
+  ok Geometrie-Orakel: bestanden
+KXLMS8CTRL 20260912T131400Z-12686-58-activate st=ok op=activate label=kxl-ms8-20260912T131400Z-12686-g1.txt id={8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} activities=88c0ac20-c3c9-40dd-8540-c9d99266ea76,9891420e-a55c-47d7-9e4b-7e94d54a6b53 desktops= allDesktops=true geometry=1904x1034+8+8
+  ok Surface 9891420e-a55c-47d7-9e4b-7e94d54a6b53|89539ae6-e06b-4c76-a057-95df959578a9|DP-3: grid n=1 ratio=0.75
+  ok Fenster {8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} ist Teilnehmer von 9891420e-a55c-47d7-9e4b-7e94d54a6b53|89539ae6-e06b-4c76-a057-95df959578a9|DP-3.
+==> Probe matrix-b2-grid, Versuch 1: layout=grid n=1 ratio=0.75 gaps=8/4 fläche=1920x1050+0+0 surface=9891420e-a55c-47d7-9e4b-7e94d54a6b53|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+==> Lade Geometrie-Probe: /nix/store/y13wyranvrmy0ad10jw6wz9k3kljav7c-geometry.js
+  ok Gestartet als /Scripting/Script1.
+==> Warte auf den Abschlusssatz (max. 30 s; die Samplestaffel läuft 3 s).
+  ok Abschlusssatz erhalten.
+  ok 38 Sätze nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151533.ndjson geschrieben.
+  ok 536 Controllerzeilen nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151533.journal geschrieben.
+==> Entlade Probe.
+    isScriptLoaded  false
+    kwinrc          keine Gruppe der Probe
+==> Werte aus.
+  == Vorschrift: layout=grid n=1 ratio=0.75 gaps=8/4 fläche=1920x1050+0+0 surface=9891420e-a55c-47d7-9e4b-7e94d54a6b53|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+  !! 439 Zeilen vor dem letzten `geladen` verworfen: sie gehören zu einer früheren Instanz
+  ok Geometrie-Orakel: bestanden
+  ok Surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3: grid n=3 ratio=0.65
+  ok Surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3: full n=2 ratio=0.7
+  ok Surface 9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3: full n=3 ratio=0.6
+  ok Surface 9891420e-a55c-47d7-9e4b-7e94d54a6b53|89539ae6-e06b-4c76-a057-95df959578a9|DP-3: grid n=1 ratio=0.75
+  ok Alle vier gespeicherten Layouts, Ratios und Reihenfolgen erhalten.
+==> Entfernung von Activity B bei weiterhin unveränderten A-Surfaces.
+KXLMS8CTRL 20260912T131400Z-12686-59-close st=ok op=close label=kxl-ms8-20260912T131400Z-12686-b1.txt
+KXLMS8CTRL 20260912T131400Z-12686-60-close st=ok op=close label=kxl-ms8-20260912T131400Z-12686-b2.txt
+  ok Surface 9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3: full n=1 ratio=0.6
+  ok Surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3: grid n=3 ratio=0.65
+  ok Fenster {8ddc53fd-7ce8-4b5f-8235-a1c4ecb90233} ist Teilnehmer von 88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3.
+==> Probe after-gc-grid, Versuch 1: layout=grid n=3 ratio=0.65 gaps=8/4 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+==> Lade Geometrie-Probe: /nix/store/y13wyranvrmy0ad10jw6wz9k3kljav7c-geometry.js
+  ok Gestartet als /Scripting/Script1.
+==> Warte auf den Abschlusssatz (max. 30 s; die Samplestaffel läuft 3 s).
+  ok Abschlusssatz erhalten.
+  ok 30 Sätze nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151548.ndjson geschrieben.
+  ok 583 Controllerzeilen nach /home/muhackel/kxl-ms8-live/kxl-ms8-20260912T131400Z-12686/geometry-20260912-151548.journal geschrieben.
+==> Entlade Probe.
+    isScriptLoaded  false
+    kwinrc          keine Gruppe der Probe
+==> Werte aus.
+  == Vorschrift: layout=grid n=3 ratio=0.65 gaps=8/4 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+  !! 439 Zeilen vor dem letzten `geladen` verworfen: sie gehören zu einer früheren Instanz
+  ok Geometrie-Orakel: bestanden
+  ok Surface 88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3: full n=2 ratio=0.7
+  ok GC entfernte B; beide A-Zustände und das gemeinsame Fenster sind erhalten.
+==> Beobachte den Controller fünf Sekunden ohne weiteren Testreiz.
+  ok Alle Prüfschritte sind durchgelaufen; der EXIT-Trap räumt logisch auf.
+==> Logischer Rückbau der eigenen Testressourcen.
+KXLMS8CTRL 20260912T131400Z-12686-61-close-all st=ok op=close-all count=3
+KXLMS8CTRL 20260912T131400Z-12686-62-count-all st=ok op=count-all count=0
+==> Entlade 'kwin-xmonad-lite-dev'.
+  ok Entladen; isScriptLoaded=false.
+==> Entferne eigene Activity kxl-ms8-a-20260912T131400Z-12686 (88c0ac20-c3c9-40dd-8540-c9d99266ea76).
+  !! Die externe Dateisicherung wird erst nach dem Abmelden zurückgespielt.
+  ok Live-Ablauf und logischer Rückbau beendet.

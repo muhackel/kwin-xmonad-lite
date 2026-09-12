@@ -380,13 +380,16 @@ test("auf einer leeren Surface wirkt nur der Layoutbefehl", () => {
 
 // --- Layout und Masteranteil ------------------------------------------------
 
-test("nextLayout läuft im Kreis von tall über full zurück nach tall", () => {
+test("nextLayout läuft im Kreis von tall über full und grid zurück nach tall", () => {
 	const rig = epochRig();
 	const windows = threeWindows(rig, "a");
 	const first = cmd(rig, "nextLayout", windows, "a");
 	assert.equal(first.note.indexOf("layout=full") > 0, true);
 	const second = cmd(rig, "nextLayout", windows, "a");
-	assert.equal(second.note.indexOf("layout=tall") > 0, true);
+	assert.equal(second.note.indexOf("layout=grid") > 0, true);
+	assert.equal(must(rig.registry.surfaces.get(KEY_1), "Surface fehlt").layoutIndex, 2);
+	const third = cmd(rig, "nextLayout", windows, "a");
+	assert.equal(third.note.indexOf("layout=tall") > 0, true);
 	assert.equal(must(rig.registry.surfaces.get(KEY_1), "Surface fehlt").layoutIndex, 0);
 });
 
@@ -416,19 +419,19 @@ test("shrink läuft bis 0,1 und hält dort an", () => {
 	assert.equal(must(rig.registry.surfaces.get(KEY_1), "Surface fehlt").masterRatio, 0.1);
 });
 
-test("resetLayout zieht Ratio und Layout auf die konfigurierten Werte", () => {
+test("resetLayout zieht Ratio und Layout auf konfiguriertes Grid", () => {
 	const rig = epochRig();
 	const windows = threeWindows(rig, "a");
 	cmd(rig, "expand", windows, "a");
 	cmd(rig, "nextLayout", windows, "a");
 	rig.config.masterRatio = 0.5;
-	rig.config.layoutIndex = 1;
+	rig.config.layoutIndex = 2;
 
 	const result = cmd(rig, "resetLayout", windows, "a");
 	const state = must(rig.registry.surfaces.get(KEY_1), "Surface fehlt");
 	assert.equal(result.arrange, true);
 	assert.equal(state.masterRatio, 0.5);
-	assert.equal(state.layoutIndex, 1);
+	assert.equal(state.layoutIndex, 2);
 	assert.equal(cmd(rig, "resetLayout", windows, "a").arrange, false);
 });
 
@@ -443,7 +446,7 @@ test("die konfigurierten Werte gelten nur für eine neu angelegte Surface", () =
 	assert.equal(before.masterRatio, 0.7);
 
 	rig.config.masterRatio = 0.5;
-	rig.config.layoutIndex = 1;
+	rig.config.layoutIndex = 2;
 	const b = windowInfo("b");
 	b.outputName = OUTPUT_2;
 	rig.port.place("b", START);
@@ -451,7 +454,7 @@ test("die konfigurierten Werte gelten nur für eine neu angelegte Surface", () =
 
 	const created = must(rig.registry.surfaces.get(KEY_2), "Surface 2 fehlt");
 	assert.equal(created.masterRatio, 0.5);
-	assert.equal(created.layoutIndex, 1);
+	assert.equal(created.layoutIndex, 2);
 	assert.equal(must(rig.registry.surfaces.get(KEY_1), "Surface 1 fehlt").masterRatio, 0.7);
 	assert.equal(must(rig.registry.surfaces.get(KEY_1), "Surface 1 fehlt").layoutIndex, 0);
 });

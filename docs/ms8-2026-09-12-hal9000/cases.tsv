@@ -1,0 +1,14 @@
+# Format: Name<TAB>erwartetes Orakelergebnis<TAB>Vorschrift (durch Leerzeichen getrennte Argumente)
+grid-n3-gap0	bestanden	layout=grid n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+grid-n5-gap0	bestanden	layout=grid n=5 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+activity-b-tall	bestanden	layout=tall n=3 ratio=0.55 gaps=0/0 fläche=1920x1050+0+0 surface=9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+activity-a-return	bestanden	layout=grid n=5 ratio=0.7 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+sticky-desktop	bestanden	layout=tall n=1 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+grid-n3-gap8-4	bestanden	layout=grid n=3 ratio=0.65 gaps=8/4 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+matrix-a2-full	bestanden	layout=full n=2 ratio=0.7 gaps=8/4 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+matrix-b1-full	bestanden	layout=full n=3 ratio=0.6 gaps=8/4 fläche=1920x1050+0+0 surface=9891420e-a55c-47d7-9e4b-7e94d54a6b53|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+matrix-b2-grid	bestanden	layout=grid n=1 ratio=0.75 gaps=8/4 fläche=1920x1050+0+0 surface=9891420e-a55c-47d7-9e4b-7e94d54a6b53|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+after-gc-grid	bestanden	layout=grid n=3 ratio=0.65 gaps=8/4 fläche=1920x1050+0+0 surface=88c0ac20-c3c9-40dd-8540-c9d99266ea76|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3
+vorlauf-desktopwechsel	nicht bestanden	layout=tall n=1 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=510d39f5-8d57-4998-acf2-50fd4345bbe0|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+vorlauf-ausgabewechsel	nicht bestanden	layout=tall n=1 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=8af54428-3563-434c-9271-397f58581133|89539ae6-e06b-4c76-a057-95df959578a9|DP-3
+vorlauf-client	nicht bestanden	layout=grid n=3 ratio=0.65 gaps=0/0 fläche=1920x1050+0+0 surface=b5b6e33f-94a8-4be0-9289-c71f7c8dc0a7|eb859906-5dd5-4314-92bc-4f3cc1582e4f|DP-3

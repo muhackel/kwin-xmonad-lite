@@ -1,0 +1,87 @@
+{
+  "result": {
+    "role": "spec_reviewer",
+    "run_id": "863d9a933fbb4d7abc9bc54460e629c0",
+    "spec_revision": 2,
+    "spec_hash": "bb9109c5fe0d2ea82855f35858d774d6f3ee912a88bcb331cc8f6d6c9a47f526",
+    "contract_hash": "d2f774f0209ffe186b69ca12492fc216da6ecdd32d29f9efeb8263be82bcbb05",
+    "fingerprint": "f84dddb1d5e8e9b62cbbec1e2c7d0806f02fb36428094c100c5fffa21a9eaa70",
+    "summary": "Die Spec zu Meilenstein 8 ist gut abgegrenzt und in den Projektquellen verankert: Grid als drittes Layout hängt allein an LAYOUTS (core/stack.ts nextLayout rechnet mit LAYOUTS.length, plan.ts raiseOrder hebt nur bei \"full\", config.ts löst Namen dynamisch auf), das Adapter-Rig trägt bereits currentActivityChanged, activitiesChanged und das Fenster-activitiesChanged, das Orakel rechnet Sollzellen über LAYOUTS und braucht nur den Grid-Überlappungszweig. Die Vertragspfade decken das ab, ohne dass Adapter, Epoche oder Zustandsschicht angefasst werden müssen. Ein Blocker bleibt: die Spec legt das Grid-Seitenverhältnis auf 16/9 fest und beruft sich dabei auf die gepinnte XMonad-Quelle; nach meiner Kenntnis des Moduls XMonad.Layout.Grid lautet dort defaultRatio = 16/10, und der Nutzer verwendet laut Spec das unparametrierte Grid. Der Abruf der Quelle und der Blick in das lokale xmonad.hs wurden in dieser Sandbox verweigert; die Angabe ist deshalb vor der Freigabe an der gepinnten Datei zu klären, weil die festen Erwartungswerte für n=3/n=5, der Quellenbefund in docs/research.md und die Aussage \"aus seinem bestehenden XMonad-Grid\" daran hängen. Kleinere Punkte: der Registry-GC läuft in adapter.runArrange über purgeFromSnapshot und nicht in runEpoch, das Activities-Kriterium sollte das benennen; für einen Defektfund in nicht freigegebenen src-Dateien fehlt eine Regel; die Zerlegungsinvariante bei ungleich hohen Spalten sollte je Spalte definiert werden.",
+    "scores": {
+      "coverage": {
+        "points": 22,
+        "reason": "Nutzerauftrag (nächsten Meilenstein orchestriert umsetzen, HAL9000 als Testumgebung) und PLAN.md §9/§11 (grid zyklisch erreichbar, Tall-gleiche Eigenschaftstests, Matrix 6–8) sind vollständig in Kriterien übersetzt; Persistenz und KCM sind laut PLAN.md §9 optional und werden ausdrücklich offen gelassen statt als erledigt markiert; der Live-Teil ist sauber an den Koordinator delegiert und ein PASS wird ausdrücklich nicht als Live-Abnahme gewertet. Abzug: das Activities-Kriterium verlangt GC-Nachweise 'über reale planArrangement/runEpoch/Befehlsschicht', der GC liegt aber in adapter.runArrange (purgeFromSnapshot), nicht in runEpoch; der Sichtbarkeitsunterschied (readSnapshot baut Views nur für workspace.currentActivity) wird für die Mehr-Activity-Snapshots nicht benannt.",
+        "evidence": "PLAN.md:299 und PLAN.md:396 (Grid-Stufe), src/kwin/adapter.ts:260 (purgeFromSnapshot vor runEpoch), src/kwin/read.ts:104-117 (Views aus currentActivity), Spec-Abschnitte 'Abnahmekriterien' und 'Entscheidungen und Grenzen'."
+      },
+      "verification": {
+        "points": 20,
+        "reason": "Jedes Kriterium hat eine beobachtbare Prüfung: feste, nicht aus grid erzeugte Rechtecke plus Gittersweep/Fuzz wie in tests/support/gen.ts, Zyklus- und Reset-Tests, Home-Manager-Auswertung über data.json, Adapter-Rig mit zählendem activeWindow-Setter, Orakel mit Positiv- und Negativfixtures, archiv-reauswertung, Testzahl über 405 im Paketlog. Die Pfadform 'nix flake check path:.' ist für untracked Dateien richtig begründet. Abzug: die festen Erwartungswerte hängen an der unbestätigten Konstante 16/9 (siehe Blocker); die Zerlegungsinvariante ist bei ungleich hohen Spalten und je Spalte geklemmtem Zeilenabstand nicht präzise definiert; 'aussagekräftig' beim Activities-Kriterium bleibt Ermessen des Evaluators.",
+        "evidence": "tests/support/gen.ts:33-94 (Gittersweep/Fuzz), tests/support/adapterrig.ts:185-235 (Signale und zählender Setter), flake.nix:620-710 (home-module mit defaultLayout=full), src/core/rect.ts:50-59 und :140-157 (clampGap je Achse), nix/package.nix:28 (node --test im Build)."
+      },
+      "scope": {
+        "points": 17,
+        "reason": "Die Schreibpfade sind präzise und nach meiner Prüfung ausreichend: nextLayout in core/stack.ts nutzt LAYOUTS.length, raiseOrder in plan.ts ist auf 'full' beschränkt, loadLayout in config.ts ist dynamisch, der Adapter verbindet die Activity-Signale bereits; nix/package.nix und package/metadata.json sind auf die Beschreibung begrenzt, Commit/Push/Deploy/Vault/Live sind ausgeschlossen. Abzug: es fehlt eine Regel für den Fall, dass die neuen Activity- oder Adapter-Tests einen Defekt in nicht freigegebenen Dateien (adapter.ts, reconcile.ts, registry.ts, plan.ts) aufdecken; scripts/ ist ausgeschlossen, obwohl die Live-Vorschrift eine noch unbelegte Schreibmöglichkeit auf window.activities braucht.",
+        "evidence": "src/core/stack.ts:188-192 (nextLayout über LAYOUTS.length), src/kwin/plan.ts:76-78 (raiseOrder nur full), src/kwin/adapter.ts:214,413,419 (Activity-Signale), Vertrag allowed_paths, Spec 'Entscheidungen und Grenzen'."
+      },
+      "evidence": {
+        "points": 9,
+        "reason": "Gelesene Quellen sind benannt, Agentenergebnisse als Selbstberichte gekennzeichnet, Vorschläge von Nutzerfestlegungen getrennt, die Korrektur des ersten Reviews zu 'min nwins' ist quellenbezogen. Schwerer Abzug: die zentrale Quellenaussage 'Zielseitenverhältnis 16/9' widerspricht meiner Kenntnis von XMonad.Layout.Grid (defaultRatio = 16/10, Spaltenzahl aus sqrt(n*w/(h*ratio))); ich konnte sie in dieser Sandbox weder an der gepinnten URL noch am lokalen xmonad.hs nachprüfen, weil beide Zugriffe verweigert wurden. Die Spec belegt die Zahl nur durch die Behauptung, der Koordinator habe die Datei gelesen, ohne Zitat der Zeile.",
+        "evidence": "Spec 'Ziel und Quellen' (16/9) und 'Hinweise aus der ersten Gegenprüfung' (min nwins); Abruf von raw.githubusercontent.com und Lesen von /home/muhackel/nixosconfig/sources/xmonad/xmonad.hs in dieser Sitzung verweigert."
+      },
+      "risks": {
+        "points": 12,
+        "reason": "Rundungsunterschied Math.round gegen Haskell round, Division bei Höhe 0, KConfig-Ersatzverhalten, Snapshot-Index des Runners, Nix-Daemon-Zugriff, historische Protokolle mit defaultLayout=grid als Negativbeispiel und die fehlende Live-Zuordnungsmethode sind berücksichtigt. Nicht benannt: bei ungleich hohen Spalten kann der je Spalte geklemmte Zeilenabstand bei winzigen Flächen zwischen Spalten abweichen (analog PLAN.md §6 für Tall); der Orakel-Zuordnungszweig setzt voraus, dass die Reihenfolge der diagnose-Teilnehmer der Zellreihenfolge spaltenweise entspricht; das Verhalten bei Defektfund außerhalb der Schreibpfade.",
+        "evidence": "PLAN.md:192 (Klemmung je Achse, abweichende effektive Werte), dev/probe/expect-geometry.ts:947-972 (Zuordnung participants[i] zu soll[i]), build.md:668-682 und docs/research.md:542-550 (Fall 21b mit defaultLayout=grid)."
+      }
+    },
+    "blockers": [
+      {
+        "id": "grid-aspect-source",
+        "reason": "Die Spec legt für grid-core das Zielseitenverhältnis 16/9 fest und begründet es mit der gepinnten Quelle XMonad/Layout/Grid.hs. Nach meiner Kenntnis dieses Moduls ist die Vorgabe defaultRatio = 16/10 (Spaltenzahl = max 1 . min nwins . round . sqrt $ nwins * rw / (rh * ratio)), und der Nutzer verwendet laut Spec das unparametrierte Grid, also genau diese Vorgabe. Daran hängen die handgerechneten Erwartungsrechtecke für n=3/n=5, der Quellenbefund in docs/research.md und die Aussage, die Projektfassung übernehme die Aufteilungsregel seines bisherigen XMonad-Grid. Vor der Freigabe ist die Konstante an der gepinnten Datei (Zeile mit defaultRatio und die ncols-Zeile) zu belegen und bei Abweichung in Spec und Kriterien auf 16/10 zu korrigieren; ein wörtliches Zitat der beiden Zeilen gehört in den Quellenbefund.",
+        "evidence": "Spec 'Ziel und Quellen': 'Zielseitenverhältnis 16/9, Spaltenzahl aus gerundeter Quadratwurzel von n*w/(h*16/9)'; Kriterium grid-core: 'Math.round(sqrt(n*w/(h*(16/9))))'. Eigene Verifikation in dieser Sandbox nicht möglich: curl auf die gepinnte URL und Lesen von /home/muhackel/nixosconfig/sources/xmonad/xmonad.hs wurden verweigert."
+      }
+    ],
+    "questions": [
+      "Wie soll der Runner verfahren, wenn die neuen Activity- oder Adapter-Signal-Tests einen echten Defekt in nicht freigegebenen Dateien aufdecken (src/kwin/adapter.ts, src/state/reconcile.ts, src/state/registry.ts, src/kwin/plan.ts)? Alternativen: Befund mit fehlschlagendem Test als Blocker der Korrekturrunde melden und src unberührt lassen, oder diese Pfade vorab in allowed_paths aufnehmen.",
+      "Soll das Activities-Kriterium den GC-Nachweis ausdrücklich über purgeFromSnapshot (wie in tests/kwin-purge.test.ts) oder über das Adapter-Rig führen? runEpoch enthält den GC nicht; adapter.runArrange ruft purgeFromSnapshot vor der Epoche (src/kwin/adapter.ts:260).",
+      "Wie ist 'Fläche samt Lücken exakt zerlegt' bei Grid mit ungleich hohen Spalten definiert? Vorschlag: waagerecht Spaltenbreiten plus Spaltenabstände = innere Breite, senkrecht je Spalte Zellhöhen plus deren geklemmter Zeilenabstand = innere Höhe; bei winzigen Flächen dürfen die effektiven Zeilenabstände zwischen Spalten abweichen (analog PLAN.md §6 für Tall).",
+      "Soll der Unterschied in der Restpixelverteilung benannt werden? XMonads chop gibt den gesamten Rest der ersten Zelle, die Projektfunktion distribute verteilt ihn pixelweise auf die vorderen Zellen. Beides ist zulässig, der Unterschied gehört in den Quellenbefund neben der Rundungsabweichung.",
+      "Die Live-Vorschrift braucht ein Mittel, ein eigenes Testfenster zwei Activities zuzuordnen. Im Projekt gibt es dafür keinen Schreibweg (die Proben sind per checks.probe-readonly lesend, scripts/ ist nicht freigegeben). Soll build.md eine konkrete, als 'vorab zu prüfen' markierte Variante nennen (z. B. ein nur für die Reihe geladenes Dev-Skript, das window.activities an einem kxl-Testfenster setzt und sich danach entlädt), oder bleibt die Wahl beim Koordinator?",
+      "Soll der Home-Manager-Check Grid in der bestehenden overrideConfig-Auswertung (bisher nur shortcuts.xml-focus-next) oder in einer dritten Auswertung prüfen? Die dritte Auswertung hält die beiden vorhandenen Nachweise unverändert und ist die sicherere Wahl."
+    ]
+  },
+  "score": 80,
+  "maximum": 100,
+  "source": {
+    "mission_id": "ms8-grid-activities",
+    "run_id": "863d9a933fbb4d7abc9bc54460e629c0",
+    "planner_cli": "codex",
+    "reviewer_cli": "claude",
+    "spec_revision": 2,
+    "spec_hash": "bb9109c5fe0d2ea82855f35858d774d6f3ee912a88bcb331cc8f6d6c9a47f526",
+    "contract_hash": "d2f774f0209ffe186b69ca12492fc216da6ecdd32d29f9efeb8263be82bcbb05",
+    "fingerprint": "f84dddb1d5e8e9b62cbbec1e2c7d0806f02fb36428094c100c5fffa21a9eaa70"
+  },
+  "adapter": {
+    "target": "claude",
+    "executable": "/nix/store/83jq1m7f3v52f1xrpy4nbq6jwk58f3ap-claude-code-2.1.260/bin/claude",
+    "version": "2.1.260 (Claude Code)",
+    "model": "fable",
+    "effort": "high",
+    "tier": "strong"
+  },
+  "model_activity": [
+    {
+      "agent_id": "1842cbe6-d97b-415b-9503-56eaf6498307",
+      "role": "spec_reviewer",
+      "task": "kümmer dich mal um die implementierung des nächsten meilensteins und damit mein ich meist orchestriere ... verwende agents mit passendem modell gerne auch via ask und execute um das zu realisieren ... parallelisiere so viel wie möglich ... hal9000 steht remote als testumgebung zur verfügung. wenn du glaubst du kannst die restlichen meilensteine ebenfalls miterledigen darfst du dies tun ...",
+      "model": "claude-fable-5-1",
+      "model_evidence": "observed",
+      "outcome": "Score: 80/100 | Blocker: Die Spec legt für grid-core das Zielseitenverhältnis 16/9 fest und begründet es mit der gepinnten Quelle XMonad/Layout/Grid.hs. Nach meiner Kenntnis dieses Moduls ist die Vorgabe defaultRatio = 16/10 (Spaltenzahl = max 1 . min nwins . round . sqrt $ nwins * rw / (rh * ratio)), und der Nutzer verwendet laut Spec das unparametrierte Grid, also genau diese Vorgabe. Daran hängen die handgerechneten Erwartungsrechtecke für n=3/n=5, der Quellenbefund in docs/research.md und die Aussage, die Projektfassung übernehme die Aufteilungsregel seines bisherigen XMonad-Grid. Vor der Freigabe ist die Konstante an der gepinnten Datei (Zeile mit defaultRatio und die ncols-Zeile) zu belegen und bei Abweichung in Spec und Kriterien auf 16/10 zu korrigieren; ein wörtliches Zitat der beiden Zeilen gehört in den Quellenbefund. | Die Spec zu Meilenstein 8 ist gut abgegrenzt und in den Projektquellen verankert: Grid als drittes Layout hängt allein an LAYOUTS (core/stack.ts nextLayout rechnet mit LAYOUTS.length, plan.ts raiseOrder hebt nur bei \"full\", config.ts löst Namen dynamisch auf), das Adapter-Rig trägt bereits currentActivityChanged, activitiesChanged und das Fenster-activitiesChanged, das Orakel rechnet Sollzellen über LAYOUTS und braucht nur den Grid-Überlappungszweig. Die Vertragspfade decken das ab, ohne dass Adapter, Epoche oder Zustandsschicht angefasst werden müssen. Ein Blocker bleibt: die Spec legt das Grid-Seitenverhältnis auf 16/9 fest und beruft sich dabei auf die gepinnte XMonad-Quelle; nach meiner Kenntnis des Moduls XMonad.Layout.Grid lautet dort defaultRatio = 16/10, und der Nutzer verwendet laut Spec das unparametrierte Grid. Der Abruf der Quelle und der Blick in das lokale xmonad.hs wurden in dieser Sandbox verweigert; die Angabe ist deshalb vor der Freigabe an der gepinnten Datei zu klären, weil die festen Erwartungswerte für n=3/n=5, der Quellenbefund in docs/research.md und die Aussage \"aus seinem bestehenden XMonad-Grid\" daran hängen. Kleinere Punkte: der Registry-GC läuft in adapter.runArrange über purgeFromSnapshot und nicht in runEpoch, das Activities-Kriterium sollte das benennen; für einen Defektfund in nicht freigegebenen src-Dateien fehlt eine Regel; die Zerlegungsinvariante bei ungleich hohen Spalten sollte je Spalte definiert werden.",
+      "status": "completed",
+      "source": "claude-stream",
+      "call_id": "92df6531d6244325a1dd32cbd49b3f68",
+      "call": "Spec-Gegenprüfung"
+    }
+  ]
+}

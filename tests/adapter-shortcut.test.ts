@@ -272,3 +272,48 @@ test("Full-Layout: jeder Fokusbefehl hebt und aktiviert höchstens einmal", () =
 		rig.dispose();
 	}
 });
+
+test("der echte Adapter zyklisiert tall, full, grid und zurück zu tall", () => {
+	const rig = rigMitDreiFenstern();
+	try {
+		for (const layout of ["full", "grid", "tall"]) {
+			rig.taste("xml-next-layout");
+			rig.beruhigen();
+			assert.ok(
+				rig.logs.some((zeile) => zeile.includes(`layout=${layout} n=`)),
+				`${layout}-Layout nicht erreicht`,
+			);
+		}
+	} finally {
+		rig.dispose();
+	}
+});
+
+test("konfiguriertes Grid startet und wird vom Reset wiederhergestellt, ohne Hebung", () => {
+	const rig = adapterRig({
+		fenster: [rigFenster("a"), rigFenster("b"), rigFenster("c")],
+		config: { defaultLayout: "grid", debug: "true" },
+	});
+	try {
+		rig.start();
+		rig.beruhigen();
+		assert.ok(rig.logs.some((zeile) => zeile.includes("layout=grid n=")));
+		assert.deepEqual(rig.hebungen, []);
+
+		rig.taste("xml-next-layout");
+		rig.beruhigen();
+		assert.ok(rig.logs.some((zeile) => zeile.includes("layout=tall n=")));
+
+		rig.hebungen.length = 0;
+		rig.taste("xml-reset-layout");
+		rig.beruhigen();
+		const latest = rig.logs
+			.slice()
+			.reverse()
+			.find((zeile) => zeile.includes(" layout="));
+		assert.ok(latest?.includes("layout=grid n="), `letztes Layout war: ${latest}`);
+		assert.deepEqual(rig.hebungen, []);
+	} finally {
+		rig.dispose();
+	}
+});

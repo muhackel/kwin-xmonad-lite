@@ -591,6 +591,18 @@
               fehler=1
             fi
 
+            ms8=docs/ms8-2026-09-12-hal9000
+            while IFS="$(printf '\t')" read -r name soll vorschrift; do
+              case "$name" in \#*|"") continue ;; esac
+              read -r -a argumente <<< "$vorschrift"
+              pruefe "$soll" "MS8 $name" \
+                "$ms8/$name.ndjson" "$ms8/$name.journal" "''${argumente[@]}"
+            done < "$ms8/cases.tsv"
+            if ! node dev/probe/journal-audit-cli.ts "$ms8/controller.log" >/dev/null 2>&1; then
+              echo "MS8: der Auditor findet eine Rückkopplung" >&2
+              fehler=1
+            fi
+
             if [ "$fehler" != "0" ]; then
               echo "Die eingecheckten Nachweise werden anders bewertet als dokumentiert." >&2
               exit 1
@@ -643,6 +655,7 @@
                 programs.kwin-xmonad-lite = {
                   enable = true;
                   package = homeModuleTestPackage;
+                  settings.defaultLayout = "grid";
                   shortcuts."xml-focus-next" = "Meta+Y";
                 };
               };
@@ -703,7 +716,10 @@
                 # vollständig bleibt.
                 activation="$overrideActivation"
                 ${findDataJson}
+                kwinrc='."/home/pruefer/.config/kwinrc"'
+                gruppe="$kwinrc.\"Script-kwin-xmonad-lite\""
                 shortcuts='."/home/pruefer/.config/kglobalshortcutsrc"'
+                pruefe "$gruppe.defaultLayout.value == \"grid\""
                 pruefe "$shortcuts.kwin.\"xml-focus-next\".value == \"Meta+Y,,\""
 
                 touch "$out"

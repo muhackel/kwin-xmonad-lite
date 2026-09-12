@@ -149,10 +149,19 @@ test("ein konfigurierter Masteranteil liegt auf demselben Raster wie stepRatio",
 
 // --- Layout -----------------------------------------------------------------
 
+test("Layoutliste ist exakt tall, full, grid mit stabilen alten Indizes", () => {
+	assert.deepEqual(
+		LAYOUTS.map((layout) => layout.id),
+		["tall", "full", "grid"],
+	);
+});
+
 test("defaultLayout wird gegen LAYOUTS aufgelöst", () => {
 	assert.equal(withRaw({ defaultLayout: "tall" }).layoutIndex, 0);
 	assert.equal(withRaw({ defaultLayout: "full" }).layoutIndex, 1);
+	assert.equal(withRaw({ defaultLayout: "grid" }).layoutIndex, 2);
 	assert.deepEqual(withRaw({ defaultLayout: "full" }).notes, []);
+	assert.deepEqual(withRaw({ defaultLayout: "grid" }).notes, []);
 });
 
 test("defaultLayout toleriert Groß- und Kleinschreibung", () => {
@@ -161,13 +170,14 @@ test("defaultLayout toleriert Groß- und Kleinschreibung", () => {
 	// kleingeschrieben -- zwei Layoutnamen können deshalb nicht kollidieren.
 	assert.equal(withRaw({ defaultLayout: "TALL" }).layoutIndex, 0);
 	assert.equal(withRaw({ defaultLayout: " Full " }).layoutIndex, 1);
+	assert.equal(withRaw({ defaultLayout: " GRID " }).layoutIndex, 2);
 	assert.deepEqual(withRaw({ defaultLayout: "TALL" }).notes, []);
 });
 
 test("ein unbekanntes Layout fällt auf das erste zurück", () => {
-	const config = withRaw({ defaultLayout: "grid" });
+	const config = withRaw({ defaultLayout: "spiral" });
 	assert.equal(config.layoutIndex, 0);
-	assert.equal(onlyNote(config), "config defaultLayout=grid unbekannt, verwende tall");
+	assert.equal(onlyNote(config), "config defaultLayout=spiral unbekannt, verwende tall");
 });
 
 // --- Debug ------------------------------------------------------------------
@@ -249,13 +259,13 @@ test("mehrere Fehleingaben erzeugen je eine Zeile, in Schlüsselreihenfolge", ()
 	const config = withRaw({
 		gapOuter: "abc",
 		masterRatio: "1.5",
-		defaultLayout: "grid",
+		defaultLayout: "spiral",
 		debug: "ja",
 	});
 	assert.deepEqual(config.notes, [
 		"config gapOuter=abc unlesbar, verwende 0",
 		`config masterRatio=1.5 geklemmt auf ${RATIO_MAX}`,
-		"config defaultLayout=grid unbekannt, verwende tall",
+		"config defaultLayout=spiral unbekannt, verwende tall",
 		"config debug=ja unlesbar, verwende false",
 	]);
 	assert.equal(config.gaps.outer, 0);
@@ -304,6 +314,7 @@ const RAW_POOL = [
 	"TALL",
 	" Full ",
 	"grid",
+	"spiral",
 	"true",
 	"false",
 	"TRUE",
@@ -327,7 +338,7 @@ const VALID_POOL: Record<string, string[]> = {
 	gapInner: ["0", "1", "12", "200"],
 	excludes: ["krunner,yakuake", "plasmashell", "ä,ö,ü"],
 	masterRatio: ["0.1", "0.5", "0.65", "0.7", "0.9"],
-	defaultLayout: ["tall", "full", "TALL", " Full "],
+	defaultLayout: ["tall", "full", "grid", "TALL", " Full ", " GRID "],
 	debug: ["true", "false", "TRUE"],
 };
 
